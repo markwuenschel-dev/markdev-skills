@@ -14,18 +14,19 @@ Update this file when you change which external skill a top-level skill relies o
 | --- | --- | --- |
 | **Matt** | [Matt Pocock](https://github.com/mattpocock) — [`mattpocock/skills`](https://github.com/mattpocock/skills) | Composable engineering skills: grill, domain model, TDD, architecture deepening, wayfinder, tickets, triage |
 | **Jeff** | [Jeff Bailey](https://jeffbailey.us) — fitness / graded review skills (`review-*`) | Scored quality rubrics; graded-integrity swarm lane; informs how we think about evidence-backed scores |
-| **Obra** | [obra/superpowers](https://github.com/obra/superpowers) | Plan → execute → review → verify machinery (worktrees, subagents, verification gate) |
+| **Obra** | [Jesse Vincent](https://github.com/obra) — [`obra/superpowers`](https://github.com/obra/superpowers) | Plan → execute → review → verify machinery (worktrees, subagents, verification gate, skill discipline) |
 | **Local / family** | this machine or unreleased companions | `connected-impact-sweep`, `implementation-plan-contract`, etc. — pin when installed |
 
-**Rule of thumb:** skill *folders and procedures* lean Matt; *scoring, fitness dimensions, and graded review* lean Jeff; *delivery harness* (plans, subagents, verify) leans Obra. Our top-level loops compose all three — they are not re-authored here.
+**Rule of thumb:** skill *folders and procedures* lean Matt; *scoring, fitness dimensions, and graded review* lean Jeff; *delivery harness* (plans, subagents, verify, worktrees) leans Obra / Superpowers. Our top-level loops compose all three — they are not re-authored here.
 
-Install Matt’s pack (example):
+Install examples:
 
 ```bash
 npx skills add mattpocock/skills
+npx skills add obra/superpowers
 ```
 
-Browse: https://skills.sh/mattpocock/skills · https://skills.sh/obra/superpowers
+Browse: [skills.sh/mattpocock/skills](https://skills.sh/mattpocock/skills) · [skills.sh/obra/superpowers](https://skills.sh/obra/superpowers) · [jeffbailey.us/fundamentals](https://jeffbailey.us/categories/fundamentals/)
 
 ---
 
@@ -74,17 +75,33 @@ When you promote a Jeff skill from “optional lane helper” to a hard dependen
 
 ---
 
-## Obra Superpowers (`obra/superpowers`)
+## Jesse Vincent / Obra — Superpowers (`obra/superpowers`)
+
+Obra’s **Superpowers** pack is the delivery harness this inventory assumes for planning, isolated branches, subagent execution, review loops, and “evidence before claims” verification. Flywheel Stages 7–11 and the audit loop’s plan/execute/verify path call these by name.
+
+They are **not vendored** into this repo. Canonical package: [github.com/obra/superpowers](https://github.com/obra/superpowers) · [skills.sh/obra/superpowers](https://skills.sh/obra/superpowers).
 
 | Skill | Used by | Canonical source | Local path | Version / commit |
 | --- | --- | --- | --- | --- |
+| `using-superpowers` | session discipline (invoke skills first) | `obra/superpowers` | `~/.agents/skills/using-superpowers` | local-unpinned |
 | `writing-plans` | flywheel / audit plan stage | `obra/superpowers` | `~/.agents/skills/writing-plans` | local-unpinned |
 | `executing-plans` | sequential delivery mode | `obra/superpowers` | `~/.agents/skills/executing-plans` | local-unpinned |
 | `subagent-driven-development` | parallel task delivery | `obra/superpowers` | `~/.agents/skills/subagent-driven-development` | local-unpinned |
 | `using-git-worktrees` | isolated delivery | `obra/superpowers` | `~/.agents/skills/using-git-worktrees` | local-unpinned |
-| `requesting-code-review` / `receiving-code-review` | flywheel review | `obra/superpowers` | `~/.agents/skills/requesting-code-review` | local-unpinned |
+| `requesting-code-review` | flywheel review (request) | `obra/superpowers` | `~/.agents/skills/requesting-code-review` | local-unpinned |
+| `receiving-code-review` | flywheel review (respond) | `obra/superpowers` | `~/.agents/skills/receiving-code-review` | local-unpinned |
 | `verification-before-completion` | ship / completion gate | `obra/superpowers` | `~/.agents/skills/verification-before-completion` | local-unpinned |
-| `dispatching-parallel-agents` | optional swarm fan-out | `obra/superpowers` | `~/.agents/skills/dispatching-parallel-agents` | local-unpinned |
+| `dispatching-parallel-agents` | optional swarm fan-out helper | `obra/superpowers` | `~/.agents/skills/dispatching-parallel-agents` | local-unpinned |
+
+**In this repo (not an Obra package — our synthesis):**
+
+| Surface | Role | Note |
+| --- | --- | --- |
+| `production-flywheel` execute path | Wires Superpowers skills into a queue loop | Does not re-implement Superpowers |
+| `shared/ROLLOUT-CONTRACT.md` | Min plan/handoff shape | Compatible with Superpowers-style task plans |
+| `shared/SWARM-LANES.md` / blast-radius lane notes | Parallel agent posture | “Obra-style” impact thinking; still pin Superpowers for fan-out |
+
+When you promote another Superpowers skill from optional to required, pin it in the table above with source + commit/tag.
 
 ---
 
