@@ -37,7 +37,7 @@ Canonical inventory for this skills repo. **Start here** when you are unsure whi
 | `production-flywheel` | `expanded-grill-with-docs` | Design-lane gate A (default) for a queue item |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
 
-## Shared contracts (Jeff-style)
+## Shared contracts
 
 Every top-level skill may reference these without redefining them:
 
