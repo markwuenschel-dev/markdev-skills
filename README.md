@@ -1,30 +1,122 @@
 # markdev-skills
 
-Canonical inventory of **five top-level agent skills** and the **shared contracts** they share.
+<p align="center">
+  <strong>Canonical inventory</strong> for five top-level agent skills<br/>
+  and the shared contracts they all obey.
+</p>
 
-This is not a dump of every skill ever installed on a machine. It is a single private place to remember:
+<p align="center">
+  <code>private</code>&nbsp;·&nbsp;
+  hybrid Matt folders + Jeff rubrics&nbsp;·&nbsp;
+  no skill dump
+</p>
 
-- what each top-level skill is for
-- where one ends and another begins
-- which rubrics and ledgers they all obey
-- which external skills are optional dependencies (not vendored)
+---
 
-## Layout
+This is **not** a mirror of every skill on the machine.  
+It is one place to remember:
+
+| | |
+| :--- | :--- |
+| **What** | each top-level skill is for |
+| **Where** | one skill ends and another begins |
+| **Which** | rubrics and ledgers they share |
+| **What not** | to vendor (externals stay pinned, not copied) |
+
+---
+
+## Start here
+
+```text
+  unsure? ──►  CAPABILITY-MAP.md  ──►  one skill
+                    │
+                    └── handoffs, non-goals, shared contracts
+```
+
+| I need to… | Open |
+| :--- | :--- |
+| **Pick a skill** | [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md) |
+| **Pin an external helper** | [`DEPENDENCIES.md`](DEPENDENCIES.md) |
+| **Score a report / ledger** | [`shared/REPORT-SCORING.md`](shared/REPORT-SCORING.md) |
+| **Block auto on human forks** | [`shared/HUMAN-DECISIONS.md`](shared/HUMAN-DECISIONS.md) |
+
+---
+
+## Capability map
+
+```mermaid
+flowchart TB
+  R["loop-router<br/><i>unsure which?</i>"]
+
+  R --> G["expanded-grill-with-docs<br/>shape an idea"]
+  R --> A["codebase-integrity-audit-loop<br/>audit repo health"]
+  R --> S["human-directed-swarm-planner<br/>parallelize a mission"]
+  R --> F["production-flywheel<br/>deliver approved work"]
+
+  G -.->|shared understanding| F
+  A -.->|selected candidates| F
+  A -.->|parallel report / mission| S
+  S -.->|queue of items| F
+  F -.->|design lane A| G
+
+  classDef router fill:#EAEDFD,stroke:#2540E8,color:#141821;
+  classDef worker fill:#FFFFFF,stroke:#E6E8EE,color:#141821;
+  class R router;
+  class G,A,S,F worker;
+```
+
+| Need | Skill | Does **not** |
+| :--- | :--- | :--- |
+| Shape an idea | [`expanded-grill-with-docs`](skills/expanded-grill-with-docs/SKILL.md) | Ship code / open PRs |
+| Audit repo health | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/SKILL.md) | Run a multi-item delivery queue |
+| Parallelize a known mission | [`human-directed-swarm-planner`](skills/human-directed-swarm-planner/SKILL.md) | Choose the mission for you |
+| Deliver approved work | [`production-flywheel`](skills/production-flywheel/SKILL.md) | Start a report without your queue pick |
+| Unsure | [`loop-router`](skills/loop-router/SKILL.md) | Execute beyond routing |
+
+Full handoffs and boundaries → **[CAPABILITY-MAP.md](CAPABILITY-MAP.md)**
+
+---
+
+## Hybrid design
+
+Two styles, one repo:
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  skills/                         shared/                    │
+│  ────────                        ───────                    │
+│  Matt-style                      Jeff-style                 │
+│  one folder per skill            one rubric, used by all    │
+│  SKILL.md + companions           scoring · decisions ·      │
+│  composable, invokable           ledgers · lanes · state    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Layer | Owns | Rule |
+| :--- | :--- | :--- |
+| **`skills/*`** | How a loop runs | Five top-level skills only |
+| **`shared/*`** | What every loop measures & stops on | Change once; skills link in |
+| **`DEPENDENCIES.md`** | External helpers | Pin path + version — **never vendor** |
+
+---
+
+## Repository layout
 
 ```text
 markdev-skills/
-├── README.md
-├── CAPABILITY-MAP.md          ← start here (memory / routing)
-├── DEPENDENCIES.md            ← external skills, pinned by source
 │
-├── skills/
+├── CAPABILITY-MAP.md      ★  routing + memory
+├── DEPENDENCIES.md           external pins
+├── README.md
+│
+├── skills/                   five workers
 │   ├── loop-router/
 │   ├── expanded-grill-with-docs/
 │   ├── codebase-integrity-audit-loop/
 │   ├── human-directed-swarm-planner/
 │   └── production-flywheel/
 │
-├── shared/                    ← Jeff-style rubrics & contracts
+├── shared/                   contracts (single source of truth)
 │   ├── REPORT-SCORING.md
 │   ├── REQUIREMENTS-LEDGER.md
 │   ├── ROLLOUT-CONTRACT.md
@@ -32,58 +124,52 @@ markdev-skills/
 │   ├── HUMAN-DECISIONS.md
 │   └── LOOP-STATE.md
 │
-├── tests/
-│   ├── trigger-tests.md
-│   ├── boundary-tests.md
-│   └── functional-tests.md
-│
-└── scripts/
-    └── install-skills.sh
+├── tests/                    trigger · boundary · functional
+└── scripts/                  install (.sh + .ps1)
 ```
 
-**Matt-style:** each skill is a composable folder with its own `SKILL.md` (and optional companions).  
-**Jeff-style:** scoring, human decisions, ledgers, and loop state live under `shared/` once.
-
-## Capability map (summary)
-
-| Need | Top-level skill |
-| --- | --- |
-| Shape an idea | `expanded-grill-with-docs` |
-| Audit repo health | `codebase-integrity-audit-loop` |
-| Parallelize a known mission | `human-directed-swarm-planner` |
-| Deliver approved work | `production-flywheel` |
-| Unsure which applies | `loop-router` |
-
-Full routing, handoffs, and non-goals: **[CAPABILITY-MAP.md](CAPABILITY-MAP.md)**.
+---
 
 ## Install
 
+Symlinks (or copies) **only** the five skill folders into your agent skills dir.
+
+<details>
+<summary><strong>Bash / Git Bash / macOS / Linux</strong></summary>
+
 ```bash
-# from this repo root (Git Bash / macOS / Linux)
 ./scripts/install-skills.sh
-
-# optional: custom destination (default: ~/.agents/skills)
 ./scripts/install-skills.sh --dest "$HOME/.agents/skills"
-
-# also install shared/ next to skills for offline agent paths
-./scripts/install-skills.sh --with-shared
+./scripts/install-skills.sh --with-shared   # also link shared/
 ```
 
+</details>
+
+<details>
+<summary><strong>Windows PowerShell</strong></summary>
+
 ```powershell
-# Windows PowerShell
 .\scripts\install-skills.ps1
 .\scripts\install-skills.ps1 -Dest "$HOME\.agents\skills" -WithShared
 ```
 
-The installer **symlinks** (or copies when symlinks fail) only the five top-level skill folders into the agent skills directory. Shared contracts stay in this repo; skills reference them via relative paths when run from a checkout, or via the installed tree when you pass `--with-shared` / `-WithShared`.
+</details>
+
+Skills resolve `shared/` via relative paths from this checkout. Prefer running against the git tree; use `--with-shared` / `-WithShared` when you need contracts beside the install root.
+
+---
 
 ## Rules of the road
 
-1. **Do not vendor hundreds of external skills** into this repo.
-2. **Record external dependencies** in `DEPENDENCIES.md` (repo, path, version/commit).
-3. **Change scoring and human-decision taxonomies only in `shared/`**, then update skill references if needed.
-4. Keep the repo **private** until the inventory stabilizes; messy iteration is the point.
+| # | Rule |
+| :---: | :--- |
+| 1 | **Do not** vendor hundreds of external skills here |
+| 2 | **Do** pin externals in [`DEPENDENCIES.md`](DEPENDENCIES.md) (repo · path · commit) |
+| 3 | **Do** change scoring & human-decision taxonomies only under [`shared/`](shared/) |
+| 4 | Stay **private** while iterating — messy is allowed |
 
-## Visibility
+---
 
-Repository: **private** by default. Public visibility adds no immediate value for a personal capability inventory.
+<p align="center">
+  <sub>Private by design · public adds no value until the inventory stabilizes</sub>
+</p>
