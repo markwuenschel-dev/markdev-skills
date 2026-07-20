@@ -2,14 +2,14 @@
 
 <p align="center">
   <strong>Canonical skills inventory</strong><br/>
-  <sub>Five top-level skills · shared contracts · private by design</sub>
+  <sub>Living catalog under <code>skills/</code> · shared contracts · private by design</sub>
 </p>
 
 ---
 
 One place to remember what each skill is for, where the edges are, and which rubrics they share.
 
-Not a dump of every skill on the machine. Externals are pinned, not vendored.
+Every skill in this repo lives under `skills/` with a root `SKILL.md`. True externals (companions not owned here) are pinned in `DEPENDENCIES.md`, not re-authored.
 
 ---
 
@@ -20,24 +20,23 @@ Not a dump of every skill on the machine. Externals are pinned, not vendored.
                         │ loop-router  │
                         │   (unsure)   │
                         └──────┬───────┘
-           ┌───────────────────┼───────────────────┐
-           │                   │                   │
-           ▼                   ▼                   ▼
-    shape an idea        audit health        parallelize
-    expanded-grill-      codebase-           / deliver
-    with-docs            integrity-              │
-                         audit-loop       ┌──────┴──────┐
-                                          ▼             ▼
-                                       swarm         flywheel
-                                       planner
+           ┌───────────┬───────┼───────┬───────────┬──────────┐
+           ▼           ▼       ▼       ▼           ▼          ▼
+    shape idea    audit    parallelize  deliver   deepen    craft
+    expanded-     integrity / swarm    flywheel  arch       prompts
+    grill-        audit-loop           │         improve-   prompt-
+    with-docs                          │         codebase-  forge
+                                       │         architecture
 ```
 
 | Need | Skill |
 | :--- | :--- |
-| Shape an idea | [`expanded-grill-with-docs`](skills/expanded-grill-with-docs/) |
+| Shape an idea / approved design package | [`expanded-grill-with-docs`](skills/expanded-grill-with-docs/) |
 | Audit repo health | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
 | Parallelize a known mission | [`human-directed-swarm-planner`](skills/human-directed-swarm-planner/) |
 | Deliver approved work | [`production-flywheel`](skills/production-flywheel/) |
+| Architecture deepening report | [`improve-codebase-architecture`](skills/improve-codebase-architecture/) |
+| Write / repair / optimize prompts | [`prompt-forge`](skills/prompt-forge/) |
 | Unsure which applies | [`loop-router`](skills/loop-router/) |
 
 **Start here for routing and handoffs:** [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md)  
@@ -49,8 +48,8 @@ Not a dump of every skill on the machine. Externals are pinned, not vendored.
 
 | | |
 | :--- | :--- |
-| **`skills/`** | One folder per top-level skill — composable, invokable |
-| **`shared/`** | Contracts used by every skill — scoring, ledgers, decisions, loop state |
+| **`skills/`** | One folder per skill — composable, invokable; inventory = every folder with a root `SKILL.md` |
+| **`shared/`** | Contracts used across skills — scoring, ledgers, decisions, loop state |
 | **`tests/`** | Trigger, boundary, and functional checks |
 | **`scripts/`** | Install helpers |
 
@@ -64,7 +63,9 @@ markdev-skills/
 │   ├── expanded-grill-with-docs/
 │   ├── codebase-integrity-audit-loop/
 │   ├── human-directed-swarm-planner/
-│   └── production-flywheel/
+│   ├── production-flywheel/
+│   ├── improve-codebase-architecture/
+│   └── prompt-forge/
 │
 ├── shared/
 │   ├── REPORT-SCORING.md
@@ -84,7 +85,7 @@ Skills own their procedure. Shared contracts own rubrics once — skills link in
 
 ## Install
 
-Symlinks (or copies) **only** the five top-level skills into your agent skills directory.
+Symlinks (or copies) **every** skill under `skills/` that has a root `SKILL.md` into your agent skills directory.
 
 **Bash / macOS / Linux / Git Bash**
 
@@ -109,8 +110,8 @@ Default destination: `~/.agents/skills`. Use `--with-shared` / `-WithShared` whe
 
 | | |
 | :---: | :--- |
-| **1** | Keep five top-level skills here — do not vendor large external sets |
-| **2** | Pin externals in `DEPENDENCIES.md` (source · path · version/commit) |
+| **1** | Living inventory — every `skills/*/SKILL.md` is first-class; keep packages flat (no `name/name/` nesting) |
+| **2** | Pin true externals in `DEPENDENCIES.md` (source · path · version/commit); do not dump unrelated skill universes here |
 | **3** | Change shared rubrics under `shared/`, not per skill |
 | **4** | Stay private while the inventory is still settling |
 

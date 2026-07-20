@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>mermaid-safe.js — regression fixture</title>
+<!-- Classic script on purpose: browsers block *module* imports from file://,
+     but allow classic scripts — so this fixture runs by double-clicking the
+     file. mermaid itself loads as an ES module from jsdelivr, which serves
+     CORS headers (the same trick the report scaffold relies on). -->
+<script src="./mermaid-safe.js"></script>
+<style>
+  :root {
+    --surface-1: #fcfcfb;
+    --page: #f9f9f7;
+    --ink-primary: #0b0b0b;
+    --ink-secondary: #52514e;
+    --ink-muted: #898781;
+    --hairline: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.1);
+    --good: #0ca30c;
+    --warning: #fab219;
+    --critical: #d03b3b;
+    --deep-fill: #2c2c2a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface-1: #1a1a19;
+      --page: #0d0d0d;
+      --ink-primary: #ffffff;
+      --ink-secondary: #c3c2b7;
+      --ink-muted: #898781;
+      --hairline: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255, 255, 255, 0.1);
+      --deep-fill: #000000;
+    }
+  }
+  body { margin: 0; background: var(--page); color: var(--ink-primary);
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 20px 24px 64px; }
+  #banner { position: sticky; top: 12px; z-index: 10; padding: 14px 18px;
+            border-radius: 12px; font-weight: 600; font-size: 15px;
+            background: var(--warning); color: #111;
+            box-shadow: 0 1px 2px rgba(11,11,11,.04), 0 8px 24px -12px rgba(11,11,11,.25); }
+  #banner[data-status="pass"] { background: var(--good); color: #fff; }
+  #banner[data-status="fail"] { background: var(--critical); color: #fff; }
+  .card { background: var(--surface-1); border: 1px solid var(--border);
+          border-radius: 16px; padding: 18px 20px; margin-top: 18px;
+          box-shadow: 0 1px 2px rgba(11,11,11,.04), 0 8px 24px -12px rgba(11,11,11,.12); }
+  h1 { font-size: 20px; margin: 18px 0 4px; }
+  h2 { font-size: 13px; margin: 0 0 10px; text-transform: uppercase;
+       letter-spacing: .08em; color: var(--ink-secondary); }
+  p.note { font-size: 13px; color: var(--ink-secondary); line-height: 1.5; margin: 4px 0 0; }
+  .dg-label { font: 10px ui-monospace, SFMono-Regular, Menlo, monospace;
+              text-transform: uppercase; letter-spacing: .08em;
+              color: var(--ink-muted); margin: 14px 0 6px; }
+  [data-graph], .sabotage-target { min-height: 44px; border: 1px solid var(--hairline);
+                 border-radius: 12px; padding: 10px; background: var(--surface-1); }
+  [data-graph] svg { max-width: 100%; height: auto; }
+  ul#assertions { list-style: none; padding: 0; margin: 0;
+                  font: 12px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  li.pass::before { content: "✓ "; color: var(--good); }
+  li.fail::before { content: "✗ "; color: var(--critical); }
+  li.fail { color: var(--critical); }
+</style>
+</head>
+<body>
+<main>
+  <div id="banner">running…</div>
+
+  <h1>mermaid-safe.js — regression fixture</h1>
+  <p class="note">
+    Exercises the exact names that used to break diagrams: slashes, parens,
+    colons, <code>-&gt;</code>/→ arrows, brackets, quotes, <code>#</code>,
+    backslashes, backticks/markdown, ampersands, angle brackets, pipes,
+    semicolons, the reserved word <code>end</code>, Mermaid keywords as names,
+    empty, overlong, and emoji. The banner is green only when every assertion
+    passes and every diagram renders or degrades cleanly. If you change the
+    sanitizer, keep this fixture green.
+  </p>
+
+  <section class="card">
+    <h2>Diagrams — nasty names must render (not fall back)</h2>
+
+    <div class="dg-label">A · slashes · parens · colons · arrows · quotes · &amp; · # · leak roles (literal data-graph attribute)</div>
+    <div data-name="A-doc-example" data-expect="svg" data-graph='{
+      "direction": "LR",
+      "nodes": [
+        {"name": "Order/Intake (v2): parse→validate"},
+        {"name": "say \"quotes\" & <tags> #region"},
+        {"name": "OrderRepo", "role": "leak"},
+        {"name": "PricingClient", "role": "leak"}
+      ],
+      "edges": [
+        {"from": 0, "to": 1, "label": "calls -> often"},
+        {"from": 1, "to": 2},
+        {"from": 2, "to": 3, "kind": "dotted", "role": "leak"},
+        {"from": 0, "to": 99}
+      ]
+    }'></div>
+
+    <div class="dg-label">B · end · backticks/markdown · empty · overlong · emoji · pipes · single quotes · deep role · shapes (data-graph set by JS)</div>
+    <div id="graph-b" data-name="B-keywords-and-limits" data-expect="svg"></div>
+
+    <div class="dg-label">C · mermaid keywords and directives as names · backslashes · bracket/pipe edge labels (data-graph set by JS)</div>
+    <div id="graph-c" data-name="C-keyword-names" data-expect="svg"></div>
+  </section>
+
+  <section class="card">
+    <h2>Sabotage — must degrade to a readable fallback, never blank the page</h2>
+
+    <div class="dg-label">S1 · malformed data-graph JSON → renderAllGraphs fallback path</div>
+    <div data-name="S1-bad-json" data-expect="fallback" data-graph='{"nodes": [oops this is not JSON'></div>
+
+    <div class="dg-label">S2 · injected parser failure → renderInto try/catch fallback path</div>
+    <div id="s2" class="sabotage-target" data-name="S2-injected-failure"></div>
+  </section>
+
+  <section class="card">
+    <h2>Assertions</h2>
+    <ul id="assertions"></ul>
+  </section>
+</main>
+
+<script type="module">
+  const banner = document.getElementById("banner");
+  const list = document.getElementById("assertions");
+
+  const pageErrors = [];
+  addEventListener("error", (e) => pageErrors.push(e.message || "window error"));
+  addEventListener("unhandledrejection", (e) => pageErrors.push(String(e.reason)));
+
+  let passed = 0, failed = 0;
+  const check = (name, cond, detail) => {
+    const li = document.createElement("li");
+    li.className = cond ? "pass" : "fail";
+    li.textContent = name + (!cond && detail ? " — " + detail : "");
+    list.appendChild(li);
+    cond ? passed++ : failed++;
+  };
+
+  const finish = () => {
+    const ok = failed === 0 && pageErrors.length === 0;
+    banner.dataset.status = ok ? "pass" : "fail";
+    banner.dataset.passed = String(passed);
+    banner.dataset.total = String(passed + failed);
+    banner.textContent =
+      (ok ? "GREEN — " : "RED — ") + passed + "/" + (passed + failed) +
+      " assertions passed" +
+      (pageErrors.length ? " · uncaught page errors: " + pageErrors.join(" | ") : "");
+  };
+
+  try {
+    check("mermaid-safe.js loaded (globalThis.MermaidSafe)", !!globalThis.MermaidSafe,
+      "sibling ./mermaid-safe.js did not load — open this file from the skill's assets/ folder so the module sits beside it, or use the standalone build; in-app previews and single-file downloads cannot fetch sibling scripts");
+    if (globalThis.MermaidSafe) {
+    const { escapeLabel, nodeId, buildFlowchart, renderInto, renderAllGraphs } =
+      globalThis.MermaidSafe;
+
+    // ---------- unit: escapeLabel ----------
+    check("escapeLabel collapses whitespace", escapeLabel("a\n  b\tc") === "a b c");
+    check("escapeLabel escapes #", escapeLabel("a#b") === "a#35;b");
+    check('escapeLabel escapes & " < > `',
+      escapeLabel('&"<>`') === "#amp;#quot;#lt;#gt;#96;");
+    check("escapeLabel escape order (# first, no corruption)",
+      escapeLabel('#"') === "#35;#quot;");
+    check("escapeLabel empty → placeholder",
+      escapeLabel("") === "(unnamed)" && escapeLabel("   ") === "(unnamed)");
+    const long = escapeLabel("x".repeat(200));
+    check("escapeLabel truncates overlong with ellipsis",
+      long.length === 60 && long.endsWith("…"));
+    const emojiTrunc = escapeLabel("🚀".repeat(120));
+    check("escapeLabel truncation is code-point safe (no lone surrogates)",
+      (typeof emojiTrunc.isWellFormed !== "function" || emojiTrunc.isWellFormed())
+        && emojiTrunc.endsWith("…"));
+
+    // ---------- unit: nodeId ----------
+    check("nodeId is synthetic (n0, n12)", nodeId(0) === "n0" && nodeId(12) === "n12");
+
+    // ---------- unit: buildFlowchart ----------
+    const src1 = buildFlowchart({
+      nodes: [{ name: "A/B (v2): x→y" }, { name: 'say "hi" & <b>' }],
+      edges: [{ from: 0, to: 1, label: "calls -> often" }],
+    });
+    check("buildFlowchart defaults to flowchart LR", src1.startsWith("flowchart LR"));
+    check("buildFlowchart uses synthetic node ids", /\bn0\[/.test(src1) && /\bn1\[/.test(src1));
+    check("buildFlowchart source has no raw < & ` anywhere",
+      !src1.includes("<") && !src1.includes("&") && !src1.includes("`"));
+    check("direction normalised (td → TD, junk → LR)",
+      buildFlowchart({ direction: "td" }).startsWith("flowchart TD") &&
+      buildFlowchart({ direction: "diagonal" }).startsWith("flowchart LR"));
+    const src2 = buildFlowchart({
+      nodes: [{ name: "solo" }],
+      edges: [{ from: 0, to: 99 }, { from: "x", to: 0 }],
+    });
+    check("edges to a missing index are dropped, never emitted",
+      !src2.includes("n99") && !src2.includes("-->"));
+    const src3 = buildFlowchart({
+      nodes: [{ name: "A" }, { name: "B" }],
+      edges: [{ from: 0, to: 1, role: "leak", kind: "dotted" }],
+    });
+    check('leak edge is force-labelled "leak"', src3.includes('"leak"'));
+    check("leak edge gets critical linkStyle", src3.includes("linkStyle 0 stroke:#d03b3b"));
+    const src4 = buildFlowchart({
+      nodes: [{ name: "Order intake", role: "deep" }, { name: "Deep core", role: "deep" }],
+    });
+    check("deep node carries the word 'deep' (not colour-alone)",
+      src4.includes("Order intake · deep"));
+    check("role word not duplicated when the name has it",
+      src4.includes('n1["Deep core"]'));
+    check("classDef + class statements emitted for roles",
+      src4.includes("classDef deep") && src4.includes("class n0 deep"));
+    const src5 = buildFlowchart({
+      nodes: [{ name: "A" }, { name: "B" }, { name: "C" }],
+      edges: [{ from: 0, to: 1, kind: "dotted" }, { from: 1, to: 2, kind: "thick", label: "bulk" }],
+    });
+    check("dotted and thick edge kinds", src5.includes("-.->") && src5.includes('== "bulk" ==>'));
+    const src6 = buildFlowchart({ nodes: [{ name: "R", shape: "round" }, { name: "S", shape: "stadium" }] });
+    check("round and stadium shapes", src6.includes('n0("R")') && src6.includes('n1(["S"])'));
+    let nullThrew = false, nullSrc = "";
+    try { nullSrc = buildFlowchart(null); } catch { nullThrew = true; }
+    check("buildFlowchart(null) is safe", !nullThrew && nullSrc === "flowchart LR");
+
+    // ---------- diagrams B and C (set via JS so names can carry ' and emoji) ----------
+    const graphB = {
+      direction: "TD",
+      nodes: [
+        { name: "end" },
+        { name: "`backtick` **markdown** _label_" },
+        { name: "" },
+        { name: "OverlongName".repeat(20) },
+        { name: "🚀 emoji | pipe; semi 'single quotes'", shape: "round" },
+        { name: "Order intake", role: "deep", shape: "stadium" },
+      ],
+      edges: [
+        { from: 0, to: 1 },
+        { from: 1, to: 2, label: "-> arrow → label" },
+        { from: 2, to: 3, kind: "thick" },
+        { from: 3, to: 4, kind: "dotted", label: "a `tick` & #hash" },
+        { from: 4, to: 5 },
+      ],
+    };
+    const graphC = {
+      direction: "LR",
+      nodes: [
+        { name: "graph" },
+        { name: "subgraph cluster" },
+        { name: "C:\\path\\to\\module.rs" },
+        { name: "style n0 fill:#f00" },
+        { name: "classDef evil" },
+        { name: "click n0 href \"x\"" },
+        { name: "linkStyle 0" },
+        { name: "end --> end" },
+      ],
+      edges: [
+        { from: 0, to: 1, label: "[brackets] {braces}" },
+        { from: 1, to: 2, label: "|pipes| and; semis" },
+        { from: 2, to: 3 },
+        { from: 3, to: 4, kind: "thick" },
+        { from: 4, to: 5, kind: "dotted" },
+        { from: 5, to: 6 },
+        { from: 6, to: 7, label: 'she said "end"' },
+      ],
+    };
+    document.getElementById("graph-b").setAttribute("data-graph", JSON.stringify(graphB));
+    document.getElementById("graph-c").setAttribute("data-graph", JSON.stringify(graphC));
+
+    // ---------- import mermaid, render everything through the production path ----------
+    const mermaid = (
+      await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")
+    ).default;
+    mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
+
+    const results = await renderAllGraphs("[data-graph]", mermaid);
+    check("renderAllGraphs saw all four data-graph containers", results.length === 4);
+
+    for (const r of results) {
+      const el = r.el;
+      const want = el.getAttribute("data-expect") || "svg";
+      const label = el.getAttribute("data-name") || "diagram";
+      if (want === "svg") {
+        check(label + " renders as SVG (no fallback)",
+          r.mode === "svg" && !!el.querySelector("svg") && !el.querySelector(".mermaid-fallback"),
+          r.reason);
+      } else {
+        check(label + " degrades to a readable .mermaid-fallback",
+          r.mode === "fallback" && !!el.querySelector(".mermaid-fallback"));
+      }
+    }
+
+    // escaping is lossless: the rendered SVG restores the raw characters.
+    // Assert against the actual label elements — svg.textContent fuses the
+    // embedded <style> block and adjacent labels ("#hash"+"end" → "hashend"),
+    // which makes substring/word-boundary checks lie.
+    const labelsOf = (name) => {
+      const svg = document.querySelector('[data-name="' + name + '"] svg');
+      return svg
+        ? Array.from(svg.querySelectorAll(".nodeLabel, .edgeLabel"))
+            .map((n) => n.textContent.trim())
+            .filter(Boolean)
+        : [];
+    };
+    const hasExact = (labels, s) => labels.some((l) => l === s);
+    const hasPart = (labels, s) => labels.some((l) => l.includes(s));
+
+    const labelsA = labelsOf("A-doc-example");
+    check("A: slashes/parens/colon/→ survive round-trip",
+      hasExact(labelsA, "Order/Intake (v2): parse→validate"));
+    check('A: quotes & <tags> # restored as text',
+      hasExact(labelsA, 'say "quotes" & <tags> #region'));
+    check('A: leak edge visibly labelled "leak"',
+      hasExact(labelsA, "leak") && hasPart(labelsA, "· leak"));
+
+    const labelsB = labelsOf("B-keywords-and-limits");
+    check("B: reserved word 'end' renders as a label", hasExact(labelsB, "end"));
+    check("B: overlong name renders truncated with …", hasPart(labelsB, "…"));
+    check("B: emoji survives", hasPart(labelsB, "🚀"));
+    check("B: deep box carries the word 'deep'", hasPart(labelsB, "· deep"));
+
+    const labelsC = labelsOf("C-keyword-names");
+    check("C: backslash path renders", hasExact(labelsC, "C:\\path\\to\\module.rs"));
+    check("C: mermaid keywords render as labels, not directives",
+      hasExact(labelsC, "classDef evil") && hasExact(labelsC, "linkStyle 0"));
+    check("C: quoted 'end' inside an edge label renders",
+      hasPart(labelsC, 'she said "end"'));
+
+    // S1 fallback readability (bad JSON has no graph, so generic text)
+    const s1pre = document.querySelector('[data-name="S1-bad-json"] .mermaid-fallback pre');
+    check("S1: fallback shows readable text", !!s1pre && s1pre.textContent.includes("(diagram unavailable)"));
+
+    // ---------- S2: injected parser failure exercises renderInto's catch ----------
+    const s2 = document.getElementById("s2");
+    const r2 = await renderInto(
+      s2,
+      { nodes: [{ name: "A" }, { name: "B" }], edges: [{ from: 0, to: 1, label: "x" }] },
+      { parse: async () => { throw new Error("injected parser failure"); } }
+    );
+    const s2pre = s2.querySelector(".mermaid-fallback pre");
+    check("S2: injected failure → fallback with readable edges (A → B)",
+      r2.mode === "fallback" && !!s2pre && s2pre.textContent.includes("A → B"));
+
+    // ---------- the page survived all of it ----------
+    check("page did not blank (banner + all sections intact)",
+      !!document.getElementById("banner") &&
+      document.querySelectorAll("section.card").length === 3);
+    }
+  } catch (error) {
+    pageErrors.push("fixture harness error: " + ((error && error.message) || String(error)));
+  } finally {
+    finish();
+  }
+</script>
+</body>
+</html>

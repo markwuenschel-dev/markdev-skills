@@ -1,20 +1,12 @@
 #!/usr/bin/env bash
-# Install the five top-level skills from this repo into an agent skills directory.
-# Does NOT vendor external skills. Shared contracts stay in-repo unless --with-shared.
+# Install every skill under skills/ that has a root SKILL.md into an agent skills directory.
+# Shared contracts stay in-repo unless --with-shared. True externals stay in DEPENDENCIES.md.
 set -euo pipefail
 
 DEST="${HOME}/.agents/skills"
 WITH_SHARED=0
 COPY=0
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-SKILLS=(
-  loop-router
-  expanded-grill-with-docs
-  codebase-integrity-audit-loop
-  human-directed-swarm-planner
-  production-flywheel
-)
 
 usage() {
   cat <<'EOF'
@@ -26,7 +18,8 @@ Usage: install-skills.sh [--dest DIR] [--with-shared] [--copy]
   --copy           Copy instead of symlink (default on when symlink fails)
   -h, --help       Show this help
 
-Only the five top-level skills are installed. See DEPENDENCIES.md for externals.
+Installs every skills/<name>/SKILL.md package discovered in this repo.
+See DEPENDENCIES.md for true externals not owned here.
 EOF
 }
 
@@ -81,14 +74,24 @@ link_or_copy() {
 echo "Repo: $REPO_ROOT"
 echo "Dest: $DEST"
 
-for name in "${SKILLS[@]}"; do
-  src="$REPO_ROOT/skills/$name"
+SKILLS_DIR="$REPO_ROOT/skills"
+shopt -s nullglob
+found=0
+for src in "$SKILLS_DIR"/*/; do
+  name="$(basename "$src")"
   if [[ ! -f "$src/SKILL.md" ]]; then
-    echo "missing skill: $src/SKILL.md" >&2
-    exit 1
+    echo "skip (no SKILL.md): $src" >&2
+    continue
   fi
-  link_or_copy "$src" "$DEST/$name"
+  found=1
+  link_or_copy "${src%/}" "$DEST/$name"
 done
+shopt -u nullglob
+
+if [[ "$found" -eq 0 ]]; then
+  echo "no skills found under $SKILLS_DIR/*/SKILL.md" >&2
+  exit 1
+fi
 
 if [[ "$WITH_SHARED" -eq 1 ]]; then
   shared_dest="$(dirname "$DEST")/markdev-skills-shared"

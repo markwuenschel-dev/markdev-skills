@@ -1,5 +1,5 @@
-# Install the five top-level skills into an agent skills directory.
-# Does NOT vendor external skills.
+# Install every skill under skills/ that has a root SKILL.md into an agent skills directory.
+# Shared contracts stay in-repo unless -WithShared. True externals stay in DEPENDENCIES.md.
 param(
   [string]$Dest = (Join-Path $HOME ".agents\skills"),
   [switch]$WithShared,
@@ -8,13 +8,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
-$Skills = @(
-  "loop-router",
-  "expanded-grill-with-docs",
-  "codebase-integrity-audit-loop",
-  "human-directed-swarm-planner",
-  "production-flywheel"
-)
+$SkillsDir = Join-Path $RepoRoot "skills"
 
 function Install-One {
   param([string]$Src, [string]$Dst)
@@ -40,13 +34,22 @@ New-Item -ItemType Directory -Force -Path $Dest | Out-Null
 Write-Host "Repo: $RepoRoot"
 Write-Host "Dest: $Dest"
 
-foreach ($name in $Skills) {
-  $src = Join-Path $RepoRoot "skills\$name"
-  $skillMd = Join-Path $src "SKILL.md"
-  if (-not (Test-Path $skillMd)) {
-    throw "missing skill: $skillMd"
-  }
-  Install-One -Src $src -Dst (Join-Path $Dest $name)
+$skills = @(Get-ChildItem -Path $SkillsDir -Directory | Where-Object {
+  Test-Path (Join-Path $_.FullName "SKILL.md")
+})
+
+if ($skills.Count -eq 0) {
+  throw "no skills found under $SkillsDir/*/SKILL.md"
+}
+
+foreach ($skill in $skills) {
+  Install-One -Src $skill.FullName -Dst (Join-Path $Dest $skill.Name)
+}
+
+Get-ChildItem -Path $SkillsDir -Directory | Where-Object {
+  -not (Test-Path (Join-Path $_.FullName "SKILL.md"))
+} | ForEach-Object {
+  Write-Host "skip (no SKILL.md): $($_.FullName)"
 }
 
 if ($WithShared) {

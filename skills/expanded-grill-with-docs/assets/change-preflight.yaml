@@ -1,0 +1,16 @@
+change:
+  title: ""
+  selected_direction: ""
+  decision_owner: human
+  scope:
+    included: []
+    excluded: []
+  known_constraints: []
+  known_decisions: []
+  unresolved_questions: []
+  research_allowed: true
+  permitted_research_surfaces: []
+  prototype_allowed: true
+  implementation_authorized: false
+  required_destination_system: ""
+  status: DRAFT

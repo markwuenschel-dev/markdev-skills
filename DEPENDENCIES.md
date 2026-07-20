@@ -1,10 +1,10 @@
 # External dependencies
 
-This repo **does not vendor** the full agent skill universe. Only the five top-level skills and `shared/` contracts live here.
+This repo owns a **living inventory** under `skills/` (every folder with a root `SKILL.md`) plus `shared/` contracts. Companion skills that are *not* owned here stay external — pin them below; do not dump unrelated skill universes into this repository.
 
-When a top-level skill *invokes* or *assumes* another skill, pin it below by **author/lineage**, **repository**, **path**, and **version or commit** (or `local-unpinned` if it only exists on the machine).
+When an inventoried skill *invokes* or *assumes* another skill that is not under `skills/`, pin it below by **author/lineage**, **repository**, **path**, and **version or commit** (or `local-unpinned` if it only exists on the machine).
 
-Update this file when you change which external skill a top-level skill relies on.
+Update this file when you change which external skill an inventoried skill relies on.
 
 ---
 
@@ -17,7 +17,13 @@ Update this file when you change which external skill a top-level skill relies o
 | **Obra** | [Jesse Vincent](https://github.com/obra) — [`obra/superpowers`](https://github.com/obra/superpowers) | Plan → execute → review → verify machinery (worktrees, subagents, verification gate, skill discipline) |
 | **Local / family** | this machine or unreleased companions | `connected-impact-sweep`, `implementation-plan-contract`, etc. — pin when installed |
 
-**Rule of thumb:** skill *folders and procedures* lean Matt; *scoring, fitness dimensions, and graded review* lean Jeff; *delivery harness* (plans, subagents, verify, worktrees) leans Obra / Superpowers. Our top-level loops compose all three — they are not re-authored here.
+**Rule of thumb:** skill *folders and procedures* lean Matt; *scoring, fitness dimensions, and graded review* lean Jeff; *delivery harness* (plans, subagents, verify, worktrees) leans Obra / Superpowers. Inventoried loops compose all three — companions stay pinned here unless promoted into `skills/`.
+
+### In-repo (formerly external)
+
+| Skill | Used by | Canonical path in this repo | Note |
+| --- | --- | --- | --- |
+| `improve-codebase-architecture` | `production-flywheel` Stage 1 report | [`skills/improve-codebase-architecture`](skills/improve-codebase-architecture/) | Promoted into this inventory; lineage still Matt-informed |
 
 Install examples:
 
@@ -34,7 +40,6 @@ Browse: [skills.sh/mattpocock/skills](https://skills.sh/mattpocock/skills) · [s
 
 | Skill | Used by | Canonical source | Local path | Version / commit |
 | --- | --- | --- | --- | --- |
-| `improve-codebase-architecture` | `production-flywheel` Stage 1 report | `mattpocock/skills` | `~/.agents/skills/improve-codebase-architecture` | local-unpinned |
 | `tdd` | `production-flywheel` new-behavior path | `mattpocock/skills` | `~/.agents/skills/tdd` | local-unpinned |
 | `diagnosing-bugs` | flywheel + audit execute interrupt | `mattpocock/skills` | `~/.agents/skills/diagnosing-bugs` | local-unpinned |
 | `to-tickets` (or Slice Contract fallback) | `production-flywheel` Stage 6 | `mattpocock/skills` | `~/.agents/skills/to-tickets` | local-unpinned |
@@ -123,7 +128,7 @@ When those companions are missing:
 | lane merge protocol (core) | `shared/SWARM-LANES.md` |
 | candidate scoring | `shared/REPORT-SCORING.md` |
 
-Do **not** copy Matt, Jeff, or Obra skill trees into this repository. Pin them here; install them in the agent skills pool.
+Do **not** dump entire Matt, Jeff, or Obra skill trees into this repository. Promote a skill into `skills/` only when this inventory owns it; otherwise pin it here and install it in the agent skills pool.
 
 ---
 

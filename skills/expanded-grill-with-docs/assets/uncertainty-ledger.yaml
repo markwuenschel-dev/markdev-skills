@@ -1,0 +1,12 @@
+uncertainties:
+  - id: U-001
+    category: Product intent
+    question: ""
+    why_it_matters: ""
+    evidence_needed: []
+    owner: ""
+    resolution_route: ""
+    blocking: true
+    status: OPEN
+    resolution: ""
+    evidence: []

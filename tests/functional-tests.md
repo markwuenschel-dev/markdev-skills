@@ -6,20 +6,20 @@ Lightweight checks that the **repo inventory** is coherent. Run after structural
 
 | # | Check | Pass criteria |
 | --- | --- | --- |
-| F1 | Five skill folders exist | `skills/{loop-router,expanded-grill-with-docs,codebase-integrity-audit-loop,human-directed-swarm-planner,production-flywheel}/SKILL.md` |
+| F1 | Inventoried skill folders exist | `skills/{loop-router,expanded-grill-with-docs,codebase-integrity-audit-loop,human-directed-swarm-planner,production-flywheel,improve-codebase-architecture,prompt-forge}/SKILL.md` |
 | F2 | Shared contracts exist | all six files under `shared/` listed in README |
-| F3 | CAPABILITY-MAP table | five needs map to five skills; no sixth worker |
-| F4 | DEPENDENCIES present | file exists; states non-vendoring rule |
-| F5 | Install script present | `scripts/install-skills.sh` executable intent documented in README |
+| F3 | CAPABILITY-MAP table | needs map to all inventoried skills (including ICA + prompt-forge); matches `skills/*/SKILL.md` |
+| F4 | DEPENDENCIES present | file exists; pins true externals; ICA listed as in-repo |
+| F5 | Install script present | `scripts/install-skills.sh` / `.ps1` discover all `skills/*/SKILL.md` |
 
 ## Reference integrity
 
 | # | Check | Pass criteria |
 | --- | --- | --- |
-| F6 | Scoring links | audit-loop links to `../../shared/REPORT-SCORING.md` |
+| F6 | Scoring links | audit-loop and ICA link to `../../shared/REPORT-SCORING.md` |
 | F7 | Flywheel branch files | `skills/production-flywheel/branches/{design,prototype,triage}.md` exist |
 | F8 | Swarm types | `SWARM-TYPES.md` present beside swarm SKILL.md |
-| F9 | No vendored mass | `skills/` contains only the five top-level skill directories |
+| F9 | Flat packaging | every skill dir has root `SKILL.md`; no accidental `skills/<name>/<name>/` nesting |
 
 ## Semantic smoke (agent)
 
@@ -29,6 +29,8 @@ Lightweight checks that the **repo inventory** is coherent. Run after structural
 | F11 | "Run integrity audit, no code yet" | Report + ledger path; no production edits |
 | F12 | "Ship items 1 and 3 from the ledger" | Flywheel queue of two; design-lane gate before code |
 | F13 | "Swarm a known migration mission" | Swarm plan with lanes, non-goals, captain |
+| F14 | "Write a system prompt for our support agent" | Routes to `prompt-forge`; deliverable is a prompt |
+| F15 | "Find deepening opportunities in this repo" | Routes to `improve-codebase-architecture`; HTML report path |
 
 ## Shell checklist
 
@@ -47,10 +49,17 @@ test -f skills/expanded-grill-with-docs/SKILL.md
 test -f skills/codebase-integrity-audit-loop/SKILL.md
 test -f skills/human-directed-swarm-planner/SKILL.md
 test -f skills/production-flywheel/SKILL.md
+test -f skills/improve-codebase-architecture/SKILL.md
+test -f skills/prompt-forge/SKILL.md
 test -f scripts/install-skills.sh
+test -f scripts/install-skills.ps1
 
-# only five skill directories
-# (PowerShell) (Get-ChildItem skills -Directory).Count -eq 5
+# flat packaging — no skills/<name>/<name>/SKILL.md
+# (PowerShell)
+# Get-ChildItem skills -Directory | ForEach-Object {
+#   $nested = Join-Path $_.FullName $_.Name
+#   if (Test-Path (Join-Path $nested 'SKILL.md')) { throw "nested: $nested" }
+# }
 ```
 
 Mark the session PASS only if F1–F9 hold and shell checklist is green.

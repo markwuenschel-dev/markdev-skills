@@ -42,13 +42,30 @@ Pass/fail cases for **when** each top-level skill should auto-invoke or be recom
 | T14 | "Ship candidates 2, 5, then 1 from the report" | production-flywheel |
 | T15 | "Deliver this approved batch end-to-end" | production-flywheel |
 
+## improve-codebase-architecture
+
+| # | User utterance (gist) | Expect |
+| --- | --- | --- |
+| T16 | "Find deepening opportunities in this codebase" | improve-codebase-architecture |
+| T17 | "HTML architecture deepening report" | improve-codebase-architecture |
+| T18 | "Scan for shallow modules and grill one" | improve-codebase-architecture |
+
+## prompt-forge
+
+| # | User utterance (gist) | Expect |
+| --- | --- | --- |
+| T19 | "Write a system prompt for our support agent" | prompt-forge |
+| T20 | "Fix this pasted prompt for Claude Code" | prompt-forge |
+| T21 | "Port this brief to an overnight autonomous agent" | prompt-forge |
+
 ## Negative triggers
 
 | # | Utterance | Must **not** alone select |
 | --- | --- | --- |
 | N1 | "Fix this one failing test" | production-flywheel (prefer diagnose / single fix path) |
 | N2 | "What does CAPABILITY-MAP say?" | any execute skill |
-| N3 | "Install all the skills on the internet" | nothing — refuse vendoring |
+| N3 | "Install all the skills on the internet" | nothing — refuse dumping unrelated skill universes |
+| N4 | "Author a new Claude Code SKILL.md package" | prompt-forge (belongs to skillwright-forge / outside inventory) |
 
 ## How to run
 

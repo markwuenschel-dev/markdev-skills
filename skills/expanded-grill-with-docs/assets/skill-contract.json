@@ -1,0 +1,132 @@
+{
+  "skill": "expanded-grill-with-docs",
+  "version": "1.0.0",
+  "install_scope": "$CODEX_HOME/skills (~/.codex/skills when unset)",
+  "invocation": {
+    "allow_implicit_invocation": true
+  },
+  "applicability": {
+    "positive_triggers": [
+      "A selected idea, audit candidate, feature, migration, architecture change, policy direction, or product direction remains underspecified",
+      "Several plausible designs need evidence-based comparison before implementation planning",
+      "Requirements, invalid states, ownership, migration, verification, rollout, rollback, or observability remain unresolved"
+    ],
+    "negative_triggers": [
+      "Selecting the project's next priority",
+      "Generating implementation tickets or delivery plans from an already approved design",
+      "Implementing code or repairing the system",
+      "Verifying completed implementation without reshaping the approved contract"
+    ],
+    "preconditions": [
+      "A direction has been selected",
+      "Repository or product scope is known",
+      "Implementation remains unauthorized",
+      "A human decision owner is named before final approval"
+    ],
+    "confidence_or_escalation_rule": "Proceed with evidence collection and draft analysis under explicit assumptions, but stop approval when a critical unresolved question, missing owner, permission boundary, or required durable destination cannot be resolved."
+  },
+  "policy": {
+    "primary_pattern": "pipeline",
+    "steps": [
+      "Preflight and repository evidence inspection",
+      "Selected-direction exploration",
+      "Uncertainty classification",
+      "Specialist research and challenge lanes",
+      "Decision-focused grilling",
+      "Domain language and decision capture",
+      "Design comparison and bounded prototypes",
+      "Proposal, delta specification, design, and rollout drafting",
+      "Requirements clarification and quality gates",
+      "Walking-skeleton design",
+      "Rollout-wave design",
+      "Cross-artifact consistency analysis",
+      "Human approval and delivery handoff"
+    ],
+    "branches": [
+      "Use wayfinding or explorer lanes when repository scope is too large for one pass",
+      "Use prototypes only to answer named uncertainties and discard or quarantine them afterward",
+      "Use repository OpenSpec and Spec Kit conventions when present or explicitly required; otherwise create an unsynchronized review bundle in the repository's approved documentation area",
+      "Compare multiple designs only while consequential alternatives remain plausible"
+    ],
+    "authoritative_sources": [
+      "Repository instructions and local governance",
+      "Existing specifications and ADRs",
+      "Active OpenSpec changes and relevant tickets",
+      "Observed current-system behavior and contracts",
+      "Human decision-owner rulings"
+    ],
+    "degrees_of_freedom": {
+      "research_lane_selection": "medium",
+      "question wording": "high",
+      "artifact structure": "low",
+      "approval boundary": "low",
+      "implementation boundary": "low"
+    }
+  },
+  "termination": {
+    "success_conditions": [
+      "The human decision owner approves requirements, architecture direction, migration direction, rollout, rollback, non-goals, and accepted risks",
+      "The proposal, delta specifications, design, decisions, walking skeleton, rollout contract, observability, readiness verdict, deferred items, and handoff are coherent and durable",
+      "Another delivery agent can proceed without inventing requirements"
+    ],
+    "failure_conditions": [
+      "The selected direction is not actually selected",
+      "Critical evidence or required repository access is unavailable",
+      "A critical decision has no human owner",
+      "The requested output requires implementation, ticket generation, PR actions, or production changes"
+    ],
+    "stop_conditions": [
+      "Implementation is requested under this skill",
+      "A prototype would cross into production code",
+      "Repository evidence contradicts the selected direction and the owner has not resolved the conflict",
+      "Critical requirements remain untestable or rollback claims remain unsupported"
+    ],
+    "rollback_or_recovery": [
+      "Preserve drafts and ledgers with status DRAFT or BLOCKED",
+      "Record the exact missing evidence, owner, decision, or permission needed to resume",
+      "Discard or quarantine throwaway prototype artifacts",
+      "Do not mark the contract approved until the human approval record exists"
+    ]
+  },
+  "interface": {
+    "inputs": [
+      "Selected direction",
+      "Known problem or intended result",
+      "Repository or product scope",
+      "Known constraints and decisions",
+      "Human decision owner",
+      "Permitted research surfaces",
+      "Prototype permission",
+      "Required destination system such as OpenSpec, Spec Kit, tickets, or another system"
+    ],
+    "outputs": [
+      "Proposal",
+      "Delta specifications",
+      "Canonical glossary updates and domain model",
+      "ADRs and decision ledger",
+      "Requirements ledger",
+      "Design comparison",
+      "Walking skeleton",
+      "Rollout waves and rollback strategy",
+      "Observability and verification requirements",
+      "Readiness verdict",
+      "Deferred items",
+      "Delivery handoff",
+      "Human approval record"
+    ],
+    "artifacts": [
+      "Repository-native OpenSpec artifacts when available or required",
+      "A review bundle based on assets/approved-design-rollout-contract.md when no native structure is available",
+      "Uncertainty ledger based on assets/uncertainty-ledger.yaml",
+      "Preflight record based on assets/change-preflight.yaml"
+    ],
+    "allowed_tools": [],
+    "mcp_dependencies": [],
+    "side_effects": [
+      "Reads repository and product artifacts",
+      "May write design documentation and approved durable change records within the stated scope",
+      "May create throwaway prototypes only when explicitly permitted",
+      "Does not modify production code, generate delivery tasks, or perform external publication"
+    ]
+  }
+}
