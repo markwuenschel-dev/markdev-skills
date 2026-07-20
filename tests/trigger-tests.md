@@ -42,13 +42,13 @@ Pass/fail cases for **when** each top-level skill should auto-invoke or be recom
 | T14 | "Ship candidates 2, 5, then 1 from the report" | production-flywheel |
 | T15 | "Deliver this approved batch end-to-end" | production-flywheel |
 
-## improve-codebase-architecture
+## improve-codebase-architecture-mwdev
 
 | # | User utterance (gist) | Expect |
 | --- | --- | --- |
-| T16 | "Find deepening opportunities in this codebase" | improve-codebase-architecture |
-| T17 | "HTML architecture deepening report" | improve-codebase-architecture |
-| T18 | "Scan for shallow modules and grill one" | improve-codebase-architecture |
+| T16 | "Find deepening opportunities in this codebase" | improve-codebase-architecture-mwdev |
+| T17 | "HTML architecture deepening report" | improve-codebase-architecture-mwdev |
+| T18 | "Scan for shallow modules and grill one" | improve-codebase-architecture-mwdev |
 
 ## prompt-forge
 

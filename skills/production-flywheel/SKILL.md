@@ -1,7 +1,6 @@
 ---
 name: production-flywheel
 description: "Production-flywheel delivery loop: architecture report → user-selected queue of recommendations → per item preflight, scoping pre-check (/wayfinder for candidates too big for one slice), design gate, implement, test, open PR — auto-advancing through the queue. Use when the user asks for production-flywheel or to deliver a selected batch/queue end-to-end, or when an approved implementation contract or selected candidate needs flywheel delivery. Never self-invoke to start a new repo-wide report or pick a batch — the user selects the queue."
-disable-model-invocation: false
 ---
 
 # Production Flywheel
@@ -23,12 +22,12 @@ flowchart TD
       P -->|cannot ship| STOPB(["STOP: report exactly what to fix"])
       P -->|ok| SCOPE{"One vertical slice?<br/>(scoping pre-check)"}
       SCOPE -->|"too big · user elects wayfinder"| WAY["/wayfinder: chart map of tickets<br/>planning only — frontier re-enters queue as slices"]
-      SCOPE -->|"yes · slice-sized"| LANE{"Design-lane gate — asked at the item's turn<br/>A. full /expanded-grill-with-docs (default)<br/>B. user-elected shortcut"}
-      LANE -->|A default| DESIGN["/expanded-grill-with-docs<br/>+ /design-it-twice if 2+ shapes"]
+      SCOPE -->|"yes · slice-sized"| LANE{"Design-lane gate — asked at the item's turn<br/>A. full /grill-with-docs (default)<br/>B. user-elected shortcut"}
+      LANE -->|A default| DESIGN["/grill-with-docs<br/>+ /design-it-twice if 2+ shapes"]
       LANE -->|B, user chose| DIRECT["direct implementation<br/>(risk recorded)"]
       DESIGN --> IMPL
       DIRECT --> IMPL
-      IMPL["Implement: slice · plan · TDD / refactor path"] --> TEST["Test + verify"]
+      IMPL["Implement: slice · plan · TDD / refactor path"] --> TEST["Review + verify"]
       TEST --> SHIP["Ship: add · commit · push · gh pr create<br/>(open PR — never merge)"]
       SHIP --> FOOT["Completed item i/N summary"]
       FOOT --> NEXT{"More items in queue?"}
@@ -50,21 +49,21 @@ Preflight (S0) runs once per session for skills and baseline publish capability.
 
 ## Model invocation policy
 
-This skill is model-invokable only inside an existing authorization: the user asked for production-flywheel, or an approved implementation contract / selected candidate needs end-to-end delivery. Never self-invoke to start a new repo-wide report, pick a batch, or build a queue — the user starts the flywheel and selects the queue. When invoked with a contract or selected candidate already in hand — including candidates the user selected from a family candidate ledger (`shared/REPORT-SCORING.md` schema, e.g. out of a `--parallel-report` run) — treat the user's selection as the queue and skip the report stage; the report exists to create a queue the user hasn't yet selected. Ledger candidates arrive with lane evidence, scores, and blockers: carry them into the item's design gate instead of rediscovering them, and treat a non-empty `blocked_by` as a real blocker for that item.
+This skill is model-invokable only inside an existing authorization: the user asked for production-flywheel, or an approved implementation contract / selected candidate needs end-to-end delivery. Never self-invoke to start a new repo-wide report, pick a batch, or build a queue — the user starts the flywheel and selects the queue. When invoked with a contract or selected candidate already in hand — including candidates the user selected from a family candidate ledger ([`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md) schema, e.g. out of a `--parallel-report` run) — treat the user's selection as the queue and skip the report stage; the report exists to create a queue the user hasn't yet selected. Ledger candidates arrive with lane evidence, scores, and blockers: carry them into the item's design gate instead of rediscovering them, and treat a non-empty `blocked_by` as a real blocker for that item.
 
 ## Hard Rules
 
 - Run dependency preflight before starting. Do not silently improvise missing routed skills.
-- Produce the numbered HTML architecture report first. Do not change production code before the user selects a batch.
+- Produce the numbered HTML architecture report first — unless the invocation arrives with an approved contract or already-selected candidates (see *Model invocation policy*), which stand in for the report stage. Either way, do not change production code before an explicit user selection exists.
 - **Ask which recommendations to run.** After the report, the user picks one item, multiple items, all items, or a specific order. That selection becomes an explicit, visible queue.
 - **Process the queue sequentially and automatically.** After the batch is selected, work each item end-to-end and advance to the next on your own. **Do not stop after each PR to ask whether to continue.** Stop only when the queue is empty or a real blocker appears.
-- **`/expanded-grill-with-docs` is the default design lane, always.** "The design seems obvious / fleshed out / mechanical" is **not** permission to skip it. See *The design-lane gate is never the model's to skip*.
-- **The assistant may not silently elect a fast path.** It must never decide on its own that the design contract is complete, that direct delivery is allowed, that a lightweight lane applies, or that `/expanded-grill-with-docs` or `/design-it-twice` is unnecessary. It may *recommend* a shortcut, but the user must choose it. The default/first option is always the full process.
+- **`/grill-with-docs` is the default design lane, always.** "The design seems obvious / fleshed out / mechanical" is **not** permission to skip it. See *The design-lane gate is never the model's to skip*.
+- **The assistant may not silently elect a fast path.** It must never decide on its own that the design contract is complete, that direct delivery is allowed, that a lightweight lane applies, or that `/grill-with-docs` or `/design-it-twice` is unnecessary. It may *recommend* a shortcut, but the user must choose it. The default/first option is always the full process.
 - Ask the design-lane question **when the item reaches its turn in the queue**, not five times upfront — unless the user asks to decide all lanes ahead of time.
 - **Scope each candidate before its gate.** If a candidate is too big for one vertical slice, it isn't gate-ready — recommend the **user-elected** `/wayfinder` branch to decompose it (plan, don't build); its frontier work re-enters the queue as slice-sized items. Never model-elect wayfinding, and never push a too-big candidate straight into implementation. See *The wayfinder branch*.
 - Use `/tdd` for new-behavior tasks; use the behavior-preserving **refactor path** (characterize → stay green) for mechanical or consolidation tasks.
 - Use `/diagnosing-bugs` when work is red, flaky, slow, or unexplained.
-- **Ship automatically.** After implementation and tests pass, create the branch, commit, push, and open the PR (`gh pr create`) as part of the item — publishing is the default end of each item, not an optional add-on.
+- **Ship automatically, at the queue's elected granularity.** After implementation and tests pass, commit and push as part of the item; open the PR per item by default, or per group when the user elected batched shipping (Stage 2) — publishing is the default end of each item or group, not an optional add-on.
 - **"Ship" means open a PR. Never merge.** Do not merge a PR unless the user explicitly says merge.
 - Do not claim completion until verification passes. If the standard runner cannot exercise the slice, build a red-capable harness — do not guess.
 - Capture durable knowledge in one authoritative place.
@@ -77,12 +76,12 @@ This is the rule the whole workflow exists to enforce.
 The default design lane for **every** selected item is:
 
 ```text
-Run /expanded-grill-with-docs.
+Run /grill-with-docs.
 ```
 
 A shortcut (direct implementation with no grill) is allowed **only when the user explicitly chooses it at the item's turn.** The assistant:
 
-- must present the full `/expanded-grill-with-docs` lane as option **A**, the default and first option
+- must present the full `/grill-with-docs` lane as option **A**, the default and first option
 - may present a shortcut as option **B** and may recommend it with reasoning
 - **must not choose B on the user's behalf**, and must not treat "this design looks complete" as authorization to skip grilling
 - if the user picks B, records that the user explicitly elected the shortcut and states the risk being accepted
@@ -118,14 +117,15 @@ Within that authorization:
 Check whether the required routed skills are available in the current agent environment before beginning.
 
 Required:
-- `improve-codebase-architecture`
-- `expanded-grill-with-docs` (alias: `grill-with-docs` if installed)
+- `improve-codebase-architecture-mwdev`
+- `grill-with-docs`
 - `to-tickets` or Slice Contract fallback
 - `tdd`
 - `diagnosing-bugs`
 
 Conditional:
 - `codebase-design` (design-it-twice technique)
+- `codebase-integrity-audit-loop` (family scoring spine [`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md) used by the Stage 1 report gate; source of `--parallel-report` ledger candidates)
 - `wayfinder` (decompose a candidate too big for one slice — see the wayfinder branch)
 - `research`, `grilling`, `domain-modeling` (support the wayfinder branch's ticket types)
 - `prototype`
@@ -136,7 +136,7 @@ Conditional:
 - `requesting-code-review`
 - `receiving-code-review`
 - `verification-before-completion`
-- `ship` (now in the shared skill pool too — installed in all four locations; see the ship stage)
+- `land-pr` or `ship` (publish helper — Stage 13 prefers `/land-pr` when available)
 
 Fallback rule: if a required or conditional skill is not installed as a routed command but its `SKILL.md` can be read from `$HOME/.agents/skills/<skill-name>/SKILL.md`, read that file and follow it directly, and say so explicitly: "The routed command isn't installed here, but I found the shared skill file and will follow it directly."
 
@@ -155,14 +155,14 @@ The authoritative ship check runs **per item** in the per-item preflight (below)
 
 ## Stage 1 — Report
 
-Run `/improve-codebase-architecture`.
+Run `/improve-codebase-architecture-mwdev`.
 
 Gate:
 - A self-contained HTML architecture report exists and its absolute path is printed.
 - The report contains **numbered** deepening candidates (`1..N`).
-- Each candidate names the module, interface/seam friction, expected leverage, expected locality, and testability impact, scored per the family scoring spine — `shared/REPORT-SCORING.md`.
+- Each candidate names the module, interface/seam friction, expected leverage, expected locality, and testability impact, scored per the family scoring spine — [`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md).
 - No production code has changed.
-- The report's Mermaid diagrams render without syntax errors, and ugly candidate names do not break the page (the report drives Mermaid through `assets/mermaid-safe.js`).
+- The report's Mermaid diagrams render without syntax errors, and ugly candidate names do not break the page (the report drives Mermaid through `assets/mermaid-safe.js` in `improve-codebase-architecture-mwdev`).
 
 Then ask which recommendations to run (Stage 2). Do not change production code yet.
 
@@ -197,6 +197,12 @@ Selected queue:
 ```
 
 This queue **is** the authorization to proceed through every item automatically. Do not ask "shall I start?" or "shall I continue?" between items.
+
+The queue is editable mid-run: the user can reorder, drop, or insert items at any time (wayfinder frontier work also appends, per Stage 5). Apply the edit at the next item boundary, reprint the updated queue, and keep going — a queue edit is a steering input, not a stop.
+
+### Ship granularity
+
+One PR per item is the default. The user can elect **batched shipping** instead — the whole queue or named groups, each group sharing one branch and one PR — in the selection message or at any item boundary (a granularity change applies only to items not yet shipped). When the queue is long (≈5+ items) or several items look small, confirm granularity at the first natural stop (usually item 1's design-lane question, or the upfront exchange if the user decided all lanes ahead of time) rather than silently defaulting into a PR-per-item run. The model may recommend groupings by module or theme, but the election is the user's — never model-elect batching. Batching moves only *where Stage 13 runs*: every per-item stage and gate still runs per item, and a batched item's completion footer reads `PR: ships with group <name>` until the group PR opens.
 
 ### Per-item status header
 
@@ -233,19 +239,22 @@ When an item reaches its turn, summarize it before the design-lane gate:
 **Expected leverage:**
 **Expected locality:**
 **Risk:**
+**Staleness:** did earlier queue items ship changes to this candidate's modules? (untouched / touched — summarize)
 **Lane recommendation:** full grill (A) / user-elected shortcut (B) / wayfinder (too big for one slice) — with reasoning
 ```
+
+If earlier items materially changed this candidate's premise, say so and let the user re-confirm, re-scope, or drop it before the gate — do not grill a stale premise. (This is the same staleness rule Stage 14 applies to leftover candidates, applied inside the running queue.)
 
 ## The queue loop
 
 For each item in the queue, in order:
 
 1. **Per-item preflight** (Stage 3) — including the GitHub CLI / ship-capability checks.
-2. **Scoping pre-check + design-lane gate** (Stage 4) — confirm the candidate is one slice (else recommend `/wayfinder` to decompose it); then ask the A/B question and run `/expanded-grill-with-docs` unless the user explicitly picks B.
+2. **Scoping pre-check + design-lane gate** (Stage 4) — confirm the candidate is one slice (else recommend `/wayfinder` to decompose it); then ask the A/B question and run `/grill-with-docs` unless the user explicitly picks B.
 3. **Design process** (Stage 5) — grill / design-it-twice / prototype / triage as selected, **or** `/wayfinder` if the scoping pre-check routed here (planning only — the item exits the loop after charting; its frontier work re-enters the queue as new items, and it never reaches Implement/Ship).
 4. **Implement** (Stage 6–9) — slice, plan, deliver via TDD or the refactor path.
-5. **Test & verify** (Stage 10–11).
-6. **Ship** (Stage 12–13) — commit, push, open the PR. Never merge.
+5. **Review & verify** (Stage 10–11).
+6. **Capture & ship** (Stage 12–13) — capture durable knowledge, then commit, push, open the PR. Never merge.
 7. **Advance** (Stage 14) — print the completion footer and move to the next item automatically.
 
 Stop the loop only when the queue is empty or a blocker prevents safe delivery.
@@ -301,7 +310,7 @@ First classify the candidate as `mechanical` / `partly designed` / `unresolved`,
 This candidate looks [mechanical / partly designed / unresolved].
 
 Default option:
-A. Run full /expanded-grill-with-docs before code.
+A. Run full /grill-with-docs before code.
 
 Optional shortcut:
 B. Treat the existing design as sufficient and proceed with direct implementation.
@@ -312,7 +321,7 @@ My recommendation:
 Choose A or B.
 ```
 
-- **If the user chooses A** → run `/expanded-grill-with-docs`. If multiple interface shapes remain plausible, run `/design-it-twice`.
+- **If the user chooses A** → run `/grill-with-docs`. If multiple interface shapes remain plausible, run `/design-it-twice`.
 - **If the user chooses B** → record explicitly: "User elected the direct-implementation shortcut for this item," and state the risk being accepted (what grilling would have de-risked). Then proceed to implementation.
 - **If the user doesn't answer** → hold this item. Do not pick B. (Only auto-run A if the user pre-authorized "A for the whole batch.")
 
@@ -322,7 +331,7 @@ There is no third, model-elected path. Do not infer B from the design looking co
 
 Run the lane the gate selected. **A is the default lane; Prototype and Triage are sub-lanes of A**, entered by their triggers rather than a separate gate question — pick Prototype when state/model/UI must be *felt*, Triage when the work starts from an existing issue/PR, otherwise grill. Wayfinder is entered only when the scoping pre-check routed here; B only when the user elected it at the gate.
 
-- **A (default) — grill:** Run `/expanded-grill-with-docs`. See [branches/design.md](branches/design.md). If 2+ interface shapes are plausible, run `/design-it-twice`.
+- **A (default) — grill:** Run `/grill-with-docs`. See [branches/design.md](branches/design.md). If 2+ interface shapes are plausible, run `/design-it-twice`.
 - **Prototype** (sub-lane of A, when state/model/UI must be felt): Run `/prototype`. See [branches/prototype.md](branches/prototype.md).
 - **Triage** (sub-lane of A, when work starts from an issue/PR): Run `/triage`. See [branches/triage.md](branches/triage.md).
 - **Wayfinder (user-elected, pre-slice):** the scoping pre-check found the candidate too big for one slice. Run `/wayfinder` to chart it into a map of tickets; planning only. **This item exits the queue loop here — do NOT proceed to Stage 6 (Slice) or Stage 13 (Ship).** Append any concrete, slice-sized frontier work to the queue as new items, print the completion footer (noting the map + tickets created instead of a PR), and auto-advance to the next item. See *The wayfinder branch*.
@@ -353,6 +362,8 @@ Gate: one tracer-bullet vertical slice, independently verifiable, adjacent work 
 ## Stage 7 — Worktree
 
 Run `using-git-worktrees` for isolated delivery when available.
+
+Branch base: cut each item's branch from the repo's default branch. If this item depends on an earlier queue item whose PR is still unmerged, branch from that item's branch instead, say so in the status header, and note in the PR body that it is stacked and merges after its parent. In batched mode the group shares one branch cut from the default branch: record the branch SHA at each item's start as that item's **baseline**, keep commits per-item so item boundaries stay legible and bisectable, and note that intra-group dependencies need no stacking — later items simply land on the same branch.
 
 Gate: an isolated branch/worktree exists (or the reason not to is documented); the working tree starts clean; baseline verification commands are known and have run, or the reason they can't is documented.
 
@@ -402,7 +413,7 @@ Gate: tests pass; typecheck/lint/build pass if available; acceptance criteria ch
 
 ## Stage 12 — Local completion & capture
 
-Classify delivery status: `complete-local`, `complete-published`, `blocked-after-delivery`, or `stopped-before-delivery`. (These four are the coarse delivery-status classes; when the item ships, map the outcome onto Stage 13's finer **publish-status** enum, which is the authoritative superset — e.g. `complete-local` → `complete-local-user-deferred`, `blocked-after-delivery` → the matching `blocked-*` / `pushed-pr-pending` value.) List every changed file and why; list exact verification commands and observed results; check each acceptance criterion pass/fail/blocked.
+Record a provisional delivery status: `complete-local`, `complete-published`, `blocked-after-delivery`, or `stopped-before-delivery`. This is coarse and temporary — Stage 13 assigns the final, authoritative **publish status** from its enum, and that value supersedes this one. List every changed file and why; list exact verification commands and observed results; check each acceptance criterion pass/fail/blocked.
 
 Capture durable knowledge in one authoritative place:
 
@@ -416,7 +427,7 @@ Capture durable knowledge in one authoritative place:
 
 ## Stage 13 — Ship (automatic; open PR, never merge)
 
-Shipping runs **automatically** once implementation and tests pass — it is the default end of each item, not a separate request. Prefer `/ship` when available; otherwise perform the steps directly:
+Shipping runs **automatically** once implementation and tests pass — it is the default end of each item, not a separate request. Prefer `/land-pr` when available; otherwise perform the steps directly:
 
 ```bash
 git status --short
@@ -431,6 +442,8 @@ Rules:
 - **Open the PR. Do not merge it.** Merging requires an explicit "merge" from the user. `gh pr merge` is out of scope here.
 - The PR body covers what changed, why, how tested, architecture impact, agent-readability impact, and risks/follow-ups.
 - **If `gh pr create` fails**, report the failure clearly and **leave the branch pushed** if the push succeeded. Give the user the exact remote branch URL and the manual PR-creation step. Classify as `pushed-pr-pending`.
+
+Batched groups (user-elected, Stage 2): commit and push per item onto the group branch, but run PR creation **once per group**, after the group's final item completes Stage 12 — PR titled for the group, body summarizing each item. A completed-but-unshipped item carries `pushed-pr-pending` until the group PR opens, then its status becomes `complete-published`. If an item blocks or is abandoned mid-implementation, reset the group branch to that item's baseline SHA (Stage 7) so half-done work never rides along, record that item's blocked status, and continue — the group PR ships the completed subset.
 
 Publish status must be one of: `complete-published`, `pushed-pr-pending`, `complete-local-user-deferred`, `blocked-no-remote`, `blocked-no-auth`, `blocked-no-gh`, `blocked-verification`, `stopped-before-delivery`.
 

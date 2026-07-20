@@ -1,10 +1,10 @@
 # Production Flywheel — Design Branch Procedure
 
-This is the **default lane (option A)** of the per-item design-lane gate — the lane the assistant runs unless the user explicitly elects the shortcut (option B). "The design seems obvious" is never grounds to skip it. Use it whenever the interface, seam, module shape, or domain language is anything short of fully resolved (which is the default assumption).
+This is the **default lane (option A)** of the per-item design-lane gate — the lane the assistant runs unless the user explicitly elects the shortcut (option B). "The design seems obvious" is never grounds to skip it. Assume the interface, seam, module shape, and domain language are not yet fully resolved — that assumption is overridden only by an explicit user B election at the gate, never by the design looking finished.
 
 ## Steps
 
-1. Run `/expanded-grill-with-docs`. This is the default the moment the item reaches its turn in the queue — never skipped on the assistant's own judgment.
+1. Run `/grill-with-docs`. This is the default the moment the item reaches its turn in the queue — never skipped on the assistant's own judgment.
 2. If multiple interface shapes are plausible, run `/design-it-twice`.
 
 ## Required questions

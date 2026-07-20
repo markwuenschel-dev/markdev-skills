@@ -11,7 +11,7 @@ Pass/fail cases for **scope walls** between top-level skills and shared contract
 | B3 | `--parallel-report` finishes | Stop at candidate gate | Co-passed `--auto` executes candidates same invocation |
 | B4 | Swarm mission discovers adjacent bug | Report as finding / next mission | Expand mission scope silently |
 | B5 | Flywheel batch selected | Auto-advance queue after each PR | Merge PRs; stop after each PR to re-ask "continue?" |
-| B6 | Flywheel design-lane gate | Present A = full expanded grill as default | Model elects shortcut B alone |
+| B6 | Flywheel design-lane gate | Present A = full `/grill-with-docs` as default | Model elects shortcut B alone |
 | B7 | Candidate too big for one slice | Recommend wayfinder; user elects | Model charts map without election |
 | B8 | Multi-item delivery | production-flywheel queue | Single "do all items" execution swarm without human framing |
 | B9 | ICA HTML report ready | Ask user which candidate(s) by number | Start implementing deepenings from the report |

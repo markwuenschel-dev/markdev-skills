@@ -22,11 +22,11 @@ Every skill in this repo lives under `skills/` with a root `SKILL.md`. True exte
                         └──────┬───────┘
            ┌───────────┬───────┼───────┬───────────┬──────────┐
            ▼           ▼       ▼       ▼           ▼          ▼
-    shape idea    audit    parallelize  deliver   deepen    craft
+    shape idea    audit    parallelize  deliver                           deepen    craft
     expanded-     integrity / swarm    flywheel  arch       prompts
     grill-        audit-loop           │         improve-   prompt-
     with-docs                          │         codebase-  forge
-                                       │         architecture
+                                       │         architecture-mwdev
 ```
 
 | Need | Skill |
@@ -35,7 +35,7 @@ Every skill in this repo lives under `skills/` with a root `SKILL.md`. True exte
 | Audit repo health | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
 | Parallelize a known mission | [`human-directed-swarm-planner`](skills/human-directed-swarm-planner/) |
 | Deliver approved work | [`production-flywheel`](skills/production-flywheel/) |
-| Architecture deepening report | [`improve-codebase-architecture`](skills/improve-codebase-architecture/) |
+| Architecture deepening report | [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) |
 | Write / repair / optimize prompts | [`prompt-forge`](skills/prompt-forge/) |
 | Unsure which applies | [`loop-router`](skills/loop-router/) |
 
@@ -64,7 +64,7 @@ markdev-skills/
 │   ├── codebase-integrity-audit-loop/
 │   ├── human-directed-swarm-planner/
 │   ├── production-flywheel/
-│   ├── improve-codebase-architecture/
+│   ├── improve-codebase-architecture-mwdev/
 │   └── prompt-forge/
 │
 ├── shared/

@@ -4,9 +4,31 @@ The architectural review is rendered as a single self-contained HTML file in the
 
 **Mermaid is fragile with real candidate names — never hand-write Mermaid source.** Candidate names come from a real codebase and contain slashes, parentheses, colons, arrows (`->`, `→`), brackets, quotes, `#`, and markdown. Written into raw Mermaid, any one of them is a syntax error that replaces the whole page with a red error splash. This report drives every Mermaid diagram through the sanitizer in [`assets/mermaid-safe.js`](assets/mermaid-safe.js) so the safety is enforced by code, not by author discipline. See **Mermaid safety** below — it is a hard requirement, not a style note.
 
-The colour and mark rules below come from the **`/dataviz`** design system. The point of borrowing them: colours are chosen by the job they do and **validated by a script, not by eye**, so a report reads as one system in both light and dark and stays colourblind-safe. Apply them where the report genuinely encodes data (the mass diagram and cross-section are magnitude encodings; badges are a status scale; leak/deep are reserved states) — and *don't* force chart machinery onto the schematic diagrams. A Mermaid dependency graph or a boxes-and-arrows sketch is a **schematic, not a chart**: it takes the colour roles and the accessibility pass, but not axes, tooltips, or a legend box of its own.
+Colour and mark rules: colours are chosen by the **job** they do and **validated, not eyeballed** (the numbers are recorded in the **Palette validation record** below), so a report reads as one system in both light and dark and stays colourblind-safe. Apply them where the report genuinely encodes data (the mass diagram and cross-section are magnitude encodings; badges are a status scale; leak/deep are reserved states) — and *don't* force chart machinery onto the schematic diagrams. A Mermaid dependency graph or a boxes-and-arrows sketch is a **schematic, not a chart**: it takes the colour roles and the accessibility pass, but not axes, tooltips, or a legend box of its own.
 
-## Design system — roles, not raw hex (from `/dataviz`)
+## Scoring spine — from `REPORT-SCORING.md`, with stamped deviations
+
+Per [SKILL.md](SKILL.md), every candidate is scored by the **scoring-spine half** of [`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md) — the candidate schema (`candidate_id`, file/line `evidence`, the eight 1–5 `scores`, the `priority_score` rollup), the priority formula (`priority_score = (severity + confidence + leverage + locality + testability) − (blast_radius + regression_risk + human_decision_risk)`, range −10…+22), and the dedup rules — defined there and nowhere else. The abbreviations in this file map to those score names: `sev·cnf·lev·loc·tst` / `bla·reg·hdr` (`hdr` = `human_decision_risk`). The spine's **Report style** (visual) half is **not** adopted: the design system in this file is its own, on purpose — don't restyle this report to match the spine.
+
+Three deviations from the spine are deliberate — stamped here so they never read as drift:
+
+- **Own section list.** The spine's scoring half prescribes a 13-section report; this report renders masthead → hero → ranked ledger → candidate cards → top recommendation instead. The editorial cards are a presentation layer over the spine-schema ledger, not a replacement: when this command drives `production-flywheel`, the emitted ledger and recommended queue follow the spine.
+- **Band cut.** `✓ Strong ≥13` / `◐ Worth exploring 6–12` / `○ Speculative ≤5` — one point stricter at the top than the spine style-half's triage bands (`High ≥12` / `Mid 6–11` / `Low ≤5`). Architecture changes earn "Strong" at a higher bar. Do not align this to the spine's ≥12.
+- **No execution rollup on screen.** `recommended_action` / `execution_mode` / `blocked_by` are not rendered in the cards — every candidate here is a proposal headed for the grilling loop, not an execution queue. The machine ledger emitted for the flywheel still follows the spine schema; `human_decision_risk` always scores as a risk input.
+
+If the spine's formula or range ever changes, this file's meter math (`(priority_score + 10) / 32`, the 47%/72% stops) changes with it — that is the one accepted drift surface — and `assets/ledger-verify.js` owns the math (`fillPercent`, `bandStops`), so the change lands in one constant. (Checked against `REPORT-SCORING.md` **v2** and `SKILL.md`, 2026-07-19.)
+
+## Self-verifying ledger — from `assets/ledger-verify.js`
+
+The report carries **one JSON island** — `<script type="application/json" id="ledger">` — holding `{ spine_version, generated, candidates: [...] }` per the spine schema: `candidate_id`, `title`, `evidence`, the eight `scores`, `rollup.priority_score`, plus `effort`, `depends_on`/`unlocks`, and `blocked` where known. The island is the single source for every number on the page **and** the machine ledger `production-flywheel` consumes — never write a second copy of any score, anywhere.
+
+Paste the body of [`assets/ledger-verify.js`](assets/ledger-verify.js) into the scaffold verbatim (export-free classic script, same contract as `mermaid-safe.js`) and call `LedgerVerify.runLedger({})` once the DOM is ready. **Do not re-derive the renderer.** The 2026-07-19 field report re-implemented it from prose and shipped two fill formulas in one page (`/22` in the ledger, `(p+10)/32` in the meters), hand-typed stops of 48/71 against the derived 46.9/71.9, and a Strong tick sitting off its own band edge — rendering through the module is *less* work than that and cannot disagree with itself.
+
+The module renders every numeric display from the island via placeholders: `[data-ledger]` (ranked rows — rank, serif title, ⚖ when `hdr ≥ 4`, S/M/L effort chip, `unlocks N` chip, axis bar, mono priority), `[data-score-legend]` (the visible abbreviation legend with the formula line), `[data-meter="id"]` (verdict line, derived band track, **diverging** histogram — value bars up, risk bars down — captioned with the recomputed `Σ value − Σ risk` equation), and `[data-rank="id"]` (band-coloured rail number). Prose, diagrams, and card layout stay hand-authored; each card carries `data-candidate="id"` so its order can be checked.
+
+What is enforced: `priority_score` recomputed from the eight scores (a stored value that lies is flagged and the computed value displayed), bands, fills, and stops derived from one config, the spine v2 tie-break (`priority` desc → `effort` asc → `severity` → `confidence` → id), card order, evidence shape, effort range, `depends_on`/`unlocks` references, and unknown-id placeholders. The masthead carries the verification chip (`[data-verify-chip]`); **a red chip means the report does not ship.** Regression fixture: [`assets/ledger-verify.test.html`](assets/ledger-verify.test.html) — keep it green.
+
+## Design system — roles, not raw hex
 
 Define the palette once as CSS custom properties keyed by the **job** each colour does, then reference roles everywhere. Light and dark are **both selected and validated** against their own surface — dark is not an automatic flip of light (e.g. secondary ink is `#52514e` on light but must become `#c3c2b7` on dark, where `#52514e` only reaches 2.19:1). Put this in the `<style>` block and never write a raw diagram hex again.
 
@@ -52,7 +74,7 @@ Define the palette once as CSS custom properties keyed by the **job** each colou
 }
 ```
 
-Non-negotiables carried over from `/dataviz` (they hold in every report):
+Non-negotiables (they hold in every report):
 
 - **Sequential = one hue, light→dark.** Magnitude (interface vs implementation size, layer count) is the blue accent ramp — never a rainbow, never one-hue-per-thing.
 - **Status is reserved and never a series.** `good / warning / serious / critical` carry recommendation strength and leak/ADR state only, and always ship with an **icon + label** — colour never carries meaning alone (on light, `warning` and `serious` sit below 3:1 by design; the label is the mitigation).
@@ -72,13 +94,20 @@ Non-negotiables carried over from `/dataviz` (they hold in every report):
       import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
       // Inline the contents of assets/mermaid-safe.js here (the report is
       // self-contained — it cannot reference a sibling file at view time).
-      // Paste the module body, then drop the `export ` keywords.
+      // Paste the file body verbatim — it is export-free by design (a classic
+      // script exposing globalThis.MermaidSafe), so it drops in here unchanged
+      // *and* loads via <script src> in the test fixture from file://.
       /* … escapeLabel, nodeId, buildFlowchart, renderInto, renderAllGraphs … */
 
       // startOnLoad:false — we render each diagram ourselves so one bad diagram
       // falls back to text instead of blanking the page.
       mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
       window.addEventListener("DOMContentLoaded", () => renderAllGraphs("[data-graph]", mermaid));
+
+      // Paste the body of assets/ledger-verify.js here too (same export-free
+      // contract), then render every scoring display from the JSON island —
+      // never hand-write a score, a fill, a stop, or a rank:
+      window.addEventListener("DOMContentLoaded", () => LedgerVerify.runLedger({}));
     </script>
     <style>
       /* role tokens: paste the .report-root + dark block from
@@ -92,7 +121,7 @@ Non-negotiables carried over from `/dataviz` (they hold in every report):
         45deg, transparent 0 5px, var(--border) 5px 6px); }
     </style>
   </head>
-  <!-- data-palette lets the /dataviz validator run in-page (see last section) -->
+  <!-- data-palette exposes the categorical hexes to any contrast/CVD checker -->
   <body class="report-root font-sans"
         style="background:var(--page); color:var(--ink-primary)"
         data-palette="#2a78d6,#1baf7a,#eda100,#008300,#4a3aa7,#e34948,#e87ba4,#eb6834">
@@ -114,7 +143,7 @@ Cards and diagram surfaces use `background:var(--surface-1)` and `border-color:v
 The header is a masthead, not a toolbar. Three stacked pieces, each its own card:
 
 1. **Masthead card.** A mono eyebrow (`Deepening opportunities · architecture review`), the repo name set **large in the serif** (`font-serif`, ~40px, `font-weight:600`, `letter-spacing:-.025em`), and one *italic serif* standfirst sentence naming what was surveyed ("Nine deepenings surfaced across …"). Below a hairline, a three-cell **stat strip** — `candidates` / `strong` / `top priority` — each a big serif numeral over a mono label, divided by `--hairline` rules. The `strong` count wears `--good`, the top score wears `--accent-deep`; everything else is ink. This replaces the old right-aligned number cluster.
-2. **Ranked ledger card.** The full `1..N` candidate list as rows: rank number (coloured by strength band), candidate name in the serif, an **inline score bar** (a `--hairline` track filled to `priority_score/22` in the band colour), and the score in mono. This is the at-a-glance scan and the selection index in one — it carries the numbering the caller picks by. **Group the rows under quiet band headers** (`✓ Strong ≥13` / `◐ Worth exploring 6–12` / `○ Speculative ≤5`, each a mono label + hairline rule + threshold) so the page reads as three movements rather than one long list.
+2. **Ranked ledger card.** The full `1..N` candidate list as rows: rank number (coloured by strength band), candidate name in the serif, an **inline score bar** (a `--hairline` track filled to `(priority_score + 10) / 32` — the score's position on the −10…22 axis — in the band colour), and the score in mono. This is the at-a-glance scan and the selection index in one — it carries the numbering the caller picks by. **Group the rows under quiet band headers** (`✓ Strong ≥13` / `◐ Worth exploring 6–12` / `○ Speculative ≤5`, each a mono label + hairline rule + threshold, cut per **Scoring spine** above) so the page reads as three movements rather than one long list.
 3. **Legend line.** The accessibility guarantee, every encoding named in words, so identity is never colour-alone: solid box = module, dashed line = seam, **red arrow labelled "leak"** = leakage, thick dark box = deep module, and the badge scale (`Strong` / `Worth exploring` / `Speculative`). Keep it compact — one wrapping row. No introduction paragraph — masthead, ledger, legend, then straight into the candidates.
 
 ## Candidate card
@@ -144,7 +173,7 @@ The recommendation strength is the display layer of `priority_score`. **A single
 Three stacked rows, ~a third of the card's width to full width:
 
 1. **Verdict line.** The strength icon + word in the serif (`✓ Strong`), and on the right the score in mono: `priority 14 / 22`. Colour: `--good` / `--warning` / `--ink-muted` on the icon only — the word wears ink.
-2. **Band track.** A 12px rounded bar whose *background* is the three bands as a hard-stop gradient (`speculative` grey `0–47%`, `worth exploring` `--warning`-tint `47–72%`, `strong` `--good`-tint `72–100%` — the stops are the band thresholds on the −10…22 range). A solid `--good`/`--warning` **fill** overlays it from the left to `priority_score/22`. Mark the **Strong threshold** with a 2px `--ink-primary` tick riding the bar (at ~72%) and label the axis ends (`−10` … `Strong ↑` … `+22`) so "14" reads as *just over the line*, not merely "far right".
+2. **Band track.** A 12px rounded bar whose *background* is the three bands as a hard-stop gradient (`speculative` grey `0–47%`, `worth exploring` `--warning`-tint `47–72%`, `strong` `--good`-tint `72–100%` — the stops are the band thresholds on the −10…22 range). A solid `--good`/`--warning` **fill** overlays it from the left to `(priority_score + 10) / 32` — the same −10…22 axis as the band stops. (*Not* `priority_score/22`: that misplaces every score — 14 would fill to 64%, visually inside Worth-exploring under a ✓ Strong verdict — and goes negative below 0.) Mark the **Strong threshold** with a 2px `--ink-primary` tick riding the bar (at ~72%) and label the axis ends (`−10` … `Strong ↑` … `+22`) so "14" reads as *just over the line*, not merely "far right".
 3. **Contribution histogram.** Two small bar groups on a shared baseline, split by a mono `−`: the **five value scores** (`sev·cnf·lev·loc·tst`) in the blue accent ramp, then the **three risk scores** (`bla·reg·hdr`) in `--serious` at ~55% opacity. Each bar's height is `score/5`. Under each group runs a 2px **asymmetry cue** underline — `--good` when value dominates, `--warning` when risk is tall relative to value — so "high leverage but risky" (e.g. #5, #8) is legible without reading numbers. A mono caption labels the two groups (`value` / `risk`). Bars carry a `title` with the exact dimension + score (the one place a tooltip earns its keep, per the mark rules).
 
 The meter is *reserved-status + magnitude together*: the icon+word keeps identity non-colour-alone, the histogram carries the numbers. Keep the band track and histogram to ~34–38px tall so the meter tucks under the title without dominating.
@@ -230,10 +259,10 @@ Before: a tree of function calls as nested boxes. After: the same tree collapsed
 - Keep diagrams ~320px tall so before/after sits comfortably side by side without scrolling.
 - Module labels inside diagrams: `text-xs uppercase tracking-wider` in `--ink-muted` — they should read as schematic, not as UI. Values (surface areas, counts) in `--ink-secondary` with `tabular-nums` if they align in a column.
 - Grid/dividers are recessive (`--hairline`); the baseline marks anchor to is `--baseline`.
-- **Typography deviation, on purpose:** `/dataviz` mandates system-sans for *chart* text, and diagram labels/values here follow that (`font-sans`, ink tokens). Editorial **headings** may still use `font-serif` with stone/slate — that's page prose, outside the chart layer, and the deviation is deliberate, not drift.
-- The only scripts are the Tailwind CDN and the Mermaid ESM import (plus, optionally, the in-page validator during authoring — see below). The report is otherwise static. Hover tooltips are **not** required; if you add one, put it only on the magnitude marks (mass rects, cross-section bands) where a precise value helps — never on the schematics.
+- **Typography split, on purpose:** chart-layer text — diagram labels and values — is system-sans (`font-sans`, ink tokens). Editorial **headings** may still use `font-serif` with stone/slate — that's page prose, outside the chart layer, and the split is deliberate, not drift.
+- The only scripts are the Tailwind CDN and the Mermaid ESM import. The report is otherwise static. Hover tooltips are **not** required; if you add one, put it only on the magnitude marks (mass rects, cross-section bands) where a precise value helps — never on the schematics.
 
-## Accessibility pass (from `/dataviz`)
+## Accessibility pass
 
 Before calling the report done, confirm:
 
@@ -242,23 +271,9 @@ Before calling the report done, confirm:
 - **Texture is available** (`.tx-lines`, 45°/135°) for the mass diagram's two measures and for any `forced-colors` / print render — so lightness is never the only difference.
 - **Status contrast is mitigated, not ignored.** `warning`/`serious` sit below 3:1 on the light surface; the icon + label pairing is what makes that legal.
 
-## Validate the palette — run the script, don't reason about it
+## Palette validation record
 
-The single most important habit from `/dataviz`: **the colour part is computable, so compute it.** The report already sets `data-palette` on `<body>`, so during authoring you can drop the validator in as a module and read a `console.table` report:
-
-```html
-<script type="module"
-  src="file:///…/dataviz/scripts/validate_palette.js"></script>
-```
-
-Or from a shell (categorical slots, once per mode):
-
-```
-node validate_palette.js "#2a78d6,#1baf7a,#eda100,#008300,#4a3aa7,#e34948,#e87ba4,#eb6834" --mode light
-node validate_palette.js "#3987e5,#199e70,#c98500,#008300,#9085e9,#e66767,#d55181,#d95926" --mode dark --surface "#1a1a19"
-```
-
-The role palette above is already validated: both modes pass (light CVD ΔE 24.2; dark CVD 10.3 — the floor band, legal here because every magnitude mark is direct-labelled). The blue accent clears 3:1 in both modes (4.30 / 3.94). Status colours are single values checked with WCAG *text* contrast, not the categorical six — `warning` at 1.79:1 on light is the by-design sub-3:1 case the icon+label covers. If you swap any hex, re-run before shipping — a good ramp that FAILs the categorical check on purpose (sequential ramps span the band) is expected; don't "fix" it.
+The colour part is computable, so it was computed — don't re-litigate it by eye. The role palette above is already validated: both modes pass (light CVD ΔE 24.2; dark CVD 10.3 — the floor band, legal here because every magnitude mark is direct-labelled). The blue accent clears 3:1 in both modes (4.30 / 3.94). Status colours are single values checked with WCAG *text* contrast, not the categorical six — `warning` at 1.79:1 on light is the by-design sub-3:1 case the icon+label covers. If you swap any hex, re-validate before shipping (WCAG text contrast for status/ink pairs, a CVD-distance check for the categorical slots) — and expect a good sequential ramp to FAIL a categorical-distance check on purpose (ramps span the band); don't "fix" it.
 
 ## Top recommendation section
 

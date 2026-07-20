@@ -23,7 +23,7 @@ Update this file when you change which external skill an inventoried skill relie
 
 | Skill | Used by | Canonical path in this repo | Note |
 | --- | --- | --- | --- |
-| `improve-codebase-architecture` | `production-flywheel` Stage 1 report | [`skills/improve-codebase-architecture`](skills/improve-codebase-architecture/) | Promoted into this inventory; lineage still Matt-informed |
+| `improve-codebase-architecture-mwdev` | `production-flywheel` Stage 1 report | [`skills/improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | In-repo architecture deepening skill; Matt-informed lineage |
 
 Install examples:
 
@@ -44,7 +44,7 @@ Browse: [skills.sh/mattpocock/skills](https://skills.sh/mattpocock/skills) · [s
 | `diagnosing-bugs` | flywheel + audit execute interrupt | `mattpocock/skills` | `~/.agents/skills/diagnosing-bugs` | local-unpinned |
 | `to-tickets` (or Slice Contract fallback) | `production-flywheel` Stage 6 | `mattpocock/skills` | `~/.agents/skills/to-tickets` | local-unpinned |
 | `grilling` | primitive under `expanded-grill-with-docs` | `mattpocock/skills` | `~/.agents/skills/grilling` | local-unpinned |
-| `grill-with-docs` | alias / thinner grill+docs; flywheel may accept it | `mattpocock/skills` | `~/.agents/skills/grill-with-docs` | local-unpinned |
+| `grill-with-docs` | `production-flywheel` Stage 4 design-lane A (default) | `mattpocock/skills` | `~/.agents/skills/grill-with-docs` | local-unpinned |
 | `domain-modeling` | `expanded-grill-with-docs` glossary/ADR capture | `mattpocock/skills` | `~/.agents/skills/domain-modeling` | local-unpinned |
 | `codebase-design` (design-it-twice) | flywheel when 2+ interface shapes | `mattpocock/skills` | `~/.agents/skills/codebase-design` | local-unpinned |
 | `wayfinder` | flywheel scoping (too big for one slice) | `mattpocock/skills` | `~/.agents/skills/wayfinder` | local-unpinned |

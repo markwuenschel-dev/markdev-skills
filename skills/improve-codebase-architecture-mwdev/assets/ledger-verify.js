@@ -1,5 +1,5 @@
 /* ledger-verify.js — self-verifying scoring ledger for the architecture
- * review report (improve-codebase-architecture).
+ * review report (improve-codebase-architecture-mwdev).
  *
  * Why this exists: every number on a scored report page — priority, band,
  * meter fill, histogram bars, the 1..N rank order — is otherwise hand-typed

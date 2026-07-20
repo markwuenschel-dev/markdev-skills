@@ -1,5 +1,5 @@
 /* mermaid-safe.js — data-driven, sanitized Mermaid rendering for the
- * architecture review report (improve-codebase-architecture).
+ * architecture review report (improve-codebase-architecture-mwdev).
  *
  * Why this exists: candidate names come from real codebases and contain
  * slashes, parens, colons, arrows (`->`, `→`), brackets, quotes, `#`,

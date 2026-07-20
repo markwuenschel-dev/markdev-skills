@@ -1,10 +1,10 @@
 ---
-name: improve-codebase-architecture
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick.
+name: improve-codebase-architecture-mwdev
+description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. Use when the user wants architecture deepening, an HTML deepening report, or runs /improve-codebase-architecture-mwdev.
 disable-model-invocation: true
 ---
 
-# Improve Codebase Architecture
+# Improve Codebase Architecture (mwdev)
 
 Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
 
@@ -51,7 +51,7 @@ For each candidate, render a card with:
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why — and pull a compact version of it forward as a hero under the masthead, so the first decision is made before the reader scans. Group the ranked ledger into strength bands (Strong / Worth exploring / Speculative).
 
-**Scoring — canonical spine.** This is a *scored* report in the family, so score every candidate per the family scoring spine: the **scoring-spine half** of `REPORT-SCORING.md` in the `codebase-integrity-audit-loop` skill folder (candidate schema, the eight 1–5 scores, the `priority_score` formula, and dedup rules are defined there and nowhere else). Take that half only — this report keeps its own look in [HTML-REPORT.md](HTML-REPORT.md), not the file's *Report style* (visual) half. Each candidate carries a `candidate_id`, file/line `evidence`, the eight `scores`, and a `priority_score` rollup; the **Recommendation strength** badge is `priority_score` rendered for humans (`Strong` = high, `Worth exploring` = mid, `Speculative` = low), and the `1..N` numbering follows priority order. When this command drives `production-flywheel`, emit the candidate ledger and a recommended queue per the spine so the flywheel can build its queue directly; the editorial before/after cards are this report's presentation layer on top of that ledger.
+**Scoring — canonical spine.** This is a *scored* report in the family, so score every candidate per the family scoring spine: the **scoring-spine half** of [`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md) (candidate schema, the eight 1–5 scores, the `priority_score` formula, and dedup rules are defined there and nowhere else). Take that half only — this report keeps its own look in [HTML-REPORT.md](HTML-REPORT.md), not the file's *Report style* (visual) half. Each candidate carries a `candidate_id`, file/line `evidence`, the eight `scores`, and a `priority_score` rollup; the **Recommendation strength** badge is `priority_score` rendered for humans (`Strong` = high, `Worth exploring` = mid, `Speculative` = low), and the `1..N` numbering follows priority order. When this command drives `production-flywheel`, emit the candidate ledger and a recommended queue per the spine so the flywheel can build its queue directly; the editorial before/after cards are this report's presentation layer on top of that ledger. Emit that ledger as the report's **JSON island** and render every scoring display through the data-driven helpers in [`assets/ledger-verify.js`](assets/ledger-verify.js) — recomputed priorities, derived bands and fills, verified `1..N` order, and the masthead verification chip; see [HTML-REPORT.md](HTML-REPORT.md) → **Self-verifying ledger**. Never hand-write a scoring number and never re-derive the renderer.
 
 **Use CONTEXT.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
 

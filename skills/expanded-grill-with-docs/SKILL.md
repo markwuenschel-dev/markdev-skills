@@ -1,6 +1,6 @@
 ---
 name: expanded-grill-with-docs
-description: "Relentless interview to shape a selected idea, design, or direction into shared understanding and an approved design/rollout package while writing glossary, ADRs, and durable specs as decisions crystallize. Use when the user wants to grill a plan, stress-test thinking, pin domain language, produce ADRs/CONTEXT, compare designs before implementation planning, or runs /expanded-grill-with-docs. Default design lane for production-flywheel. Do not use to choose project priority, generate implementation tickets, implement or repair code, or open pull requests."
+description: "Relentless interview to shape a selected idea, design, or direction into shared understanding and an approved design/rollout package while writing glossary, ADRs, and durable specs as decisions crystallize. Use when the user wants to grill a plan, stress-test thinking, pin domain language, produce ADRs/CONTEXT, compare designs before implementation planning, or runs /expanded-grill-with-docs. Deeper design package than flywheel's default `/grill-with-docs` lane. Do not use to choose project priority, generate implementation tickets, implement or repair code, or open pull requests."
 disable-model-invocation: false
 ---
 
@@ -24,7 +24,7 @@ Use `assets/skill-contract.json` as the machine-readable skill contract and `ass
 - User wants to stress-test a plan, product idea, architecture fork, or ambiguous design.
 - A direction is chosen but requirements, domain semantics, architecture, migration, verification, observability, rollout, or rollback remain underspecified.
 - Several plausible designs need comparison before implementation planning.
-- Flywheel design-lane gate A (default) for a selected queue item.
+- Flywheel design-lane when the user wants a deeper approved design/rollout package than default `/grill-with-docs`.
 - Domain language is fuzzy and must stabilize before tickets or code.
 
 ## When not to use
@@ -33,7 +33,7 @@ Use `assets/skill-contract.json` as the machine-readable skill contract and `ass
 | --- | --- |
 | User already selected ship work | `production-flywheel` |
 | Repo health / integrity candidates | `codebase-integrity-audit-loop` |
-| Architecture deepening report (HTML candidates) | `improve-codebase-architecture` |
+| Architecture deepening report (HTML candidates) | `improve-codebase-architecture-mwdev` |
 | Known mission needs parallel lanes | `human-directed-swarm-planner` |
 | Prompt / system-prompt / launch-brief craft | `prompt-forge` |
 | Unsure | `loop-router` |
@@ -224,7 +224,7 @@ Set the final status to `APPROVED DESIGN/ROLLOUT CONTRACT` only after human appr
 
 ## Model invocation policy
 
-Model-invokable when another authorized skill (especially `production-flywheel` design lane A) requires grilling. Do not self-start a grill on a shipping queue without the design-lane context.
+Model-invokable when another authorized skill requires a deeper grill than `/grill-with-docs` (for example an explicit flywheel design-package request). Do not self-start a grill on a shipping queue without design-lane context.
 
 ## Hard rules
 

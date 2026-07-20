@@ -15,7 +15,7 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
  expanded-   integrity  / swarm   flywheel arch       prompts
  grill-      audit-loop           │        improve-   prompt-
  with-docs                        │        codebase-  forge
-                                  │        architecture
+                                  │        architecture-mwdev
 ```
 
 | Need | Top-level skill | Does **not** do |
@@ -24,7 +24,7 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
 | Audit repo health | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
 | Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
-| Architecture deepening report | `improve-codebase-architecture` | Implement chosen deepenings; open PRs |
+| Architecture deepening report | `improve-codebase-architecture-mwdev` | Implement chosen deepenings; open PRs |
 | Write / repair / optimize prompts | `prompt-forge` | Perform the underlying task; author SKILL.md packages |
 | Unsure which applies | `loop-router` | Execute work itself beyond routing |
 
@@ -38,11 +38,12 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
 | `codebase-integrity-audit-loop` | `human-directed-swarm-planner` | User wants parallel report (`--parallel-report`) or a mission swarm |
 | `human-directed-swarm-planner` | `codebase-integrity-audit-loop` | Repo Audit swarm produced a ledger; next is candidate loops |
 | `human-directed-swarm-planner` | `production-flywheel` | Mission is a **queue** of separate items, not one milestone |
-| `production-flywheel` | `expanded-grill-with-docs` | Design-lane gate A (default) for a queue item |
-| `production-flywheel` | `improve-codebase-architecture` | Stage 1 architecture report / deepening candidates |
+| `production-flywheel` | `grill-with-docs` (external) | Design-lane gate A (default) for a queue item |
+| `production-flywheel` | `expanded-grill-with-docs` | User wants a deeper approved design/rollout package than the default grill |
+| `production-flywheel` | `improve-codebase-architecture-mwdev` | Stage 1 architecture report / deepening candidates |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
-| `improve-codebase-architecture` | `expanded-grill-with-docs` or `/grilling` | User selected a deepening candidate to design |
-| `improve-codebase-architecture` | `production-flywheel` | User selected a queue of candidates to ship |
+| `improve-codebase-architecture-mwdev` | `grill-with-docs` / `expanded-grill-with-docs` / `/grilling` | User selected a deepening candidate to design |
+| `improve-codebase-architecture-mwdev` | `production-flywheel` | User selected a queue of candidates to ship |
 | `prompt-forge` | (exit) | Prompt delivered; do not execute the prompted task unless the user separately asks |
 
 ## Shared contracts
