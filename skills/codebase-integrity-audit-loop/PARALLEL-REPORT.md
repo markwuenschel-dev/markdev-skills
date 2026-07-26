@@ -5,8 +5,8 @@ Loaded from SKILL.md when `--parallel-report` is set. This mode replaces Stages 
 ## Flow
 
 1. Invoke the companion skill `human-directed-swarm-planner`, routing to its **Repo Audit swarm** type (that heading in its SWARM-TYPES.md defines the lanes and merge protocol).
-2. The swarm runs the four default read-only lanes — deepening seams, graded integrity, blast radius, verification readiness — unless the user overrides the lane set.
-3. The captain merges lane outputs into one scored HTML report and one candidate ledger, both per [REPORT-SCORING.md](../../shared/REPORT-SCORING.md).
+2. The captain derives non-overlapping read-only evidence lanes from the repository surface inventory; the number is adaptive, not a fixed four-lane roster.
+3. The captain merges evidence into one candidate-discovery HTML report and one shared-spine v3 ledger. Lanes return evidence, claims, proposed candidates, and uncertainty; the captain alone deduplicates and scores.
 4. Print the report's absolute path and the ledger, then stop at the candidate gate: ask the user to select exactly one candidate, exactly as Stage 2's manual-mode gate asks.
 
 ## Hard rules

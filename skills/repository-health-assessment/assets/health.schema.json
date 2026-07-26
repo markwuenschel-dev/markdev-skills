@@ -1,0 +1,1464 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openai:repository-health-assessment:health-island:v4",
+  "title": "Repository Health Assessment Island (v4)",
+  "description": "The single JSON island embedded in a repository health report. Every number displayed on the page derives from this document via assets/health-verify.js. This schema is the specification; health-verify.js compiles the load-bearing rules so a self-contained report can enforce them without shipping a validator. assets/health-verify.test.html asserts parity between the two. Stored computed values (lane_score, grade.*) are OPTIONAL and are checked against recomputation, never trusted for display.",
+  "type": "object",
+  "required": [
+    "health_schema_version",
+    "repository",
+    "verification",
+    "coverage",
+    "lanes",
+    "lane_applicability",
+    "claims",
+    "spine_version",
+    "generated"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "health_schema_version": {
+      "const": 4
+    },
+    "spine_version": {
+      "const": 3,
+      "description": "Canonical candidate-ledger spine version. Required even when candidates is empty so every handoff declares the protocol it implements."
+    },
+    "generated": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "name",
+        "revision",
+        "freshness",
+        "freshness_evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "root": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "freshness": {
+          "enum": [
+            "fresh",
+            "stale",
+            "unknown"
+          ],
+          "description": "fresh = assessed revision is current HEAD with a clean tree."
+        },
+        "excluded_scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "freshness_evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "assessment_revision",
+            "head_revision",
+            "working_tree_clean",
+            "observed_at"
+          ],
+          "properties": {
+            "assessment_revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "head_revision": {
+              "type": "string",
+              "minLength": 1
+            },
+            "working_tree_clean": {
+              "type": "boolean"
+            },
+            "observed_at": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "description": "Evidence used to derive repository.freshness. For fresh, assessment_revision must equal head_revision and working_tree_clean must be true."
+        }
+      }
+    },
+    "core_surfaces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ADDITIVE ONLY. Designates further surfaces as core; it can never remove a default core surface. Every id must exist in the inventory."
+    },
+    "verification": {
+      "type": "object",
+      "required": [
+        "baseline"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "baseline": {
+          "enum": [
+            "trustworthy",
+            "partial",
+            "untrustworthy",
+            "not-run"
+          ],
+          "description": "DERIVED from commands, not asserted. no commands -> not-run; no test command -> partial/no-test-command; any test not passing -> untrustworthy; any other command neither passing nor a documented skip -> partial/non-test-not-passing; else trustworthy. Ceilings: not-run C, untrustworthy C, partial/no-test-command B, partial/non-test-not-passing C."
+        },
+        "isolation": {
+          "enum": [
+            "worktree",
+            "copy",
+            "container",
+            "in-place",
+            "none"
+          ],
+          "description": "Required when commands ran. in-place and none are rejected: a build or test run leaves caches, coverage output, snapshots, generated files, or a touched lockfile behind, which breaks the read-only promise."
+        },
+        "isolation_note": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "command_id",
+              "kind",
+              "command",
+              "result"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "test",
+                  "build",
+                  "lint",
+                  "typecheck",
+                  "other"
+                ]
+              },
+              "command": {
+                "type": "string",
+                "minLength": 1
+              },
+              "exit_code": {
+                "type": "integer"
+              },
+              "elapsed_seconds": {
+                "type": "number"
+              },
+              "result": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "error",
+                  "skipped"
+                ]
+              },
+              "note": {
+                "type": "string"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "command_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "result": {
+                      "const": "skipped"
+                    }
+                  },
+                  "required": [
+                    "result"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "reason"
+                  ],
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "exit_code"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "elapsed_seconds"
+                        ]
+                      }
+                    ]
+                  }
+                },
+                "else": {
+                  "required": [
+                    "exit_code",
+                    "elapsed_seconds"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "result": {
+                      "const": "pass"
+                    }
+                  },
+                  "required": [
+                    "result"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "exit_code": {
+                      "const": 0
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "result": {
+                      "const": "fail"
+                    }
+                  },
+                  "required": [
+                    "result"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "exit_code": {
+                      "not": {
+                        "const": 0
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "uncontained_critical_failure": {
+      "type": [
+        "boolean",
+        "string"
+      ],
+      "description": "A known, reachable, uncontained critical failure. Caps the overall grade at D. Prefer a string naming the failure."
+    },
+    "coverage": {
+      "type": "array",
+      "minItems": 11,
+      "description": "The surface inventory, and the denominator. EVERY default surface id must appear: runtime-code, domain-libraries, architecture-boundaries, contracts-and-wiring, data-lifecycle, verification, build-and-delivery, operational-behavior, generated-surfaces, specialized-paths, ownership-and-maintainability. A surface the repository lacks is declared not-applicable with a reason, never omitted \u2014 omission shrinks the denominator and inflates weighted coverage.",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "criticality_weight",
+          "coverage",
+          "evidence_refs"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "criticality_weight": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "Blast radius if this surface is wrong. Never keyed to file count or lines of code. Deviating from the default weight requires weight_rationale."
+          },
+          "weight_rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "coverage": {
+            "enum": [
+              "inspected",
+              "sampled",
+              "inventory-only",
+              "uninspected",
+              "unavailable",
+              "not-applicable"
+            ]
+          },
+          "evidence_quality": {
+            "enum": [
+              "strong",
+              "moderate",
+              "weak",
+              "none"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required for not-applicable (a factual claim the surface does not exist) and for unavailable (so it becomes a human-decision blocker)."
+          },
+          "note": {
+            "type": "string"
+          },
+          "evidence_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "ref"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "claim",
+                    "command",
+                    "path",
+                    "inventory",
+                    "rationale",
+                    "blocker"
+                  ]
+                },
+                "ref": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "description": "Traceability for the coverage state and evidence-quality assertion. claim and command refs must resolve in the same island."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "coverage": {
+                  "const": "not-applicable"
+                }
+              },
+              "required": [
+                "coverage"
+              ]
+            },
+            "then": {
+              "required": [
+                "reason"
+              ]
+            },
+            "else": {
+              "required": [
+                "evidence_quality"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "coverage": {
+                  "const": "unavailable"
+                }
+              },
+              "required": [
+                "coverage"
+              ]
+            },
+            "then": {
+              "required": [
+                "reason"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "coverage": {
+                  "const": "inspected"
+                }
+              },
+              "required": [
+                "coverage"
+              ]
+            },
+            "then": {
+              "properties": {
+                "evidence_quality": {
+                  "enum": [
+                    "strong",
+                    "moderate"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "id": {
+                  "enum": [
+                    "runtime-code",
+                    "domain-libraries",
+                    "architecture-boundaries",
+                    "contracts-and-wiring",
+                    "verification"
+                  ]
+                }
+              },
+              "required": [
+                "id"
+              ]
+            },
+            "then": {
+              "properties": {
+                "coverage": {
+                  "not": {
+                    "const": "not-applicable"
+                  }
+                }
+              },
+              "description": "A default core surface can never be not-applicable: that removes it from the denominator, which allowed a report to declare the whole core absent and read 100% coverage with an A. Use unavailable, which keeps it in the denominator and makes the repository Not gradable."
+            }
+          }
+        ]
+      }
+    },
+    "lanes": {
+      "type": "array",
+      "minItems": 6,
+      "description": "All six required lanes must appear: correctness-and-integrity, architecture-fitness, contracts-and-integration, verification-readiness, build-and-delivery, maintainability-and-ownership. Optional lanes appear only when the repository has that surface.",
+      "items": {
+        "type": "object",
+        "required": [
+          "lane",
+          "scores"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "lane": {
+            "enum": [
+              "correctness-and-integrity",
+              "architecture-fitness",
+              "contracts-and-integration",
+              "verification-readiness",
+              "build-and-delivery",
+              "maintainability-and-ownership",
+              "data-and-migrations",
+              "security-and-production-safety",
+              "numerical-correctness",
+              "gpu-equivalence",
+              "performance-and-resources",
+              "platform-compatibility"
+            ]
+          },
+          "criticality_weight": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "LOCKED per lane and optional in the island; if present it must equal the fixed value (correctness 5, architecture 4, contracts 4, verification 4, build 3, maintainability 2, data 4, security 5, numerical 4, gpu 3, performance 3, platform 2). A free weight would let a failing critical lane be demoted out of the weakest-critical-lane cap."
+          },
+          "scores": {
+            "type": "object",
+            "required": [
+              "observed_soundness",
+              "automated_enforcement",
+              "verification_readiness",
+              "boundary_clarity",
+              "change_containment",
+              "operational_reproducibility"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "observed_soundness": {
+                "$ref": "#/$defs/dimension"
+              },
+              "automated_enforcement": {
+                "$ref": "#/$defs/dimension"
+              },
+              "verification_readiness": {
+                "$ref": "#/$defs/dimension"
+              },
+              "boundary_clarity": {
+                "$ref": "#/$defs/dimension"
+              },
+              "change_containment": {
+                "$ref": "#/$defs/dimension"
+              },
+              "operational_reproducibility": {
+                "$ref": "#/$defs/dimension"
+              }
+            }
+          },
+          "lane_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "OPTIONAL. Recomputed as Sum(level / 4 * weight_pct) and flagged if it disagrees. Always lands on a quarter-point."
+          },
+          "grade_drivers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "would_raise": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "could_lower": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The audit trail. Referenced per dimension via scores.<dimension>.claim_refs; a claim no longer declares which dimensions it supports, so one broad claim cannot rubber-stamp a lane.",
+      "items": {
+        "type": "object",
+        "required": [
+          "claim_id",
+          "lane",
+          "statement",
+          "result",
+          "evidence"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lane": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "result": {
+            "enum": [
+              "pass",
+              "partial",
+              "fail",
+              "unknown"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "path"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "lines": {
+                      "type": "string"
+                    },
+                    "note": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "architecture_level",
+                    "rationale"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "architecture_level": {
+                      "const": true
+                    },
+                    "rationale": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "observation": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Keeping confirmed/inferred/unknown separate feeds determinism_ratio and stops an inference hardening into a fact.",
+            "properties": {
+              "confirmed": {
+                "type": "string"
+              },
+              "inferred": {
+                "type": "string"
+              },
+              "unknown": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "grade": {
+      "type": "object",
+      "description": "OPTIONAL. Every field is recomputed and checked; a stored value that disagrees is flagged and the recomputed value displayed. Thresholds are anchored to the maturity scale: A >= 90, B >= 75, C >= 50, D >= 25, F below 25, so a repository uniformly at level N lands on the floor of its band.",
+      "additionalProperties": false,
+      "properties": {
+        "raw_score": {
+          "type": "number"
+        },
+        "raw_grade": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F"
+          ]
+        },
+        "final_grade": {
+          "enum": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "F",
+            "Not gradable"
+          ]
+        },
+        "weighted_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "moderate",
+            "low"
+          ]
+        },
+        "confidence_index": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "caps_applied": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "enum": [
+                  "weakest-critical-lane",
+                  "untrustworthy-baseline",
+                  "coverage-below-80",
+                  "coverage-below-60",
+                  "uncontained-critical-failure"
+                ]
+              },
+              {
+                "type": "object",
+                "required": [
+                  "cap"
+                ],
+                "properties": {
+                  "cap": {
+                    "type": "string"
+                  },
+                  "ceiling": {
+                    "enum": [
+                      "A",
+                      "B",
+                      "C",
+                      "D",
+                      "F"
+                    ]
+                  },
+                  "trigger": {
+                    "type": "string"
+                  },
+                  "binding": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "not_gradable": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "description": "Complete shared spine v3 candidate records. Health adds lane_sources and claim_refs provenance but does not redefine scoring.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "title",
+          "lane_sources",
+          "claim_refs",
+          "summary",
+          "root_cause",
+          "evidence",
+          "scores",
+          "rollup",
+          "effort",
+          "depends_on",
+          "unlocks",
+          "status",
+          "dedup"
+        ],
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lane_sources": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "claim_refs": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "root_cause": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "observation"
+              ],
+              "properties": {
+                "file": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "line": {
+                  "type": [
+                    "integer",
+                    "string"
+                  ]
+                },
+                "observation": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "architecture_level": {
+                  "type": "boolean"
+                },
+                "rationale": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "anyOf": [
+                {
+                  "required": [
+                    "file",
+                    "line"
+                  ]
+                },
+                {
+                  "properties": {
+                    "architecture_level": {
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "architecture_level",
+                    "rationale"
+                  ]
+                }
+              ]
+            }
+          },
+          "scores": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "severity",
+              "confidence",
+              "leverage",
+              "locality",
+              "testability",
+              "blast_radius",
+              "regression_risk",
+              "human_decision_risk"
+            ],
+            "properties": {
+              "severity": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "confidence": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "leverage": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "locality": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "testability": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "blast_radius": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "regression_risk": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "human_decision_risk": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              }
+            }
+          },
+          "rollup": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "priority_score",
+              "recommended_action",
+              "execution_mode",
+              "blocked_by"
+            ],
+            "properties": {
+              "priority_score": {
+                "type": "integer",
+                "minimum": -10,
+                "maximum": 22
+              },
+              "recommended_action": {
+                "enum": [
+                  "direct-fix",
+                  "design",
+                  "prototype",
+                  "fitness-check",
+                  "triage",
+                  "reject"
+                ]
+              },
+              "execution_mode": {
+                "enum": [
+                  "sequential",
+                  "connected-impact-sweep",
+                  "swarm",
+                  "blocked-needs-human-decision"
+                ]
+              },
+              "blocked_by": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "effort": {
+            "enum": [
+              "S",
+              "M",
+              "L"
+            ]
+          },
+          "depends_on": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "unlocks": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "enum": [
+              "ready",
+              "blocked",
+              "needs-human-decision",
+              "rejected",
+              "completed"
+            ]
+          },
+          "dedup": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "duplicate_group",
+              "merged_from"
+            ],
+            "properties": {
+              "duplicate_group": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "merged_from": {
+                "type": "array",
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        },
+        "description": "Complete canonical shared-ledger spine v3 candidate plus health-only lane_sources and claim_refs provenance."
+      }
+    },
+    "previous": {
+      "type": "object",
+      "description": "The prior run's snapshot. The delta is COMPUTED, never hand-authored. A candidate absent from the current run is reported missing-from-current-run and fails continuity verification unless its previous entry carries a terminal lifecycle_status (completed, rejected, superseded, deferred, out-of-scope) \u2014 absence is not completion.",
+      "additionalProperties": false,
+      "properties": {
+        "generated": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "raw_score": {
+          "type": "number"
+        },
+        "weighted_coverage": {
+          "type": "number"
+        },
+        "confidence_index": {
+          "type": "number"
+        },
+        "final_grade": {
+          "type": "string"
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_id",
+              "result"
+            ],
+            "properties": {
+              "claim_id": {
+                "type": "string"
+              },
+              "result": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "candidate_id"
+            ],
+            "properties": {
+              "candidate_id": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "ready",
+                  "blocked",
+                  "needs-human-decision",
+                  "rejected",
+                  "completed"
+                ]
+              },
+              "lifecycle_status": {
+                "enum": [
+                  "ready",
+                  "blocked",
+                  "in-progress",
+                  "completed",
+                  "rejected",
+                  "superseded",
+                  "deferred",
+                  "out-of-scope"
+                ]
+              },
+              "resolution": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "completed_at": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_refs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "superseded_by": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            },
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "lifecycle_status": {
+                      "const": "completed"
+                    }
+                  },
+                  "required": [
+                    "lifecycle_status"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "resolution"
+                  ],
+                  "properties": {
+                    "resolution": {
+                      "required": [
+                        "completed_at",
+                        "verification_refs"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "lifecycle_status": {
+                      "const": "superseded"
+                    }
+                  },
+                  "required": [
+                    "lifecycle_status"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "resolution"
+                  ],
+                  "properties": {
+                    "resolution": {
+                      "required": [
+                        "superseded_by"
+                      ]
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "lifecycle_status": {
+                      "enum": [
+                        "rejected",
+                        "deferred",
+                        "out-of-scope"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "lifecycle_status"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "resolution"
+                  ],
+                  "properties": {
+                    "resolution": {
+                      "required": [
+                        "reason"
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "surfaces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "coverage"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "coverage": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "lanes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "lane"
+            ],
+            "properties": {
+              "lane": {
+                "type": "string"
+              },
+              "lane_score": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      }
+    },
+    "lane_applicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "data-and-migrations",
+        "security-and-production-safety",
+        "numerical-correctness",
+        "gpu-equivalence",
+        "performance-and-resources",
+        "platform-compatibility"
+      ],
+      "description": "Every optional lane must be either scored in `lanes` or declared here. Omission is not a declaration: without this block the three most expensive optional lanes could vanish from a repository that plainly has those surfaces, unremarked.",
+      "properties": {
+        "data-and-migrations": {
+          "type": "object",
+          "required": [
+            "state",
+            "surface_refs",
+            "rationale"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "applicable",
+                "not-applicable"
+              ]
+            },
+            "surface_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Surfaces in the inventory that justify the state. The claim rests on a surface, and the surface is checkable."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "security-and-production-safety": {
+          "type": "object",
+          "required": [
+            "state",
+            "surface_refs",
+            "rationale"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "applicable",
+                "not-applicable"
+              ]
+            },
+            "surface_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Surfaces in the inventory that justify the state. The claim rests on a surface, and the surface is checkable."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "numerical-correctness": {
+          "type": "object",
+          "required": [
+            "state",
+            "surface_refs",
+            "rationale"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "applicable",
+                "not-applicable"
+              ]
+            },
+            "surface_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Surfaces in the inventory that justify the state. The claim rests on a surface, and the surface is checkable."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "gpu-equivalence": {
+          "type": "object",
+          "required": [
+            "state",
+            "surface_refs",
+            "rationale"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "applicable",
+                "not-applicable"
+              ]
+            },
+            "surface_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Surfaces in the inventory that justify the state. The claim rests on a surface, and the surface is checkable."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "performance-and-resources": {
+          "type": "object",
+          "required": [
+            "state",
+            "surface_refs",
+            "rationale"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "applicable",
+                "not-applicable"
+              ]
+            },
+            "surface_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Surfaces in the inventory that justify the state. The claim rests on a surface, and the surface is checkable."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "platform-compatibility": {
+          "type": "object",
+          "required": [
+            "state",
+            "surface_refs",
+            "rationale"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "enum": [
+                "applicable",
+                "not-applicable"
+              ]
+            },
+            "surface_refs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string"
+              },
+              "description": "Surfaces in the inventory that justify the state. The claim rests on a surface, and the surface is checkable."
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "required": [
+        "level",
+        "claim_refs",
+        "rationale"
+      ],
+      "additionalProperties": false,
+      "description": "Support is declared per dimension. A bare number is rejected: it carries no audit trail, and it was what allowed one broad claim to justify an entire lane.",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4,
+          "description": "0 absent/no trustworthy evidence, 1 ad hoc, 2 partial, 3 mostly systematic, 4 systematic and regression-resistant. Level >= 2 needs at least one supporting claim resulting pass or partial; level 4 needs at least one resulting pass; a dimension supported only by unknown claims cannot exceed level 1; level <= 1 must not rest solely on passing claims."
+        },
+        "claim_refs": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Each reference names a real claim in this same lane and states what it supports for THIS dimension. The object form exists because a bare id repeated across six dimensions is a rubber stamp; six distinct support lines are an argument. Reusing one claim with an identical support line is rejected.",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim_id",
+              "support"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "claim_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "support": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,158 @@
+# Wayfinder benchmark fixtures — v2.1.2
+# Consumed by scripts/benchmark_runner.py. Each benchmark runs as ONE brand-new
+# model conversation containing only: the skill context files listed, the
+# scenario setup, and the scripted fixture turns below. Nothing from any other
+# run, score, or prior map state enters the context — that is how freshness is
+# established and it is recorded in every run envelope.
+#
+# Scout packets are FIXTURE INPUTS (the benchmarks test selection reasoning,
+# synthesis, and packet quality — not live subagent spawning). Human turns are
+# fixed decision-owner answers; the model must never write the human's side.
+
+suite_version: "2.1.2"
+skill_context_files:          # inlined into the system prompt for every run
+  - SKILL.md
+  - references/mapping-interview.md
+  - references/mapping-scouts.md
+golden_transcripts: assets/benchmark-transcripts.md
+
+benchmarks:
+  - id: b1
+    version: "2.1.2"
+    title: "Scout findings alter the first question packet"
+    turns:
+      - role: user
+        content: |
+          Chart this effort. Destination (already confirmed by the decision owner, mark):
+          "Produce a resolved migration direction and decision path for replacing
+          per-service customer identity records with one canonical profile."
+          Evidence on disk: ADR-014 — "PostgreSQL is the sole canonical store — settled."
+          Service docs state the billing legacy_identity table is read-only.
+          State which mapping scouts you would launch and why, then stop; the
+          scout packets will arrive next.
+      - role: user
+        content: |
+          Scout packets returned:
+          [repository-and-current-system] evidence: auth, billing, and support each
+          write identity fields with no shared contract (services/*/identity/*.kt,
+          high confidence); billing dual-writes legacy_identity despite docs calling
+          it read-only (billing/writers/LegacyIdentityWriter.kt, high confidence).
+          contradiction: docs say read-only vs code writes on every update —
+          migration sequencing cannot be decided until its status is ruled.
+          [data-and-migration] candidate decision: which identity key is canonical,
+          auth UUID or billing email? (gates matching, dedup, every merge rule;
+          sharp enough for a ticket). fog candidate: retention and deletion
+          semantics for merged profiles — depends on canonical key and write authority.
+          Synthesize and proceed.
+    checks:      # deterministic auto-checks the runner computes on raw output
+      - id: no-evidence-answered-question
+        fail_code: WF211-BENCHMARK-EVIDENCE-ANSWERED-QUESTION
+        forbid_question_tokens: ["postgres", "which store", "sole canonical store"]
+      - id: contradiction-surfaces
+        require_packet_tokens: ["dual-write", "legacy"]
+      - id: packet-size
+        min_questions: 2
+        max_questions: 4
+      - id: stops-and-waits
+        forbid_output_tokens: ["[Human]"]
+
+  - id: b2
+    version: "2.1.2"
+    title: "A human answer eliminates a branch"
+    turns:
+      - role: user
+        content: |
+          You are mid-charting the canonical-profile effort. Your outstanding packet
+          asked: (1) which identity key is canonical — auth UUID or billing email;
+          (2) whether billing's write path to legacy_identity is load-bearing or
+          stale; (3) whose semantics win when services disagree about a profile field.
+          Candidate decisions still open include email-collision handling and
+          email-change propagation. The decision owner (mark) answers:
+          "UUID from auth is canonical — email is just a mutable attribute. The
+          legacy table is stale; nothing reads it, kill it whenever. On conflicts:
+          auth wins for identity fields, the owning service wins for its own domain
+          fields." Integrate and continue.
+    checks:
+      - id: branch-eliminated
+        forbid_question_tokens: ["email collision", "email-change", "email change propagation"]
+      - id: ticket-not-inline
+        require_output_tokens: ["write authority"]
+        forbid_question_tokens: ["single write path on day one"]
+      - id: no-duplicate-questions
+        fail_code: WF211-QUESTION-DUPLICATE
+        dedup_threshold: 0.6
+      - id: stops-and-waits
+        forbid_output_tokens: ["[Human]"]
+
+  - id: b3
+    version: "2.1.2"
+    title: "Fog becomes a sharp ticket"
+    turns:
+      - role: user
+        content: |
+          Work cycle on the canonical-profile map. The ticket "Write authority during
+          transition" (grilling) carries claimed_by: mark-cc-0722a, decision_owner:
+          mark, and progress comments including one received decision-owner answer.
+          Your worker identity for this session is mark-cc-0722a. Map fog holds:
+          "retention/deletion semantics — waits on write authority." Resume and run
+          the grilling round.
+      - role: user
+        content: |
+          The decision owner answers: "Dual-write, 30-day window. Auth auto-resolves;
+          weekly report, no human gate." Resolve, record, and integrate.
+    checks:
+      - id: claim-owner-distinct
+        fail_code: WF211-CLAIM-OWNER-CONFLATION
+        forbid_output_tokens: ["your claim"]
+      - id: grilling-round-size
+        min_questions: 1
+        max_questions: 3
+      - id: fog-graduates
+        require_output_tokens: ["deletion", "fog"]
+      - id: single-primary-stop
+        forbid_output_tokens: ["resolving a second", "also resolved"]
+
+  - id: b4
+    version: "2.1.2"
+    title: "Expanded Grill returns and changes the map"
+    turns:
+      - role: user
+        content: |
+          Work cycle on the canonical-profile map. Active design ticket "Migration and
+          cutover shape" (claimed_by: mark-cc-0722a, decision_owner: mark) asks what
+          migration and cutover shape moves services onto the canonical profile.
+          Decisions so far: auth UUID canonical; legacy identity table stale; auth
+          wins identity-field conflicts; dual-write 30-day window, auth auto-resolves.
+          /expanded-grill-with-docs is installed. Show the handoff you would send, then
+          stop; the child's return arrives next.
+      - role: user
+        content: |
+          return_to_wayfinder:
+            parent_map_id: canonical-profile-migration
+            parent_ticket_id: 6
+            resolution_candidate: "Expand-migrate-contract: dual-read behind a flag, per-service cutover, contract legacy reads last"
+            confirmed_decisions: ["cutover is per-service, not big-bang", "reads flip before writes per service"]
+            artifact_links: ["docs/design/canonical-profile-migration/design.md", "docs/design/canonical-profile-migration/decisions.md"]
+            new_sharp_questions:
+              - question: "Which service cuts over first, and what disqualifies a service from early cutover?"
+                why_it_matters: "ordering risk concentrates in the first mover"
+              - question: "Who owns backfill ordering when historical records conflict?"
+                why_it_matters: "backfill can silently overwrite reconciled fields"
+            remaining_fog:
+              - area: "support-service custom identity cache"
+                why_not_yet_sharp: "cache semantics undocumented; needs evidence"
+            blocking_human_decisions: []
+          The decision owner confirmed the decisions during the child interview and the
+          linked decisions document records that confirmation. Integrate and conclude
+          the cycle.
+    checks:
+      - id: no-unsupported-dependency
+        fail_code: WF211-DEPENDENCY-UNSUPPORTED
+        forbid_output_tokens: ["backfill blocked by", "blocked_by: [7]", "wired: backfill"]
+      - id: parent-closes-last
+        require_order_tokens: ["First-mover", "closing"]
+      - id: confirmation-not-approval
+        fail_code: WF211-APPROVAL-LANGUAGE-STALE
+        forbid_output_tokens: ["approval is recorded", "approval bundle"]
+      - id: no-delivery-initiated
+        forbid_output_tokens: ["opening a PR", "start implementation", "production flywheel now"]

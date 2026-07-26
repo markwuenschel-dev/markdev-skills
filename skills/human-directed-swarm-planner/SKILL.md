@@ -49,7 +49,7 @@ Manual mode:
 1. Clarify or infer the selected mission.
 2. Choose the appropriate swarm type.
 3. Produce one swarm plan.
-4. Stop for user approval unless the user explicitly asked for execution instructions only.
+4. Stop with the plan for user approval. Manual mode produces a plan by default: it executes only when the user explicitly requests execution or the active workflow already authorizes it.
 
 Auto mode may be enabled explicitly:
 
@@ -58,7 +58,7 @@ Auto mode may be enabled explicitly:
 --max-turns <N|max>
 ```
 
-`--auto` without `--max-turns` defaults to `--max-turns 1` (a single mission). For this skill, a turn means one complete swarm mission:
+`--auto` without `--max-turns` defaults to `--max-turns 1` (a single mission). `--max-turns N` counts missions: auto mode executes up to N sequential missions, where one mission is one complete swarm job:
 
 ```text
 mission selected → lanes assigned → subagents briefed → findings integrated → verification/capture defined → next mission selected or stopped
@@ -70,20 +70,20 @@ Examples:
 /human-directed-swarm-planner --auto --max-turns 3
 ```
 
-Plan or run the top 3 recommended swarm missions from the selected report/ledger, in order.
+Plan or run the top 3 eligible missions from the selected report/ledger, in canonical ledger order (eligibility and ranking per [AUTO-MODE.md](AUTO-MODE.md)).
 
 ```text
 /human-directed-swarm-planner --auto --max-turns max
 ```
 
-Continue through all executable swarm missions from the selected report/ledger until exhausted or blocked.
+Continue through all eligible missions from the selected report/ledger, in canonical ledger order, until exhausted or blocked.
 
-Auto mode consumes an existing report/ledger or a report produced at the user's direction. It does not create new scope. When `--auto` is set, read [AUTO-MODE.md](AUTO-MODE.md) before the first mission — mission sources, ranking, hard stops, and the stop report live there.
+Auto mode consumes an existing report/ledger or a report produced at the user's direction. It does not create new scope. When `--auto` is set, read [AUTO-MODE.md](AUTO-MODE.md) before the first mission — mission sources, eligibility, ranking, hard stops, and the stop report live there.
 
 ## Hard rules
 
 - Human direction controls mission and scope.
-- One swarm mission per turn.
+- One swarm mission at a time.
 - Cleanup is a mission only when the human names it and its boundary.
 - Each swarm must have a captain/integrator.
 - Each lane must have a concrete output.
@@ -98,10 +98,10 @@ Two swarm classes exist, and they never blur. **Repo Audit** is the read-only cl
 
 Route the human-selected mission to exactly one swarm type, then read [SWARM-TYPES.md](SWARM-TYPES.md) for that type's goal, lanes, outputs, and hard rules:
 
-- **Repo Audit** — read-only, repo-wide: another skill (e.g. `codebase-integrity-audit-loop --parallel-report`) or the user needs broad multi-lens analysis without edits; four default lanes, merged into one scored report + candidate ledger per the family's scoring spine (`shared/REPORT-SCORING.md`), then stop.
+- **Repo Audit** — read-only, repo-wide: another skill (e.g. `codebase-integrity-audit-loop --parallel-report`) or the user needs broad multi-lens analysis without edits; derive adaptive evidence lanes, merge into one candidate-discovery report + shared-spine ledger, then stop at the candidate gate. Formal health grades, baselines, and reassessments route to `repository-health-assessment`; structural design routes to `improve-codebase-architecture-mwdev`.
 - **Explorer** — problem shape unknown; map terrain, seams, candidates, risks, unknowns.
 - **Review** — a change, branch, PR, or generated artifact exists and needs pressure-testing before merge.
-- **Bug** — failing test, production bug, flaky behavior, mysterious regression, unexplained red state.
+- **Bug** — failing test, production bug, flaky behavior, mysterious regression, unexplained red state, *with several independent investigative surfaces*. Topology only: `/diagnosing-bugs-mwdev` owns the diagnostic protocol and each lane runs it; this swarm never restates those stages. One defect with one line of enquiry goes straight to `/diagnosing-bugs-mwdev` with no swarm.
 - **Planning** — target known, execution plan must be production-grade; pairs with implementation-plan-contract.
 - **Research** — work depends on external facts, libraries, standards, or current information.
 - **Fitness-check** — make one recurring failure mode impossible or immediately visible via an enforceable check.
@@ -217,9 +217,9 @@ Allowed examples:
 
 Skills run as lanes inside the mission, never as independent autonomous missions, unless the user explicitly directs it.
 
-## Turn completion
+## Mission completion
 
-A turn is complete only when:
+A mission is complete only when:
 
 - the selected swarm mission has produced its required output
 - lane findings are integrated

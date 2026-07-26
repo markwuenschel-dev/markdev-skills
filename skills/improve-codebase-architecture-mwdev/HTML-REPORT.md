@@ -8,7 +8,7 @@ Colour and mark rules: colours are chosen by the **job** they do and **validated
 
 ## Scoring spine — from `REPORT-SCORING.md`, with stamped deviations
 
-Per [SKILL.md](SKILL.md), every candidate is scored by the **scoring-spine half** of [`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md) — the candidate schema (`candidate_id`, file/line `evidence`, the eight 1–5 `scores`, the `priority_score` rollup), the priority formula (`priority_score = (severity + confidence + leverage + locality + testability) − (blast_radius + regression_risk + human_decision_risk)`, range −10…+22), and the dedup rules — defined there and nowhere else. The abbreviations in this file map to those score names: `sev·cnf·lev·loc·tst` / `bla·reg·hdr` (`hdr` = `human_decision_risk`). The spine's **Report style** (visual) half is **not** adopted: the design system in this file is its own, on purpose — don't restyle this report to match the spine.
+Per [SKILL.md](SKILL.md), every candidate is scored by the **scoring-spine half** of `REPORT-SCORING.md` in `/codebase-integrity-audit-loop` — the candidate schema (`candidate_id`, file/line `evidence`, the eight 1–5 `scores`, the `priority_score` rollup, and the `effort`/`depends_on`/`unlocks`/`status` scheduling fields), the priority formula (`priority_score = (severity + confidence + leverage + locality + testability) − (blast_radius + regression_risk + human_decision_risk)`, range −10…+22), and the dedup rules — defined there and nowhere else. The abbreviations in this file map to those score names: `sev·cnf·lev·loc·tst` / `bla·reg·hdr` (`hdr` = `human_decision_risk`). The spine's **Report style** (visual) half is **not** adopted: the design system in this file is its own, on purpose — don't restyle this report to match the spine.
 
 Three deviations from the spine are deliberate — stamped here so they never read as drift:
 
@@ -16,17 +16,17 @@ Three deviations from the spine are deliberate — stamped here so they never re
 - **Band cut.** `✓ Strong ≥13` / `◐ Worth exploring 6–12` / `○ Speculative ≤5` — one point stricter at the top than the spine style-half's triage bands (`High ≥12` / `Mid 6–11` / `Low ≤5`). Architecture changes earn "Strong" at a higher bar. Do not align this to the spine's ≥12.
 - **No execution rollup on screen.** `recommended_action` / `execution_mode` / `blocked_by` are not rendered in the cards — every candidate here is a proposal headed for the grilling loop, not an execution queue. The machine ledger emitted for the flywheel still follows the spine schema; `human_decision_risk` always scores as a risk input.
 
-If the spine's formula or range ever changes, this file's meter math (`(priority_score + 10) / 32`, the 47%/72% stops) changes with it — that is the one accepted drift surface — and `assets/ledger-verify.js` owns the math (`fillPercent`, `bandStops`), so the change lands in one constant. (Checked against `REPORT-SCORING.md` **v2** and `SKILL.md`, 2026-07-19.)
+If the spine's formula or range ever changes, this file's meter math changes with it — `shared/candidate-ledger-spine/ledger-verify.js` owns the math (`fillPercent`, `bandStops`), so the change lands in one constant.
 
-## Self-verifying ledger — from `assets/ledger-verify.js`
+## Self-verifying ledger — from the shared candidate spine
 
-The report carries **one JSON island** — `<script type="application/json" id="ledger">` — holding `{ spine_version, generated, candidates: [...] }` per the spine schema: `candidate_id`, `title`, `evidence`, the eight `scores`, `rollup.priority_score`, plus `effort`, `depends_on`/`unlocks`, and `blocked` where known. The island is the single source for every number on the page **and** the machine ledger `production-flywheel` consumes — never write a second copy of any score, anywhere.
+The report carries **one JSON island** — `<script type="application/json" id="ledger">` — holding `{ spine_version, generated, candidates: [...] }` per the spine schema: `candidate_id`, `title`, `evidence`, the eight `scores`, `rollup.priority_score`, plus the spine's scheduling fields — `effort` (`S | M | L`), `depends_on`, `unlocks`, and `status` — where known. The island is the single source for every number on the page **and** the machine ledger `production-flywheel` consumes — never write a second copy of any score, anywhere.
 
-Paste the body of [`assets/ledger-verify.js`](assets/ledger-verify.js) into the scaffold verbatim (export-free classic script, same contract as `mermaid-safe.js`) and call `LedgerVerify.runLedger({})` once the DOM is ready. **Do not re-derive the renderer.** The 2026-07-19 field report re-implemented it from prose and shipped two fill formulas in one page (`/22` in the ledger, `(p+10)/32` in the meters), hand-typed stops of 48/71 against the derived 46.9/71.9, and a Strong tick sitting off its own band edge — rendering through the module is *less* work than that and cannot disagree with itself.
+Paste the body of `shared/candidate-ledger-spine/ledger-verify.js` into the scaffold verbatim (export-free classic script, same contract as `mermaid-safe.js`) and call `LedgerVerify.runLedger({})` once the DOM is ready. **Do not re-derive the renderer.**
 
 The module renders every numeric display from the island via placeholders: `[data-ledger]` (ranked rows — rank, serif title, ⚖ when `hdr ≥ 4`, S/M/L effort chip, `unlocks N` chip, axis bar, mono priority), `[data-score-legend]` (the visible abbreviation legend with the formula line), `[data-meter="id"]` (verdict line, derived band track, **diverging** histogram — value bars up, risk bars down — captioned with the recomputed `Σ value − Σ risk` equation), and `[data-rank="id"]` (band-coloured rail number). Prose, diagrams, and card layout stay hand-authored; each card carries `data-candidate="id"` so its order can be checked.
 
-What is enforced: `priority_score` recomputed from the eight scores (a stored value that lies is flagged and the computed value displayed), bands, fills, and stops derived from one config, the spine v2 tie-break (`priority` desc → `effort` asc → `severity` → `confidence` → id), card order, evidence shape, effort range, `depends_on`/`unlocks` references, and unknown-id placeholders. The masthead carries the verification chip (`[data-verify-chip]`); **a red chip means the report does not ship.** Regression fixture: [`assets/ledger-verify.test.html`](assets/ledger-verify.test.html) — keep it green.
+What is enforced: `priority_score` recomputed from the eight scores (a stored value that lies is flagged and the computed value displayed), bands, fills, and stops derived from one config, the spine's stable comparator (owned by `REPORT-SCORING.md` `## Eligibility and stable ranking`: `priority` desc → `effort` asc, `S` before `M` before `L` → `severity` → `confidence` → id), card order, evidence shape, the `effort` domain (`S | M | L`), the `status` domain and its stored-vs-derived consistency, `depends_on`/`unlocks` references (unknown, self, and cycles), the eligible queue (`verified.queue` — blocked, human-decision, and rejected candidates never enter it; an invalid status fails closed), and unknown-id placeholders. The masthead carries the verification chip (`[data-verify-chip]`); **a red chip means the report does not ship.** Regression fixture: [`assets/ledger-verify.test.html`](assets/ledger-verify.test.html) — keep it green.
 
 ## Design system — roles, not raw hex
 
@@ -104,7 +104,7 @@ Non-negotiables (they hold in every report):
       mermaid.initialize({ startOnLoad: false, theme: "neutral", securityLevel: "loose" });
       window.addEventListener("DOMContentLoaded", () => renderAllGraphs("[data-graph]", mermaid));
 
-      // Paste the body of assets/ledger-verify.js here too (same export-free
+      // Paste the body of shared/candidate-ledger-spine/ledger-verify.js here too (same export-free
       // contract), then render every scoring display from the JSON island —
       // never hand-write a score, a fill, a stop, or a rank:
       window.addEventListener("DOMContentLoaded", () => LedgerVerify.runLedger({}));

@@ -4,8 +4,8 @@ This is the **default lane (option A)** of the per-item design-lane gate — the
 
 ## Steps
 
-1. Run `/grill-with-docs`. This is the default the moment the item reaches its turn in the queue — never skipped on the assistant's own judgment.
-2. If multiple interface shapes are plausible, run `/design-it-twice`.
+1. Run `/expanded-grill-with-docs`. This is the default the moment the item reaches its turn in the queue — never skipped on the assistant's own judgment.
+2. If multiple interface shapes are plausible, run the design-it-twice pass in `/codebase-design` — the parallel sub-agent procedure in its `DESIGN-IT-TWICE.md`.
 
 ## Required questions
 

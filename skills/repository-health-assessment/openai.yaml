@@ -1,0 +1,8 @@
+interface:
+  display_name: "Repository Health Assessment"
+  short_description: "Grade repository health with coverage, caps, and confidence"
+policy:
+  # The model may invoke this skill, so an orchestrator can call it directly.
+  # Implicit conversational routing stays off: a full repository scan that may
+  # run a project's test suite should start because someone asked for it.
+  allow_implicit_invocation: false

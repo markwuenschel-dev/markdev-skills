@@ -8,6 +8,33 @@ disable-model-invocation: false
 
 A loopable command for turning codebase drift into one scoped, verified, future-resistant fix.
 
+## Shared candidate contract and lifecycle
+
+Resolve `shared/candidate-ledger-spine/{REPORT-SCORING.md,candidate.schema.json,ledger-verify.js}` repository-relatively, or use an explicit shared-spine override. Missing or incompatible version-3 code is a hard failure: this loop must not score, rank, or repair from a partial envelope.
+
+Consume exactly one candidate source per active loop: a verified health ledger, an architecture candidate ledger, an audit-loop parallel-report ledger, a user-selected candidate, or an issue/defect record reconciled into the canonical envelope. Validate this input before selection:
+
+```yaml
+integrity_candidate_input:
+  source_skill: repository-health-assessment | improve-codebase-architecture-mwdev | loop-router | user
+  candidate_id: ""
+  candidate_envelope: {}
+  source_artifacts: { health_report: null, architecture_report: null, ledger: "" }
+  repository: { assessed_revision: "", current_head: "", freshness: "", baseline_commands: [] }
+  scope: { included: [], excluded: [], non_goals: [] }
+  known_decisions: []
+  unresolved_human_decisions: []
+  recommended_action: ""
+  execution_mode: ""
+  verification_obligations: []
+  mutation_authorized: false
+  merge_authorized: false
+```
+
+Confirm human selection (unless an already-authorized caller supplied it), ensure no other candidate is active, recover prior state, establish a fresh baseline, and validate the treatment branch against current evidence. Treatment is one of `direct-fix`, `fitness-check`, `triage`, `design`, `prototype`, `diagnosing-bugs`, `connected-impact migration`, or `blocked-needs-human-decision`; execution topology is not a treatment branch.
+
+Only independent verification can write `candidate_lifecycle.lifecycle_status: completed`, with `completion.completed_at` and non-empty `completion.verification_refs`. A failed or unavailable verification remains non-completed. After closure, decide whether reassessment is warranted; if so, emit a `repository_health_reassessment_request` preserving prior report, revision, completed IDs, verification references, expected lanes/surfaces/caps, and all continuity requirements. Request it and return; this loop never computes a health grade.
+
 This command is not a broad cleanup mission. It is a disciplined integrity loop:
 
 ```text
@@ -115,7 +142,7 @@ Gate:
 
 Produce or update a self-contained HTML codebase integrity report.
 
-The report follows the canonical section list and candidate schema in [REPORT-SCORING.md](../../shared/REPORT-SCORING.md) (**Report sections** — Executive summary, Overall repo grade, scorecards, Candidate ledger, Human-decision blockers, Quick wins, Recommended queue, etc.) — the same spine every scored report in this family uses. On top of that spine, an integrity report also surfaces these integrity-specific views:
+The report follows the canonical candidate schema in `shared/candidate-ledger-spine/REPORT-SCORING.md`. It is a candidate-discovery report, not a repository health grade; formal overall grades, scorecards, weighted coverage, caps, and confidence route to `repository-health-assessment`. On top of the shared candidate spine, an integrity report surfaces these integrity-specific views:
 
 - high-level code health map
 - findings grouped by category (categories below)
@@ -148,7 +175,7 @@ Each candidate card must include:
 - Root seam or boundary involved
 - Integrity rule or principle violated
 - Confirmed facts vs plausible inferences vs unknowns
-- Scores and priority rollup per [REPORT-SCORING.md](../../shared/REPORT-SCORING.md) — the canonical scoring spine for every scored report in this skill family
+- Scores and priority rollup per [`shared/candidate-ledger-spine/REPORT-SCORING.md`](../shared/candidate-ledger-spine/REPORT-SCORING.md) — the canonical scoring spine for every scored report in this skill family
 - Expected benefits and before/after framing when helpful
 - Recommended branch: design / prototype / triage / fitness-check / direct fix
 - Recommended lenses
@@ -177,7 +204,7 @@ After one candidate is selected, summarize:
 **Current friction:**
 **Integrity rule / principle:**
 **Evidence:**
-**Scores / priority rollup (per [REPORT-SCORING.md](../../shared/REPORT-SCORING.md)):**
+**Scores / priority rollup (per [`shared/candidate-ledger-spine/REPORT-SCORING.md`](../shared/candidate-ledger-spine/REPORT-SCORING.md)):**
 **Recommended branch:** design / prototype / triage / fitness-check / direct fix
 **Review lenses:** any relevant lens from Stage 4's catalogue (core: Wiring & Integration, Bug & Correctness, Consistency, Test/CI; supporting: Polyglot boundary, Bazel/build, API/schema/contract, Numerical correctness, CUDA/GPU, Static analysis, Security, Data integrity, Architecture fitness, Maintainability)
 **Verification strategy:**
@@ -381,7 +408,9 @@ state rule → write failing check/test → minimal change → green → refacto
 
 Failure interrupt:
 
-If behavior is broken, unexpectedly red, flaky, slow, numerically unstable, GPU-dependent, nondeterministic, or unexplained, pause delivery and run a diagnosing-bugs flow.
+If behavior is broken, unexpectedly red, flaky, slow, numerically unstable, GPU-dependent, nondeterministic, or unexplained, pause delivery and hand the defect to `/diagnosing-bugs-mwdev`.
+
+This loop owns discovering and selecting **one** integrity candidate. When the selected candidate is a concrete reproducible defect, `/diagnosing-bugs-mwdev` owns the whole diagnostic workflow for it — reproduction, hypothesis testing, root-cause confirmation, narrow repair, and regression verification. Do not restate or re-run those stages here; resume this loop's gate once the fix and its regression test are in.
 
 Gate:
 

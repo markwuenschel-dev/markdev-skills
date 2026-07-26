@@ -1,12 +1,11 @@
 uncertainties:
   - id: U-001
-    category: Product intent
+    category: architecture
     question: ""
     why_it_matters: ""
-    evidence_needed: []
     owner: ""
+    evidence_needed: []
     resolution_route: ""
     blocking: true
-    status: OPEN
+    state: open
     resolution: ""
-    evidence: []

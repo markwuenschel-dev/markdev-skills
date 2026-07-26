@@ -1,28 +1,36 @@
 # Auto mode
 
-Loaded from SKILL.md when `--auto` is set. Read this before selecting the first auto candidate; it governs ranking, hard stops, per-turn capture, and the final report.
+Loaded from SKILL.md when `--auto` is set. Read this before selecting the first auto candidate; it governs eligibility, ranking, hard stops, per-turn capture, and the final report.
 
-For this skill, one turn = one complete candidate loop: candidate selected → scoped → planned → executed → reviewed → verified → captured → ledger updated. This is narrower than the swarm planner's turn (one swarm mission) — the two are not interchangeable.
+For this skill, one turn = one complete candidate loop: candidate selected → scoped → planned → executed → reviewed → verified → captured → ledger updated. This is narrower than the swarm planner's mission (one swarm job) — the two are not interchangeable.
 
-## Candidate ranking
+## Candidate eligibility and ranking
 
-When auto mode starts, rank open candidates by:
+Auto mode consumes the canonical candidate ledger and its stable ranking from [`shared/candidate-ledger-spine/REPORT-SCORING.md`](../shared/candidate-ledger-spine/REPORT-SCORING.md) `## Eligibility and stable ranking` — that section owns the gates and the comparator; this section restates them verbatim. Auto mode does not independently rescore candidates: safety, leverage, locality, testability, blast radius, regression risk, and human-decision risk are already inside `priority_score` or act as eligibility gates, never as extra ranking dimensions.
 
-1. safety
-2. `rollup.priority_score` per [REPORT-SCORING.md](../../shared/REPORT-SCORING.md) — it folds in all eight scores (severity, confidence, leverage, locality, testability, blast radius, regression risk, human-decision risk)
-3. dependency order
-4. verification availability
+A candidate is eligible only when:
 
-Prefer candidates that:
+- its `status` is `ready` (the executable status)
+- `recommended_action` is not `reject`
+- `human_decision_risk < 4`
+- `blocked_by` is empty
+- all `depends_on` candidates are `completed`
+- required access and a trustworthy verification baseline are available
+- no hard stop below applies
 
-- are independently executable
-- have clear ownership
-- have strong verification commands
-- create or improve enforceable checks
-- unblock later candidates
-- require no unresolved human-decision category (connected-impact-sweep `## Human-decision categories`, plus policy/SME and architecture-direction decisions)
+Ineligible candidates stay in the ledger (`needs-human-decision`, `blocked`, `rejected`); auto mode skips them, never removes or selects them.
 
-Candidates that require human judgment stay in the ledger as `needs-human-decision`; auto mode never selects them. The mechanical test for ranking key #1 (safety): skip any candidate whose `execution_mode` is `blocked-needs-human-decision` per [REPORT-SCORING.md](../../shared/REPORT-SCORING.md) — i.e. `human_decision_risk ≥ 4` or a non-empty `blocked_by`. (`execution_mode: blocked-needs-human-decision` ⇔ ledger `status: needs-human-decision` — the same state.)
+Apply explicit human ordering first when provided. Human ordering decides between eligible candidates only — it cannot make a blocked, human-decision, or rejected candidate executable, and it never modifies `priority_score`.
+
+Among eligible candidates, rank by:
+
+1. `priority_score` descending
+2. `effort` ascending (`S` before `M` before `L`)
+3. `severity` descending
+4. `confidence` descending
+5. `candidate_id` ascending
+
+Dependencies affect readiness, not `priority_score`. Safety and human-decision conditions are eligibility gates, not additional ranking dimensions. Visual bands are presentation only, never execution logic. `unlocks` is informational — do not prioritize by unlock count.
 
 ## Hard stops
 

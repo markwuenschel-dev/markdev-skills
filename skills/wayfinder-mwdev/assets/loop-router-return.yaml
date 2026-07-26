@@ -1,0 +1,17 @@
+# Completion handback from Wayfinder to the Loop Router. Assembled only
+# when the map is done: destination mapped, sharp decisions resolved or
+# deliberately deferred, no meaningful fog. The recommendation is
+# advisory — the Loop Router selects the actual next lifecycle; Wayfinder
+# never initiates delivery itself.
+return_to_loop_router:
+  source_loop: wayfinder
+  destination: ""
+  completion_status: complete
+
+  resolved_decisions: []           # names + links; detail lives in the tickets
+  design_artifacts: []             # contracts and documents produced by design tickets
+  deferred_non_blocking_items: []  # deliberately deferred, each with an owner
+  prohibited_interpretations: []   # e.g. "an approved design contract here does not
+                                   # authorize implementation"
+  recommended_next_capability: ""
+  next_capability_reason: ""

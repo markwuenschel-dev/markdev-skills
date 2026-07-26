@@ -1,0 +1,69 @@
+{
+  "suite_id": "<skill-name>-v1",
+  "skill": "<skill-name>",
+  "version": "<version-or-commit>",
+  "target_models_and_effort": "<claude model(s) and effort level(s) this skill is expected to run under>",
+  "note": "Prefer the skill-creator plugin's evals/evals.json + grading.json + benchmark.json when installed; use this shape as the fallback.",
+  "cases": [
+    {
+      "id": "discovery-positive-001",
+      "family": "discovery",
+      "prompt": "<clear prompt that should activate>",
+      "files": [],
+      "expected_activation": true,
+      "preconditions": [],
+      "expected_behavior": [],
+      "forbidden_side_effects": [],
+      "verifier": {
+        "type": "manual-or-command",
+        "command": null,
+        "success": "<observable criterion>"
+      },
+      "dimensions": ["correctness", "efficiency"],
+      "baseline": null,
+      "current": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "discovery-negative-001",
+      "family": "discovery",
+      "prompt": "<nearby prompt that should not activate>",
+      "files": [],
+      "expected_activation": false,
+      "preconditions": [],
+      "expected_behavior": ["Select the correct neighboring capability or proceed without this skill"],
+      "forbidden_side_effects": ["Load or execute this skill without a matching contract"],
+      "verifier": {
+        "type": "manual-or-command",
+        "command": null,
+        "success": "The skill is not selected"
+      },
+      "dimensions": ["correctness", "efficiency"],
+      "baseline": null,
+      "current": null,
+      "evidence": [],
+      "notes": ""
+    },
+    {
+      "id": "execution-core-001",
+      "family": "execution",
+      "prompt": "<representative end-to-end task>",
+      "files": [],
+      "expected_activation": true,
+      "preconditions": [],
+      "expected_behavior": [],
+      "forbidden_side_effects": [],
+      "verifier": {
+        "type": "manual-or-command",
+        "command": "<deterministic verifier when available>",
+        "success": "<verified final state>"
+      },
+      "dimensions": ["correctness", "robustness", "efficiency", "generalization", "safety"],
+      "baseline": null,
+      "current": null,
+      "evidence": [],
+      "notes": ""
+    }
+  ]
+}

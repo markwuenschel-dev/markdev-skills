@@ -1,0 +1,23 @@
+lane_result:
+  lane: ""
+  uncertainty_ids: []
+  evidence:
+    - observation: ""
+      source: ""
+      confidence: high
+  assumptions: []
+  contradictions: []
+  candidate_questions:
+    - id: ""
+      question: ""
+      why_it_matters: ""
+      decision_unlocked: ""
+      blocking: true
+      answer_type: open
+      options: []
+      evidence_context: []
+      follow_up_conditions: []
+  risks: []
+  document_updates:
+    - target: design
+      proposed_change: ""

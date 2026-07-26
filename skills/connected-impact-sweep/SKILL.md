@@ -37,6 +37,8 @@ Escalate to a full sweep automatically — don't wait to be asked — when the e
 - A hand-maintained mirror of real logic used for testing across a language boundary (a stub, fake, or mock that reimplements another system's behavior rather than calling it) — these drift silently because nothing forces them to move with the real implementation
 - A knowledge/policy/retrieval corpus that the system treats as evidence for its own outputs (RAG source documents, prompt templates, few-shot examples encoding a taxonomy) — these are runtime contract surfaces, not documentation, even though they look like prose
 
+Also escalate on fan-out alone: if the Level 1 look turns up more dependents than the "one or two obvious" fixes Level 1 is built for, treat that as the risk signal and run the sweep even when the edit fits none of the categories above. The list names the places fan-out usually hides; discovering fan-out directly is the same evidence.
+
 ### What the sweep actually does
 
 1. **Enumerate consumers across the whole connected system**, not just the current directory — other services, other languages, docs that describe the contract, generated code that would now be stale, tests that assert the old behavior. Use search (grep/ripgrep, or the project's own reference-finding tools) rather than guessing from memory. This step must go beyond static imports/callers: also check config files, service/plugin registries, build/deploy scripts, generated manifests, and any string- or dotted-path-based reference (dynamic imports, reflection, `getattr`-style dispatch). A dependency that's only reachable through a config string is still a dependency, and static-analysis-shaped searches miss it by construction.
@@ -51,7 +53,7 @@ The sweep finds and fixes the dependency graph of the requested change — it do
 
 ### Staged edits vs. completed edits
 
-A change can be mechanically trivial and still not be *done*. Adding a member to an enum is one line. But if that enum drives classification logic, escalation routing, cross-language contract checks, evaluation baselines, or a knowledge corpus the system cites as evidence for its own decisions — the one-line addition doesn't mean the feature works, or even that it's safe to leave half-finished. When a mechanical edit sits inside a chain of unresolved pause-worthy questions (see below), report it as a **proposed/staged edit**, not a completed fix: "I've drafted the enum addition, but it isn't functional yet — here's what has to be resolved before it is." Don't let the smallness of the diff imply the largeness of the remaining work is optional or already handled. The test for "is this actually done" is whether every surface that gives the new state *meaning* — not just every surface that would fail to compile without it — is coherent.
+A change can be mechanically trivial and still not be *done*. Adding a member to an enum is one line. But if that enum drives classification logic, escalation routing, cross-language contract checks, evaluation baselines, or a knowledge corpus the system cites as evidence for its own decisions — the one-line addition doesn't mean the feature works, or even that it's safe to leave half-finished. When a mechanical edit sits inside a chain of unresolved pause-worthy questions (see below), report it as a **proposed/staged edit**, not a completed fix: "I've drafted the enum addition, but it isn't functional yet — here's what has to be resolved before it is." Don't let the smallness of the diff imply the largeness of the remaining work is optional or already handled. The test for "is this actually done" is whether every surface that gives the new state *meaning* — not just every surface that would fail to compile without it — is coherent. Staging is compatible with the hard-pause rule below, not a way around it: drafting the mechanical diff is fine, but the pause-worthy decisions in the chain still stop and ask — a staged edit never resolves them silently.
 
 ## When to pause instead of deciding
 
@@ -87,7 +89,7 @@ This matters most for staged edits: the whole point of flagging something as sta
 
 ## Level 3 — Explicit override
 
-If the user says something like "use parallel connected-impact sweep" or "do a robust connected-impact fix, not a local patch," run the full Level 2 sweep regardless of what Level 1's quick check suggested — treat it as an instruction to check harder than your own judgment would, not a suggestion.
+If the user invokes the sweep by name — "run a connected-impact sweep" — or uses an emphatic variant like "do a robust connected-impact fix, not a local patch," run the full Level 2 sweep regardless of what Level 1's quick check suggested — treat it as an instruction to check harder than your own judgment would, not a suggestion.
 
 ## A note on scale
 
