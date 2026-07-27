@@ -15,25 +15,67 @@ Every skill in this repo lives under `skills/` with a root `SKILL.md`. True exte
 
 ## Which skill?
 
-```
-                              ┌──────────────┐
-                              │ loop-router  │
-                              │   (unsure)   │
-                              └──────┬───────┘
-       ┌────────────┬───────────┬────┴─────┬────────────┬────────────┐
-       ▼            ▼           ▼          ▼            ▼            ▼
-    decide       assess     parallelize  deliver      land        author
-       │            │           │          │            │            │
-  wayfinder-   repository-   human-    production-   land-pr     skillwright-
-    mwdev        health-    directed-   flywheel     land-prs      forge
-  expanded-    assessment     swarm-       │        land-pr-ec2  prompt-forge
-    grill-     codebase-     planner       │        land-prs-ec2
-  with-docs    integrity-                  │
-  implementa-  audit-loop                  │
-  tion-plan-   improve-codebase-           │
-  contract     architecture-mwdev          │
-                                    diagnosing-bugs-mwdev
-                                    connected-impact-sweep
+```mermaid
+flowchart TD
+    R(["loop-router — unsure which?"])
+    R --> DECIDE
+    R --> ASSESS
+    R --> BUILD
+    R --> LAND
+    R --> CRAFT
+
+    subgraph DECIDE["decide"]
+        direction TB
+        WF["wayfinder-mwdev"]
+        EG["expanded-grill-with-docs"]
+        IPC["implementation-plan-contract"]
+        WF -->|"ticket is design-sized"| EG
+        EG -->|"design approved"| IPC
+    end
+
+    subgraph ASSESS["assess"]
+        direction TB
+        RHA["repository-health-assessment"]
+        CIAL["codebase-integrity-audit-loop"]
+        ICA["improve-codebase-architecture-mwdev"]
+        RHA -->|"integrity candidates"| CIAL
+        RHA -->|"structural direction"| ICA
+    end
+
+    subgraph BUILD["build"]
+        direction TB
+        PF["production-flywheel"]
+        HDSP["human-directed-swarm-planner"]
+        DBM["diagnosing-bugs-mwdev"]
+        CIS["connected-impact-sweep"]
+        PF <--> HDSP
+        PF -->|"red · flaky · slow"| DBM
+        PF -->|"editing a live system"| CIS
+    end
+
+    subgraph LAND["land — one PR, or a queue"]
+        direction TB
+        LP["land-pr"]
+        LPS["land-prs"]
+        LPE["land-pr-ec2"]
+        LPSE["land-prs-ec2"]
+        LP -.->|"+ deploy"| LPE
+        LPS -.->|"+ deploy"| LPSE
+    end
+
+    subgraph CRAFT["craft — any time"]
+        direction TB
+        PFG["prompt-forge"]
+        SWF["skillwright-forge"]
+        CS["compact-session"]
+        PFG -.->|"artifact is a SKILL.md"| SWF
+    end
+
+    IPC --> PF
+    CIAL -->|"selected candidates"| PF
+    ICA -->|"selected deepenings"| PF
+    PF -->|"too big for one slice"| WF
+    PF -->|"Stage 13 publish"| LP
 ```
 
 ### Decide
