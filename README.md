@@ -21,8 +21,8 @@ Every skill in this repo lives under `skills/` with a root `SKILL.md`. True exte
                         │   (unsure)   │
                         └──────┬───────┘
            ┌───────────┬───────┼───────┬───────────┬──────────┐
-           ▼           ▼       ▼       ▼           ▼          ▼
-    shape idea    audit    parallelize  deliver                           deepen    craft
+           ▼           ▼       ▼       ▼           ▼          ▼          ▼
+    shape idea    audit    parallelize  deliver                           deepen    craft      land/release
     expanded-     integrity / swarm    flywheel  arch       prompts
     grill-        audit-loop           │         improve-   prompt-
     with-docs                          │         codebase-  forge
@@ -33,10 +33,12 @@ Every skill in this repo lives under `skills/` with a root `SKILL.md`. True exte
 | :--- | :--- |
 | Shape an idea / approved design package | [`expanded-grill-with-docs`](skills/expanded-grill-with-docs/) |
 | Audit repo health | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
+| Edit, fix, refactor, or add across an existing multi-file system | [`connected-impact-sweep`](skills/connected-impact-sweep/) |
 | Parallelize a known mission | [`human-directed-swarm-planner`](skills/human-directed-swarm-planner/) |
 | Deliver approved work | [`production-flywheel`](skills/production-flywheel/) |
 | Architecture deepening report | [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) |
 | Write / repair / optimize prompts | [`prompt-forge`](skills/prompt-forge/) |
+| Land a local change or existing PR queue / deploy a merged release | [`land-pr`](skills/land-pr/) |
 | Unsure which applies | [`loop-router`](skills/loop-router/) |
 
 **Start here for routing and handoffs:** [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md)  
@@ -62,10 +64,12 @@ markdev-skills/
 │   ├── loop-router/
 │   ├── expanded-grill-with-docs/
 │   ├── codebase-integrity-audit-loop/
+│   ├── connected-impact-sweep/
 │   ├── human-directed-swarm-planner/
 │   ├── production-flywheel/
 │   ├── improve-codebase-architecture-mwdev/
-│   └── prompt-forge/
+│   ├── prompt-forge/
+│   └── land-pr/
 │
 ├── shared/
 │   ├── REPORT-SCORING.md

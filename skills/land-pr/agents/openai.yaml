@@ -1,0 +1,4 @@
+interface:
+  display_name: "Land PRs"
+  short_description: "Ship PRs, queues, and optional EC2 releases"
+  default_prompt: "Use $land-pr to land the current change, or $land-pr 45, 47, 48 -ec2 for a queued EC2 release."

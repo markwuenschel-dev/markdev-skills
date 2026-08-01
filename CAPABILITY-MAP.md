@@ -10,8 +10,8 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
                     │  (unsure which?)    │
                     └──────────┬──────────┘
      ┌──────────┬──────────┬───┴───┬──────────┬──────────┐
-     ▼          ▼          ▼       ▼          ▼          ▼
- shape idea  audit      parallel  deliver  deepen     craft
+     ▼          ▼          ▼       ▼          ▼          ▼          ▼
+ shape idea  audit      parallel  deliver  deepen     craft      land/release
  expanded-   integrity  / swarm   flywheel arch       prompts
  grill-      audit-loop           │        improve-   prompt-
  with-docs                        │        codebase-  forge
@@ -22,10 +22,12 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
 | --- | --- | --- |
 | Shape an idea / approved design package | `expanded-grill-with-docs` | Implement production code; open PRs; choose project priority |
 | Audit repo health | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
+| Edit, fix, refactor, or add across an existing multi-file system | `connected-impact-sweep` | Choose an architectural direction or a new product roadmap |
 | Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
 | Architecture deepening report | `improve-codebase-architecture-mwdev` | Implement chosen deepenings; open PRs |
 | Write / repair / optimize prompts | `prompt-forge` | Perform the underlying task; author SKILL.md packages |
+| Land a local change or existing PR queue / deploy a merged release | `land-pr` | Build a selected work queue or merge/deploy without an explicit request |
 | Unsure which applies | `loop-router` | Execute work itself beyond routing |
 
 ## When to hand off
@@ -42,6 +44,7 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
 | `production-flywheel` | `expanded-grill-with-docs` | User wants a deeper approved design/rollout package than the default grill |
 | `production-flywheel` | `improve-codebase-architecture-mwdev` | Stage 1 architecture report / deepening candidates |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
+| `production-flywheel` | `land-pr` | Implementation is validated and the user explicitly asks to land or deploy it |
 | `improve-codebase-architecture-mwdev` | `grill-with-docs` / `expanded-grill-with-docs` / `/grilling` | User selected a deepening candidate to design |
 | `improve-codebase-architecture-mwdev` | `production-flywheel` | User selected a queue of candidates to ship |
 | `prompt-forge` | (exit) | Prompt delivered; do not execute the prompted task unless the user separately asks |
@@ -64,7 +67,7 @@ Every top-level skill may reference these without redefining them:
 1. **Inventory = every `skills/*/SKILL.md`.** Keep packages flat (no accidental `name/name/` nesting). True externals not owned here are listed in [`DEPENDENCIES.md`](DEPENDENCIES.md).
 2. **Shared contracts are single sources of truth.** Skills link here; they do not fork scoring formulas or human-decision taxonomies.
 3. **Human direction owns mission and queue.** Skills execute authorized work; they do not invent new roadmaps.
-4. **Ship means open a PR, never merge**, unless the user explicitly says merge.
+4. **Delivery loops ship by opening a PR.** Only `land-pr` merges or deploys, and only when the user explicitly requests it.
 
 ## Validation
 

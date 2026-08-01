@@ -42,21 +42,35 @@ Pass/fail cases for **when** each top-level skill should auto-invoke or be recom
 | T14 | "Ship candidates 2, 5, then 1 from the report" | production-flywheel |
 | T15 | "Deliver this approved batch end-to-end" | production-flywheel |
 
+## connected-impact-sweep
+
+| # | User utterance (gist) | Expect |
+| --- | --- | --- |
+| T16 | "Refactor this behavior across the app" | connected-impact-sweep |
+| T17 | "Add this field everywhere it is consumed" | connected-impact-sweep |
+
 ## improve-codebase-architecture-mwdev
 
 | # | User utterance (gist) | Expect |
 | --- | --- | --- |
-| T16 | "Find deepening opportunities in this codebase" | improve-codebase-architecture-mwdev |
-| T17 | "HTML architecture deepening report" | improve-codebase-architecture-mwdev |
-| T18 | "Scan for shallow modules and grill one" | improve-codebase-architecture-mwdev |
+| T18 | "Find deepening opportunities in this codebase" | improve-codebase-architecture-mwdev |
+| T19 | "HTML architecture deepening report" | improve-codebase-architecture-mwdev |
+| T20 | "Scan for shallow modules and grill one" | improve-codebase-architecture-mwdev |
 
 ## prompt-forge
 
 | # | User utterance (gist) | Expect |
 | --- | --- | --- |
-| T19 | "Write a system prompt for our support agent" | prompt-forge |
-| T20 | "Fix this pasted prompt for Claude Code" | prompt-forge |
-| T21 | "Port this brief to an overnight autonomous agent" | prompt-forge |
+| T21 | "Write a system prompt for our support agent" | prompt-forge |
+| T22 | "Fix this pasted prompt for Claude Code" | prompt-forge |
+| T23 | "Port this brief to an overnight autonomous agent" | prompt-forge |
+
+## land-pr
+
+| # | User utterance (gist) | Expect |
+| --- | --- | --- |
+| T24 | "Land PRs 45 then 47" | `land-pr`; preserve the explicit order |
+| T25 | "Merge this local change and release it to EC2" | `land-pr -ec2`; prove merge then use one release SHA |
 
 ## Negative triggers
 
