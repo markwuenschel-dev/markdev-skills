@@ -81,7 +81,7 @@ flowchart TD
 | Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
 | Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` | Audit a repository; review architecture; plan a swarm |
 | Change code without breaking neighbours | `connected-impact-sweep` | Decide what the change should be |
-| Land one change through a PR | `land-pr` | Deploy anything |
+| Land a local change or explicit PR queue, with an optional EC2 release | `land-pr` | Build a selected work queue or land/deploy without the user's explicit request |
 | Land several open PRs as one queue | `land-prs` | Open PRs; deploy anything |
 | Land one change + release to EC2 | `land-pr-ec2` | Land a multi-PR queue |
 | Land a queue + release each service to EC2 | `land-prs-ec2` | Open PRs |
@@ -112,10 +112,11 @@ flowchart TD
 | `production-flywheel` | `improve-codebase-architecture-mwdev` | Stage 1 architecture report / deepening candidates |
 | `production-flywheel` | `diagnosing-bugs-mwdev` | Work goes red, flaky, slow, or unexplained |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
-| `production-flywheel` | `land-pr` | Stage 13 — open the item's PR (`land-prs` for leftover batches) |
+| `production-flywheel` | `land-pr` | Stage 13 after the user explicitly requests landing or deployment (`land-prs` for leftover batches) |
 | `improve-codebase-architecture-mwdev` | `expanded-grill-with-docs` | User selected a deepening candidate to design |
 | `improve-codebase-architecture-mwdev` | `production-flywheel` | User selected a queue of candidates to ship |
-| `land-pr` / `land-prs` | `land-pr-ec2` / `land-prs-ec2` | The landed service must also be released to EC2 |
+| `land-pr` | its `-ec2` overlay | The landed service must also be released to EC2 |
+| `land-prs` | `land-prs-ec2` | A confirmed PR queue must release each affected service to EC2 |
 | `prompt-forge` | `skillwright-forge` | The artifact is a SKILL.md package, not a prompt |
 | `prompt-forge` | (exit) | Prompt delivered; do not execute the prompted task unless the user separately asks |
 
@@ -138,7 +139,7 @@ Every top-level skill may reference these without redefining them:
 1. **Inventory = every `skills/*/SKILL.md`.** Keep packages flat (no accidental `name/name/` nesting). True externals not owned here are listed in [`DEPENDENCIES.md`](DEPENDENCIES.md).
 2. **Shared contracts are single sources of truth.** Skills link here; they do not fork scoring formulas or human-decision taxonomies.
 3. **Human direction owns mission and queue.** Skills execute authorized work; they do not invent new roadmaps.
-4. **Ship means open a PR, never merge**, unless the user explicitly says merge.
+4. **Delivery loops ship by opening a PR.** Only `land-pr` merges or deploys, and only when the user explicitly requests it.
 5. **Inventoried skills route at inventoried skills first.** Where this repo owns a capability, its skills invoke the in-repo one — an in-repo skill may delegate down to an external companion internally, but the entry point is owned here. This is why the flywheel's design lane targets `expanded-grill-with-docs` and the `-mwdev` forks rather than their upstream parents.
 
 ## Validation

@@ -77,7 +77,6 @@ flowchart TD
     PF -->|"too big for one slice"| WF
     PF -->|"Stage 13 publish"| LP
 ```
-
 ### Decide
 
 | Need | Skill |

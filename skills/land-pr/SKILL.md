@@ -1,19 +1,24 @@
 ---
 name: land-pr
-description: "Land a repository change through a GitHub pull request: prove scope, validate, commit, merge safely, and restore a main-only repository by pruning every merged or stale branch, worktree, and ref repo-wide — including ones left behind by parallel subagents. Built for single-maintainer repos where no other collaborator's branch could be at risk. Use when the user asks to land, ship, merge, or submit a PR/branch to main, or asks to clean up, sweep, or tidy stale branches/worktrees even when no PR is being landed right now."
+description: "Ship one local repository change or an explicit queue of existing GitHub pull requests. For local changes, inspect, validate, commit, push, write a staff-level PR, preflight, and merge with a merge commit. For explicit PR numbers such as `$land-pr 45, 47, 48`, order and land that queue serially. Add `-ec2` to either form to deploy the final merged revision of each affected mapped service to its configured EC2 target. Use for land, ship, submit, merge, or deploy work; never merge or deploy without the user's request."
 ---
 
-# Land a PR
+# Land PRs
 
-Use **proof** as the gate: complete a phase only when command output proves it. A successful land leaves the GitHub default branch (`main` in this workflow) as the only local branch, the only origin branch apart from `origin/HEAD`, and the only worktree, with stale refs and unreachable commits pruned.
+Use proof as the gate. This is the sole landing skill.
 
-Cleanup begins only after GitHub proves the merge. An open pull request keeps its branch and worktree live; report that state rather than claiming a main-only finish.
+## Invocation and mode selection
 
-## Required tools
+- **Local-change mode:** `$land-pr`, `land this`, or `ship this`. Inspect the current worktree, create or reuse one focused shipment branch, validate, commit, push, write a ready PR, preflight it, and merge it.
+- **Queue mode:** `$land-pr 45, 47, 48`, `land PRs 45 47 48`, or `land all my PRs`. These are **existing PRs**. Do not create a duplicate PR, commit, stage, or alter unrelated local changes. With no list, discover the authenticated user's open, ready PRs against the default branch.
+- **EC2 overlay:** append `-ec2`, e.g. `$land-pr 45, 47, 48 -ec2`. It authorizes the post-merge release phase as well as landing. Read [EC2 release](references/ec2-release.md) before any target mutation.
+- An explicit PR order is the queue confirmation. Otherwise print the proposed order and wait for confirmation. A request to land a single local change authorizes its one PR; it does not authorize unrelated open PRs.
 
-Require `git`, `gh`, authenticated GitHub access, an accessible `origin`, and a Git version whose `git merge-tree -h` lists `--write-tree`. Use the active shell; translate shell variables, redirection, and conditionals without changing the Git or GitHub CLI operation.
+The landing strategy is always a **merge commit**. Do not substitute squash or rebase merely because they are defaults. If repository policy cannot accept a merge commit, stop and report that incompatibility; do not choose a different history shape.
 
-Before changing repository state, run:
+## Required preflight and safety rules
+
+Before state change, read applicable `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, and deployment instructions. Run and retain:
 
 ```bash
 git --version
@@ -27,23 +32,11 @@ gh auth status
 gh repo view --json nameWithOwner,defaultBranchRef
 ```
 
-Confirm that the merge-tree help output includes `--write-tree`; a help-only exit status is not a capability failure. Authentication, repository, origin, or merge-tree capability failures stop the land with their exact output.
+Require authenticated `gh`, reachable `origin`, and `git merge-tree -h` support for `--write-tree`. Capability or authentication failure stops with exact output. Never reset, stash, discard, overwrite, force-push, rebase, use `--admin`, or use conflict-strategy shortcuts. Never expose secrets. A dirty worktree is a blocker only for **local-change mode**; queue mode leaves it untouched and reports it.
 
-## Safety rules
+## A. Local-change mode
 
-- Inspect tracked, staged, and untracked changes before staging.
-- Treat "commit everything" as permission only after checking for secrets, credentials, generated artifacts, caches, build products, and nested repositories.
-- Surface `.env` files, private keys, access tokens, and credential files as blockers.
-- Follow applicable `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`, and scoped repository instructions.
-- Preserve user changes while resolving a shipment; a clean tree is never obtained by reset, stash, discard, or overwrite.
-- Respect required checks, branch protection, review requirements, merge queues, and repository merge policy.
-- Preserve draft pull requests unless the user explicitly authorizes landing them.
-- Treat main-only cleanup as explicit post-merge policy: remove a non-default branch, ref, or worktree only after merge proof and a clean-status check. A dirty, unique, or open-PR branch blocks the final main-only claim.
-- In a single-maintainer repo (no other human collaborators), apply Section 11's repo-wide sweep by default and without pausing for confirmation — this includes branches and worktrees left behind by subagents that were never part of the current landing. Merge proof remains the only gate; do not add an extra confirmation step on top of it. If the repo has other collaborators, ask before deleting a branch or worktree that isn't the one just landed, since it may not be the user's to remove.
-
-## 1. Inspect the complete change set
-
-Read applicable repository instructions, then run:
+### 1. Inspect and isolate
 
 ```bash
 git status --short --branch
@@ -54,13 +47,9 @@ git diff --cached
 git ls-files --others --exclude-standard
 ```
 
-Inspect every untracked file and classify every changed or untracked item as intended, excluded, or a blocker. Continue only when the intended changes form one coherent landing.
+Classify every tracked, staged, and untracked item as intended, excluded, or blocker. Surface `.env` files, private keys, tokens, generated artifacts, caches, build products, and nested repositories. Continue only with one coherent intended change and a clean `git diff --check`.
 
-**Proof:** `git diff --check` succeeds and every item is classified.
-
-## 2. Determine the temporary shipment branch
-
-Resolve the GitHub default branch and record the current branch:
+Resolve the default branch and shipment branch:
 
 ```bash
 default_branch="$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name')"
@@ -68,146 +57,102 @@ current_branch="$(git branch --show-current)"
 git ls-remote --exit-code origin "refs/heads/$default_branch"
 ```
 
-When on the default branch, create exactly one temporary branch:
+Create `land/<short-description>` only from the default branch; otherwise reuse the current branch only when it is focused and non-detached. Fetch and merge the current default branch if the shipment branch is behind; on conflict, stop and report paths.
 
-```bash
-git switch -c "land/<short-description>"
-```
+### 2. Validate, commit, and push
 
-When already on another branch, reuse it only when it is focused on this landing. A detached `HEAD` or ambiguous branch purpose stops the land.
-
-**Proof:** record `default_branch`, `current_branch`, and the shipment worktree path.
-
-### Keep a long-lived shipment branch fresh
-
-When the shipment branch (or its worktree) has existed for a while — common when a subagent has been working in its own worktree while other work landed on `default_branch` in the meantime — check how far it has drifted before doing anything else:
-
-```bash
-git fetch origin "$default_branch"
-git rev-list --left-right --count "origin/$default_branch...HEAD"
-```
-
-If the branch is behind, merge the latest default branch into it (do not rebase — rebasing here would rewrite commits a subagent or the user is still relying on, and Section "Merge policy boundaries" already rules out rebase as a landing shortcut):
-
-```bash
-git merge "origin/$default_branch"
-```
-
-Resolve any conflicts surfaced by this merge now, while the change is small and the author (or subagent) has full context — this is the cheapest point to catch the conflict that would otherwise surface as a failed Section 7 preflight or a failed Section 9 merge after everything else is already done. If the merge conflicts, stop and report the conflicting paths rather than guessing at resolution.
-
-## 3. Validate before committing
-
-Run the smallest authoritative validation set for the intended change, preferring repository-documented commands. Repair failures caused by the landing and rerun the relevant command; report failures that cannot be safely resolved.
-
-**Proof:** every required validation has a successful result.
-
-## 4. Stage and commit
-
-Stage only intended paths. Use `git add -A` only when the entire worktree is intended; otherwise stage approved paths explicitly. Review the staged proof:
+Run the smallest authoritative repository validation set. Stage only intended paths, then prove the staged contents:
 
 ```bash
 git status --short
 git diff --cached --stat
 git diff --cached --check
 git diff --cached
-```
-
-Commit the complete staged diff:
-
-```bash
 git commit -m "<type(scope): concise description>"
 git rev-parse HEAD
-```
-
-When nothing is staged, create no empty commit. Continue only when the shipment branch already contains intended commits beyond the default branch.
-
-**Proof:** record the shipment head SHA.
-
-## 5. Push
-
-Push the shipment branch and prove the remote head:
-
-```bash
 git push -u origin "$(git branch --show-current)"
 git ls-remote --exit-code --heads origin "$(git branch --show-current)"
 ```
 
-**Proof:** the remote branch resolves to the recorded shipment head SHA.
+Do not make an empty commit. When nothing is staged, continue only if the focused shipment branch already contains intended commits beyond `origin/$default_branch`. Record validation results and the shipment SHA.
 
-## 6. Create or update the pull request
+### 3. Write or update a staff-level PR
 
-Find an open pull request for the shipment branch:
+Find an open PR for the shipment branch. If none exists, create a ready PR with a precise title and a Markdown body that includes: **Problem / outcome**, **Design and affected contracts**, **Risk and invariants**, **Validation with commands/results**, **Deployment or rollback impact**, and **Scope deliberately excluded**. State uncertainty plainly; do not invent reviewers, benchmarks, or production proof.
 
 ```bash
 gh pr list --head "<shipment-branch>" --base "$default_branch" --state open --limit 2 --json number,url,isDraft,headRefName,headRefOid,baseRefName
+gh pr create --base "$default_branch" --head "<shipment-branch>" --title "<concise outcome>" --body-file "<temporary-markdown-file>"
+gh pr view "<pr-number>" --json number,url,isDraft,baseRefName,headRefName,headRefOid
 ```
 
-When none exists, write a temporary Markdown body covering the change, reason, validation, and remaining caveats, then create a ready pull request:
+Use the resulting PR as a one-entry queue, then continue at **B. Queue landing**. If `-ec2` is present, defer cleanup until **C. EC2 overlay**.
+
+## B. Queue landing
+
+### 1. Discover and confirm
+
+For no-list queue mode, discover candidates and exclusions:
 
 ```bash
-gh pr create --base "$default_branch" --head "<shipment-branch>" --title "<title>" --body-file "<temporary-markdown-file>"
+gh pr list --state open --base "$default_branch" --author "@me" --json number,title,isDraft,headRefName,headRefOid,baseRefName,url --limit 200
+gh pr list --state open --json number,title,author,isDraft,baseRefName --limit 200
 ```
 
-Query the pull request and verify its base, head branch, and head SHA match the shipment.
+Default candidates are the authenticated user's non-draft PRs targeting the default branch. Explicit IDs may include foreign-author PRs; drafts additionally require explicit ready-to-land authorization. Order explicit IDs as supplied; otherwise put stack parents before children and sort independent PRs by ascending number. Print position, number, title, base, short head SHA, stack relation, and exclusions. Zero candidates stops cleanly.
 
-**Proof:** record the PR number, URL, base SHA, and shipment head SHA.
+### 2. Land one PR at a time
 
-## 7. Preflight the merge without touching the worktree
+For each current entry only, inspect its live state:
 
-Immediately before relying on GitHub mergeability, fetch the current target tip and simulate the ordinary two-branch merge:
+```bash
+gh pr view "<n>" --json state,isDraft,mergeable,mergeStateStatus,reviewDecision,baseRefName,headRefOid,url
+```
+
+Already merged or closed is terminal and advances. If a merged stack parent leaves a child still targeting its deleted branch, retarget the child to `$default_branch`, then re-verify. Record the head SHA.
+
+Preflight the exact head against the moving default tip:
 
 ```bash
 git fetch origin "$default_branch"
 base_sha="$(git rev-parse "origin/$default_branch")"
-git merge-tree --write-tree --name-only --messages "$base_sha" "<shipment-head-sha>"
+git merge-tree --write-tree --name-only --messages "$base_sha" "<head-sha>"
 ```
 
-Treat exit status `0` as a clean simulated merge, `1` as conflicts, and any other nonzero status as an execution error. Capture and report the output on a nonzero exit; do not infer cleanliness from output shape. The fetch updates remote-tracking refs; `merge-tree --write-tree` does not modify the index or working tree. If the target tip advances, fetch and rerun it against the new tip before merging.
-
-Avoid strategy options such as `-X ours`, `-X theirs`, whitespace suppression, rename thresholds, or custom merge bases unless repository policy or the user explicitly requires them. The preflight complements, but never replaces, CI, reviews, branch protection, or GitHub mergeability.
-
-## Merge policy boundaries
-
-Use the repository's configured two-branch merge behavior unless an explicit policy says otherwise. Choose history shape from repository policy, protection, or user direction:
-
-- squash when the repository favors one logical commit per pull request;
-- merge commit when preserving the integration boundary is intentional;
-- rebase merge only when the repository expects linearized individual commits.
-
-Avoid `--no-ff`, local rebases, force-pushes, octopus merges, subtree merges, and the `ours` strategy as landing shortcuts. Detect and respect existing `rerere`, merge-driver, LFS, generated-file, and conflict-style configuration; leave global Git configuration unchanged.
-
-## 8. Require a green merge state
-
-Watch required checks and inspect the pull request:
+Exit `0` is clean; `1` is conflict; any other result is `blocked-error` with output. On conflicts, `CONFLICTING`, or a protection-required `BEHIND` state, update server-side only:
 
 ```bash
-gh pr checks "<pr-number>" --required --watch --fail-fast=false
-gh pr view "<pr-number>" --json state,isDraft,mergeable,mergeStateStatus,reviewDecision,baseRefOid,headRefOid,statusCheckRollup,url
+gh pr update-branch "<n>"
 ```
 
-Merge only when the pull request is open, ready, mergeable, approved where required, green on required checks, and still points at the recorded shipment head SHA. If checks remain pending beyond the active session, report the exact state and leave the PR open.
+Re-read the PR and repeat preflight after a successful update. A conflict-resolution failure is `blocked-conflict`; mark its stack children `blocked-parent`. Never resolve or rewrite the author's branch locally.
 
-## 9. Merge
-
-Rerun Section 7 if `origin/$default_branch` has advanced since its recorded `base_sha`. Use the repository-supported strategy; prefer squash only when repository policy permits it:
+Require reviews and required checks:
 
 ```bash
-gh pr merge "<pr-number>" --squash --delete-branch --match-head-commit "<shipment-head-sha>"
+gh pr checks "<n>" --required --watch --fail-fast=false
+gh pr view "<n>" --json state,isDraft,mergeable,mergeStateStatus,reviewDecision,headRefOid,statusCheckRollup
 ```
 
-When branch protection requires a merge queue or auto-merge, let GitHub queue the PR and report that state; cleanup waits for a later run that verifies an actual merge. Do not use administrator bypasses.
-
-Verify the merge:
+Missing review is `blocked-review`; failed checks are `blocked-checks`; checks still pending beyond this session are `left-open-pending-checks`. If the default tip advanced, repeat the preflight. Merge only the recorded head with a merge commit:
 
 ```bash
-gh pr view "<pr-number>" --json state,mergedAt,mergeCommit,headRefName,url
+gh pr merge "<n>" --merge --delete-branch --match-head-commit "<head-sha>"
+gh pr view "<n>" --json state,mergedAt,mergeCommit,headRefName,url
 ```
 
-**Proof:** GitHub reports `MERGED`, with a merge commit and timestamp.
+Merge-queue / auto-merge behavior is `queued` only when it preserves the required merge-commit strategy; otherwise block and report the policy conflict. For a completed merge, fetch the default branch and prove the returned merge SHA has two parents:
 
-## 10. Synchronize the default branch
+```bash
+git fetch origin "$default_branch"
+git rev-list --parents -n 1 "<merge-sha>"
+```
 
-Choose the primary worktree that will keep the default branch. If the shipment ran in a linked worktree while the default branch is already checked out elsewhere, run the remaining commands from that existing default-branch worktree.
+Record `merged-<sha>` only when GitHub says `MERGED` and the parent list contains the commit plus two parents. A blocker records its terminal state and the loop continues; unexpected mutating-command failure stops with exact output.
+
+### 3. Synchronize
+
+In the primary default-branch worktree:
 
 ```bash
 git -C "<main-worktree>" fetch --prune origin
@@ -215,11 +160,17 @@ git -C "<main-worktree>" switch "$default_branch"
 git -C "<main-worktree>" pull --ff-only origin "$default_branch"
 ```
 
-**Proof:** `<main-worktree>` is clean, on the default branch, and at the current `origin/$default_branch` tip.
+Record the synchronized `origin/$default_branch` SHA. For a queue, this is the sole `release_sha` used by the EC2 overlay; never deploy a mutable branch or one release per PR.
 
-## 11. Restore main-only state
+## C. EC2 overlay (`-ec2` only)
 
-Audit every worktree, local branch, origin remote-tracking ref, and open pull request:
+Run this section only after B.3. Consider only entries that actually merged. Map their changed repositories to exactly one service each, deduplicate services, and deploy each service once at `release_sha`. A blocked or queued PR contributes no changes; say so if another merged PR releases the same service at a revision that excludes it.
+
+Read [EC2 release](references/ec2-release.md), resolve and print each service contract, and run all read-only target reconciliation before mutating any target. Release services serially in documented dependency order (otherwise stable name order). A failed activation rolls back that service and halts later releases; they become `not-released-halted`. A target with identity, cleanliness, migration/backup, health, or kill-switch failure is `not-released-blocked` and remains untouched.
+
+## D. Cleanup and final report
+
+After the merge outcome (and, if requested, every EC2 outcome), synchronize and audit all worktrees, local branches, remote refs, and open PRs. Remove only a branch/worktree/ref with merge proof and its removal predicate: linked worktree clean, branch not checked out, and no open PR uses its remote branch. In a single-maintainer repository, perform this sweep repo-wide; otherwise ask before removing a branch or worktree outside this land.
 
 ```bash
 git -C "<main-worktree>" worktree list --porcelain
@@ -228,55 +179,6 @@ git -C "<main-worktree>" for-each-ref refs/remotes/origin --format="%(refname:sh
 gh pr list --state open --limit 1000 --json headRefName,baseRefName,url
 ```
 
-For each non-default candidate, record one merge proof: the just-merged PR, a GitHub merged PR for that branch, or ancestry in the default branch. Then apply its removal predicate: a linked worktree is clean, a local branch is no longer checked out, and an origin branch has no open pull request. Only a candidate with both proof and its predicate may be removed. Remove a qualifying linked worktree from `<main-worktree>`:
+Use non-forcing deletion where ancestry proves reachability. A squash-like branch must never be force-deleted in this unified merge-commit workflow. Preserve and name dirty, unique, or open-PR branches. Only after every candidate is accounted for may the primary worktree run `worktree prune`, reflog expiry, and `gc --prune=now`.
 
-```bash
-git -C "<main-worktree>" worktree remove "<stale-worktree>"
-```
-
-Delete each proven local branch after it is no longer checked out. Use `git branch -d` when it is reachable from the default branch. A squash-merged branch may use `git branch -D` only with its GitHub merged-PR proof.
-
-Retain only `origin/$default_branch`, `origin/HEAD`, and origin branches serving open pull requests. Delete every other origin branch with merge proof, then prune tracking refs:
-
-```bash
-git push origin --delete "<stale-branch>"
-git -C "<main-worktree>" fetch --prune origin
-git -C "<main-worktree>" worktree prune
-```
-
-After every non-default branch and worktree is accounted for, expire reflogs and prune unreachable commits:
-
-```bash
-git -C "<main-worktree>" reflog expire --expire=now --expire-unreachable=now --all
-git -C "<main-worktree>" gc --prune=now
-```
-
-A dirty worktree, unique branch, or open-PR branch blocks the main-only finish. Report its path or branch name instead of deleting it.
-
-## 12. Final proof
-
-Run:
-
-```bash
-git -C "<main-worktree>" status --short --branch
-git -C "<main-worktree>" worktree list --porcelain
-git -C "<main-worktree>" branch --format="%(refname:short)"
-git -C "<main-worktree>" for-each-ref refs/remotes/origin --format="%(refname:short)"
-git -C "<main-worktree>" fsck --no-reflogs --unreachable
-gh pr view "<pr-number>" --json state,mergedAt,mergeCommit,url
-```
-
-**Proof:** the default branch is the only local branch; `origin/$default_branch` is the only origin branch apart from `origin/HEAD`; its worktree is the only worktree; the working tree is clean; no unreachable objects remain; and the PR is merged. Report the PR URL, merge commit, validation results, and every branch, ref, worktree, or commit class removed.
-
-## Standalone cleanup (no active PR)
-
-Use this entry point when the user asks to tidy up, sweep, or restore a clean `main` but isn't landing a PR in this session — for example, several subagent worktrees finished and merged (via GitHub directly, via a merge queue, or in an earlier session) and never got swept afterward.
-
-Run Sections 10 and 11 exactly as written, with one difference: since there is no PR number from the current session, gather merge proof for each branch independently:
-
-```bash
-gh pr list --state merged --limit 1000 --json number,headRefName,mergedAt,mergeCommit
-git -C "<main-worktree>" log --oneline "$default_branch" --grep="Merge pull request" -20
-```
-
-A branch qualifies for the same removal predicate as Section 11 (clean worktree, not checked out, no open PR) once one of these independently confirms it merged. Everything else in Sections 10–12 — worktree removal, branch deletion, origin ref deletion, reflog expiry, `gc --prune=now`, and the final proof — is unchanged. Do not skip the merge-proof check just because there's no PR number in hand; a branch with no proof at all is reported, not deleted.
+Finish with a table: queue position, PR number, title, terminal landing state, merge SHA or decisive blocker, plus (for `-ec2`) service, target, prior release, `release_sha`, probe results, and release state. Report validation results, PR URLs, cleanup proof, and exactly what still needs human action. Never claim main-only cleanup, a merge, or a deployment without its recorded proof.

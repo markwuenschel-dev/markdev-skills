@@ -16,22 +16,23 @@ Pass/fail cases for **scope walls** between top-level skills and shared contract
 | B8 | Multi-item delivery | production-flywheel queue | Single "do all items" execution swarm without human framing |
 | B9 | ICA HTML report ready | Ask user which candidate(s) by number | Start implementing deepenings from the report |
 | B10 | Prompt-forge deliverable ready | Hand back the prompt | Perform the underlying task unless separately asked |
+| B11 | Landing request without explicit merge/deploy authority | Stop after proposing the queue | Merge or deploy merely because a PR is ready |
 
 ## Shared contract walls
 
 | # | Scenario | Must happen |
 | --- | --- | --- |
-| B11 | New score dimension proposed | Change only via `shared/REPORT-SCORING.md` + skill pointer update |
-| B12 | Auto mode hits public API change | Stop per `shared/HUMAN-DECISIONS.md` |
-| B13 | Loop ends | Record exactly one state from `shared/LOOP-STATE.md` |
-| B14 | External companion missing | Use DEPENDENCIES.md + shared fallbacks; do not dump unrelated trees into repo |
+| B12 | New score dimension proposed | Change only via `shared/REPORT-SCORING.md` + skill pointer update |
+| B13 | Auto mode hits public API change | Stop per `shared/HUMAN-DECISIONS.md` |
+| B14 | Loop ends | Record exactly one state from `shared/LOOP-STATE.md` |
+| B15 | External companion missing | Use DEPENDENCIES.md + shared fallbacks; do not dump unrelated trees into repo |
 
 ## Inventory walls
 
 | # | Scenario | Must **not** happen |
 | --- | --- | --- |
-| B15 | "Add superpowers and all review-* skills" | Hundreds of skills copied into `skills/` without ownership intent |
-| B16 | New skill folder without inventory update | Skill added without CAPABILITY-MAP row + install discovery + trigger/functional tests (+ DEPENDENCIES if still external) |
+| B16 | "Add superpowers and all review-* skills" | Hundreds of skills copied into `skills/` without ownership intent |
+| B17 | New skill folder without inventory update | Skill added without CAPABILITY-MAP row + install discovery + trigger/functional tests (+ DEPENDENCIES if still external) |
 
 ## How to run
 
