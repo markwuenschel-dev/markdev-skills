@@ -1,19 +1,41 @@
 # markdev-skills
 
 <p align="center">
-  <strong>Canonical skills inventory</strong><br/>
-  <sub>Living catalog under <code>skills/</code> · shared contracts · private by design</sub>
+  <strong>A curated operating system for agentic software delivery.</strong><br/>
+  <sub>One catalog for capability routing, reusable execution loops, and the contracts they share.</sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
+  <img src="https://img.shields.io/badge/skills-18-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="18 inventoried skills">
+  <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
+  <a href="CAPABILITY-MAP.md"><img src="https://img.shields.io/badge/start-capability%20map-7c3aed?style=for-the-badge&logo=readme&logoColor=white" alt="Start with the capability map"></a>
+</p>
+
+<p align="center">
+  <a href="#get-started">Get started</a> ·
+  <a href="CAPABILITY-MAP.md">Capability map</a> ·
+  <a href="#install">Install</a> ·
+  <a href="DEPENDENCIES.md">Lineage & dependencies</a>
 </p>
 
 ---
 
-One place to remember what each skill is for, where the edges are, and which rubrics they share.
+`markdev-skills` is the canonical inventory for a focused set of agent skills: each package owns one clear job, shared contracts stay centralized, and `loop-router` helps choose the right entry point when the work is ambiguous.
 
-Every skill in this repo lives under `skills/` with a root `SKILL.md`. True externals (companions not owned here) are pinned in `DEPENDENCIES.md`, not re-authored.
+Every in-repo skill lives under `skills/` with a root `SKILL.md`. External companions are recorded in [`DEPENDENCIES.md`](DEPENDENCIES.md), not copied in wholesale.
+
+## Get started
+
+1. **Unsure where to begin?** Start with [`loop-router`](skills/loop-router/), then follow its single recommended path.
+2. **Know the work?** Use the map below to jump directly to the right skill.
+3. **Want the catalog locally?** Follow the [installation instructions](#install) to link or copy every package into your agent skill directory.
+
+> The repository favors explicit boundaries: design before delivery, proof before landing, and shared contracts over duplicated rules.
 
 ---
 
-## Which skill?
+## Explore the capability map
 
 ```mermaid
 flowchart TD
@@ -226,10 +248,10 @@ Default destination: `~/.agents/skills`. Use `--with-shared` / `-WithShared` whe
 | **2** | Pin true externals in `DEPENDENCIES.md` (source · path · version/commit); do not dump unrelated skill universes here |
 | **3** | Change shared rubrics under `shared/`, not per skill |
 | **4** | A `-mwdev` fork renames its frontmatter `name` to match its directory, and its upstream parent is credited in `DEPENDENCIES.md` |
-| **5** | Stay private while the inventory is still settling |
+| **5** | Keep the public catalog focused, attributable, and coherent as the inventory evolves |
 
 ---
 
 <p align="center">
-  <sub>Private · iterate freely · open when it’s stable</sub>
+  <sub>Focused catalog · explicit boundaries · proof-driven delivery</sub>
 </p>
