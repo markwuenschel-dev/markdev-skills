@@ -1,0 +1,116 @@
+{
+  "skill": "wayfinder",
+  "version": "2.1.2",
+  "invocation": {
+    "allow_implicit_invocation": false
+  },
+  "applicability": {
+    "positive_triggers": [
+      "A selected effort contains several dependent or partially visible decision surfaces and resolving one is expected to expose others",
+      "Durable decision-map state must persist across multiple work cycles",
+      "An existing wayfinder map should be resumed (a ticket worked, fog graduated, drift repaired)",
+      "The Loop Router hands off a fog-heavy multi-surface effort",
+      "An uncertainty record (open-questions.md, uncertainty ledger, expanded-grill leftover) should seed a charted map"
+    ],
+    "negative_triggers": [
+      "An effort one bounded design interview can resolve (route to /expanded-grill-with-docs)",
+      "Work that fits direct execution in a single bounded engagement",
+      "Implementing, delivering, or planning implementation of anything",
+      "Generating delivery tickets or an implementation queue",
+      "Tracking errands or todos that are not decisions"
+    ],
+    "preconditions": [
+      "A human drives the map and is available for HITL tickets",
+      "An issue tracker exists: repo tracker doc, or a writable workspace for the fallback tracker"
+    ],
+    "confidence_or_escalation_rule": "Resume an existing applicable map rather than starting over. If inspection reveals one bounded design question, decline to chart and recommend /expanded-grill-with-docs; if it fits direct work, say so and return. Complexity alone never justifies a map. If the destination stays contested after its one gating question, charting waits on the human."
+  },
+  "policy": {
+    "primary_pattern": "evidence-first breadth-mapping interview over tracker-backed decision-map orchestration",
+    "steps": [
+      "Chart: resume or establish the map, settle the destination (infer-and-confirm or one gating question), inspect evidence, launch 0-6 bounded mapping scouts (default 2-4) inside the workflow, synthesize centrally, ask adaptive packets of 2-4 independently answerable questions, integrate answers, apply the fog-or-ticket test, create-then-wire dependencies, stop with a frontier and honest fog",
+      "Work cycle: load map and integrity-check, select from the frontier by impact and unblocking (not age), claim under this agent's worker identity (claimed_by, distinct from the human decision_owner) or resume one primary decision ticket, resolve by type with 1-3 question grilling rounds or the design handoff, record comment-close-index, integrate and reconcile, stop",
+      "Completion: assemble return_to_loop_router and hand back with an advisory recommendation"
+    ],
+    "branches": [
+      "Scouts: two or more only for independent surfaces; one or none when a single surface dominates; failures preserved as limitation, fog, research ticket, or blocking question \u2014 never fabricated",
+      "Packet sizing: one question when it gates the rest or the human asks for one-at-a-time; five only for exceptional independent breadth",
+      "Design tickets route through the /expanded-grill-with-docs handoff contract; a simple human choice never does; the fallback offers plain grilling explicitly",
+      "Research tickets: scout gathers, parent integrates, records, and closes",
+      "Repo tracker doc when provided; local-markdown fallback tracker otherwise",
+      "Oversized ticket: split per recovery reference; the split is the cycle's work"
+    ],
+    "authoritative_sources": [
+      "The human driving the map",
+      "The repo's tracker doc when provided",
+      "The Loop Router for lifecycle selection"
+    ],
+    "degrees_of_freedom": {
+      "question_selection_and_frontier_choice": "high",
+      "scout_count_and_artifact_shapes": "medium",
+      "lifecycle_ordering_ownership_and_implementation_boundary": "low"
+    }
+  },
+  "termination": {
+    "success_conditions": [
+      "Chart mode: a queryable frontier another cycle can work from with only the map reference",
+      "Work cycle: exactly one primary decision ticket closed-and-indexed, split, superseded, or parked with progress commented and claim released, with the map reconciled",
+      "Map complete: destination mapped, sharp decisions resolved or deliberately deferred, no meaningful fog; return_to_loop_router assembled and handed back"
+    ],
+    "failure_conditions": [
+      "No tracker and the fallback cannot write",
+      "Destination cannot be settled after its gating question",
+      "HITL ticket with the human absent (park, do not fail silently)"
+    ],
+    "stop_conditions": [
+      "One primary decision ticket handled this cycle (supporting scouts and feeding research tickets excepted)",
+      "Charting complete without resolving anything; additional questions would not materially improve the map",
+      "Effort fits one bounded interview or direct work: no map; recommend the right capability"
+    ],
+    "rollback_or_recovery": [
+      "Fixed recording order comment-close-index makes crash recovery idempotent",
+      "Interrupted cycles resume from claims, progress comments, and linked packets",
+      "Integrity check plus repair order in references/recovery.md",
+      "Stale claims released only on the human's word",
+      "Material destination change closes the map with a successor pointer and charts fresh"
+    ]
+  },
+  "interface": {
+    "inputs": [
+      "loose idea or Loop Router handoff OR map reference plus optional ticket",
+      "effort scope",
+      "tracker doc or fallback",
+      "the human driving the map (default decision_owner; worker claims recorded separately in claimed_by)",
+      "optional uncertainty records"
+    ],
+    "outputs": [
+      "resumed or new map with typed wired tickets, honest fog, identified frontier",
+      "one primary ticket resolution per work cycle with integration effects",
+      "return_to_loop_router completion packet with advisory recommendation"
+    ],
+    "artifacts": [
+      "assets/map-body.md",
+      "assets/ticket-body.md",
+      "assets/resolution-comment.md",
+      "assets/scout-assignment.yaml",
+      "assets/mapping-scout.yaml",
+      "assets/expanded-grill-handoff.yaml",
+      "assets/loop-router-return.yaml",
+      "assets/benchmark-transcripts.md",
+      "research/<name> branches",
+      "design documents produced by the expanded-grill child in repository-native locations"
+    ],
+    "allowed_tools": [
+      "Read/Grep/Glob for inspection",
+      "tracker operations (issue create, edit, assign, close, comment) via the tracker's CLI or fallback file writes",
+      "Task for bounded scouts run inside the workflow",
+      "Write scoped to tracker artifacts and child-capability document scopes"
+    ],
+    "mcp_dependencies": [],
+    "side_effects": [
+      "Creates and edits tracker issues and the map",
+      "Creates throwaway research branches",
+      "Never writes implementation and never initiates a delivery lifecycle"
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "repository-health-assessment",
+  "version": "4.0.0",
+  "schema_version": 4,
+  "description": "Read-only repository health assessment: weighted coverage, lane maturity scorecards, an anchored A-F grade with caps and confidence, and a candidate ledger routed to the architecture and integrity skills.",
+  "invocation": {
+    "model_invocable": true,
+    "implicit_conversational_routing": false,
+    "expected_callers": [
+      "user",
+      "loop-router",
+      "production-flywheel",
+      "improve-codebase-architecture-mwdev",
+      "codebase-integrity-audit-loop"
+    ]
+  },
+  "depends_on": [
+    {
+      "skill": "shared/candidate-ledger-spine",
+      "path": "candidate.schema.json",
+      "provides": "canonical candidate contract, the eight 1-5 scores, priority_score, dedup rules, and lifecycle schema",
+      "required": true,
+      "kind": "specification"
+    },
+    {
+      "skill": "shared/candidate-ledger-spine",
+      "path": "ledger-verify.js",
+      "provides": "executable verification and rendering of the candidate half of the shared spine",
+      "required": "when the island carries candidates",
+      "kind": "module",
+      "failure_mode": "verifyHealth reports ledger-module-missing; the report renders a red candidate panel and does not ship",
+      "minimum_spine_version": 3,
+      "required_exports": [
+        "verifyLedger",
+        "renderLedgerRows",
+        "renderScoreLegendInto",
+        "renderChipInto"
+      ]
+    }
+  ],
+  "known_risk": "This package validates health provenance and delegates candidate scoring, dependency, eligibility, ranking, lifecycle, and rendering to the canonical shared spine. Missing or incompatible modules are hard failures.",
+  "dev_dependencies": {
+    "ajv": "^8 \u2014 used only by assets/parity-check.js, never by the generated report",
+    "ledger-verify.js": "required for parity-check.js and package-check.js; resolved from shared/candidate-ledger-spine or LEDGER_VERIFY_PATH"
+  },
+  "shared_spine_version": 3,
+  "migration": "MIGRATIONS.md",
+  "files": {
+    "skill": "SKILL.md",
+    "coverage_model": "COVERAGE-MODEL.md",
+    "grading_model": "HEALTH-GRADING.md",
+    "report_contract": "HTML-REPORT.md",
+    "schema": "assets/health.schema.json",
+    "verifier": "assets/health-verify.js",
+    "canonical_fixture": "assets/canonical-island.json",
+    "browser_fixture": "assets/health-verify.test.html",
+    "parity_harness": "assets/parity-check.js",
+    "package_check": "assets/package-check.js"
+  }
+}

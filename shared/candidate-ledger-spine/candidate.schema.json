@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openai:candidate-ledger-spine:candidate:v3",
+  "title": "Candidate ledger spine v3",
+  "type": "object",
+  "required": ["spine_version", "candidates"],
+  "additionalProperties": false,
+  "properties": {
+    "spine_version": { "const": 3 },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/candidate" }
+    }
+  },
+  "$defs": {
+    "scores": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "confidence", "leverage", "locality", "testability", "blast_radius", "regression_risk", "human_decision_risk"],
+      "properties": {
+        "severity": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "confidence": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "leverage": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "locality": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "testability": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "blast_radius": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "regression_risk": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "human_decision_risk": { "type": "integer", "minimum": 1, "maximum": 5 }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "discovered_by", "current_owner", "lifecycle_status", "history", "completion", "resolution"],
+      "properties": {
+        "candidate_id": { "type": "string", "minLength": 1 },
+        "discovered_by": { "type": "string", "minLength": 1 },
+        "current_owner": { "type": "object", "additionalProperties": false, "required": ["skill", "stage"], "properties": { "skill": { "type": "string", "minLength": 1 }, "stage": { "type": "string", "minLength": 1 } } },
+        "lifecycle_status": { "enum": ["discovered", "awaiting-selection", "designing", "ready", "active", "verifying", "completed", "blocked", "rejected", "deferred", "superseded", "out-of-scope"] },
+        "history": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["event", "timestamp", "artifact"], "properties": { "event": { "type": "string", "minLength": 1 }, "timestamp": { "type": "string", "minLength": 1 }, "artifact": { "type": "string" } } } },
+        "completion": { "type": "object", "additionalProperties": false, "required": ["completed_at", "verification_refs"], "properties": { "completed_at": { "type": ["string", "null"] }, "verification_refs": { "type": "array", "items": { "type": "string", "minLength": 1 } } } },
+        "resolution": { "type": "object", "additionalProperties": false, "required": ["superseded_by", "reason"], "properties": { "superseded_by": { "type": ["string", "null"] }, "reason": { "type": ["string", "null"] } } }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidate_id", "title", "summary", "root_cause", "evidence", "scores", "rollup", "effort", "depends_on", "unlocks", "status", "dedup"],
+      "properties": {
+        "candidate_id": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "lane_sources": { "type": "array", "items": { "type": "string" } },
+        "claim_refs": { "type": "array", "items": { "type": "string" } },
+        "summary": { "type": "string", "minLength": 1 },
+        "root_cause": { "type": "string", "minLength": 1 },
+        "evidence": { "type": "array", "minItems": 1 },
+        "scores": { "$ref": "#/$defs/scores" },
+        "rollup": { "type": "object", "required": ["priority_score", "recommended_action", "execution_mode", "blocked_by"] },
+        "effort": { "enum": ["S", "M", "L"] },
+        "depends_on": { "type": "array", "items": { "type": "string" } },
+        "unlocks": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string" },
+        "dedup": { "type": "object", "required": ["duplicate_group", "merged_from"] },
+        "candidate_lifecycle": { "$ref": "#/$defs/lifecycle" }
+      }
+    }
+  }
+}

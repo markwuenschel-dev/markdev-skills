@@ -1,0 +1,30 @@
+{
+  "spine_version": 3,
+  "candidates": [
+    {
+      "candidate_id": "CONTRACT-007",
+      "title": "Duplicated API schema definitions",
+      "lane_sources": ["contracts-and-integration", "architecture-fitness"],
+      "claim_refs": ["CONTRACT-01", "ARCH-02"],
+      "summary": "Two independently maintained API schema representations can drift across releases.",
+      "root_cause": "The repository has no single authoritative schema source or generated equivalence check.",
+      "evidence": [{"file": "src/api/schema.ts", "line": 18, "observation": "two manually maintained representations"}],
+      "scores": {"severity": 3, "confidence": 4, "leverage": 4, "locality": 3, "testability": 3, "blast_radius": 3, "regression_risk": 2, "human_decision_risk": 4},
+      "rollup": {"priority_score": 8, "recommended_action": "design", "execution_mode": "blocked-needs-human-decision", "blocked_by": ["public-contract"]},
+      "effort": "M",
+      "depends_on": [],
+      "unlocks": [],
+      "status": "needs-human-decision",
+      "dedup": {"duplicate_group": "api-schema-ownership", "merged_from": []},
+      "candidate_lifecycle": {
+        "candidate_id": "CONTRACT-007",
+        "discovered_by": "repository-health-assessment",
+        "current_owner": {"skill": "improve-codebase-architecture-mwdev", "stage": "design"},
+        "lifecycle_status": "designing",
+        "history": [{"event": "discovered", "timestamp": "2026-07-25T00:00:00Z", "artifact": "health-report.html"}],
+        "completion": {"completed_at": null, "verification_refs": []},
+        "resolution": {"superseded_by": null, "reason": null}
+      }
+    }
+  ]
+}

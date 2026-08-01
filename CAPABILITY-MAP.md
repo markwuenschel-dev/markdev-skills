@@ -4,30 +4,90 @@ Canonical inventory for this skills repo. **Start here** when you are unsure whi
 
 Inventory = every folder under `skills/` with a root `SKILL.md`.
 
-```text
-                    ┌─────────────────────┐
-                    │     loop-router     │
-                    │  (unsure which?)    │
-                    └──────────┬──────────┘
-     ┌──────────┬──────────┬───┴───┬──────────┬──────────┐
-     ▼          ▼          ▼       ▼          ▼          ▼          ▼
- shape idea  audit      parallel  deliver  deepen     craft      land/release
- expanded-   integrity  / swarm   flywheel arch       prompts
- grill-      audit-loop           │        improve-   prompt-
- with-docs                        │        codebase-  forge
-                                  │        architecture-mwdev
+```mermaid
+flowchart TD
+    R(["loop-router — unsure which?"])
+    R --> DECIDE
+    R --> ASSESS
+    R --> BUILD
+    R --> LAND
+    R --> CRAFT
+
+    subgraph DECIDE["decide"]
+        direction TB
+        WF["wayfinder-mwdev"]
+        EG["expanded-grill-with-docs"]
+        IPC["implementation-plan-contract"]
+        WF -->|"ticket is design-sized"| EG
+        EG -->|"design approved"| IPC
+    end
+
+    subgraph ASSESS["assess"]
+        direction TB
+        RHA["repository-health-assessment"]
+        CIAL["codebase-integrity-audit-loop"]
+        ICA["improve-codebase-architecture-mwdev"]
+        RHA -->|"integrity candidates"| CIAL
+        RHA -->|"structural direction"| ICA
+    end
+
+    subgraph BUILD["build"]
+        direction TB
+        PF["production-flywheel"]
+        HDSP["human-directed-swarm-planner"]
+        DBM["diagnosing-bugs-mwdev"]
+        CIS["connected-impact-sweep"]
+        PF <--> HDSP
+        PF -->|"red · flaky · slow"| DBM
+        PF -->|"editing a live system"| CIS
+    end
+
+    subgraph LAND["land — one PR, or a queue"]
+        direction TB
+        LP["land-pr"]
+        LPS["land-prs"]
+        LPE["land-pr-ec2"]
+        LPSE["land-prs-ec2"]
+        LP -.->|"+ deploy"| LPE
+        LPS -.->|"+ deploy"| LPSE
+    end
+
+    subgraph CRAFT["craft — any time"]
+        direction TB
+        PFG["prompt-forge"]
+        SWF["skillwright-forge"]
+        CS["compact-session"]
+        PFG -.->|"artifact is a SKILL.md"| SWF
+    end
+
+    IPC --> PF
+    CIAL -->|"selected candidates"| PF
+    ICA -->|"selected deepenings"| PF
+    PF -->|"too big for one slice"| WF
+    PF -->|"Stage 13 publish"| LP
 ```
+
+## Inventory
 
 | Need | Top-level skill | Does **not** do |
 | --- | --- | --- |
-| Shape an idea / approved design package | `expanded-grill-with-docs` | Implement production code; open PRs; choose project priority |
-| Audit repo health | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
-| Edit, fix, refactor, or add across an existing multi-file system | `connected-impact-sweep` | Choose an architectural direction or a new product roadmap |
-| Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
+| Chart a big, foggy effort as a durable decision map | `wayfinder-mwdev` | Implement anything; generate delivery tickets; act as a todo list |
+| Shape one design / approved design package | `expanded-grill-with-docs` | Implement production code; open PRs; choose project priority |
+| Turn selected work into a binding execution contract | `implementation-plan-contract` | Select what to work on; write the code |
+| Grade repository health / establish a baseline | `repository-health-assessment` | Implement fixes; propose architecture direction; review one diff |
+| Audit and repair codebase integrity | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
+| Architecture deepening report | `improve-codebase-architecture-mwdev` | Implement chosen deepenings; open PRs; grade repo health |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
-| Architecture deepening report | `improve-codebase-architecture-mwdev` | Implement chosen deepenings; open PRs |
+| Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
+| Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` | Audit a repository; review architecture; plan a swarm |
+| Change code without breaking neighbours | `connected-impact-sweep` | Decide what the change should be |
+| Land a local change or explicit PR queue, with an optional EC2 release | `land-pr` | Build a selected work queue or land/deploy without the user's explicit request |
+| Land several open PRs as one queue | `land-prs` | Open PRs; deploy anything |
+| Land one change + release to EC2 | `land-pr-ec2` | Land a multi-PR queue |
+| Land a queue + release each service to EC2 | `land-prs-ec2` | Open PRs |
 | Write / repair / optimize prompts | `prompt-forge` | Perform the underlying task; author SKILL.md packages |
-| Land a local change or existing PR queue / deploy a merged release | `land-pr` | Build a selected work queue or merge/deploy without an explicit request |
+| Design / audit / harden a SKILL.md package | `skillwright-forge` | Write ordinary prompts or application code |
+| Checkpoint a long session before `/clear` | `compact-session` | Clear context itself; substitute for git commits |
 | Unsure which applies | `loop-router` | Execute work itself beyond routing |
 
 ## When to hand off
@@ -35,18 +95,29 @@ Inventory = every folder under `skills/` with a root `SKILL.md`.
 | From | To | Trigger |
 | --- | --- | --- |
 | `loop-router` | any inventoried skill | Need matches a single row above |
-| `expanded-grill-with-docs` | `production-flywheel` or implement skills | Shared understanding / approved design package reached; user wants delivery |
+| `wayfinder-mwdev` | `expanded-grill-with-docs` | A map ticket is design-sized — needs a bounded interview, not one direct decision |
+| `wayfinder-mwdev` | `loop-router` | Decision terrain complete; router selects delivery |
+| `expanded-grill-with-docs` | `implementation-plan-contract` | Design approved; needs a binding execution contract |
+| `expanded-grill-with-docs` | `production-flywheel` | Approved design package reached; user wants delivery |
+| `repository-health-assessment` | `codebase-integrity-audit-loop` | Graded baseline produced integrity candidates to repair |
+| `repository-health-assessment` | `improve-codebase-architecture-mwdev` | Candidate is structural direction, not a defect |
 | `codebase-integrity-audit-loop` | `production-flywheel` | User selected one or more ledger candidates to ship |
 | `codebase-integrity-audit-loop` | `human-directed-swarm-planner` | User wants parallel report (`--parallel-report`) or a mission swarm |
+| `codebase-integrity-audit-loop` | `diagnosing-bugs-mwdev` | A candidate is a live defect needing diagnosis, not a repair |
 | `human-directed-swarm-planner` | `codebase-integrity-audit-loop` | Repo Audit swarm produced a ledger; next is candidate loops |
 | `human-directed-swarm-planner` | `production-flywheel` | Mission is a **queue** of separate items, not one milestone |
-| `production-flywheel` | `grill-with-docs` (external) | Design-lane gate A (default) for a queue item |
-| `production-flywheel` | `expanded-grill-with-docs` | User wants a deeper approved design/rollout package than the default grill |
+| `human-directed-swarm-planner` | `diagnosing-bugs-mwdev` | Bug swarm lanes dispatch at the diagnosis skill |
+| `production-flywheel` | `expanded-grill-with-docs` | Design-lane gate A — the default for every queue item |
+| `production-flywheel` | `wayfinder-mwdev` | Candidate is too big for one slice; user elects to decompose (plan, don't build) |
 | `production-flywheel` | `improve-codebase-architecture-mwdev` | Stage 1 architecture report / deepening candidates |
+| `production-flywheel` | `diagnosing-bugs-mwdev` | Work goes red, flaky, slow, or unexplained |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
-| `production-flywheel` | `land-pr` | Implementation is validated and the user explicitly asks to land or deploy it |
-| `improve-codebase-architecture-mwdev` | `grill-with-docs` / `expanded-grill-with-docs` / `/grilling` | User selected a deepening candidate to design |
+| `production-flywheel` | `land-pr` | Stage 13 after the user explicitly requests landing or deployment (`land-prs` for leftover batches) |
+| `improve-codebase-architecture-mwdev` | `expanded-grill-with-docs` | User selected a deepening candidate to design |
 | `improve-codebase-architecture-mwdev` | `production-flywheel` | User selected a queue of candidates to ship |
+| `land-pr` | its `-ec2` overlay | The landed service must also be released to EC2 |
+| `land-prs` | `land-prs-ec2` | A confirmed PR queue must release each affected service to EC2 |
+| `prompt-forge` | `skillwright-forge` | The artifact is a SKILL.md package, not a prompt |
 | `prompt-forge` | (exit) | Prompt delivered; do not execute the prompted task unless the user separately asks |
 
 ## Shared contracts
@@ -55,6 +126,7 @@ Every top-level skill may reference these without redefining them:
 
 | Contract | Path | Owns |
 | --- | --- | --- |
+| Candidate ledger spine | [`shared/candidate-ledger-spine/`](shared/candidate-ledger-spine/) | Family candidate schema + verifiers (`candidate.schema.json`, `ledger-verify.js`, parity/package checks) |
 | Scoring spine | [`shared/REPORT-SCORING.md`](shared/REPORT-SCORING.md) | Candidate schema, scores, priority, report sections/style |
 | Requirements ledger | [`shared/REQUIREMENTS-LEDGER.md`](shared/REQUIREMENTS-LEDGER.md) | Trackable requirement/candidate status |
 | Rollout contract | [`shared/ROLLOUT-CONTRACT.md`](shared/ROLLOUT-CONTRACT.md) | Implementation / slice handoff shape |
@@ -68,6 +140,7 @@ Every top-level skill may reference these without redefining them:
 2. **Shared contracts are single sources of truth.** Skills link here; they do not fork scoring formulas or human-decision taxonomies.
 3. **Human direction owns mission and queue.** Skills execute authorized work; they do not invent new roadmaps.
 4. **Delivery loops ship by opening a PR.** Only `land-pr` merges or deploys, and only when the user explicitly requests it.
+5. **Inventoried skills route at inventoried skills first.** Where this repo owns a capability, its skills invoke the in-repo one — an in-repo skill may delegate down to an external companion internally, but the entry point is owned here. This is why the flywheel's design lane targets `expanded-grill-with-docs` and the `-mwdev` forks rather than their upstream parents.
 
 ## Validation
 

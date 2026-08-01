@@ -4,9 +4,9 @@ Loaded from SKILL.md after the router selects a type. Each section carries that 
 
 ## Repo Audit swarm
 
-The one read-only swarm class. Use when another skill (`codebase-integrity-audit-loop --parallel-report`) or the user needs broad repo-wide analysis without edits: the whole repo inspected through expert lenses, merged into one scored HTML report and one candidate ledger. It is not an Execution Swarm — no lane edits anything; the report and ledger artifacts are the only writes — and it stops after the report/ledger. Candidate selection and any implementation belong to a later, separately authorized loop.
+The one read-only swarm class. Use when another skill (`codebase-integrity-audit-loop --parallel-report`) or the user needs broad repo-wide analysis without edits: the whole repo inspected through expert lenses, merged into one scored HTML report and one candidate ledger. It is not an Execution Swarm — no lane edits anything; the report and ledger artifacts are the only writes — and it stops at the candidate gate after the report/ledger. It never auto-selects a candidate: selection and any implementation happen only in a later, separately authorized loop, such as the user invoking auto mode against the ledger.
 
-Goal: grade the repo, surface evidence-backed candidates, and emit one deduplicated, scored ledger per `shared/REPORT-SCORING.md`.
+Goal: surface evidence-backed candidates and emit one deduplicated shared-spine ledger. Formal repository grades belong to `repository-health-assessment`.
 
 Captain + four default lanes — used unless the user overrides the lane set:
 
@@ -31,7 +31,7 @@ Outputs:
 Hard rules:
 
 - Read-only: every finding is grounded in repository evidence gathered this run; the only writes are the HTML report, the candidate ledger, and any output file the user explicitly named.
-- Stops after report/ledger — no candidate selection, no implementation, no staged edits.
+- Stops at the candidate gate after report/ledger — no candidate selection, no implementation, no staged edits; candidate selection requires the user to separately invoke auto mode against the ledger.
 - A lane that discovers something outside its lens reports it to the captain as a candidate, never acts on it.
 
 ## Explorer swarm
@@ -95,31 +95,39 @@ Outputs:
 
 ## Bug swarm
 
-Use when there is a failing test, production bug, flaky behavior, mysterious regression, or unexplained red state.
+Use when there is a failing test, production bug, flaky behavior, mysterious regression, or unexplained red state **and** the defect presents several genuinely independent investigative surfaces. One defect with one obvious line of enquiry does not need a swarm — invoke `/diagnosing-bugs-mwdev` directly.
 
-Goal: reproduce, minimize, isolate root cause, fix, and add regression protection.
+**This swarm does not own the diagnostic protocol.** `/diagnosing-bugs-mwdev` owns the complete workflow for one concrete reproducible defect — reproduction, hypothesis testing, root-cause confirmation, narrow repair, regression verification — and is the single definition of those stages. This swarm owns the *topology around* that protocol and nothing else. Do not restate, reorder, or substitute the stages here.
 
-Agents:
+Goal: decide whether parallel investigation is justified, run independent investigations without overlap, and reconcile their evidence into one confirmed diagnostic path.
 
-- Agent 0 — Bug Captain / Repro + Fix Integration
-- Agent 1 — Reproduction / Minimal Failing Case
-- Agent 2 — Recent Change / Diff Investigator
-- Agent 3 — Call Graph / Data Flow Investigator
-- Agent 4 — Test / Fixture / Mock Investigator
-- Agent 5 — Config / Environment / CI Investigator
-- Agent 6 — Fix Candidate / Patch Lane
-- Agent 7 — Regression / Anti-Flake / Verification Lane
+Owned here:
+
+- deciding whether parallel investigation is justified at all
+- selecting independent investigative surfaces
+- assigning non-overlapping lanes
+- managing dependencies and evidence between lanes
+- reconciling competing hypotheses
+- selecting which confirmed diagnostic path advances
+- captain synthesis
+
+Topology: **adaptive — derive lanes from the defect's actual independent surfaces.** There is no fixed roster and no target lane count. A surface earns a lane only when it can be investigated without waiting on another lane's findings. Common surfaces, as *examples to choose from, not a roster to fill*: recent-change/diff, call-graph/data-flow, test/fixture/mock, config/environment/CI, dependency/version, data/state shape. If only one surface is real, run one lane — or no swarm at all.
+
+Each lane runs `/diagnosing-bugs-mwdev` for its own bounded question and returns evidence plus falsifiable hypotheses. A lane never declares root cause on its own, and never begins repair.
 
 Outputs:
 
-- root cause
-- minimal repro
-- fix candidate
-- regression test
-- verification commands
-- remaining risk
+- which surfaces were investigated, and which were ruled out as non-independent
+- per-lane evidence and ranked falsifiable hypotheses
+- reconciliation of competing hypotheses, with the evidence that separated them
+- the single confirmed diagnostic path selected to advance
+- remaining risk and unexplored surfaces
 
-Hard rule: no fix is proposed until the failure is reproduced or the inability to reproduce is explicitly reported.
+Hard rules:
+
+- No lane proposes a fix. Repair and regression verification happen once, in `/diagnosing-bugs-mwdev`, after the captain has selected the confirmed path.
+- No path advances until reproduction succeeded, or the inability to reproduce is explicitly reported.
+- Contradictory hypotheses stay distinct until evidence resolves them; the captain does not average them into a consensus.
 
 ## Planning swarm
 

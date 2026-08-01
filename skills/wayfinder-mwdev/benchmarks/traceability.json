@@ -1,0 +1,34 @@
+[
+  {
+    "evaluation_case": "interview-adaptation-005",
+    "evaluated_behavior": "Record the three decisions once each and prune every email-as-key branch from candidates, tickets, and later rounds",
+    "linked_benchmark": "b2",
+    "scenario_match": "exact",
+    "evidence_location": "assets/benchmark-transcripts.md#b2",
+    "status": "aligned-v2.1.2"
+  },
+  {
+    "evaluation_case": "interview-fog-honesty-006",
+    "evaluated_behavior": "Keep retention/deletion semantics as fog with why-not-yet-sharp while write authority is undecided",
+    "linked_benchmark": "b3",
+    "scenario_match": "exact",
+    "evidence_location": "assets/benchmark-transcripts.md#b3",
+    "status": "aligned-v2.1.2"
+  },
+  {
+    "evaluation_case": "interview-scout-shapes-packet-032",
+    "evaluated_behavior": "Synthesize both packets before any human question",
+    "linked_benchmark": "b1",
+    "scenario_match": "exact",
+    "evidence_location": "assets/benchmark-transcripts.md#b1",
+    "status": "aligned-v2.1.2"
+  },
+  {
+    "evaluation_case": "grill-design-roundtrip-019",
+    "evaluated_behavior": "Invoke /expanded-grill-with-docs with the expanded_grill_input contract populated from the map (destination, ticket question, known decisions, decision owner, implementation_authorized false)",
+    "linked_benchmark": "b4",
+    "scenario_match": "exact",
+    "evidence_location": "assets/benchmark-transcripts.md#b4",
+    "status": "aligned-v2.1.2"
+  }
+]

@@ -12,18 +12,39 @@ Update this file when you change which external skill an inventoried skill relie
 
 | Lineage | Who | Role in this inventory |
 | --- | --- | --- |
-| **Matt** | [Matt Pocock](https://github.com/mattpocock) — [`mattpocock/skills`](https://github.com/mattpocock/skills) | Composable engineering skills: grill, domain model, TDD, architecture deepening, wayfinder, tickets, triage |
+| **Matt** | [Matt Pocock](https://github.com/mattpocock) — [`mattpocock/skills`](https://github.com/mattpocock/skills) | Composable engineering skills: grill, domain model, TDD, architecture deepening, wayfinder, tickets, triage. **Parent of the three `-mwdev` forks below.** |
 | **Jeff** | [Jeff Bailey](https://jeffbailey.us) — fitness / graded review skills (`review-*`) | Scored quality rubrics; graded-integrity swarm lane; informs how we think about evidence-backed scores |
 | **Obra** | [Jesse Vincent](https://github.com/obra) — [`obra/superpowers`](https://github.com/obra/superpowers) | Plan → execute → review → verify machinery (worktrees, subagents, verification gate, skill discipline) |
-| **Local / family** | this machine or unreleased companions | `connected-impact-sweep`, `implementation-plan-contract`, etc. — pin when installed |
+| **Local / family** | this repo | The inventory under `skills/` and the contracts under `shared/` |
 
 **Rule of thumb:** skill *folders and procedures* lean Matt; *scoring, fitness dimensions, and graded review* lean Jeff; *delivery harness* (plans, subagents, verify, worktrees) leans Obra / Superpowers. Inventoried loops compose all three — companions stay pinned here unless promoted into `skills/`.
 
-### In-repo (formerly external)
+---
+
+## Fork lineage (derivative works — attribution required)
+
+Three inventoried skills are **forks of Matt Pocock's originals**, not original work. They carry a `-mwdev` suffix so an upstream `npx skills add mattpocock/skills` can never overwrite them: the installer's only destructive step is scoped to a single skill's own directory, keyed on the upstream skill's declared `name`, so a differently-named directory is never a write target.
+
+| Fork (in this repo) | Upstream parent | Forked at | What diverges |
+| --- | --- | --- | --- |
+| [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` — `mattpocock/skills` | v2.1.2 | Evidence-first mapping interview, bounded parallel scouts, durable tracker scripts + fallback tracker, `expanded-grill-with-docs` handoff contract, release validator |
+| [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` — `mattpocock/skills` | local-unpinned | Ownership-boundary section wiring it to `codebase-integrity-audit-loop` and `human-directed-swarm-planner` |
+| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | Bundles `assets/mermaid-safe.js` + `assets/ledger-verify.js` instead of pulling Tailwind/Mermaid from a CDN |
+
+**Fork naming rule.** A fork must set its frontmatter `name` to the **suffixed** directory name. The `name` field is the invocation name (the directory basename is only a fallback), so a fork that keeps the upstream `name` collides with the skill it forked and neither resolves reliably.
+
+### In-repo (formerly external, now owned here)
 
 | Skill | Used by | Canonical path in this repo | Note |
 | --- | --- | --- | --- |
-| `improve-codebase-architecture-mwdev` | `production-flywheel` Stage 1 report | [`skills/improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | In-repo architecture deepening skill; Matt-informed lineage |
+| `improve-codebase-architecture-mwdev` | `production-flywheel` Stage 1 report | [`skills/improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | Fork of Matt's `improve-codebase-architecture` |
+| `wayfinder-mwdev` | `production-flywheel` scoping pre-check | [`skills/wayfinder-mwdev`](skills/wayfinder-mwdev/) | Fork of Matt's `wayfinder` |
+| `diagnosing-bugs-mwdev` | flywheel + audit execute interrupt; swarm bug lanes | [`skills/diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | Fork of Matt's `diagnosing-bugs` |
+| `expanded-grill-with-docs` | flywheel design-lane gate A (default); wayfinder design tickets | [`skills/expanded-grill-with-docs`](skills/expanded-grill-with-docs/) | Original; may invoke Matt's `grilling` / `domain-modeling` as child procedures |
+| `connected-impact-sweep` | audit execute calibration; swarm blast-radius; migration missions | [`skills/connected-impact-sweep`](skills/connected-impact-sweep/) | Original |
+| `implementation-plan-contract` | audit plan gate; planning swarm | [`skills/implementation-plan-contract`](skills/implementation-plan-contract/) | Original |
+| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | Original; consumes `shared/candidate-ledger-spine` |
+| `land-pr` / `land-prs` / `land-pr-ec2` / `land-prs-ec2` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) and siblings | Original |
 
 Install examples:
 
@@ -38,25 +59,28 @@ Browse: [skills.sh/mattpocock/skills](https://skills.sh/mattpocock/skills) · [s
 
 ## Matt Pocock (`mattpocock/skills`)
 
+Still-external companions. Note the routing rule: where this repo owns a capability, inventoried skills invoke the **in-repo** skill, which may delegate down to one of these internally.
+
 | Skill | Used by | Canonical source | Local path | Version / commit |
 | --- | --- | --- | --- | --- |
 | `tdd` | `production-flywheel` new-behavior path | `mattpocock/skills` | `~/.agents/skills/tdd` | local-unpinned |
-| `diagnosing-bugs` | flywheel + audit execute interrupt | `mattpocock/skills` | `~/.agents/skills/diagnosing-bugs` | local-unpinned |
 | `to-tickets` (or Slice Contract fallback) | `production-flywheel` Stage 6 | `mattpocock/skills` | `~/.agents/skills/to-tickets` | local-unpinned |
-| `grilling` | primitive under `expanded-grill-with-docs` | `mattpocock/skills` | `~/.agents/skills/grilling` | local-unpinned |
-| `grill-with-docs` | `production-flywheel` Stage 4 design-lane A (default) | `mattpocock/skills` | `~/.agents/skills/grill-with-docs` | local-unpinned |
-| `domain-modeling` | `expanded-grill-with-docs` glossary/ADR capture | `mattpocock/skills` | `~/.agents/skills/domain-modeling` | local-unpinned |
+| `grilling` | child procedure **under** `expanded-grill-with-docs` — not invoked directly by inventoried skills | `mattpocock/skills` | `~/.agents/skills/grilling` | local-unpinned |
+| `grill-with-docs` | superseded as the flywheel design lane by `expanded-grill-with-docs`; retained as an upstream companion | `mattpocock/skills` | `~/.agents/skills/grill-with-docs` | local-unpinned |
+| `domain-modeling` | `expanded-grill-with-docs` glossary/ADR capture; wayfinder grilling tickets | `mattpocock/skills` | `~/.agents/skills/domain-modeling` | local-unpinned |
 | `codebase-design` (design-it-twice) | flywheel when 2+ interface shapes | `mattpocock/skills` | `~/.agents/skills/codebase-design` | local-unpinned |
-| `wayfinder` | flywheel scoping (too big for one slice) | `mattpocock/skills` | `~/.agents/skills/wayfinder` | local-unpinned |
-| `prototype` | flywheel / audit prototype branch | `mattpocock/skills` | `~/.agents/skills/prototype` | local-unpinned |
+| `prototype` | flywheel / audit / wayfinder prototype tickets | `mattpocock/skills` | `~/.agents/skills/prototype` | local-unpinned |
+| `research` | wayfinder research tickets | `mattpocock/skills` | `~/.agents/skills/research` | local-unpinned |
 | `triage` | flywheel triage sub-lane | `mattpocock/skills` | `~/.agents/skills/triage` | local-unpinned |
 | `setup-matt-pocock-skills` | repo setup for tracker / domain docs | `mattpocock/skills` | `~/.agents/skills/setup-matt-pocock-skills` | local-unpinned |
+
+**Superseded by an in-repo fork** — do not route at these directly: `wayfinder` → `wayfinder-mwdev`; `diagnosing-bugs` → `diagnosing-bugs-mwdev`; `improve-codebase-architecture` → `improve-codebase-architecture-mwdev`.
 
 ---
 
 ## Jeff Bailey (fitness / graded review)
 
-Jeff’s **scored fitness reviews** (`review-architecture`, `review-security`, `review-testing`, …) supply the graded-quality posture used by the Repo Audit **graded integrity** lane and by how this family thinks about dimension scores + evidence.
+Jeff’s **scored fitness reviews** (`review-architecture`, `review-security`, `review-testing`, …) supply the graded-quality posture used by the Repo Audit **graded integrity** lane, by `repository-health-assessment`, and by how this family thinks about dimension scores + evidence.
 
 They are **not vendored** into this repo. Canonical ideas live on [jeffbailey.us/categories/fundamentals](https://jeffbailey.us/categories/fundamentals/); local installs typically sit under `~/.claude/skills/review-*` or `~/.agents/skills/review-*`.
 
@@ -74,6 +98,7 @@ They are **not vendored** into this repo. Canonical ideas live on [jeffbailey.us
 | Contract | Role | Note |
 | --- | --- | --- |
 | `shared/REPORT-SCORING.md` | Family scoring spine + report style | Jeff-style *scored, evidence-backed* posture; schema is ours |
+| `shared/candidate-ledger-spine/` | Candidate schema + verifiers | Executable form of the scoring spine; consumed by audit, health assessment, and architecture |
 | `shared/HUMAN-DECISIONS.md` | Auto-mode stop taxonomy | Complements graded review with explicit human forks |
 
 When you promote a Jeff skill from “optional lane helper” to a hard dependency, pin its install source and commit/tag here.
@@ -103,6 +128,7 @@ They are **not vendored** into this repo. Canonical package: [github.com/obra/su
 | Surface | Role | Note |
 | --- | --- | --- |
 | `production-flywheel` execute path | Wires Superpowers skills into a queue loop | Does not re-implement Superpowers |
+| `land-pr` family | PR landing + optional EC2 release | Ours; complements rather than replaces the Superpowers review/verify gates |
 | `shared/ROLLOUT-CONTRACT.md` | Min plan/handoff shape | Compatible with Superpowers-style task plans |
 | `shared/SWARM-LANES.md` / blast-radius lane notes | Parallel agent posture | “Obra-style” impact thinking; still pin Superpowers for fan-out |
 
@@ -110,23 +136,29 @@ When you promote another Superpowers skill from optional to required, pin it in 
 
 ---
 
-## Local / missing companions (pin when installed)
+## Not owned here, deliberately excluded
 
-| Skill / artifact | Used by | Source | Path | Version / commit |
-| --- | --- | --- | --- | --- |
-| `connected-impact-sweep` | audit execute calibration; swarm blast-radius; migration missions | **not installed here** | — | pin when installed |
-| `implementation-plan-contract` | audit plan gate; planning swarm | **not installed here** | — | pin when installed |
+Present in the local agent skills pool but **not** inventoried and **not** published here — they belong to other authors:
 
-### Shared fallbacks (this repo)
+| Package | Author / source | Why excluded |
+| --- | --- | --- |
+| `prompt-master` | MIT © Nidhin Joseph Nelson — [`nidhinjs/prompt-master`](https://github.com/nidhinjs/prompt-master) | Third-party package with its own LICENSE and release cadence |
+| `openspec-*` | `metadata.author: openspec` | Third-party suite |
+| `speckit-*` | `metadata.author: github-spec-kit` | Third-party suite |
+| `context7-mcp`, `find-skills` | ecosystem-generic packages | Not authored here; no attribution trail to claim |
 
-When those companions are missing:
+---
+
+## Shared fallbacks (this repo)
+
+When an external companion is missing:
 
 | Missing external | Fallback |
 | --- | --- |
 | human-decision categories | `shared/HUMAN-DECISIONS.md` |
 | implementation / slice handoff | `shared/ROLLOUT-CONTRACT.md` |
 | lane merge protocol (core) | `shared/SWARM-LANES.md` |
-| candidate scoring | `shared/REPORT-SCORING.md` |
+| candidate scoring | `shared/REPORT-SCORING.md` + `shared/candidate-ledger-spine/` |
 
 Do **not** dump entire Matt, Jeff, or Obra skill trees into this repository. Promote a skill into `skills/` only when this inventory owns it; otherwise pin it here and install it in the agent skills pool.
 
@@ -138,4 +170,4 @@ Do **not** dump entire Matt, Jeff, or Obra skill trees into this repository. Pro
 | short-name | used by | lineage (Matt / Jeff / Obra / other) | https://github.com/org/repo | path/in/repo | abcdef1 or tag |
 ```
 
-Prefer a commit SHA over a floating branch name. Always name the lineage when the skill is Matt’s, Jeff’s, or Obra’s.
+Prefer a commit SHA over a floating branch name. Always name the lineage when the skill is Matt’s, Jeff’s, or Obra’s. When the new entry is a **fork**, add it to *Fork lineage* above and credit the upstream author there.

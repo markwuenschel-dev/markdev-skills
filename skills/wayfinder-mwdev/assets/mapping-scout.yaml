@@ -1,0 +1,36 @@
+# Return packet from one scout. The parent synthesizes; this is never
+# shown raw to the human and never copied into the map.
+mapping_scout:
+  surface: ""
+
+  evidence:
+    - observation: ""
+      source: ""
+      confidence: high   # high | medium | low
+
+  candidate_decisions:
+    - question: ""
+      why_it_matters: ""
+      sharp_enough_for_ticket: true
+      suspected_dependencies: []
+      affected_destination_conditions: []
+
+  fog_candidates:
+    - area: ""
+      why_not_yet_sharp: ""
+      evidence_needed: []
+
+  contradictions:
+    - statement_a: ""
+      statement_b: ""
+      consequence: ""
+
+  recommended_human_questions:
+    - question: ""
+      decision_unlocked: ""
+      why_now: ""
+
+  scope_findings:
+    in_scope: []
+    out_of_scope: []
+    uncertain: []

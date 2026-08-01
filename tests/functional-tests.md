@@ -6,9 +6,9 @@ Lightweight checks that the **repo inventory** is coherent. Run after structural
 
 | # | Check | Pass criteria |
 | --- | --- | --- |
-| F1 | Inventoried skill folders exist | `skills/{loop-router,expanded-grill-with-docs,codebase-integrity-audit-loop,connected-impact-sweep,human-directed-swarm-planner,production-flywheel,improve-codebase-architecture-mwdev,prompt-forge,land-pr}/SKILL.md` |
+| F1 | Inventoried skill folders exist | every `skills/*/SKILL.md` directory is present and has no accidental nested `skills/<name>/<name>/SKILL.md` |
 | F2 | Shared contracts exist | all six files under `shared/` listed in README |
-| F3 | CAPABILITY-MAP table | needs map to all inventoried skills (including ICA-mwdev, prompt-forge, and land-pr); matches `skills/*/SKILL.md` |
+| F3 | CAPABILITY-MAP table | maps every inventoried `skills/*/SKILL.md`; matches the router's fallback table |
 | F4 | DEPENDENCIES present | file exists; pins true externals; ICA-mwdev listed as in-repo |
 | F5 | Install script present | `scripts/install-skills.sh` / `.ps1` discover all `skills/*/SKILL.md` |
 
@@ -46,16 +46,7 @@ test -f shared/REQUIREMENTS-LEDGER.md
 test -f shared/ROLLOUT-CONTRACT.md
 test -f shared/SWARM-LANES.md
 test -f shared/LOOP-STATE.md
-test -f skills/loop-router/SKILL.md
-test -f skills/expanded-grill-with-docs/SKILL.md
-test -f skills/codebase-integrity-audit-loop/SKILL.md
-test -f skills/connected-impact-sweep/SKILL.md
-test -f skills/human-directed-swarm-planner/SKILL.md
-test -f skills/production-flywheel/SKILL.md
-test -f skills/improve-codebase-architecture-mwdev/SKILL.md
-test -f skills/prompt-forge/SKILL.md
-test -f skills/land-pr/SKILL.md
-test -f skills/land-pr/references/ec2-release.md
+find skills -mindepth 2 -maxdepth 2 -name SKILL.md -print -quit | grep -q .
 test -f scripts/install-skills.sh
 test -f scripts/install-skills.ps1
 

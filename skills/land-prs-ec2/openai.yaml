@@ -1,0 +1,4 @@
+interface:
+  display_name: "Land PRs + EC2"
+  short_description: "Land multiple open PRs and deploy affected services to EC2"
+  default_prompt: "Use $land-prs-ec2 to land all my open pull requests and deploy the merged release to EC2."

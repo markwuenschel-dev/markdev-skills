@@ -1,7 +1,9 @@
 change:
   title: ""
   selected_direction: ""
-  decision_owner: human
+  decision_owner:
+    name: ""
+    status: unresolved
   scope:
     included: []
     excluded: []
@@ -9,8 +11,8 @@ change:
   known_decisions: []
   unresolved_questions: []
   research_allowed: true
-  permitted_research_surfaces: []
-  prototype_allowed: true
+  prototype_allowed: false
   implementation_authorized: false
-  required_destination_system: ""
-  status: DRAFT
+  destination_system:
+    name: ""
+    status: unresolved

@@ -1,0 +1,1203 @@
+{
+  "health_schema_version": 4,
+  "spine_version": 3,
+  "generated": "2026-07-25T12:00:00Z",
+  "repository": {
+    "name": "fixture-repo",
+    "revision": "abc1234",
+    "freshness": "fresh",
+    "freshness_evidence": {
+      "assessment_revision": "abc1234",
+      "head_revision": "abc1234",
+      "working_tree_clean": true,
+      "observed_at": "2026-07-25T12:00:00Z"
+    }
+  },
+  "verification": {
+    "baseline": "trustworthy",
+    "isolation": "worktree",
+    "isolation_note": "git worktree at abc1234 under $TMPDIR",
+    "commands": [
+      {
+        "kind": "test",
+        "command": "npm test",
+        "exit_code": 0,
+        "elapsed_seconds": 94,
+        "result": "pass",
+        "command_id": "baseline-test-1"
+      },
+      {
+        "kind": "build",
+        "command": "npm run build",
+        "exit_code": 0,
+        "elapsed_seconds": 38,
+        "result": "pass",
+        "command_id": "baseline-build-2"
+      },
+      {
+        "kind": "lint",
+        "command": "npm run lint",
+        "result": "skipped",
+        "reason": "no lint script defined in package.json",
+        "command_id": "baseline-lint-3"
+      }
+    ]
+  },
+  "coverage": [
+    {
+      "id": "runtime-code",
+      "criticality_weight": 5,
+      "coverage": "inspected",
+      "evidence_quality": "strong",
+      "evidence_refs": [
+        {
+          "kind": "path",
+          "ref": "src/"
+        }
+      ]
+    },
+    {
+      "id": "domain-libraries",
+      "criticality_weight": 4,
+      "coverage": "inspected",
+      "evidence_quality": "strong",
+      "evidence_refs": [
+        {
+          "kind": "path",
+          "ref": "src/domain/"
+        }
+      ]
+    },
+    {
+      "id": "architecture-boundaries",
+      "criticality_weight": 4,
+      "coverage": "inspected",
+      "evidence_quality": "moderate",
+      "evidence_refs": [
+        {
+          "kind": "claim",
+          "ref": "ARCH-01"
+        }
+      ]
+    },
+    {
+      "id": "contracts-and-wiring",
+      "criticality_weight": 5,
+      "coverage": "sampled",
+      "evidence_quality": "moderate",
+      "evidence_refs": [
+        {
+          "kind": "claim",
+          "ref": "CONTRACT-01"
+        }
+      ]
+    },
+    {
+      "id": "data-lifecycle",
+      "criticality_weight": 4,
+      "coverage": "sampled",
+      "evidence_quality": "moderate",
+      "evidence_refs": [
+        {
+          "kind": "claim",
+          "ref": "DATA-01"
+        }
+      ]
+    },
+    {
+      "id": "verification",
+      "criticality_weight": 4,
+      "coverage": "inspected",
+      "evidence_quality": "strong",
+      "evidence_refs": [
+        {
+          "kind": "command",
+          "ref": "baseline-test-1"
+        }
+      ]
+    },
+    {
+      "id": "build-and-delivery",
+      "criticality_weight": 3,
+      "coverage": "sampled",
+      "evidence_quality": "moderate",
+      "evidence_refs": [
+        {
+          "kind": "command",
+          "ref": "baseline-build-2"
+        }
+      ]
+    },
+    {
+      "id": "operational-behavior",
+      "criticality_weight": 3,
+      "coverage": "inventory-only",
+      "evidence_quality": "weak",
+      "evidence_refs": [
+        {
+          "kind": "inventory",
+          "ref": "runtime entrypoints and service manifests"
+        }
+      ]
+    },
+    {
+      "id": "generated-surfaces",
+      "criticality_weight": 2,
+      "coverage": "inventory-only",
+      "evidence_quality": "weak",
+      "evidence_refs": [
+        {
+          "kind": "inventory",
+          "ref": "generated-file and codegen inventory"
+        }
+      ]
+    },
+    {
+      "id": "specialized-paths",
+      "criticality_weight": 3,
+      "coverage": "not-applicable",
+      "reason": "no GPU, numerical, or platform-specific code in this repository",
+      "evidence_refs": [
+        {
+          "kind": "inventory",
+          "ref": "language, platform, GPU, and numerical-path inventory"
+        }
+      ]
+    },
+    {
+      "id": "ownership-and-maintainability",
+      "criticality_weight": 2,
+      "coverage": "sampled",
+      "evidence_quality": "weak",
+      "evidence_refs": [
+        {
+          "kind": "claim",
+          "ref": "MAINT-01"
+        }
+      ]
+    }
+  ],
+  "lanes": [
+    {
+      "lane": "data-and-migrations",
+      "criticality_weight": 4,
+      "scores": {
+        "observed_soundness": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "DATA-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            },
+            {
+              "claim_id": "DATA-02",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 2 for observed soundness: present but inconsistently applied."
+        },
+        "automated_enforcement": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "DATA-01",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            },
+            {
+              "claim_id": "DATA-02",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 2 for automated enforcement: present but inconsistently applied."
+        },
+        "verification_readiness": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "DATA-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            },
+            {
+              "claim_id": "DATA-02",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 2 for verification readiness: present but inconsistently applied."
+        },
+        "boundary_clarity": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "DATA-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 3 for boundary clarity: systematic on the paths that matter."
+        },
+        "change_containment": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "DATA-01",
+              "support": "Evidences how far a change here ripples for this lane."
+            },
+            {
+              "claim_id": "DATA-02",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 2 for change containment: present but inconsistently applied."
+        },
+        "operational_reproducibility": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "DATA-01",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            },
+            {
+              "claim_id": "DATA-02",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 2 for operational reproducibility: present but inconsistently applied."
+        }
+      }
+    },
+    {
+      "lane": "correctness-and-integrity",
+      "criticality_weight": 5,
+      "scores": {
+        "observed_soundness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "CORE-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 3 for observed soundness: systematic on the paths that matter."
+        },
+        "automated_enforcement": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "CORE-01",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 3 for automated enforcement: systematic on the paths that matter."
+        },
+        "verification_readiness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "CORE-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 3 for verification readiness: systematic on the paths that matter."
+        },
+        "boundary_clarity": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "CORE-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            },
+            {
+              "claim_id": "CORE-02",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 2 for boundary clarity: present but inconsistently applied."
+        },
+        "change_containment": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "CORE-01",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 3 for change containment: systematic on the paths that matter."
+        },
+        "operational_reproducibility": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "CORE-01",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 3 for operational reproducibility: systematic on the paths that matter."
+        }
+      }
+    },
+    {
+      "lane": "architecture-fitness",
+      "criticality_weight": 4,
+      "scores": {
+        "observed_soundness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "ARCH-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 3 for observed soundness: systematic on the paths that matter."
+        },
+        "automated_enforcement": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "ARCH-01",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            },
+            {
+              "claim_id": "ARCH-02",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 2 for automated enforcement: present but inconsistently applied."
+        },
+        "verification_readiness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "ARCH-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 3 for verification readiness: systematic on the paths that matter."
+        },
+        "boundary_clarity": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "ARCH-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 3 for boundary clarity: systematic on the paths that matter."
+        },
+        "change_containment": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "ARCH-01",
+              "support": "Evidences how far a change here ripples for this lane."
+            },
+            {
+              "claim_id": "ARCH-02",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 2 for change containment: present but inconsistently applied."
+        },
+        "operational_reproducibility": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "ARCH-01",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 3 for operational reproducibility: systematic on the paths that matter."
+        }
+      }
+    },
+    {
+      "lane": "contracts-and-integration",
+      "criticality_weight": 4,
+      "scores": {
+        "observed_soundness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "CONTRACT-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 3 for observed soundness: systematic on the paths that matter."
+        },
+        "automated_enforcement": {
+          "level": 1,
+          "claim_refs": [
+            {
+              "claim_id": "CONTRACT-02",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            },
+            {
+              "claim_id": "CONTRACT-03",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 1 for automated enforcement: ad hoc or absent."
+        },
+        "verification_readiness": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "CONTRACT-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            },
+            {
+              "claim_id": "CONTRACT-02",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 2 for verification readiness: present but inconsistently applied."
+        },
+        "boundary_clarity": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "CONTRACT-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            },
+            {
+              "claim_id": "CONTRACT-02",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 2 for boundary clarity: present but inconsistently applied."
+        },
+        "change_containment": {
+          "level": 1,
+          "claim_refs": [
+            {
+              "claim_id": "CONTRACT-02",
+              "support": "Evidences how far a change here ripples for this lane."
+            },
+            {
+              "claim_id": "CONTRACT-03",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 1 for change containment: ad hoc or absent."
+        },
+        "operational_reproducibility": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "CONTRACT-01",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            },
+            {
+              "claim_id": "CONTRACT-02",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 2 for operational reproducibility: present but inconsistently applied."
+        }
+      }
+    },
+    {
+      "lane": "verification-readiness",
+      "criticality_weight": 4,
+      "scores": {
+        "observed_soundness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "VERIF-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 3 for observed soundness: systematic on the paths that matter."
+        },
+        "automated_enforcement": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "VERIF-01",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 3 for automated enforcement: systematic on the paths that matter."
+        },
+        "verification_readiness": {
+          "level": 4,
+          "claim_refs": [
+            {
+              "claim_id": "VERIF-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 4 for verification readiness: systematic on the paths that matter."
+        },
+        "boundary_clarity": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "VERIF-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            },
+            {
+              "claim_id": "VERIF-02",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 2 for boundary clarity: present but inconsistently applied."
+        },
+        "change_containment": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "VERIF-01",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 3 for change containment: systematic on the paths that matter."
+        },
+        "operational_reproducibility": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "VERIF-01",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 3 for operational reproducibility: systematic on the paths that matter."
+        }
+      }
+    },
+    {
+      "lane": "build-and-delivery",
+      "criticality_weight": 3,
+      "scores": {
+        "observed_soundness": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "BUILD-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 3 for observed soundness: systematic on the paths that matter."
+        },
+        "automated_enforcement": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "BUILD-01",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 3 for automated enforcement: systematic on the paths that matter."
+        },
+        "verification_readiness": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "BUILD-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            },
+            {
+              "claim_id": "BUILD-02",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 2 for verification readiness: present but inconsistently applied."
+        },
+        "boundary_clarity": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "BUILD-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 3 for boundary clarity: systematic on the paths that matter."
+        },
+        "change_containment": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "BUILD-01",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 3 for change containment: systematic on the paths that matter."
+        },
+        "operational_reproducibility": {
+          "level": 4,
+          "claim_refs": [
+            {
+              "claim_id": "BUILD-01",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 4 for operational reproducibility: systematic on the paths that matter."
+        }
+      }
+    },
+    {
+      "lane": "maintainability-and-ownership",
+      "criticality_weight": 2,
+      "scores": {
+        "observed_soundness": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "MAINT-01",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            },
+            {
+              "claim_id": "MAINT-02",
+              "support": "Evidences what the code actually does on the primary path for this lane."
+            }
+          ],
+          "rationale": "Level 2 for observed soundness: present but inconsistently applied."
+        },
+        "automated_enforcement": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "MAINT-01",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            },
+            {
+              "claim_id": "MAINT-02",
+              "support": "Evidences whether a violation fails a run rather than a review for this lane."
+            }
+          ],
+          "rationale": "Level 2 for automated enforcement: present but inconsistently applied."
+        },
+        "verification_readiness": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "MAINT-01",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            },
+            {
+              "claim_id": "MAINT-02",
+              "support": "Evidences whether a change here can be proved safe for this lane."
+            }
+          ],
+          "rationale": "Level 2 for verification readiness: present but inconsistently applied."
+        },
+        "boundary_clarity": {
+          "level": 3,
+          "claim_refs": [
+            {
+              "claim_id": "MAINT-01",
+              "support": "Evidences where the authoritative definition lives for this lane."
+            }
+          ],
+          "rationale": "Level 3 for boundary clarity: systematic on the paths that matter."
+        },
+        "change_containment": {
+          "level": 2,
+          "claim_refs": [
+            {
+              "claim_id": "MAINT-01",
+              "support": "Evidences how far a change here ripples for this lane."
+            },
+            {
+              "claim_id": "MAINT-02",
+              "support": "Evidences how far a change here ripples for this lane."
+            }
+          ],
+          "rationale": "Level 2 for change containment: present but inconsistently applied."
+        },
+        "operational_reproducibility": {
+          "level": 1,
+          "claim_refs": [
+            {
+              "claim_id": "MAINT-02",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            },
+            {
+              "claim_id": "MAINT-03",
+              "support": "Evidences whether the behaviour reproduces off one machine for this lane."
+            }
+          ],
+          "rationale": "Level 1 for operational reproducibility: ad hoc or absent."
+        }
+      }
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "DATA-01",
+      "lane": "data-and-migrations",
+      "statement": "data-and-migrations: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/data/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "DATA-02",
+      "lane": "data-and-migrations",
+      "statement": "data-and-migrations: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "DATA-03",
+      "lane": "data-and-migrations",
+      "statement": "data-and-migrations: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "CORE-01",
+      "lane": "correctness-and-integrity",
+      "statement": "correctness-and-integrity: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/core/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "CORE-02",
+      "lane": "correctness-and-integrity",
+      "statement": "correctness-and-integrity: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "CORE-03",
+      "lane": "correctness-and-integrity",
+      "statement": "correctness-and-integrity: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "ARCH-01",
+      "lane": "architecture-fitness",
+      "statement": "architecture-fitness: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/arch/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "ARCH-02",
+      "lane": "architecture-fitness",
+      "statement": "architecture-fitness: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "ARCH-03",
+      "lane": "architecture-fitness",
+      "statement": "architecture-fitness: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "CONTRACT-01",
+      "lane": "contracts-and-integration",
+      "statement": "contracts-and-integration: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/contract/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "CONTRACT-02",
+      "lane": "contracts-and-integration",
+      "statement": "contracts-and-integration: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "CONTRACT-03",
+      "lane": "contracts-and-integration",
+      "statement": "contracts-and-integration: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "VERIF-01",
+      "lane": "verification-readiness",
+      "statement": "verification-readiness: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/verif/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "VERIF-02",
+      "lane": "verification-readiness",
+      "statement": "verification-readiness: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "VERIF-03",
+      "lane": "verification-readiness",
+      "statement": "verification-readiness: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "BUILD-01",
+      "lane": "build-and-delivery",
+      "statement": "build-and-delivery: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/build/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "BUILD-02",
+      "lane": "build-and-delivery",
+      "statement": "build-and-delivery: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "BUILD-03",
+      "lane": "build-and-delivery",
+      "statement": "build-and-delivery: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "MAINT-01",
+      "lane": "maintainability-and-ownership",
+      "statement": "maintainability-and-ownership: core controls are present on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/maint/main.ts",
+          "lines": "1-120"
+        }
+      ],
+      "observation": {
+        "confirmed": "Controls observed directly on the primary path."
+      }
+    },
+    {
+      "claim_id": "MAINT-02",
+      "lane": "maintainability-and-ownership",
+      "statement": "maintainability-and-ownership: enforcement covers some paths but not all.",
+      "result": "partial",
+      "evidence": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "lines": "1-60"
+        }
+      ],
+      "observation": {
+        "confirmed": "CI runs the check on two of four packages.",
+        "inferred": "The remaining two may drift.",
+        "unknown": "Whether anyone monitors the gap."
+      }
+    },
+    {
+      "claim_id": "MAINT-03",
+      "lane": "maintainability-and-ownership",
+      "statement": "maintainability-and-ownership: no automated guard exists for this concern.",
+      "result": "fail",
+      "evidence": [
+        {
+          "architecture_level": true,
+          "rationale": "no rule, hook, or gate exists anywhere in the configuration"
+        }
+      ],
+      "observation": {
+        "confirmed": "No enforcing configuration found."
+      }
+    }
+  ],
+  "lane_applicability": {
+    "data-and-migrations": {
+      "state": "applicable",
+      "surface_refs": [
+        "data-lifecycle"
+      ],
+      "rationale": "Repository contains versioned database migrations."
+    },
+    "security-and-production-safety": {
+      "state": "not-applicable",
+      "surface_refs": [
+        "runtime-code"
+      ],
+      "rationale": "No authn/authz, secrets, PII handling, or public exposure in this repository."
+    },
+    "numerical-correctness": {
+      "state": "not-applicable",
+      "surface_refs": [
+        "specialized-paths"
+      ],
+      "rationale": "No financial, scientific, or statistical computation."
+    },
+    "gpu-equivalence": {
+      "state": "not-applicable",
+      "surface_refs": [
+        "specialized-paths"
+      ],
+      "rationale": "No GPU implementation exists."
+    },
+    "performance-and-resources": {
+      "state": "not-applicable",
+      "surface_refs": [
+        "runtime-code"
+      ],
+      "rationale": "No stated latency, throughput, or memory budgets."
+    },
+    "platform-compatibility": {
+      "state": "not-applicable",
+      "surface_refs": [
+        "build-and-delivery"
+      ],
+      "rationale": "Single supported runtime and OS target."
+    }
+  },
+  "candidates": [
+    {
+      "candidate_id": "CONTRACT-007",
+      "title": "Duplicated API schema definitions",
+      "lane_sources": [
+        "contracts-and-integration",
+        "architecture-fitness"
+      ],
+      "claim_refs": [
+        "CONTRACT-01",
+        "ARCH-02"
+      ],
+      "summary": "Two independently maintained API schema representations can drift across releases.",
+      "root_cause": "The repository has no single authoritative schema source or generated equivalence check.",
+      "evidence": [
+        {
+          "file": "src/api/schema.ts",
+          "line": 18,
+          "observation": "two manually maintained representations"
+        }
+      ],
+      "scores": {
+        "severity": 3,
+        "confidence": 4,
+        "leverage": 4,
+        "locality": 3,
+        "testability": 3,
+        "blast_radius": 3,
+        "regression_risk": 2,
+        "human_decision_risk": 4
+      },
+      "rollup": {
+        "priority_score": 8,
+        "recommended_action": "design",
+        "execution_mode": "blocked-needs-human-decision",
+        "blocked_by": [
+          "public-contract"
+        ]
+      },
+      "effort": "M",
+      "depends_on": [],
+      "unlocks": [],
+      "status": "needs-human-decision",
+      "dedup": {
+        "duplicate_group": "api-schema-ownership",
+        "merged_from": []
+      }
+    }
+  ],
+  "previous": {
+    "generated": "prior run",
+    "revision": "999aaaa",
+    "raw_score": 58.25,
+    "weighted_coverage": 71.2,
+    "confidence_index": 60,
+    "final_grade": "C",
+    "claims": [
+      {
+        "claim_id": "CONTRACT-01",
+        "result": "fail"
+      },
+      {
+        "claim_id": "CORE-01",
+        "result": "pass"
+      },
+      {
+        "claim_id": "GONE-01",
+        "result": "partial"
+      }
+    ],
+    "candidates": [
+      {
+        "candidate_id": "CONTRACT-007",
+        "status": "ready"
+      },
+      {
+        "candidate_id": "OLD-001",
+        "lifecycle_status": "completed",
+        "resolution": {
+          "completed_at": "2026-07-18",
+          "verification_refs": [
+            "PR-412"
+          ],
+          "reason": "schema generation added to release CI"
+        }
+      }
+    ],
+    "surfaces": [
+      {
+        "id": "contracts-and-wiring",
+        "coverage": "uninspected"
+      },
+      {
+        "id": "verification",
+        "coverage": "inspected"
+      }
+    ],
+    "lanes": [
+      {
+        "lane": "contracts-and-integration",
+        "lane_score": 31.25
+      }
+    ]
+  }
+}

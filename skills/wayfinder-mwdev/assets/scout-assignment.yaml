@@ -1,0 +1,13 @@
+# Launch contract for one mapping or research scout.
+# The parent fills every field; a scout receives nothing broader.
+scout_assignment:
+  surface: ""                    # the one perspective/surface this scout inspects
+  destination: ""                # current map destination, verbatim
+  questions_to_investigate: []   # bounded — not "explore the area"
+  permitted_evidence: []         # paths, docs, systems; nothing outside this list
+  known_decisions: []            # settled — the scout does not relitigate
+  known_constraints: []
+  relevant_tickets_and_fog: []   # names + links the scout should know exist
+  explicit_non_goals: []         # incl. always: no map edits, no human contact,
+                                 # no implementation tasks, no lifecycle claims
+  expected_return: mapping_scout # the packet in mapping-scout.yaml

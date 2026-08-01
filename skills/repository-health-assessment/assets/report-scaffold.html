@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Repository health</title>
+<!--
+  SCAFFOLD for repository-health-assessment.
+
+  Copy this file, fill the island, write the prose, paste the two module
+  bodies where marked, and save to <tmpdir>/repository-health-<timestamp>.html.
+
+  Genuinely self-contained: no CDN, no external font, no network at view
+  time. The report is opened from a temp directory with `file://` — often on
+  a machine that is offline, behind a proxy, or on a plane — and a Tailwind
+  <script src> there produces an unstyled page. Everything below is embedded
+  on purpose. Do not reintroduce a CDN.
+
+  Every number on this page is rendered by health-verify.js from the island.
+  Prose is hand-authored; numbers are not. Placeholders left empty here are
+  filled at load; placeholders REMOVED are reported as binding failures.
+-->
+<style>
+  .report-root {
+    --surface-1:#fcfcfb; --page:#f9f9f7;
+    --ink-primary:#0b0b0b; --ink-secondary:#52514e; --ink-muted:#898781;
+    --hairline:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,.10);
+    --accent:#2a78d6; --accent-deep:#256abf; --accent-faint:#86b6ef;
+    --good:#0ca30c; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --serif:Georgia,'Times New Roman',serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    .report-root {
+      --surface-1:#1a1a19; --page:#0d0d0d;
+      --ink-primary:#ffffff; --ink-secondary:#c3c2b7; --ink-muted:#898781;
+      --hairline:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,.10);
+      --accent:#3987e5; --accent-deep:#1c5cab; --accent-faint:#4a6b96;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:0; }
+  .report-root {
+    background:var(--page); color:var(--ink-primary); font-family:var(--sans);
+    min-height:100vh; padding:28px 24px 80px;
+  }
+  .wrap { max-width:1080px; margin:0 auto; }
+  .masthead { display:flex; justify-content:space-between; align-items:flex-start;
+              gap:20px; flex-wrap:wrap; padding-bottom:16px;
+              border-bottom:2px solid var(--ink-primary); }
+  .masthead h1 { font-family:var(--serif); font-size:30px; font-weight:700;
+                 margin:0 0 4px; letter-spacing:-.01em; }
+  .masthead .sub { font-family:var(--mono); font-size:11px; color:var(--ink-muted); }
+  .panel { background:var(--surface-1); border:1px solid var(--border);
+           border-radius:16px; padding:20px 22px; margin-top:20px;
+           box-shadow:0 1px 2px rgba(11,11,11,.04), 0 8px 24px -12px rgba(11,11,11,.12); }
+  .panel > h2 { font-family:var(--mono); font-size:11px; font-weight:600;
+                text-transform:uppercase; letter-spacing:.10em;
+                color:var(--ink-muted); margin:0 0 14px; }
+  .panel p, .panel li { font-family:var(--serif); font-size:15px; line-height:1.6;
+                        color:var(--ink-secondary); margin:0 0 10px; }
+  .panel p.lead { font-size:17px; color:var(--ink-primary); }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:820px) { .cols { grid-template-columns:1fr; } }
+  .three { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+  @media (max-width:820px) { .three { grid-template-columns:1fr; } }
+  .obs { border-left:3px solid var(--hairline); padding:6px 0 6px 12px; }
+  .obs.confirmed { border-left-color:var(--accent-deep); }
+  .obs.inferred  { border-left-color:var(--warning); }
+  .obs.unknown   { border-left-color:var(--ink-muted); }
+  .obs h3 { font-family:var(--mono); font-size:9px; text-transform:uppercase;
+            letter-spacing:.10em; color:var(--ink-muted); margin:0 0 4px; }
+  .lane-card { border:1px solid var(--hairline); border-radius:12px;
+               padding:14px 16px; margin-top:12px; }
+  ul.problems { list-style:none; padding:0; margin:6px 0 0; }
+  footer { font-family:var(--mono); font-size:10px; color:var(--ink-muted);
+           margin-top:28px; padding-top:12px; border-top:1px solid var(--hairline); }
+</style>
+</head>
+<body>
+<div class="report-root">
+<div class="wrap">
+
+  <!-- 1 · masthead. The grade never appears without coverage beside it. -->
+  <header class="masthead">
+    <div>
+      <h1 data-repository-name></h1>
+      <div class="sub">revision <span data-revision></span> · assessed <span data-generated></span> · repository health assessment</div>
+    </div>
+    <div><span data-verify-chip></span></div>
+  </header>
+
+  <!-- 2 · grade, confidence, coverage — three separate facts -->
+  <section class="panel">
+    <h2>Overall grade</h2>
+    <div data-grade></div>
+    <p class="lead" style="margin-top:16px;" data-prose-required="one-sentence-verdict"></p>
+  </section>
+
+  <!-- 1 · executive summary -->
+  <section class="panel">
+    <h2>Executive summary</h2>
+    <p data-prose-required="executive-summary"></p>
+  </section>
+
+  <!-- 8 · grade drivers, and the caps that bound the letter -->
+  <section class="panel">
+    <h2>Grade drivers and applied caps</h2>
+    <p data-prose-required="grade-drivers"></p>
+    <div data-caps></div>
+  </section>
+
+  <!-- 3 + 4 · surface inventory and weighted coverage map -->
+  <section class="panel">
+    <h2>Surface inventory and weighted coverage</h2>
+    <p data-prose-required="coverage-denominator"></p>
+    <div data-coverage></div>
+  </section>
+
+  <!-- 5 · lane scorecards — one per lane in the island, no exceptions -->
+  <section class="panel">
+    <h2>Lane scorecards</h2>
+    <div data-lanes></div>
+    <!-- runHealth creates exactly one scorecard per verified lane, including
+         activated optional lanes. Do not hand-maintain this list. -->
+  </section>
+
+  <!-- 6 · verification baseline -->
+  <section class="panel">
+    <h2>Verification baseline</h2>
+    <div data-baseline></div>
+  </section>
+
+  <!-- 7 · architecture and integration health map -->
+  <section class="panel">
+    <h2>Architecture and integration health</h2>
+    <p data-prose-required="architecture-and-integration-health"></p>
+  </section>
+
+  <!-- 9 · confirmed / inferred / unknown, kept visually distinct -->
+  <section class="panel">
+    <h2>Confirmed risks, inferences, and unknowns</h2>
+    <div class="three">
+      <div class="obs confirmed"><h3>confirmed</h3><p data-prose-required="confirmed-observations"></p></div>
+      <div class="obs inferred"><h3>inferred</h3><p data-prose-required="inferred-observations"></p></div>
+      <div class="obs unknown"><h3>unknown</h3><p data-prose-required="unknown-observations"></p></div>
+    </div>
+  </section>
+
+  <!-- 2b · confidence composite -->
+  <section class="panel">
+    <h2>Grade confidence</h2>
+    <p data-prose-required="confidence-improvement"></p>
+    <div data-confidence></div>
+  </section>
+
+  <!-- 10 · candidate ledger. Rendered from the SAME #health island by the
+       shared spine module — there is no second #ledger island, and calling
+       LedgerVerify.runLedger() here would look for one and silently render
+       nothing. health-verify.js counts the rendered rows against the island,
+       so an empty panel under a green chip is a verification failure. -->
+  <section class="panel" data-candidates>
+    <h2>Candidate ledger</h2>
+    <div style="margin-bottom:10px;"><span data-ledger-chip></span></div>
+    <div data-score-legend></div>
+    <div data-ledger></div>
+  </section>
+
+  <!-- 11 · human-decision blockers -->
+  <section class="panel">
+    <h2>Human-decision blockers</h2>
+    <div data-decision-blockers></div>
+  </section>
+
+  <!-- 12 · improvement roadmap, ordered by weight × coverage gap -->
+  <section class="panel">
+    <h2>Improvement roadmap</h2>
+    <div data-roadmap></div>
+  </section>
+
+  <!-- 13 · run-to-run delta, computed from the previous snapshot -->
+  <section class="panel">
+    <h2>Run-to-run delta</h2>
+    <div data-delta-panel></div>
+  </section>
+
+  <!-- 14 · handoff -->
+  <section class="panel">
+    <h2>Handoff</h2>
+    <div data-handoff></div>
+  </section>
+
+  <section class="panel">
+    <h2>Verification</h2>
+    <ul class="problems" data-verify-problems></ul>
+    <p style="font-family:var(--mono);font-size:10px;color:var(--ink-muted);">
+      A red chip means this report does not ship. Fix the island or the
+      arithmetic and re-render; never hand-correct a number to turn a chip green.
+    </p>
+  </section>
+
+  <footer>
+    Repository health assessment · read-only · nothing in the assessed
+    repository was modified · every figure recomputed from the island below
+  </footer>
+
+</div>
+</div>
+
+<!-- THE ISLAND — the single source for every number on this page, and the
+     machine handoff to the architecture and integrity skills. -->
+<script type="application/json" id="health">
+{ "health_schema_version": 4, "spine_version": 3, "...": "see assets/health.schema.json" }
+</script>
+
+<!-- Paste the BODY of shared/candidate-ledger-spine/ledger-verify.js
+     here FIRST (candidates are scored by the shared spine, never here). -->
+<script>
+/* PASTE ledger-verify.js BODY */
+</script>
+
+<!-- Then paste the BODY of assets/health-verify.js here. -->
+<script>
+/* PASTE health-verify.js BODY */
+</script>
+
+<script>
+  // runHealth renders the health model AND the candidate ledger (delegating
+  // every candidate number to LedgerVerify), then verifies that the page
+  // actually displays everything the island contains.
+  document.addEventListener("DOMContentLoaded", function () {
+    HealthVerify.runHealth({});
+  });
+</script>
+</body>
+</html>

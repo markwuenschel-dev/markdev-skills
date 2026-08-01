@@ -1,0 +1,25 @@
+{
+  "suite_version": "2.1.2",
+  "benchmarks": [
+    {
+      "id": "b1",
+      "raw": null,
+      "score": null
+    },
+    {
+      "id": "b2",
+      "raw": null,
+      "score": null
+    },
+    {
+      "id": "b3",
+      "raw": null,
+      "score": null
+    },
+    {
+      "id": "b4",
+      "raw": null,
+      "score": null
+    }
+  ]
+}

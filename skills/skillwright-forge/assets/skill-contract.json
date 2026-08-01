@@ -1,0 +1,39 @@
+{
+  "skill": "<name>",
+  "version": "<version-or-commit>",
+  "install_scope": "<personal ~/.claude/skills | project .claude/skills | plugin skills/ | nested monorepo .claude/skills>",
+  "invocation": {
+    "model_invoked": "<true unless disable-model-invocation: true>",
+    "user_invoked": "<true unless user-invocable: false>",
+    "context": "<inline | fork>",
+    "agent": "<subagent type when context is fork, else omit>"
+  },
+  "applicability": {
+    "positive_triggers": [],
+    "negative_triggers": [],
+    "preconditions": [],
+    "confidence_or_escalation_rule": "<rule>"
+  },
+  "policy": {
+    "primary_pattern": "<pattern>",
+    "steps": [],
+    "branches": [],
+    "authoritative_sources": [],
+    "degrees_of_freedom": {}
+  },
+  "termination": {
+    "success_conditions": [],
+    "failure_conditions": [],
+    "stop_conditions": [],
+    "rollback_or_recovery": []
+  },
+  "interface": {
+    "inputs": [],
+    "outputs": [],
+    "artifacts": [],
+    "allowed_tools": [],
+    "disallowed_tools": [],
+    "side_effects": [],
+    "dependencies": []
+  }
+}

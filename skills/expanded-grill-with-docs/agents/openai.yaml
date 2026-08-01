@@ -1,4 +1,6 @@
 interface:
-  display_name: "Expanded Grill with Docs"
-  short_description: "Shape selected directions into approved rollout contracts"
-  default_prompt: "Use $expanded-grill-with-docs to shape this selected direction into an approved design and rollout contract."
+  display_name: Expanded Grill with Docs
+  short_description: Adaptive research-backed design grilling
+  default_prompt: Use $expanded-grill-with-docs to shape this selected direction into a design and rollout contract.
+policy:
+  allow_implicit_invocation: true

@@ -1,12 +1,38 @@
 ---
 name: improve-codebase-architecture-mwdev
-description: Scan a codebase for deepening opportunities, present them as a visual HTML report, then grill through whichever one you pick. Use when the user wants architecture deepening, an HTML deepening report, or runs /improve-codebase-architecture-mwdev.
-disable-model-invocation: true
+description: Analyze one selected structural architecture problem, compare alternatives, and return a decision-ready recommendation without implementation. Use for module depth, ownership, seam, or boundary decisions; not for repository health grading or repair execution.
+disable-model-invocation: false
 ---
 
-# Improve Codebase Architecture (mwdev)
+# Improve Codebase Architecture
 
 Surface architectural friction and propose **deepening opportunities** — refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.
+
+## Family handoff contract
+
+This skill has two bounded modes: a standalone structural request limited to the user's stated problem (including any supplied hotspot or scope rule), or a health/flywheel/audit handoff limited to one validated spine-v3 candidate. In either mode, inherit mission, scope, non-goals, mutation posture, decision owner, and return owner; do not begin an unrelated repository-wide review.
+
+For an inbound health candidate, validate the shared spine envelope, retain the exact `candidate_id`, provenance, and `implementation_authorized: false`, then derive non-overlapping evidence lanes from real architecture surfaces. Evidence workers return claims, evidence, affected surfaces, and uncertainty only. The parent owns deduplication, alternative comparison, synthesis, recommendation, report, and return. Never call `repository-health-assessment` during this handoff and never implement.
+
+Return this packet to the caller or router:
+
+```yaml
+architecture_candidate_return:
+  candidate_id: ""
+  disposition: ready_for_integrity_loop | needs_expanded_grill | needs_wayfinder_mwdev | needs_prototype | blocked_needs_human_decision | rejected | superseded
+  recommended_direction: ""
+  alternatives_considered: []
+  rejected_alternatives: []
+  confirmed_architecture_findings: []
+  inferred_findings: []
+  unknowns: []
+  affected_surfaces: []
+  connected_impact_required: false
+  implementation_constraints: []
+  verification_obligations: []
+  artifact_links: []
+  updated_candidate: {}
+```
 
 This command is _informed_ by the project's domain model and built on a shared design vocabulary:
 
@@ -51,7 +77,7 @@ For each candidate, render a card with:
 
 End the report with a **Top recommendation** section: which candidate you'd tackle first and why — and pull a compact version of it forward as a hero under the masthead, so the first decision is made before the reader scans. Group the ranked ledger into strength bands (Strong / Worth exploring / Speculative).
 
-**Scoring — canonical spine.** This is a *scored* report in the family, so score every candidate per the family scoring spine: the **scoring-spine half** of [`shared/REPORT-SCORING.md`](../../shared/REPORT-SCORING.md) (candidate schema, the eight 1–5 scores, the `priority_score` formula, and dedup rules are defined there and nowhere else). Take that half only — this report keeps its own look in [HTML-REPORT.md](HTML-REPORT.md), not the file's *Report style* (visual) half. Each candidate carries a `candidate_id`, file/line `evidence`, the eight `scores`, and a `priority_score` rollup; the **Recommendation strength** badge is `priority_score` rendered for humans (`Strong` = high, `Worth exploring` = mid, `Speculative` = low), and the `1..N` numbering follows priority order. When this command drives `production-flywheel`, emit the candidate ledger and a recommended queue per the spine so the flywheel can build its queue directly; the editorial before/after cards are this report's presentation layer on top of that ledger. Emit that ledger as the report's **JSON island** and render every scoring display through the data-driven helpers in [`assets/ledger-verify.js`](assets/ledger-verify.js) — recomputed priorities, derived bands and fills, verified `1..N` order, and the masthead verification chip; see [HTML-REPORT.md](HTML-REPORT.md) → **Self-verifying ledger**. Never hand-write a scoring number and never re-derive the renderer.
+**Scoring — canonical spine.** This is a scored report in the family, so use `shared/candidate-ledger-spine/REPORT-SCORING.md`, `candidate.schema.json`, and `ledger-verify.js`. Preserve spine v3 arithmetic, eligibility, ranking, provenance, and candidate identity; never keep a private verifier, hand-write a score, or re-derive the renderer. The architecture report remains editorially distinct from the health report.
 
 **Use CONTEXT.md vocabulary for the domain, and the `/codebase-design` vocabulary for the architecture.** If `CONTEXT.md` defines "Order," talk about "the Order intake module" — not "the FooBarHandler," and not "the Order service."
 
@@ -63,9 +89,9 @@ Do NOT propose interfaces yet. After the file is written, ask the user which can
 
 ### 3. Grilling loop
 
-Once the user picks a candidate, run the `/grilling` skill to walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
+Once the user picks a candidate, run the `/expanded-grill-with-docs` skill to walk the design tree with them — constraints, dependencies, the shape of the deepened module, what sits behind the seam, what tests survive.
 
-Side effects happen inline as decisions crystallize — run the `/domain-modeling` skill to keep the domain model current as you go:
+For a standalone request, keep decisions in the architecture report. Do not mutate the repository or domain model while analyzing; the architecture skill stops before implementation and returns its recommendation to the caller.
 
 - **Naming a deepened module after a concept not in `CONTEXT.md`?** Add the term to `CONTEXT.md`. Create the file lazily if it doesn't exist.
 - **Sharpening a fuzzy term during the conversation?** Update `CONTEXT.md` right there.

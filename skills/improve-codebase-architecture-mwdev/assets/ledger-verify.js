@@ -1,5 +1,5 @@
 /* ledger-verify.js — self-verifying scoring ledger for the architecture
- * review report (improve-codebase-architecture-mwdev).
+ * review report (improve-codebase-architecture).
  *
  * Why this exists: every number on a scored report page — priority, band,
  * meter fill, histogram bars, the 1..N rank order — is otherwise hand-typed
@@ -17,6 +17,11 @@
  *     so thresholds can never desync from their pixels
  *   - card order in the DOM is verified against priority order (with the
  *     deterministic tie-break), and a masthead chip reports the verdict
+ *   - scheduling is verified per the spine's ## Eligibility and stable
+ *     ranking (REPORT-SCORING.md, spine v3): effort domain (S|M|L), status
+ *     domain and stored-vs-derived consistency, depends_on/unlocks references
+ *     (unknown / self / cycles), and an eligible queue (verified.queue) that
+ *     blocked, human-decision, and rejected candidates can never enter
  *
  * The island is also the machine handoff: production-flywheel (or the next
  * run, as a `previous` baseline) reads the same JSON the page rendered from.
@@ -55,6 +60,26 @@ const LEDGER_SCORE_DEFS = {
   regression_risk: "how likely the fix is to break behavior",
   human_decision_risk: "how likely the fix requires human judgment (public contract, migration, policy, architecture, deletion, numerical correctness)",
 };
+
+/** Spine v3 scheduling domains (REPORT-SCORING.md ## Scheduling fields). */
+const LEDGER_EFFORT_ORDER = { S: 0, M: 1, L: 2 };
+const LEDGER_STATUS_VALUES = ["ready", "blocked", "needs-human-decision", "rejected", "completed"];
+
+/** Rank position of an effort letter; a missing effort ranks as M. */
+function effortRank(effort) {
+  return Object.prototype.hasOwnProperty.call(LEDGER_EFFORT_ORDER, effort)
+    ? LEDGER_EFFORT_ORDER[effort]
+    : LEDGER_EFFORT_ORDER.M;
+}
+
+/** Canonical status derivation (spine ## Scheduling fields). `completed` is
+ * never derived — only the loop that finished the candidate stores it. */
+function deriveStatus(input) {
+  if (input.action === "reject") return "rejected";
+  if (input.judgmentHeavy || input.blockedByOpen) return "needs-human-decision";
+  if (input.unresolvedDeps && input.unresolvedDeps.length) return "blocked";
+  return "ready";
+}
 
 /** Spine range: −10 … +22. Derived, not restated, everywhere below. */
 const LEDGER_RANGE = { min: -10, max: 22 };
@@ -109,24 +134,30 @@ function bandStops(bands) {
   return stops; // ascending percents, one per interior boundary
 }
 
-/** Deterministic ordering: priority desc, then severity desc, then
- * confidence desc, then candidate_id ascending. Ties can never reshuffle
- * between runs, so `1..N` stays a stable selection handle. */
+/** The spine's stable comparator (REPORT-SCORING.md ## Eligibility and
+ * stable ranking): priority desc, then effort asc (S < M < L), then severity
+ * desc, then confidence desc, then candidate_id ascending. Ties can never
+ * reshuffle between runs, so `1..N` stays a stable selection handle. */
 function tieBreakCompare(a, b) {
   if (b.computed.priority !== a.computed.priority) return b.computed.priority - a.computed.priority;
-  const ea = Number.isInteger(a.effort) ? a.effort : 3;
-  const eb = Number.isInteger(b.effort) ? b.effort : 3;
-  if (ea !== eb) return ea - eb; // cheap work first among equals (spine v2)
+  const ea = effortRank(a.effort);
+  const eb = effortRank(b.effort);
+  if (ea !== eb) return ea - eb; // cheap work first among equals: S < M < L (spine v3)
   if (Number(b.scores.severity) !== Number(a.scores.severity)) return Number(b.scores.severity) - Number(a.scores.severity);
   if (Number(b.scores.confidence) !== Number(a.scores.confidence)) return Number(b.scores.confidence) - Number(a.scores.confidence);
   return String(a.candidate_id) < String(b.candidate_id) ? -1 : 1;
 }
 
 /**
- * Verify a parsed ledger against the spine's scoring half. Returns
- * { ok, problems[], candidates[] } where candidates are normalized —
- * computed priority/band/fill/rank attached — and sorted by tie-break.
- * The stored rollup.priority_score is checked, never trusted for display.
+ * Verify a parsed ledger against the spine's scoring half and its
+ * ## Eligibility and stable ranking. Returns { ok, problems[], candidates[],
+ * queue[] } where candidates are normalized — computed priority/band/fill/
+ * rank/status/eligible attached — and sorted by the stable comparator, and
+ * queue is the eligible candidate_ids in that order. opts.humanOrder (an
+ * array of ids) reorders the queue among eligible candidates only; listed
+ * ids that are ineligible or unknown land in humanOrderSkipped, never in
+ * the queue. Stored rollup.priority_score and status are checked, never
+ * trusted for display.
  */
 function verifyLedger(ledger, opts) {
   const problems = [];
@@ -135,7 +166,7 @@ function verifyLedger(ledger, opts) {
 
   if (!ledger || typeof ledger !== "object" || !Array.isArray(ledger.candidates)) {
     push("ledger-shape", null, "ledger is not an object with a candidates array");
-    return { ok: false, problems, candidates: [], bands: LEDGER_DEFAULT_BANDS, stops: bandStops() };
+    return { ok: false, problems, candidates: [], queue: [], humanOrderSkipped: [], bands: LEDGER_DEFAULT_BANDS, stops: bandStops() };
   }
   const bands = (opts && opts.bands) || ledger.bands || LEDGER_DEFAULT_BANDS;
 
@@ -177,8 +208,14 @@ function verifyLedger(ledger, opts) {
       });
     }
 
-    if (c && c.effort != null && (!Number.isInteger(c.effort) || c.effort < 1 || c.effort > 5))
-      push("effort-range", ref, ref + ": effort must be an integer 1–5 when present (got " + JSON.stringify(c.effort) + ")");
+    const effortValid = c && c.effort != null &&
+      Object.prototype.hasOwnProperty.call(LEDGER_EFFORT_ORDER, c.effort);
+    if (c && c.effort != null && !effortValid)
+      push("effort-range", ref, ref + ": effort must be one of S | M | L when present (got " + JSON.stringify(c.effort) + ")");
+
+    const statusStored = c && c.status != null ? String(c.status) : null;
+    if (statusStored != null && LEDGER_STATUS_VALUES.indexOf(statusStored) < 0)
+      push("status-invalid", ref, ref + ": status must be one of " + LEDGER_STATUS_VALUES.join(" | ") + " when present (got " + JSON.stringify(c.status) + ")");
 
     if (!scoresOk) return; // can't compute a priority worth showing
 
@@ -197,7 +234,9 @@ function verifyLedger(ledger, opts) {
       computed,
       band: bandFor(computed.priority, bands),
       fillPct: fillPercent(computed.priority),
-      effort: c && Number.isInteger(c.effort) ? c.effort : null,
+      effort: effortValid ? c.effort : null,
+      statusStored: statusStored != null && LEDGER_STATUS_VALUES.indexOf(statusStored) >= 0 ? statusStored : null,
+      statusInvalid: statusStored != null && LEDGER_STATUS_VALUES.indexOf(statusStored) < 0,
       depends_on: c && Array.isArray(c.depends_on) ? c.depends_on.map(String) : null,
       unlocks: c && Array.isArray(c.unlocks) ? c.unlocks.map(String) : null,
       judgmentHeavy: Number(scores.human_decision_risk) >= 4,
@@ -207,24 +246,102 @@ function verifyLedger(ledger, opts) {
   normalized.sort(tieBreakCompare);
   normalized.forEach((c, i) => { c.rank = i + 1; });
 
-  // spine v2 DAG refs: depends_on / unlocks must name real, non-self ids
+  // spine v3 scheduling — the executable form of REPORT-SCORING.md
+  // ## Eligibility and stable ranking: refs, cycles, status, queue.
+  const byId = new Map(normalized.map((c) => [c.candidate_id, c]));
   for (const c of normalized) {
     for (const field of ["depends_on", "unlocks"]) {
       const arr = c[field];
       if (arr == null) continue;
       for (const r of arr) {
-        if (!seen.has(r) || r === c.candidate_id) {
+        if (r === c.candidate_id) {
+          push("dep-self", c.candidate_id, c.candidate_id + ": " + field + " references itself");
+        } else if (!seen.has(r)) {
           push("dep-unknown", c.candidate_id,
-            c.candidate_id + ": " + field + " references unknown or self id: " + r);
+            c.candidate_id + ": " + field + " references unknown id: " + r);
         }
       }
     }
+  }
+
+  // dependency cycles over known, non-self depends_on edges; each cycle once
+  {
+    const color = new Map(); // 1 = on current path, 2 = done
+    for (const start of normalized) {
+      if (color.get(start.candidate_id)) continue;
+      const stack = [[start.candidate_id, 0]];
+      const path = [];
+      while (stack.length) {
+        const frame = stack[stack.length - 1];
+        const id = frame[0];
+        if (frame[1] === 0) { color.set(id, 1); path.push(id); }
+        const node = byId.get(id);
+        const deps = node && Array.isArray(node.depends_on) ? node.depends_on : [];
+        if (frame[1] < deps.length) {
+          const d = deps[frame[1]++];
+          if (d === id || !byId.has(d)) continue; // self/unknown reported above
+          const st = color.get(d);
+          if (st === 1) {
+            const cycle = path.slice(path.indexOf(d)).concat(d);
+            push("dep-cycle", d, "dependency cycle: " + cycle.join(" → "));
+          } else if (!st) {
+            stack.push([d, 0]);
+          }
+        } else {
+          color.set(id, 2);
+          stack.pop();
+          path.pop();
+        }
+      }
+    }
+  }
+
+  // status: derive, check stored consistency, mark eligibility
+  for (const c of normalized) {
+    const rollup = c.rollup || {};
+    const action = rollup.recommended_action != null ? String(rollup.recommended_action) : null;
+    const bb = rollup.blocked_by;
+    const blockedByOpen = Array.isArray(bb) ? bb.length > 0 : bb != null && String(bb).trim() !== "";
+    const unresolvedDeps = (Array.isArray(c.depends_on) ? c.depends_on : []).filter((d) => {
+      if (d === c.candidate_id) return false; // reported as dep-self
+      const dep = byId.get(d);
+      return !dep || dep.statusStored !== "completed"; // completed is only ever stored
+    });
+    const derived = deriveStatus({ action: action, judgmentHeavy: c.judgmentHeavy, blockedByOpen: blockedByOpen, unresolvedDeps: unresolvedDeps });
+    c.statusDerived = derived;
+    c.status = c.statusStored || derived;
+    if (c.statusStored === "ready" && derived !== "ready") {
+      push("status-conflict", c.candidate_id,
+        c.candidate_id + ": marked ready but derives " + derived +
+        (unresolvedDeps.length && derived === "blocked" ? " (unresolved depends_on: " + unresolvedDeps.join(", ") + ")" : "") +
+        " — a stored status may be stricter than derived, never looser");
+    }
+    // spine Phase 1 eligibility: effective status ready AND every derived gate
+    // open. An invalid stored status fails closed — never eligible.
+    c.eligible = !c.statusInvalid && c.status === "ready" && derived === "ready";
+  }
+
+  // the machine queue: eligible candidates in stable-comparator order.
+  // Blocked, human-decision, and rejected candidates can never enter it.
+  let queue = normalized.filter((c) => c.eligible).map((c) => c.candidate_id);
+  const humanOrderSkipped = [];
+  const humanOrder = opts && Array.isArray(opts.humanOrder) ? opts.humanOrder.map(String) : null;
+  if (humanOrder) {
+    const eligibleSet = new Set(queue);
+    const picked = [];
+    for (const id of humanOrder) {
+      if (eligibleSet.has(id) && picked.indexOf(id) < 0) picked.push(id);
+      else humanOrderSkipped.push({ candidate_id: id, reason: seen.has(id) ? "ineligible" : "unknown" });
+    }
+    queue = picked.concat(queue.filter((id) => picked.indexOf(id) < 0));
   }
 
   return {
     ok: problems.length === 0,
     problems,
     candidates: normalized,
+    queue,
+    humanOrderSkipped,
     bands,
     stops: bandStops(bands),
     spine_version: ledger.spine_version != null ? String(ledger.spine_version) : null,
@@ -276,9 +393,9 @@ function renderLedgerRows(el, verified) {
     row.appendChild(title);
     if (c.judgmentHeavy) row.appendChild(judgmentGlyph(c));
     if (c.effort) {
-      const eff = ledgerEl("span", LEDGER_MONO + "font-size:9px;border:1px solid var(--hairline,#e1e0d9);border-radius:4px;padding:0 4px;color:var(--ink-muted,#898781);", c.effort <= 2 ? "S" : c.effort === 3 ? "M" : "L");
+      const eff = ledgerEl("span", LEDGER_MONO + "font-size:9px;border:1px solid var(--hairline,#e1e0d9);border-radius:4px;padding:0 4px;color:var(--ink-muted,#898781);", c.effort);
       eff.setAttribute("data-chip", "effort");
-      eff.title = "effort " + c.effort + "/5";
+      eff.title = "effort " + c.effort + " (S < M < L)";
       row.appendChild(eff);
     }
     if (c.unlocks && c.unlocks.length) {
@@ -410,7 +527,9 @@ function renderChipInto(el, verified) {
   const base = LEDGER_MONO + "display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px;";
   if (verified.ok) {
     el.style.cssText = base + "color:#0ca30c;border:1px solid rgba(12,163,12,.4);background:rgba(12,163,12,.08);";
-    let text = "✓ scoring verified · " + verified.candidates.length + " candidates · formula recomputed";
+    let text = "✓ scoring verified · " + verified.candidates.length + " candidates";
+    if (Array.isArray(verified.queue)) text += " · " + verified.queue.length + " eligible";
+    text += " · formula recomputed";
     if (verified.judgmentHeavyCount) text += " · " + verified.judgmentHeavyCount + " judgment-heavy";
     if (verified.spine_version) text += " · spine v" + verified.spine_version;
     el.textContent = text;
@@ -443,11 +562,11 @@ function runLedger(options) {
   try {
     const read = readLedgerIsland(opts.islandSelector || "#ledger", root);
     if (read.error) {
-      const failed = { ok: false, problems: [{ code: "island", candidate_id: null, message: read.error }], candidates: [], stops: bandStops(), judgmentHeavyCount: 0, spine_version: null };
+      const failed = { ok: false, problems: [{ code: "island", candidate_id: null, message: read.error }], candidates: [], queue: [], humanOrderSkipped: [], stops: bandStops(), judgmentHeavyCount: 0, spine_version: null };
       if (chip) renderChipInto(chip, failed);
       return failed;
     }
-    const verified = verifyLedger(read.ledger, { bands: opts.bands });
+    const verified = verifyLedger(read.ledger, { bands: opts.bands, humanOrder: opts.humanOrder });
 
     const ledgerBox = root.querySelector(opts.ledgerSelector || "[data-ledger]");
     if (ledgerBox) renderLedgerRows(ledgerBox, verified);
@@ -473,7 +592,7 @@ function runLedger(options) {
     if (problemsBox) renderProblemsInto(problemsBox, verified);
     return verified;
   } catch (error) {
-    const failed = { ok: false, problems: [{ code: "harness", candidate_id: null, message: "ledger-verify crashed: " + ((error && error.message) || String(error)) }], candidates: [], stops: bandStops(), judgmentHeavyCount: 0, spine_version: null };
+    const failed = { ok: false, problems: [{ code: "harness", candidate_id: null, message: "ledger-verify crashed: " + ((error && error.message) || String(error)) }], candidates: [], queue: [], humanOrderSkipped: [], stops: bandStops(), judgmentHeavyCount: 0, spine_version: null };
     if (chip) renderChipInto(chip, failed);
     return failed;
   }
@@ -484,6 +603,10 @@ globalThis.LedgerVerify = {
   LEDGER_SCORE_ABBR,
   LEDGER_RANGE,
   LEDGER_DEFAULT_BANDS,
+  LEDGER_EFFORT_ORDER,
+  LEDGER_STATUS_VALUES,
+  effortRank,
+  deriveStatus,
   fillPercent,
   computePriority,
   bandFor,

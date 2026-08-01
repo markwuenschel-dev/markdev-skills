@@ -1,0 +1,33 @@
+{
+  "name": "candidate-ledger-spine",
+  "version": 3,
+  "purpose": "Canonical candidate schema, lifecycle validation, scoring, ranking, and report rendering for the repository health, architecture, and integrity skill family.",
+  "owned_files": [
+    "REPORT-SCORING.md",
+    "candidate.schema.json",
+    "ledger-verify.js",
+    "canonical-ledger.json",
+    "ledger-verify.test.html",
+    "parity-check.js",
+    "package-check.js",
+    "MIGRATIONS.md"
+  ],
+  "consumers": [
+    "repository-health-assessment",
+    "improve-codebase-architecture-mwdev",
+    "codebase-integrity-audit-loop",
+    "human-directed-swarm-planner",
+    "production-flywheel"
+  ],
+  "resolution": {
+    "default": "shared/candidate-ledger-spine",
+    "environment_override": "LEDGER_VERIFY_PATH",
+    "missing_or_incompatible": "hard-failure"
+  },
+  "non_goals": [
+    "repository health grading",
+    "architecture decision ownership",
+    "candidate selection",
+    "candidate implementation"
+  ]
+}

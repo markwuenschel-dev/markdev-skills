@@ -1,0 +1,13 @@
+wave:
+  id: W1
+  objective: ""
+  included_scope: []
+  excluded_scope: []
+  target_users_or_systems: []
+  entry_criteria: []
+  verification: []
+  observability: []
+  advance_criteria: []
+  halt_criteria: []
+  rollback_or_containment: []
+  cleanup_obligations: []

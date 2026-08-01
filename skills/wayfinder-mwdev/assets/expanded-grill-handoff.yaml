@@ -1,0 +1,51 @@
+# Design-ticket handoff between Wayfinder (parent) and
+# /expanded-grill-with-docs (child). Non-recursive: the child never invokes
+# Wayfinder or the Loop Router, never creates or edits any map, never
+# closes the parent ticket, never selects implementation work.
+
+# Parent -> child
+expanded_grill_input:
+  parent_loop: wayfinder
+  map_id: ""
+  ticket_id: ""
+  destination: ""                # supplies the child's selected direction
+  ticket_question: ""            # bounds the child's scope
+  known_decisions: []            # from Decisions so far, zoomed as needed
+  known_constraints: []
+  relevant_dependencies: []
+  repository_scope: []
+  evidence_links: []
+  decision_owner: ""             # the ticket's decision_owner (defaults to the map's driver)
+  prototypes_allowed: false
+  implementation_authorized: false   # always false; nothing may flip it
+
+# Child -> parent. Wayfinder owns interpretation: what becomes the parent
+# ticket's resolution, a new ticket, fog, an out-of-scope ruling, or a
+# reason to reopen or split the parent ticket. No approval bundle implied.
+return_to_wayfinder:
+  parent_map_id: ""
+  parent_ticket_id: ""
+
+  resolution_candidate: ""       # candidate only — the parent records resolutions
+
+  confirmed_decisions:
+    - ""
+
+  artifact_links:
+    - ""                         # design.md, decisions.md, ... in repo-native locations
+
+  new_sharp_questions:
+    - question: ""
+      why_it_matters: ""
+      suspected_dependencies: []
+
+  remaining_fog:
+    - area: ""
+      why_not_yet_sharp: ""
+
+  blocking_human_decisions:      # unresolved -> the parent ticket stays open
+    - ""
+
+  relevant_scope_findings:
+    in_scope: []
+    out_of_scope: []
