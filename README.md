@@ -1,4 +1,9 @@
-# markdev-skills
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/readme/hero-dark.svg">
+    <img src=".github/readme/hero-light.svg" alt="markdev-skills — capability routing, proof-driven delivery" width="480">
+  </picture>
+</p>
 
 <p align="center">
   <strong>A curated operating system for agentic software delivery.</strong><br/>
@@ -8,7 +13,11 @@
 <p align="center">
   <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
   <img src="https://img.shields.io/badge/skills-19-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="19 inventoried skills">
+  <img src="https://img.shields.io/badge/shared_contracts-9-64748b?style=for-the-badge&logo=json&logoColor=white" alt="9 shared contracts">
   <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
+</p>
+
+<p align="center">
   <a href="CAPABILITY-MAP.md"><img src="https://img.shields.io/badge/start-capability%20map-7c3aed?style=for-the-badge&logo=readme&logoColor=white" alt="Start with the capability map"></a>
 </p>
 
@@ -98,6 +107,20 @@ flowchart TD
     ICA -->|"selected deepenings"| PF
     PF -->|"too big for one slice"| WF
     PF -->|"Stage 13 publish"| LP
+
+    classDef router fill:#111827,stroke:#111827,color:#ffffff,stroke-width:2px
+    classDef decide fill:#f3e8ff,stroke:#7c3aed,color:#4c1d95,stroke-width:1.5px
+    classDef assess fill:#ccfbf1,stroke:#0f766e,color:#134e4a,stroke-width:1.5px
+    classDef build fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,stroke-width:1.5px
+    classDef land fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-width:1.5px
+    classDef craft fill:#f1f5f9,stroke:#64748b,color:#334155,stroke-width:1.5px
+
+    class R router
+    class WF,EG,IPC decide
+    class RHA,CIAL,ICA assess
+    class PF,HDSP,DBM,CIS build
+    class LP,LPS,LPE,LPSE land
+    class PFG,SWF,CS craft
 ```
 ### Decide
 
