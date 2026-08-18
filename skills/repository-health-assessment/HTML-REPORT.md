@@ -1,5 +1,8 @@
 # HTML Report Format
 
+This HTML is an **optional user-elected projection**. The validated health island, candidate ledger, and Evidence Recon sidecar remain canonical when HTML is skipped.
+
+
 One **genuinely self-contained** HTML file in the OS temp directory: embedded CSS, no CDN, no external font, no network at view time. The report is opened from a `file://` path on a machine that may be offline or behind a proxy, so a Tailwind `<script src>` there produces an unstyled page. Start from [`assets/report-scaffold.html`](assets/report-scaffold.html) rather than building the shell each run — it carries the section order, the design system, and every required placeholder, which is also what keeps generated reports from drifting apart.
 
 No Mermaid either. This report has no graph-shaped content, and a forced diagram is worse than none.
@@ -8,11 +11,11 @@ The health report and the architecture report are deliberately **not** the same 
 
 ## The island is the report
 
-One JSON island — `<script type="application/json" id="health">` — holding `repository`, `verification`, `coverage`, `lanes`, `claims`, `grade`, `candidates`, and optionally `previous`. Shape is defined in [`assets/health.schema.json`](assets/health.schema.json) (schema v4).
+One JSON island — `<script type="application/json" id="health">` — holding `repository`, `verification`, `coverage`, `lanes`, `claims`, `sprawl_pressure`, `grade`, `candidates`, and optionally `previous`. Shape is defined in [`assets/health.schema.json`](assets/health.schema.json) (schema v5).
 
 Paste the body of [`assets/health-verify.js`](assets/health-verify.js) into the scaffold verbatim (export-free classic script) and call `HealthVerify.runHealth({})` once the DOM is ready. When the island carries candidates, paste the body of `shared/candidate-ledger-spine/ledger-verify.js` **first** — candidate scoring is verified by the shared spine module and must never be re-implemented here. `health-verify.js` reports `ledger-module-missing` if you forget, which is the intended behavior.
 
-The schema file is the specification; the verifier compiles its load-bearing rules so a self-contained report can enforce them offline without bundling a validator. That duplication is deliberate and tested. [`assets/parity-check.js`](assets/parity-check.js) runs a 67-mutation sabotage corpus through **both** layers and records which owns each rejection — the verifier must reject all of them, and the handful that JSON Schema structurally cannot express (cross-references, locked weights, derived baseline, delta continuity) are listed as verifier-owned on purpose rather than left as silent gaps. It needs `ajv` and is a development tool; nothing in a generated report loads it.
+The schema file is the specification; the verifier compiles its load-bearing rules so a self-contained report can enforce them offline without bundling a validator. That duplication is deliberate and tested. [`assets/parity-check.js`](assets/parity-check.js) runs a 75-mutation sabotage corpus through **both** layers and records which owns each rejection — the verifier must reject all of them, and the handful that JSON Schema structurally cannot express (cross-references, locked weights, derived baseline, delta continuity) are listed as verifier-owned on purpose rather than left as silent gaps. It needs `ajv` and is a development tool; nothing in a generated report loads it.
 
 ```bash
 # Fast dependency-free boundary check
@@ -39,6 +42,7 @@ Binding completeness is **verified**, not trusted. A report that omits panels do
 | `[data-verify-problems]` | The problem list when verification fails | exactly one |
 | `[data-lanes]` | Dynamic lane-scorecard host | exactly one; `runHealth` creates one card per verified lane |
 | `[data-lane="<lane-id>"]` | Generated lane scorecard | **one per lane in the island** |
+| `[data-sprawl]` | Code-sprawl pressure evidence — stale reachable paths, competing authoritative implementations, duplicated contract representations, unowned compatibility layers, abandoned reachable experiments — informing (never replacing) the `architecture-fitness` and `maintainability-and-ownership` lane scorecards above it | exactly one |
 | `[data-candidates]` | Candidate ledger section, containing `[data-ledger]`, `[data-score-legend]`, `[data-ledger-chip]` | when candidates exist |
 | `[data-baseline]` | Baseline command records | exactly one |
 | `[data-decision-blockers]` | Unavailable surfaces and blocked candidates | exactly one |
@@ -61,19 +65,22 @@ Regression fixture: [`assets/health-verify.test.html`](assets/health-verify.test
 3. Repository surface inventory
 4. Weighted coverage map
 5. Lane scorecards
-6. Verification baseline
-7. Architecture and integration health map
-8. Grade drivers
-9. Confirmed risks, inferences, and unknowns
-10. Candidate ledger
-11. Human-decision blockers
-12. Improvement roadmap
-13. Run-to-run health delta
-14. Handoff to the architecture and integrity skills
+6. Code-sprawl pressure
+7. Verification baseline
+8. Architecture and integration health map
+9. Grade drivers
+10. Confirmed risks, inferences, and unknowns
+11. Candidate ledger
+12. Human-decision blockers
+13. Improvement roadmap
+14. Run-to-run health delta
+15. Handoff to the architecture and integrity skills
+
+<!-- Section 6 sits immediately after the lane scorecards (5) rather than near "grade drivers" (9) or "human-decision blockers" (12) because it is evidence FOR the architecture-fitness and maintainability-and-ownership scorecards just shown, not a separate finding category, and grade drivers can then cite it without the reader losing the thread. -->
 
 Sections 2 and 4 are the ones a skimmer reads. Put the grade, its interpretation, the confidence, and the coverage percentage in the masthead. **Never render the grade without the coverage figure adjacent to it** — a grade alone is the single most misreadable artifact this skill produces, and a letter quoted without its confidence and coverage is a misuse of the report.
 
-Section 9 keeps confirmed facts, inferences, and unknowns in three visually distinct groups. Merging them is how an inference becomes a fact between the report and the roadmap.
+Section 10 keeps confirmed facts, inferences, and unknowns in three visually distinct groups. Merging them is how an inference becomes a fact between the report and the roadmap.
 
 ## Design system — roles, not raw hex
 

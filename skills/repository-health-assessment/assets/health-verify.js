@@ -1,5 +1,5 @@
 /* health-verify.js — self-verifying health model for the repository health
- * assessment report (repository-health-assessment). Schema version 4.
+ * assessment report (repository-health-assessment). Schema version 5.
  *
  * Why this exists: a grade is a claim about an entire repository, and every
  * input to it — weighted coverage, six dimension levels per lane, the
@@ -35,6 +35,19 @@
  *      green. Verification that only checks what IS on the page is not
  *      verification; binding completeness is now checked.
  *
+ * ── v5: code-sprawl pressure ──────────────────────────────────────────────
+ * Health islands could report clean lane scores while stale, duplicated, or
+ * unowned reachable code sat unmentioned — nothing forced that evidence into
+ * view. v5 adds a required `sprawl_pressure` block: five evidence arrays
+ * (stale reachable paths, competing authoritative implementations, duplicated
+ * contract representations, unowned compatibility layers, abandoned reachable
+ * experiments) plus two enums (automated_sprawl_checks, assessment). It is
+ * NOT a thirteenth lane or a seventh dimension — it carries no weight and
+ * computes no score of its own. It INFORMS the architecture-fitness and
+ * maintainability-and-ownership lane claims: every claim_id it cites must
+ * belong to one of those two lanes. Every count a report displays is the
+ * evidence array's own `.length`, never a stored number.
+ *
  * Candidate scoring is NOT implemented here. Candidates follow the shared
  * spine and are verified by ledger-verify.js, whose body the report pastes
  * alongside this one. Its absence is reported, never silently skipped.
@@ -47,7 +60,7 @@
 
 "use strict";
 
-const HEALTH_SCHEMA_VERSION = 4;
+const HEALTH_SCHEMA_VERSION = 5;
 const HEALTH_SPINE_VERSION = 3;
 
 /* ------------------------------- coverage ------------------------------- */
@@ -159,7 +172,37 @@ const HEALTH_CANDIDATE_DEDUP_FIELDS = ["duplicate_group", "merged_from"];
 const HEALTH_CANDIDATE_SCORE_KEYS = ["severity", "confidence", "leverage", "locality", "testability", "blast_radius", "regression_risk", "human_decision_risk"];
 const HEALTH_CANDIDATE_EVIDENCE_FIELDS = ["file", "line", "observation", "architecture_level", "rationale"];
 
+/* ---------------------------- sprawl pressure ---------------------------- */
 
+/** Code-sprawl pressure INFORMS these two lanes' claims (boundary_clarity and
+ * change_containment especially). It is not a lane itself, so this list is
+ * closed at exactly two — a claim_id outside it is `sprawl-claim-foreign`. */
+const HEALTH_SPRAWL_LANES = ["architecture-fitness", "maintainability-and-ownership"];
+const HEALTH_SPRAWL_CHECK_STATES = ["none", "partial", "enforced"];
+const HEALTH_SPRAWL_ASSESSMENTS = ["low", "moderate", "high"];
+const HEALTH_SPRAWL_PROPS = [
+  "stale_reachable_paths",
+  "competing_authoritative_implementations",
+  "duplicated_contract_representations",
+  "unowned_compatibility_layers",
+  "abandoned_reachable_experiments",
+  "automated_sprawl_checks",
+  "assessment",
+];
+const HEALTH_SPRAWL_PATH_FIELDS = ["claim_id", "path", "note"];
+const HEALTH_SPRAWL_GROUP_FIELDS = ["claim_id", "group", "members"];
+const HEALTH_SPRAWL_CONTRACT_FIELDS = ["claim_id", "contract", "locations"];
+
+/** The five evidence arrays and how to validate each entry's own fields
+ * (claim_id is validated separately by validateSprawlClaimRef, since it is
+ * the one field every shape shares). */
+const HEALTH_SPRAWL_GROUPS = [
+  { key: "stale_reachable_paths", fields: HEALTH_SPRAWL_PATH_FIELDS, required: ["claim_id", "path", "note"] },
+  { key: "competing_authoritative_implementations", fields: HEALTH_SPRAWL_GROUP_FIELDS, required: ["claim_id", "group"], listField: "members" },
+  { key: "duplicated_contract_representations", fields: HEALTH_SPRAWL_CONTRACT_FIELDS, required: ["claim_id", "contract"], listField: "locations" },
+  { key: "unowned_compatibility_layers", fields: HEALTH_SPRAWL_PATH_FIELDS, required: ["claim_id", "path", "note"] },
+  { key: "abandoned_reachable_experiments", fields: HEALTH_SPRAWL_PATH_FIELDS, required: ["claim_id", "path", "note"] },
+];
 
 /* --------------------------------- grade -------------------------------- */
 
@@ -540,7 +583,7 @@ function checkUnknownProps(obj, allowed, ref, push) {
   }
 }
 
-const HEALTH_TOP_PROPS = ["health_schema_version", "spine_version", "generated", "repository", "core_surfaces", "verification", "uncontained_critical_failure", "coverage", "lanes", "lane_applicability", "claims", "grade", "candidates", "previous"];
+const HEALTH_TOP_PROPS = ["health_schema_version", "spine_version", "generated", "repository", "core_surfaces", "verification", "uncontained_critical_failure", "coverage", "lanes", "lane_applicability", "claims", "sprawl_pressure", "grade", "candidates", "previous"];
 const HEALTH_REPOSITORY_PROPS = ["name", "root", "revision", "freshness", "freshness_evidence", "excluded_scope"];
 const HEALTH_FRESHNESS_EVIDENCE_PROPS = ["assessment_revision", "head_revision", "working_tree_clean", "observed_at"];
 const HEALTH_COMMAND_PROPS = ["command_id", "kind", "command", "exit_code", "elapsed_seconds", "result", "reason", "note"];
@@ -559,6 +602,76 @@ const HEALTH_DIMENSION_PROPS = ["level", "claim_refs", "rationale"];
 const HEALTH_CLAIM_REF_PROPS = ["claim_id", "support"];
 const HEALTH_REQUIRED_PROSE = ["one-sentence-verdict", "executive-summary", "grade-drivers", "coverage-denominator", "architecture-and-integration-health", "confirmed-observations", "inferred-observations", "unknown-observations", "confidence-improvement"];
 
+
+/** One evidence entry's claim_id must resolve to a real claim, and that claim
+ * must belong to architecture-fitness or maintainability-and-ownership — the
+ * two lanes this evidence is allowed to inform. Mirrors the
+ * candidate-claim-unknown / candidate-claim-foreign pattern used for
+ * candidates, with sprawl- prefixed codes of its own. */
+function validateSprawlClaimRef(entry, ref, claimById, push) {
+  if (!entry || typeof entry.claim_id !== "string" || !entry.claim_id.trim()) {
+    push("sprawl-shape", ref, ref + ": claim_id is required");
+    return;
+  }
+  const claim = claimById.get(entry.claim_id);
+  if (!claim) {
+    push("sprawl-claim-unknown", ref, ref + ": claim_id names unknown claim " + entry.claim_id);
+    return;
+  }
+  if (HEALTH_SPRAWL_LANES.indexOf(String(claim.lane)) === -1) {
+    push("sprawl-claim-foreign", ref, ref + ": claim " + entry.claim_id + " belongs to lane " + claim.lane + ", which is not " + HEALTH_SPRAWL_LANES.join(" or ") + " — sprawl evidence may only inform those two lanes");
+  }
+}
+
+/** Validate health.sprawl_pressure: five evidence arrays plus two enums.
+ * Every array entry's claim_id is cross-checked against claimById (built by
+ * the caller from health.claims, so this must run after claims are indexed).
+ * Returns nothing — like the rest of this file's validators, it accumulates
+ * into `problems` via push and lets the caller derive counts from the arrays
+ * themselves at render time, never from a value stored here. */
+function validateSprawlPressure(health, claimById, push) {
+  const sprawl = health.sprawl_pressure;
+  if (!sprawl || typeof sprawl !== "object" || Array.isArray(sprawl)) {
+    push("sprawl-shape", "sprawl_pressure", "health.sprawl_pressure is required — sprawl evidence must be visible in the island, not just implied by lane rationale");
+    return;
+  }
+  checkUnknownProps(sprawl, HEALTH_SPRAWL_PROPS, "sprawl_pressure", push);
+
+  for (const group of HEALTH_SPRAWL_GROUPS) {
+    const arr = sprawl[group.key];
+    if (!Array.isArray(arr)) {
+      push("sprawl-shape", "sprawl_pressure." + group.key, "sprawl_pressure." + group.key + " must be an array — use [] when there is no such evidence, never omit the key");
+      continue;
+    }
+    arr.forEach((entry, i) => {
+      const ref = "sprawl_pressure." + group.key + "[" + i + "]";
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+        push("sprawl-shape", ref, ref + ": must be an object");
+        return;
+      }
+      checkUnknownProps(entry, group.fields, ref, push);
+      for (const f of group.required) {
+        if (typeof entry[f] !== "string" || !entry[f].trim()) {
+          push("sprawl-shape", ref, ref + ": " + f + " is required");
+        }
+      }
+      if (group.listField) {
+        const list = entry[group.listField];
+        if (!Array.isArray(list) || list.length < 2 || list.some((x) => typeof x !== "string" || !x.trim())) {
+          push("sprawl-shape", ref, ref + "." + group.listField + " must be an array of at least two non-empty strings — a single entry cannot compete with or duplicate itself");
+        }
+      }
+      validateSprawlClaimRef(entry, ref, claimById, push);
+    });
+  }
+
+  if (HEALTH_SPRAWL_CHECK_STATES.indexOf(sprawl.automated_sprawl_checks) === -1) {
+    push("sprawl-enum", "sprawl_pressure.automated_sprawl_checks", "sprawl_pressure.automated_sprawl_checks must be " + HEALTH_SPRAWL_CHECK_STATES.join(" | ") + " (got " + JSON.stringify(sprawl.automated_sprawl_checks) + ")");
+  }
+  if (HEALTH_SPRAWL_ASSESSMENTS.indexOf(sprawl.assessment) === -1) {
+    push("sprawl-enum", "sprawl_pressure.assessment", "sprawl_pressure.assessment must be " + HEALTH_SPRAWL_ASSESSMENTS.join(" | ") + " (got " + JSON.stringify(sprawl.assessment) + ")");
+  }
+}
 
 /**
  * Verify a parsed health island. Returns a normalized result with computed
@@ -763,6 +876,10 @@ function verifyHealth(health) {
     }
   }
   const determinism_ratio = claims.length ? roundPct((confirmedCount / claims.length) * 100) : 0;
+
+  /* ---- sprawl pressure: informs architecture-fitness and
+     maintainability-and-ownership claims; scores nothing on its own ---- */
+  validateSprawlPressure(health, claimById, push);
 
   /* ---- lanes: locked weights, per-dimension support ---- */
   const laneIds = new Set();
@@ -1195,6 +1312,7 @@ function verifyBinding(root, v) {
   require1("[data-confidence]", "confidence panel");
   require1("[data-caps]", "caps panel");
   require1("[data-baseline]", "verification baseline");
+  require1("[data-sprawl]", "code-sprawl pressure panel");
   require1("[data-decision-blockers]", "human-decision blockers");
   require1("[data-roadmap]", "improvement roadmap");
   require1("[data-handoff]", "handoff summary");
@@ -1387,6 +1505,56 @@ function renderLaneInto(el, lane) {
   el.appendChild(bars);
   el.appendChild(healthEl("div", HEALTH_MONO + "font-size:10px;color:var(--ink-muted,#898781);margin-top:6px;",
     "Σ (level ÷ 4 × weight) = " + lane.computed.score + " · claims: " + (lane.claims.length ? lane.claims.join(", ") : "none")));
+}
+
+/** Code-sprawl pressure: renders the five evidence arrays plus the two enum
+ * fields. Every count shown is the rendered array's own .length — never a
+ * stored number — so a report can never claim "4 stale paths" while showing
+ * 3 rows. This block informs the architecture-fitness and
+ * maintainability-and-ownership lane claims; it renders no score of its own.
+ * textContent only, exactly like every other render*Into function here. */
+function renderSprawlInto(el, sprawl_pressure, claims) {
+  el.textContent = "";
+  if (!sprawl_pressure || typeof sprawl_pressure !== "object") {
+    el.appendChild(healthEl("div", HEALTH_MONO + "font-size:11px;color:var(--critical,#d03b3b);", "sprawl_pressure is missing from the island"));
+    return;
+  }
+  const claimById = new Map((claims || []).map((c) => [String(c.claim_id), c]));
+  const groups = [
+    { key: "stale_reachable_paths", label: "stale reachable paths", fields: ["path", "note"] },
+    { key: "competing_authoritative_implementations", label: "competing authoritative implementations", fields: ["group", "members"] },
+    { key: "duplicated_contract_representations", label: "duplicated contract representations", fields: ["contract", "locations"] },
+    { key: "unowned_compatibility_layers", label: "unowned compatibility layers", fields: ["path", "note"] },
+    { key: "abandoned_reachable_experiments", label: "abandoned reachable experiments", fields: ["path", "note"] },
+  ];
+  let total = 0;
+  for (const g of groups) {
+    const items = Array.isArray(sprawl_pressure[g.key]) ? sprawl_pressure[g.key] : [];
+    total += items.length;
+    const head = healthEl("div", HEALTH_MONO + "font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted,#898781);margin-top:8px;", g.label + " · " + items.length);
+    head.setAttribute("data-sprawl-count", g.key);
+    el.appendChild(head);
+    if (!items.length) {
+      el.appendChild(healthEl("div", HEALTH_MONO + "font-size:11px;color:var(--ink-muted,#898781);padding:2px 0;", "none recorded"));
+      continue;
+    }
+    for (const item of items) {
+      const row = healthEl("div", HEALTH_MONO + "font-size:11px;color:var(--ink-secondary,#52514e);padding:3px 0;border-bottom:1px solid var(--hairline,#e1e0d9);");
+      row.setAttribute("data-sprawl-row", g.key);
+      const parts = g.fields.map((f) => {
+        const val = item ? item[f] : undefined;
+        return f + ": " + (Array.isArray(val) ? val.join(", ") : String(val == null ? "" : val));
+      });
+      const claim = item ? claimById.get(String(item.claim_id)) : null;
+      parts.push("claim: " + String(item && item.claim_id) + (claim ? " (" + claim.lane + ")" : " (unresolved)"));
+      row.textContent = parts.join(" · ");
+      el.appendChild(row);
+    }
+  }
+  const foot = healthEl("div", HEALTH_MONO + "font-size:10px;color:var(--ink-muted,#898781);margin-top:8px;",
+    "total sprawl findings " + total + " · automated checks: " + String(sprawl_pressure.automated_sprawl_checks) + " · assessment: " + String(sprawl_pressure.assessment));
+  foot.setAttribute("data-sprawl-foot", "");
+  el.appendChild(foot);
 }
 
 function renderConfidenceInto(el, v) {
@@ -1633,6 +1801,7 @@ function runHealth(options) {
     bind(opts.confidenceSelector || "[data-confidence]", renderConfidenceInto);
     bind(opts.deltaSelector || "[data-delta-panel]", renderDeltaInto);
     bind(opts.baselineSelector || "[data-baseline]", renderBaselineInto);
+    bind(opts.sprawlSelector || "[data-sprawl]", function (el, vv) { renderSprawlInto(el, vv.source && vv.source.sprawl_pressure, vv.source && vv.source.claims); });
     bind(opts.blockersSelector || "[data-decision-blockers]", renderDecisionBlockersInto);
     bind(opts.roadmapSelector || "[data-roadmap]", renderRoadmapInto);
     bind(opts.handoffSelector || "[data-handoff]", renderHandoffInto);
@@ -1665,6 +1834,10 @@ globalThis.HealthVerify = {
   HEALTH_DIMENSIONS,
   HEALTH_LANE_DEFINITIONS,
   HEALTH_CRITICAL_WEIGHT,
+  HEALTH_SPRAWL_LANES,
+  HEALTH_SPRAWL_CHECK_STATES,
+  HEALTH_SPRAWL_ASSESSMENTS,
+  HEALTH_SPRAWL_GROUPS,
   HEALTH_GRADES,
   HEALTH_NOT_GRADABLE,
   HEALTH_BASELINE_FACTOR,
@@ -1684,6 +1857,7 @@ globalThis.HealthVerify = {
   renderConfidenceInto, renderDeltaInto, renderCandidatesInto,
   ensureLaneContainers, renderMetadata, renderBaselineInto,
   renderDecisionBlockersInto, renderRoadmapInto, renderHandoffInto,
+  renderSprawlInto, validateSprawlPressure,
   renderChipInto, renderProblemsInto,
   runHealth,
 };

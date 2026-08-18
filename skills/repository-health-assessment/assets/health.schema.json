@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:openai:repository-health-assessment:health-island:v4",
-  "title": "Repository Health Assessment Island (v4)",
+  "$id": "urn:openai:repository-health-assessment:health-island:v5",
+  "title": "Repository Health Assessment Island (v5)",
   "description": "The single JSON island embedded in a repository health report. Every number displayed on the page derives from this document via assets/health-verify.js. This schema is the specification; health-verify.js compiles the load-bearing rules so a self-contained report can enforce them without shipping a validator. assets/health-verify.test.html asserts parity between the two. Stored computed values (lane_score, grade.*) are OPTIONAL and are checked against recomputation, never trusted for display.",
   "type": "object",
   "required": [
@@ -12,13 +12,14 @@
     "lanes",
     "lane_applicability",
     "claims",
+    "sprawl_pressure",
     "spine_version",
     "generated"
   ],
   "additionalProperties": false,
   "properties": {
     "health_schema_version": {
-      "const": 4
+      "const": 5
     },
     "spine_version": {
       "const": 3,
@@ -639,6 +640,63 @@
               }
             }
           }
+        }
+      }
+    },
+    "sprawl_pressure": {
+      "type": "object",
+      "description": "Code-sprawl pressure: evidence of stale, duplicated, redundant, or unowned reachable code. It INFORMS the architecture-fitness and maintainability-and-ownership lane claims (their boundary_clarity and change_containment dimensions especially); it is not a thirteenth lane, a seventh dimension, and computes no score of its own — it must never feed overall_raw or a cap. Every array entry's claim_id must resolve to a claim belonging to one of those two lanes. Displayed counts are always the array's own length, never a stored number.",
+      "required": [
+        "stale_reachable_paths",
+        "competing_authoritative_implementations",
+        "duplicated_contract_representations",
+        "unowned_compatibility_layers",
+        "abandoned_reachable_experiments",
+        "automated_sprawl_checks",
+        "assessment"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "stale_reachable_paths": {
+          "type": "array",
+          "description": "Reachable code no longer on a live path — not simply old, but still compiled/imported/routed while serving no current purpose.",
+          "items": { "$ref": "#/$defs/sprawlPathEvidence" }
+        },
+        "competing_authoritative_implementations": {
+          "type": "array",
+          "description": "Two or more reachable implementations of the same behavior with no single designated authority.",
+          "items": { "$ref": "#/$defs/sprawlGroupEvidence" }
+        },
+        "duplicated_contract_representations": {
+          "type": "array",
+          "description": "One contract (schema, DTO, API shape) hand-maintained in more than one place with no generation or comparison check between them.",
+          "items": { "$ref": "#/$defs/sprawlContractEvidence" }
+        },
+        "unowned_compatibility_layers": {
+          "type": "array",
+          "description": "Shims, adapters, or back-compat paths kept reachable with no recorded owner or removal criterion.",
+          "items": { "$ref": "#/$defs/sprawlPathEvidence" }
+        },
+        "abandoned_reachable_experiments": {
+          "type": "array",
+          "description": "Prototype, spike, or feature-flagged code left reachable after the experiment concluded or was abandoned.",
+          "items": { "$ref": "#/$defs/sprawlPathEvidence" }
+        },
+        "automated_sprawl_checks": {
+          "enum": [
+            "none",
+            "partial",
+            "enforced"
+          ],
+          "description": "Whether anything machine-checked (dead-code analysis, duplication detection, unused-export lints, ownership linting) catches this class of finding, rather than relying on someone noticing."
+        },
+        "assessment": {
+          "enum": [
+            "low",
+            "moderate",
+            "high"
+          ],
+          "description": "Overall sprawl pressure in prose, backed by the arrays above. Not a numeric score and not summed into any lane or cap."
         }
       }
     },
@@ -1415,6 +1473,91 @@
     }
   },
   "$defs": {
+    "sprawlPathEvidence": {
+      "type": "object",
+      "description": "A single reachable-but-unnecessary path: a stale path, an unowned compatibility layer, or an abandoned experiment.",
+      "required": [
+        "claim_id",
+        "path",
+        "note"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Must name a real claim in `claims[]` belonging to architecture-fitness or maintainability-and-ownership."
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "note": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "sprawlGroupEvidence": {
+      "type": "object",
+      "description": "A group of two or more competing authoritative implementations of the same behavior.",
+      "required": [
+        "claim_id",
+        "group",
+        "members"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Must name a real claim in `claims[]` belonging to architecture-fitness or maintainability-and-ownership."
+        },
+        "group": {
+          "type": "string",
+          "minLength": 1
+        },
+        "members": {
+          "type": "array",
+          "minItems": 2,
+          "description": "Two or more members are required — a single implementation cannot compete with itself.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "sprawlContractEvidence": {
+      "type": "object",
+      "description": "One contract hand-maintained in two or more locations.",
+      "required": [
+        "claim_id",
+        "contract",
+        "locations"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Must name a real claim in `claims[]` belonging to architecture-fitness or maintainability-and-ownership."
+        },
+        "contract": {
+          "type": "string",
+          "minLength": 1
+        },
+        "locations": {
+          "type": "array",
+          "minItems": 2,
+          "description": "Two or more locations are required — a contract represented once is not duplicated.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "dimension": {
       "type": "object",
       "required": [

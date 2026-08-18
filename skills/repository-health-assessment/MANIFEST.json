@@ -1,16 +1,17 @@
 {
   "name": "repository-health-assessment",
-  "version": "4.0.0",
-  "schema_version": 4,
-  "description": "Read-only repository health assessment: weighted coverage, lane maturity scorecards, an anchored A-F grade with caps and confidence, and a candidate ledger routed to the architecture and integrity skills.",
+  "version": "5.3.0",
+  "schema_version": 5,
+  "description": "Read-only repository health assessment: weighted coverage, lane maturity scorecards, an anchored A-F grade with caps and confidence, a validated generic Evidence Recon sidecar, and a candidate ledger routed to the architecture and integrity skills.",
   "invocation": {
     "model_invocable": true,
     "implicit_conversational_routing": false,
     "expected_callers": [
       "user",
+      "repository-improvement-assessment",
       "loop-router",
       "production-flywheel",
-      "improve-codebase-architecture-mwdev",
+      "architecture-improvement-intelligence",
       "codebase-integrity-audit-loop"
     ]
   },
@@ -36,12 +37,57 @@
         "renderScoreLegendInto",
         "renderChipInto"
       ]
+    },
+    {
+      "skill": "shared/evidence-recon",
+      "path": "evidence-packet.schema.json",
+      "provides": "canonical generic evidence packet, coverage/evidence/epistemic vocabulary, negative-claim receipts, and contradiction state",
+      "required": true,
+      "kind": "specification",
+      "minimum_evidence_packet_version": 1
+    },
+    {
+      "skill": "shared/evidence-recon",
+      "path": "evidence-recon.js",
+      "provides": "packet validation, inline/expedition mode guidance, and deterministic expedition-lane merge",
+      "required": true,
+      "kind": "module",
+      "failure_mode": "the generic evidence sidecar does not validate or ship; health grading remains owned by the health island and is never hand-repaired",
+      "minimum_evidence_packet_version": 1,
+      "required_exports": [
+        "validateEvidencePacket",
+        "validateExpeditionLane",
+        "recommendMode",
+        "mergeExpeditionLanes",
+        "summarizePacket"
+      ]
+    },
+    {
+      "skill": "shared/assessment-acceleration",
+      "provides": "aggressive assessment scheduling, cache, and performance receipts",
+      "required": true,
+      "kind": "execution-mechanism"
+    },
+    {
+      "skill": "agent-executor-pool",
+      "provides": "generic bounded executor semantics for read-only worker scheduling",
+      "required": true,
+      "kind": "execution-mechanism"
+    },
+    {
+      "skill": "shared/report-election",
+      "path": "report-election.js",
+      "provides": "shared ask/generate/skip/inherit report-presentation contract and machine-lean validation",
+      "required": true,
+      "kind": "interaction-contract",
+      "minimum_report_election_version": 1
     }
   ],
-  "known_risk": "This package validates health provenance and delegates candidate scoring, dependency, eligibility, ranking, lifecycle, and rendering to the canonical shared spine. Missing or incompatible modules are hard failures.",
+  "known_risk": "This package validates health provenance, projects a conservative generic Evidence Recon sidecar, and delegates candidate scoring, dependency, eligibility, ranking, lifecycle, and rendering to the canonical shared spine. Missing or incompatible required modules are hard failures. The sidecar never owns or alters the health grade.",
   "dev_dependencies": {
     "ajv": "^8 \u2014 used only by assets/parity-check.js, never by the generated report",
-    "ledger-verify.js": "required for parity-check.js and package-check.js; resolved from shared/candidate-ledger-spine or LEDGER_VERIFY_PATH"
+    "ledger-verify.js": "required for parity-check.js and package-check.js; resolved from shared/candidate-ledger-spine or LEDGER_VERIFY_PATH",
+    "evidence-recon.js": "required for package-check.js and evidence-recon-projection.js; resolved from shared/evidence-recon, EVIDENCE_RECON_PATH, or an explicit path"
   },
   "shared_spine_version": 3,
   "migration": "MIGRATIONS.md",
@@ -55,6 +101,33 @@
     "canonical_fixture": "assets/canonical-island.json",
     "browser_fixture": "assets/health-verify.test.html",
     "parity_harness": "assets/parity-check.js",
-    "package_check": "assets/package-check.js"
+    "package_check": "assets/package-check.js",
+    "evidence_recon_adapter": "EVIDENCE-RECON-ADAPTER.md",
+    "evidence_recon_projection": "assets/evidence-recon-projection.js",
+    "evidence_recon_writer": "assets/write-evidence-recon-sidecar.js"
+  },
+  "performance": {
+    "profile": "aggressive-threadpool",
+    "surface_inventory": "parallel deterministic construction; frozen before final grading",
+    "evidence_packets": "adaptive micro-lanes",
+    "agent_workers": "auto aggressive",
+    "command_workers": "separately bounded",
+    "work_conserving_refill": true,
+    "nested_under_ria": "flatten into RIA global pool"
+  },
+  "consumes": [
+    "shared/candidate-ledger-spine",
+    "shared/evidence-recon",
+    "shared/assessment-acceleration",
+    "agent-executor-pool",
+    "shared/report-election"
+  ],
+  "shared_evidence_recon_version": 1,
+  "shared_report_election_version": 1,
+  "presentation": {
+    "canonical_machine_artifact": "validated health island + candidate ledger + Evidence Recon sidecar",
+    "interactive_report_default": "ask",
+    "nested_policy": "inherit",
+    "report_optional": true
   }
 }

@@ -1,5 +1,5 @@
 {
-  "health_schema_version": 4,
+  "health_schema_version": 5,
   "spine_version": 3,
   "generated": "2026-07-25T12:00:00Z",
   "repository": {
@@ -864,6 +864,23 @@
       }
     },
     {
+      "claim_id": "ARCH-04",
+      "lane": "architecture-fitness",
+      "statement": "architecture-fitness: a feature-flagged experimental module remains reachable from the runtime entrypoint after its flag was removed.",
+      "result": "fail",
+      "evidence": [
+        {
+          "path": "src/experimental/streaming-diff/index.ts",
+          "lines": "1-40"
+        }
+      ],
+      "observation": {
+        "confirmed": "The module is still imported by src/runtime/entrypoint.ts.",
+        "inferred": "No one is exercising this path deliberately anymore.",
+        "unknown": "Whether removing it would break anything depending on it accidentally."
+      }
+    },
+    {
       "claim_id": "CONTRACT-01",
       "lane": "contracts-and-integration",
       "statement": "contracts-and-integration: core controls are present on the primary paths.",
@@ -1050,6 +1067,23 @@
       "observation": {
         "confirmed": "No enforcing configuration found."
       }
+    },
+    {
+      "claim_id": "MAINT-04",
+      "lane": "maintainability-and-ownership",
+      "statement": "maintainability-and-ownership: compatibility shims persist with no recorded owner or removal criterion.",
+      "result": "fail",
+      "evidence": [
+        {
+          "path": "src/compat/pre-v2-adapter.ts",
+          "lines": "1-85"
+        }
+      ],
+      "observation": {
+        "confirmed": "No CODEOWNERS entry covers src/compat/.",
+        "inferred": "The shim is reachable from the current runtime path.",
+        "unknown": "Whether any live consumer still depends on the pre-v2 behavior."
+      }
     }
   ],
   "lane_applicability": {
@@ -1095,6 +1129,51 @@
       ],
       "rationale": "Single supported runtime and OS target."
     }
+  },
+  "sprawl_pressure": {
+    "stale_reachable_paths": [
+      {
+        "claim_id": "MAINT-03",
+        "path": "src/legacy/report-renderer-v1.ts",
+        "note": "Superseded by src/report/renderer.ts in the same release; still imported by a deprecated --legacy-report CLI flag with no removal date, and no dead-code lint catches it."
+      }
+    ],
+    "competing_authoritative_implementations": [
+      {
+        "claim_id": "ARCH-02",
+        "group": "date formatting",
+        "members": [
+          "src/util/date-format.ts",
+          "src/legacy/format-date.ts"
+        ]
+      }
+    ],
+    "duplicated_contract_representations": [
+      {
+        "claim_id": "ARCH-03",
+        "contract": "user profile schema",
+        "locations": [
+          "src/api/schema.ts",
+          "clients/python/models.py"
+        ]
+      }
+    ],
+    "unowned_compatibility_layers": [
+      {
+        "claim_id": "MAINT-04",
+        "path": "src/compat/pre-v2-adapter.ts",
+        "note": "Back-compat shim with no CODEOWNERS entry and no documented removal criterion; last touched by an author no longer on the project."
+      }
+    ],
+    "abandoned_reachable_experiments": [
+      {
+        "claim_id": "ARCH-04",
+        "path": "src/experimental/streaming-diff/",
+        "note": "Feature-flagged prototype; the flag was removed in a later release but the module remains imported by the runtime entrypoint."
+      }
+    ],
+    "automated_sprawl_checks": "none",
+    "assessment": "moderate"
   },
   "candidates": [
     {

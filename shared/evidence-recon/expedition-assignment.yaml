@@ -1,0 +1,14 @@
+expedition_lane_version: 1
+assignment:
+  lane_id: ""
+  parent_packet_id: ""
+  surface: ""
+  question: ""
+  permitted_sources: []
+  required_methods: []
+  known_claims: []
+  explicit_exclusions: []
+  stopping_condition: ""
+  lifecycle_authority: false
+  decision_authority: false
+  may_address_human: false

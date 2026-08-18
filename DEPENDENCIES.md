@@ -43,7 +43,8 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | `expanded-grill-with-docs` | flywheel design-lane gate A (default); wayfinder design tickets | [`skills/expanded-grill-with-docs`](skills/expanded-grill-with-docs/) | Original; may invoke Matt's `grilling` / `domain-modeling` as child procedures |
 | `connected-impact-sweep` | audit execute calibration; swarm blast-radius; migration missions | [`skills/connected-impact-sweep`](skills/connected-impact-sweep/) | Original |
 | `implementation-plan-contract` | audit plan gate; planning swarm | [`skills/implementation-plan-contract`](skills/implementation-plan-contract/) | Original |
-| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | Original; consumes `shared/candidate-ledger-spine` |
+| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.2 (schema v5 + code-sprawl-pressure evidence + Evidence Recon sidecar); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
+| `agent-executor-pool` | bounded read-only worker scheduling for `repository-health-assessment` (and future consumers) | [`skills/agent-executor-pool`](skills/agent-executor-pool/) | Original; generic executor semantics — worker leases, generation/fence tokens, work-conserving refill |
 | `land-pr` / `land-prs` / `land-pr-ec2` / `land-prs-ec2` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) and siblings | Original |
 
 Install examples:
@@ -100,6 +101,8 @@ They are **not vendored** into this repo. Canonical ideas live on [jeffbailey.us
 | `shared/REPORT-SCORING.md` | Family scoring spine + report style | Jeff-style *scored, evidence-backed* posture; schema is ours |
 | `shared/candidate-ledger-spine/` | Candidate schema + verifiers | Executable form of the scoring spine; consumed by audit, health assessment, and architecture |
 | `shared/HUMAN-DECISIONS.md` | Auto-mode stop taxonomy | Complements graded review with explicit human forks |
+| `shared/evidence-recon/` | Generic evidence packet contract (inline/expedition modes, negative-claim receipts) | Consumed by `repository-health-assessment`'s v5.2 sidecar; own test suite GREEN 14/14 |
+| `shared/assessment-acceleration/` | Aggressive assessment scheduling, cache, performance receipts | Consumed by `repository-health-assessment`'s report builder; own test suite GREEN |
 
 When you promote a Jeff skill from “optional lane helper” to a hard dependency, pin its install source and commit/tag here.
 

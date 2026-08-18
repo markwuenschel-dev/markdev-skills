@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "core": [
+    "SKILL.md",
+    "PERFORMANCE.md",
+    "PARALLEL-ASSESSMENT.md"
+  ],
+  "conditional": {
+    "coverage": {
+      "when": [
+        "health inventory or coverage scoring"
+      ],
+      "refs": [
+        "COVERAGE-MODEL.md",
+        "PARALLEL-ASSESSMENT.md"
+      ]
+    },
+    "grading": {
+      "when": [
+        "lane grading or grade explanation"
+      ],
+      "refs": [
+        "HEALTH-GRADING.md"
+      ]
+    },
+    "report": {
+      "when": [
+        "report rendering or report contract audit"
+      ],
+      "refs": [
+        "HTML-REPORT.md",
+        "assets/report-scaffold.html"
+      ]
+    },
+    "migration": {
+      "when": [
+        "legacy health island encountered"
+      ],
+      "refs": [
+        "MIGRATIONS.md"
+      ]
+    },
+    "evaluation": {
+      "when": [
+        "health evaluation requested"
+      ],
+      "refs": [
+        "evals/evals.json"
+      ]
+    }
+  },
+  "oracle": {
+    "entrypoint": [
+      "assets/package-check.js",
+      "assets/parity-check.js",
+      "assets/health-verify.js"
+    ],
+    "source": {
+      "default_model_read": false
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}
