@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 140" width="480" height="105" role="img" aria-label="markdev-skills">
+  <title>markdev-skills</title>
+  <g fill="none" stroke="#2dd4bf" stroke-width="4" stroke-linecap="round">
+    <path d="M26,40 C60,40 60,70 92,70" />
+    <path d="M26,100 C60,100 60,70 92,70" />
+    <path d="M105,70 H132" stroke-width="3" />
+  </g>
+  <circle cx="26" cy="40" r="8" fill="#101218" stroke="#2dd4bf" stroke-width="3.5" />
+  <circle cx="26" cy="100" r="8" fill="#101218" stroke="#2dd4bf" stroke-width="3.5" />
+  <circle cx="92" cy="70" r="13" fill="#2dd4bf" />
+  <text x="148" y="68" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="38" letter-spacing="-0.5" fill="#eef0f6">markdev-skills</text>
+  <text x="149" y="94" font-family="SFMono-Regular, Consolas, Cascadia Code, Menlo, monospace" font-weight="600" font-size="12.5" letter-spacing="1.6" fill="#a4aabd">CAPABILITY ROUTING · PROOF-DRIVEN DELIVERY</text>
+</svg>
