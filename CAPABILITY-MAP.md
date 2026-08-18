@@ -125,6 +125,10 @@ Every top-level skill may reference these without redefining them:
 | `improve-codebase-architecture-mwdev` | Legacy compatibility alias; owns no architecture-improvement protocol of its own | `architecture-improvement-intelligence` — not yet vendored in this repo; see [`DEPENDENCIES.md`](DEPENDENCIES.md) |
 | `land-prs` / `land-pr-ec2` / `land-prs-ec2` | Removed — fully absorbed into `land-pr`'s queue mode and `-ec2` overlay | `land-pr` |
 
+## Known, not yet vendored
+
+`software-engineering-intelligence` — a provenance-bound SEI snapshot + evidence-backed engineering assessment sidecar — exists as a local/family skill but is not yet promoted into `skills/`. Not part of the routing graph above until it's ported; see [`DEPENDENCIES.md`](DEPENDENCIES.md).
+
 ## Boundaries (do not blur)
 
 1. **Inventory = every `skills/*/SKILL.md`.** Keep packages flat (no accidental `name/name/` nesting). True externals not owned here are listed in [`DEPENDENCIES.md`](DEPENDENCIES.md).

@@ -29,9 +29,7 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | --- | --- | --- | --- |
 | [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` — `mattpocock/skills` | v2.1.2 | Evidence-first mapping interview, bounded parallel scouts, durable tracker scripts + fallback tracker, `expanded-grill-with-docs` handoff contract, release validator |
 | [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` — `mattpocock/skills` | local-unpinned | Ownership-boundary section wiring it to `codebase-integrity-audit-loop` and `human-directed-swarm-planner` |
-| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) † | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | **Deprecated** — now a legacy compatibility alias with no protocol of its own |
-
-† Route architecture-improvement work to `architecture-improvement-intelligence` — upstream's successor to this fork, not yet vendored in this repo. Pin: `architecture-improvement-intelligence` | `local-unpinned` | source not yet recorded — promote this row properly if/when it's brought in-repo.
+| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | **Deprecated** — legacy compatibility alias forwarding to `architecture-improvement-intelligence` (see *Known, not yet vendored* below) |
 
 **Fork naming rule.** A fork must set its frontmatter `name` to the **suffixed** directory name. The `name` field is the invocation name (the directory basename is only a fallback), so a fork that keeps the upstream `name` collides with the skill it forked and neither resolves reliably.
 
@@ -48,6 +46,15 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.2 (schema v5 + code-sprawl-pressure evidence + Evidence Recon sidecar); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
 | `agent-executor-pool` | bounded read-only worker scheduling for `repository-health-assessment` (and future consumers) | [`skills/agent-executor-pool`](skills/agent-executor-pool/) | Original; generic executor semantics — worker leases, generation/fence tokens, work-conserving refill |
 | `land-pr` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) | Original; single skill covers local-change, PR-queue, and EC2 (`-ec2`) modes — `land-prs`/`land-pr-ec2`/`land-prs-ec2` were removed as redundant |
+
+### Known, not yet vendored
+
+Local/family skills confirmed to exist in the working copy this inventory tracks against, but not yet promoted into `skills/`. Not third-party — these belong here eventually; they're pinned rather than silently dropped until someone does the port (files, dependency check, verification) properly.
+
+| Skill | Role | Local path | Version / commit |
+| --- | --- | --- | --- |
+| `architecture-improvement-intelligence` | Successor to the deprecated `improve-codebase-architecture-mwdev` fork — structural architecture analysis, candidate ranking, design handoff | `~/.agents/skills/architecture-improvement-intelligence` | local-unpinned |
+| `software-engineering-intelligence` | Provenance-bound Software Engineering Intelligence snapshot + evidence-backed engineering assessment sidecar, optional offline report | `~/.agents/skills/software-engineering-intelligence` | local-unpinned |
 
 Install examples:
 
