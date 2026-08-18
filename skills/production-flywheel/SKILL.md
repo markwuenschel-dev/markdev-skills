@@ -136,7 +136,7 @@ Conditional:
 - `requesting-code-review`
 - `receiving-code-review`
 - `verification-before-completion`
-- `land-pr` (publish helper — Stage 13 opens each item's PR via `/land-pr`; `/land-prs` lands leftover open PRs as one confirmed batch)
+- `land-pr` (publish helper — Stage 13 opens each item's PR via `/land-pr`; its queue mode lands leftover open PRs as one confirmed batch)
 
 Fallback rule: if a required or conditional skill is not installed as a routed command but its `SKILL.md` can be read from `$HOME/.agents/skills/<skill-name>/SKILL.md`, read that file and follow it directly, and say so explicitly: "The routed command isn't installed here, but I found the shared skill file and will follow it directly."
 
@@ -467,7 +467,7 @@ Moving to item 3/5.
 
 Do not ask whether to continue. Auto-advance until:
 
-- **the queue is empty** → print a final per-item summary (each item's branch/PR/status) and stop — if the run left multiple PRs open, note that `/land-prs` can land them as one confirmed batch — or
+- **the queue is empty** → print a final per-item summary (each item's branch/PR/status) and stop — if the run left multiple PRs open, note that `/land-pr` can land them as one confirmed batch (queue mode) — or
 - **a real blocker appears** → pause the queue, state which item blocked and why, and ask how to proceed. A pushed PR awaiting review is not a blocker.
 
 When the queue completes, offer to regenerate the report (Stage 1) for a fresh batch if the user wants to keep going — but do not auto-start a new batch; a new batch requires a new selection. Reuse remaining candidates from the prior report only when the shipped slices touched none of the modules they name; otherwise regenerate.

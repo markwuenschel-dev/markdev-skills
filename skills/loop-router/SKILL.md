@@ -22,9 +22,8 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 | Edit, fix, refactor, or add across an existing multi-file system | `connected-impact-sweep` |
 | Parallelize a **known** mission across agent lanes | `human-directed-swarm-planner` |
 | Deliver a user-selected queue end-to-end (design → PR) | `production-flywheel` |
-| Architecture deepening report / HTML deepening candidates | `improve-codebase-architecture-mwdev` |
 | Land a local change or explicit PR queue; optionally release it | `land-pr` |
-| Land a multi-PR queue and/or release each service to EC2 | `land-prs`, `land-pr-ec2`, or `land-prs-ec2` |
+| Land a multi-PR queue and/or release each service to EC2 | `land-pr` (queue mode; add `-ec2` to also release) |
 | Write, repair, port, or eval-optimize a prompt / system prompt / launch brief | `prompt-forge` |
 | Design, audit, or harden a SKILL.md package | `skillwright-forge` |
 | Checkpoint a long session before clearing context | `compact-session` |
@@ -33,7 +32,7 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 ## Routing algorithm
 
 1. **If the user already named a top-level skill** → route there. Do not re-grill the choice.
-2. **If the user asks to land or merge a local change or explicit PR queue** → `land-pr`; use its `-ec2` overlay only when release is also requested. Route batch-specific land/release requests to `land-prs`, `land-pr-ec2`, or `land-prs-ec2` as the map defines. Do not confuse landing with `production-flywheel`, which delivers selected work before the landing phase.
+2. **If the user asks to land or merge a local change or an explicit PR queue** → `land-pr`; use its `-ec2` overlay only when release is also requested — queue mode and the EC2 overlay are flags of the same skill, not separate packages. Do not confuse landing with `production-flywheel`, which delivers selected work before the landing phase.
 3. **If the user asks to checkpoint before `/clear`** → `compact-session`; if they want a SKILL.md package designed or hardened → `skillwright-forge`.
 4. **If the user selected candidates/queue items and wants them delivered end-to-end** → `production-flywheel`.
 5. **If the user has a mission and wants parallel lanes** (not a multi-item queue) → `human-directed-swarm-planner`.

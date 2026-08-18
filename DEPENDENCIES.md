@@ -29,7 +29,9 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | --- | --- | --- | --- |
 | [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` — `mattpocock/skills` | v2.1.2 | Evidence-first mapping interview, bounded parallel scouts, durable tracker scripts + fallback tracker, `expanded-grill-with-docs` handoff contract, release validator |
 | [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` — `mattpocock/skills` | local-unpinned | Ownership-boundary section wiring it to `codebase-integrity-audit-loop` and `human-directed-swarm-planner` |
-| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | Bundles `assets/mermaid-safe.js` + `assets/ledger-verify.js` instead of pulling Tailwind/Mermaid from a CDN |
+| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) † | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | **Deprecated** — now a legacy compatibility alias with no protocol of its own |
+
+† Route architecture-improvement work to `architecture-improvement-intelligence` — upstream's successor to this fork, not yet vendored in this repo. Pin: `architecture-improvement-intelligence` | `local-unpinned` | source not yet recorded — promote this row properly if/when it's brought in-repo.
 
 **Fork naming rule.** A fork must set its frontmatter `name` to the **suffixed** directory name. The `name` field is the invocation name (the directory basename is only a fallback), so a fork that keeps the upstream `name` collides with the skill it forked and neither resolves reliably.
 
@@ -37,7 +39,7 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 
 | Skill | Used by | Canonical path in this repo | Note |
 | --- | --- | --- | --- |
-| `improve-codebase-architecture-mwdev` | `production-flywheel` Stage 1 report | [`skills/improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | Fork of Matt's `improve-codebase-architecture` |
+| `improve-codebase-architecture-mwdev` | Deprecated — see Fork lineage above | [`skills/improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | Fork of Matt's `improve-codebase-architecture`; legacy alias only |
 | `wayfinder-mwdev` | `production-flywheel` scoping pre-check | [`skills/wayfinder-mwdev`](skills/wayfinder-mwdev/) | Fork of Matt's `wayfinder` |
 | `diagnosing-bugs-mwdev` | flywheel + audit execute interrupt; swarm bug lanes | [`skills/diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | Fork of Matt's `diagnosing-bugs` |
 | `expanded-grill-with-docs` | flywheel design-lane gate A (default); wayfinder design tickets | [`skills/expanded-grill-with-docs`](skills/expanded-grill-with-docs/) | Original; may invoke Matt's `grilling` / `domain-modeling` as child procedures |
@@ -45,7 +47,7 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | `implementation-plan-contract` | audit plan gate; planning swarm | [`skills/implementation-plan-contract`](skills/implementation-plan-contract/) | Original |
 | `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.2 (schema v5 + code-sprawl-pressure evidence + Evidence Recon sidecar); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
 | `agent-executor-pool` | bounded read-only worker scheduling for `repository-health-assessment` (and future consumers) | [`skills/agent-executor-pool`](skills/agent-executor-pool/) | Original; generic executor semantics — worker leases, generation/fence tokens, work-conserving refill |
-| `land-pr` / `land-prs` / `land-pr-ec2` / `land-prs-ec2` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) and siblings | Original |
+| `land-pr` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) | Original; single skill covers local-change, PR-queue, and EC2 (`-ec2`) modes — `land-prs`/`land-pr-ec2`/`land-prs-ec2` were removed as redundant |
 
 Install examples:
 

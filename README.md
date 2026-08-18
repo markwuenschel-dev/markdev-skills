@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
-  <img src="https://img.shields.io/badge/skills-19-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="19 inventoried skills">
+  <img src="https://img.shields.io/badge/skills-16-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="16 inventoried skills">
   <img src="https://img.shields.io/badge/shared_contracts-9-64748b?style=for-the-badge&logo=json&logoColor=white" alt="9 shared contracts">
   <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
 </p>
@@ -68,9 +68,7 @@ flowchart TD
         direction TB
         RHA["repository-health-assessment"]
         CIAL["codebase-integrity-audit-loop"]
-        ICA["improve-codebase-architecture-mwdev"]
         RHA -->|"integrity candidates"| CIAL
-        RHA -->|"structural direction"| ICA
     end
 
     subgraph BUILD["build"]
@@ -84,14 +82,9 @@ flowchart TD
         PF -->|"editing a live system"| CIS
     end
 
-    subgraph LAND["land — one PR, or a queue"]
+    subgraph LAND["land — one PR, a queue, or + EC2 (-ec2)"]
         direction TB
         LP["land-pr"]
-        LPS["land-prs"]
-        LPE["land-pr-ec2"]
-        LPSE["land-prs-ec2"]
-        LP -.->|"+ deploy"| LPE
-        LPS -.->|"+ deploy"| LPSE
     end
 
     subgraph CRAFT["craft — any time"]
@@ -104,7 +97,6 @@ flowchart TD
 
     IPC --> PF
     CIAL -->|"selected candidates"| PF
-    ICA -->|"selected deepenings"| PF
     PF -->|"too big for one slice"| WF
     PF -->|"Stage 13 publish"| LP
 
@@ -117,9 +109,9 @@ flowchart TD
 
     class R router
     class WF,EG,IPC decide
-    class RHA,CIAL,ICA assess
+    class RHA,CIAL assess
     class PF,HDSP,DBM,CIS build
-    class LP,LPS,LPE,LPSE land
+    class LP land
     class PFG,SWF,CS craft
 ```
 ### Decide
@@ -137,7 +129,6 @@ flowchart TD
 | :--- | :--- |
 | Grade repository health, establish a baseline | [`repository-health-assessment`](skills/repository-health-assessment/) |
 | Audit and repair codebase integrity, one loop per candidate | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
-| Architecture deepening report | [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) |
 
 ### Build
 
@@ -152,10 +143,8 @@ flowchart TD
 
 | Need | Skill |
 | :--- | :--- |
-| Land one change through a PR | [`land-pr`](skills/land-pr/) |
-| Land several open PRs as one confirmed queue | [`land-prs`](skills/land-prs/) |
-| Land one change and release its service to EC2 | [`land-pr-ec2`](skills/land-pr-ec2/) |
-| Land a queue and release each affected service to EC2 | [`land-prs-ec2`](skills/land-prs-ec2/) |
+| Land one change, or an explicit PR queue | [`land-pr`](skills/land-pr/) |
+| Same, plus release the affected service(s) to EC2 | [`land-pr`](skills/land-pr/) with `-ec2` |
 
 ### Craft
 
@@ -193,17 +182,14 @@ markdev-skills/
 │   │
 │   ├── repository-health-assessment/       ← assess
 │   ├── codebase-integrity-audit-loop/
-│   ├── improve-codebase-architecture-mwdev/
+│   ├── improve-codebase-architecture-mwdev/  ← deprecated alias, see Forks
 │   │
 │   ├── production-flywheel/                ← build
 │   ├── human-directed-swarm-planner/
 │   ├── diagnosing-bugs-mwdev/
 │   ├── connected-impact-sweep/
 │   │
-│   ├── land-pr/                            ← land
-│   ├── land-prs/
-│   ├── land-pr-ec2/
-│   ├── land-prs-ec2/
+│   ├── land-pr/                            ← land (queue + EC2 via flags)
 │   │
 │   ├── prompt-forge/                       ← craft
 │   ├── skillwright-forge/
@@ -239,7 +225,9 @@ Three skills are **derivative works** of [Matt Pocock's](https://github.com/matt
 | :--- | :--- |
 | [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` (forked at v2.1.2) |
 | [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` |
-| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` |
+| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) † | `improve-codebase-architecture` |
+
+† **Deprecated.** `improve-codebase-architecture-mwdev` is now a legacy compatibility alias — it owns no protocol of its own. Route architecture-improvement work to `architecture-improvement-intelligence` instead, which is not yet vendored in this repo (see [`DEPENDENCIES.md`](DEPENDENCIES.md)).
 
 A fork must set its frontmatter `name` to the **suffixed** directory name — `name` is the invocation name, so a fork keeping the upstream `name` collides with the skill it forked and neither resolves reliably. See [`DEPENDENCIES.md`](DEPENDENCIES.md) for lineage and attribution.
 

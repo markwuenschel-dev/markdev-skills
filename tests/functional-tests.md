@@ -30,7 +30,7 @@ Lightweight checks that the **repo inventory** is coherent. Run after structural
 | F12 | "Ship items 1 and 3 from the ledger" | Flywheel queue of two; design-lane gate before code |
 | F13 | "Swarm a known migration mission" | Swarm plan with lanes, non-goals, captain |
 | F14 | "Write a system prompt for our support agent" | Routes to `prompt-forge`; deliverable is a prompt |
-| F15 | "Find deepening opportunities in this repo" | Routes to `improve-codebase-architecture-mwdev`; HTML report path |
+| F15 | "Find deepening opportunities in this repo" | `improve-codebase-architecture-mwdev` is deprecated; forwards to `architecture-improvement-intelligence` (not vendored in this repo) |
 | F16 | "Land PRs 45 and 47 with an EC2 release" | Routes to `land-pr`; preserves explicit order and requires the `-ec2` overlay |
 | F17 | "Refactor this behavior across the app" | Routes to `connected-impact-sweep`; checks the full dependent surface |
 

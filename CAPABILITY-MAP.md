@@ -26,9 +26,7 @@ flowchart TD
         direction TB
         RHA["repository-health-assessment"]
         CIAL["codebase-integrity-audit-loop"]
-        ICA["improve-codebase-architecture-mwdev"]
         RHA -->|"integrity candidates"| CIAL
-        RHA -->|"structural direction"| ICA
     end
 
     subgraph BUILD["build"]
@@ -42,14 +40,9 @@ flowchart TD
         PF -->|"editing a live system"| CIS
     end
 
-    subgraph LAND["land — one PR, or a queue"]
+    subgraph LAND["land — one PR, a queue, or + EC2 (-ec2)"]
         direction TB
         LP["land-pr"]
-        LPS["land-prs"]
-        LPE["land-pr-ec2"]
-        LPSE["land-prs-ec2"]
-        LP -.->|"+ deploy"| LPE
-        LPS -.->|"+ deploy"| LPSE
     end
 
     subgraph CRAFT["craft — any time"]
@@ -76,15 +69,11 @@ flowchart TD
 | Turn selected work into a binding execution contract | `implementation-plan-contract` | Select what to work on; write the code |
 | Grade repository health / establish a baseline | `repository-health-assessment` | Implement fixes; propose architecture direction; review one diff |
 | Audit and repair codebase integrity | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
-| Architecture deepening report | `improve-codebase-architecture-mwdev` | Implement chosen deepenings; open PRs; grade repo health |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
 | Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
 | Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` | Audit a repository; review architecture; plan a swarm |
 | Change code without breaking neighbours | `connected-impact-sweep` | Decide what the change should be |
-| Land a local change or explicit PR queue, with an optional EC2 release | `land-pr` | Build a selected work queue or land/deploy without the user's explicit request |
-| Land several open PRs as one queue | `land-prs` | Open PRs; deploy anything |
-| Land one change + release to EC2 | `land-pr-ec2` | Land a multi-PR queue |
-| Land a queue + release each service to EC2 | `land-prs-ec2` | Open PRs |
+| Land a local change or an explicit PR queue, with an optional EC2 release (`-ec2`) | `land-pr` | Build a selected work queue or land/deploy without the user's explicit request |
 | Write / repair / optimize prompts | `prompt-forge` | Perform the underlying task; author SKILL.md packages |
 | Design / audit / harden a SKILL.md package | `skillwright-forge` | Write ordinary prompts or application code |
 | Checkpoint a long session before `/clear` | `compact-session` | Clear context itself; substitute for git commits |
@@ -100,7 +89,6 @@ flowchart TD
 | `expanded-grill-with-docs` | `implementation-plan-contract` | Design approved; needs a binding execution contract |
 | `expanded-grill-with-docs` | `production-flywheel` | Approved design package reached; user wants delivery |
 | `repository-health-assessment` | `codebase-integrity-audit-loop` | Graded baseline produced integrity candidates to repair |
-| `repository-health-assessment` | `improve-codebase-architecture-mwdev` | Candidate is structural direction, not a defect |
 | `codebase-integrity-audit-loop` | `production-flywheel` | User selected one or more ledger candidates to ship |
 | `codebase-integrity-audit-loop` | `human-directed-swarm-planner` | User wants parallel report (`--parallel-report`) or a mission swarm |
 | `codebase-integrity-audit-loop` | `diagnosing-bugs-mwdev` | A candidate is a live defect needing diagnosis, not a repair |
@@ -109,14 +97,10 @@ flowchart TD
 | `human-directed-swarm-planner` | `diagnosing-bugs-mwdev` | Bug swarm lanes dispatch at the diagnosis skill |
 | `production-flywheel` | `expanded-grill-with-docs` | Design-lane gate A — the default for every queue item |
 | `production-flywheel` | `wayfinder-mwdev` | Candidate is too big for one slice; user elects to decompose (plan, don't build) |
-| `production-flywheel` | `improve-codebase-architecture-mwdev` | Stage 1 architecture report / deepening candidates |
 | `production-flywheel` | `diagnosing-bugs-mwdev` | Work goes red, flaky, slow, or unexplained |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
-| `production-flywheel` | `land-pr` | Stage 13 after the user explicitly requests landing or deployment (`land-prs` for leftover batches) |
-| `improve-codebase-architecture-mwdev` | `expanded-grill-with-docs` | User selected a deepening candidate to design |
-| `improve-codebase-architecture-mwdev` | `production-flywheel` | User selected a queue of candidates to ship |
-| `land-pr` | its `-ec2` overlay | The landed service must also be released to EC2 |
-| `land-prs` | `land-prs-ec2` | A confirmed PR queue must release each affected service to EC2 |
+| `production-flywheel` | `land-pr` | Stage 13 after the user explicitly requests landing or deployment (queue mode for leftover batches) |
+| `land-pr` | itself, with `-ec2` | The landed change (or queue) must also be released to EC2 |
 | `prompt-forge` | `skillwright-forge` | The artifact is a SKILL.md package, not a prompt |
 | `prompt-forge` | (exit) | Prompt delivered; do not execute the prompted task unless the user separately asks |
 
@@ -133,6 +117,13 @@ Every top-level skill may reference these without redefining them:
 | Swarm lanes | [`shared/SWARM-LANES.md`](shared/SWARM-LANES.md) | Lane roles, captain rules, merge protocol |
 | Human decisions | [`shared/HUMAN-DECISIONS.md`](shared/HUMAN-DECISIONS.md) | Categories that block auto mode |
 | Loop state | [`shared/LOOP-STATE.md`](shared/LOOP-STATE.md) | Valid next starting points between loops |
+
+## Deprecated
+
+| Package | Status | Route instead to |
+| --- | --- | --- |
+| `improve-codebase-architecture-mwdev` | Legacy compatibility alias; owns no architecture-improvement protocol of its own | `architecture-improvement-intelligence` — not yet vendored in this repo; see [`DEPENDENCIES.md`](DEPENDENCIES.md) |
+| `land-prs` / `land-pr-ec2` / `land-prs-ec2` | Removed — fully absorbed into `land-pr`'s queue mode and `-ec2` overlay | `land-pr` |
 
 ## Boundaries (do not blur)
 
