@@ -182,7 +182,6 @@ markdev-skills/
 │   │
 │   ├── repository-health-assessment/       ← assess
 │   ├── codebase-integrity-audit-loop/
-│   ├── improve-codebase-architecture-mwdev/  ← deprecated alias, see Forks
 │   │
 │   ├── production-flywheel/                ← build
 │   ├── human-directed-swarm-planner/
@@ -219,17 +218,14 @@ Skills own their procedure. Shared contracts own rubrics once — skills link in
 
 ## Forks
 
-Three skills are **derivative works** of [Matt Pocock's](https://github.com/mattpocock/skills) originals, kept under a `-mwdev` suffix so an upstream update can never overwrite them:
+Two skills are **derivative works** of [Matt Pocock's](https://github.com/mattpocock/skills) originals, kept under a `-mwdev` suffix so an upstream update can never overwrite them:
 
 | Fork | Upstream parent |
 | :--- | :--- |
 | [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` (forked at v2.1.2) |
 | [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` |
-| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) † | `improve-codebase-architecture` |
 
-† **Deprecated.** `improve-codebase-architecture-mwdev` is now a legacy compatibility alias — it owns no protocol of its own. Route architecture-improvement work to `architecture-improvement-intelligence` instead, which is not yet vendored in this repo (see [`DEPENDENCIES.md`](DEPENDENCIES.md)).
-
-A fork must set its frontmatter `name` to the **suffixed** directory name — `name` is the invocation name, so a fork keeping the upstream `name` collides with the skill it forked and neither resolves reliably. See [`DEPENDENCIES.md`](DEPENDENCIES.md) for lineage and attribution.
+A fork must set its frontmatter `name` to the **suffixed** directory name — `name` is the invocation name, so a fork keeping the upstream `name` collides with the skill it forked and neither resolves reliably. See [`DEPENDENCIES.md`](DEPENDENCIES.md) for lineage, attribution, and deprecated/superseded packages.
 
 ---
 

@@ -84,7 +84,7 @@ Still-external companions. Note the routing rule: where this repo owns a capabil
 | `triage` | flywheel triage sub-lane | `mattpocock/skills` | `~/.agents/skills/triage` | local-unpinned |
 | `setup-matt-pocock-skills` | repo setup for tracker / domain docs | `mattpocock/skills` | `~/.agents/skills/setup-matt-pocock-skills` | local-unpinned |
 
-**Superseded by an in-repo fork** — do not route at these directly: `wayfinder` → `wayfinder-mwdev`; `diagnosing-bugs` → `diagnosing-bugs-mwdev`; `improve-codebase-architecture` → `improve-codebase-architecture-mwdev`.
+**Superseded by an in-repo fork** — do not route at these directly: `wayfinder` → `wayfinder-mwdev`; `diagnosing-bugs` → `diagnosing-bugs-mwdev`. `improve-codebase-architecture` is superseded by `architecture-improvement-intelligence` (not yet vendored — see *Known, not yet vendored* above); its former in-repo fork, `improve-codebase-architecture-mwdev`, is itself now a deprecated alias, not a live route target.
 
 ---
 
