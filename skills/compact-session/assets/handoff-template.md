@@ -1,5 +1,7 @@
 # Session handoff
 
+> **Currency:** the newest valid file in this handoffs directory is the live checkpoint and supersedes every older one; the rest are kept only as history. Age alone never makes a handoff stale, and neither does the number of files beside it — only re-verified repository state can contradict this one. Keep this line verbatim.
+
 ```yaml
 written: <UTC ISO-8601>
 cwd: <absolute path>

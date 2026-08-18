@@ -4,6 +4,9 @@ A handoff has one consumer: a fresh agent session with zero conversation history
 
 ## Required sections, in order
 
+### 0. Currency banner
+The one-line blockquote the template carries directly under the title, kept verbatim. It states the rule that decides which file counts — newest valid wins, older ones are history — and it is written to be true in *every* handoff, including the ones that have since been superseded, so a reader who opens any file in the directory learns how to find the live one instead of guessing from dates. A handoff never asserts "I am current" about itself; that claim would rot the moment the next checkpoint lands.
+
 ### 1. Meta block
 Fenced YAML at the top: `written` (UTC ISO timestamp), `cwd`, `root` (project root the handoff lives under), `branch`, `head` (short SHA), `focus` (the focus hint, if any), `dirty` (true/false from `git status`, captured after the skill's own setup so the skill never reports dirt it created). Non-git directory: `branch/head: n/a`.
 
@@ -34,9 +37,11 @@ Literal first moves for the fresh session, usually: read the file map's touched 
 ### 10. Redaction note
 One line confirming no secret values are present, listing referenced credentials by name and storage location (`ANTHROPIC_API_KEY` — `.env`, not committed).
 
-## Filename and selection
+## Currency, filename, and selection
 
-Files are named `<UTC YYYYMMDD-HHMMSSZ>-<sid8>-handoff.md` under `<project root>/.claude/handoffs/`, where `<sid8>` is the first 8 characters of the session id — two sessions checkpointing the same repository in the same second get distinct names. Resume considers only names matching `^[0-9]{8}-[0-9]{6}Z-[A-Za-z0-9]{8}-handoff\.md$` and selects the newest by the timestamp in the name (lexicographic sort), not by mtime, so neither a stray filename nor copying or touching an old handoff can promote itself. Resume loads through select_handoff.py, which also rejects git-tracked, future-dated, symlinked, wrongly owned, or loosely permissioned candidates and emits the exact bytes it validated.
+**Exactly one handoff is live at any moment: the newest valid one.** Saving a checkpoint retires the previous one where it sits — the directory is an append-only archive, and everything below the top entry is inert history. Older files are not competing candidates, not drafts to reconcile, and not evidence that the newest one has gone stale. Age carries no signal either: a checkpoint from three weeks ago is exactly as authoritative as one from three minutes ago if nothing has happened since. The only thing that can contradict the live handoff is re-verified repository state, and the answer to that is a mismatch report to the user, never a fallback to an older file. A reader who cannot tell which file counts runs select_handoff.py and reads its header rather than judging by dates or filenames.
+
+Files are named `<UTC YYYYMMDD-HHMMSSZ>-<sid8>-handoff.md` under `<project root>/.claude/handoffs/`, where `<sid8>` is the first 8 characters of the session id — two sessions checkpointing the same repository in the same second get distinct names. Resume considers only names matching `^[0-9]{8}-[0-9]{6}Z-[A-Za-z0-9]{8}-handoff\.md$` and selects the newest by the timestamp in the name (lexicographic sort), not by mtime, so neither a stray filename nor copying or touching an old handoff can promote itself. Resume loads through select_handoff.py, which also rejects git-tracked, future-dated, symlinked, wrongly owned, or loosely permissioned candidates and emits the exact bytes it validated. Its header states the selection outright: the live file on `SELECTED:`, the retired ones on `SUPERSEDED:`, and the rejected ones with their reasons — so "which of these is current" is answered by the tool, not inferred by the reader.
 
 ## Quality bar
 
