@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Repository assessment performance receipt v1",
+  "type": "object",
+  "required": [
+    "receipt_schema_version",
+    "mode",
+    "worker_budget",
+    "planned_tasks",
+    "peak_concurrency",
+    "cache",
+    "invalidated",
+    "stage_elapsed_ms",
+    "wall_elapsed_ms"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "receipt_schema_version": {
+      "const": 1
+    },
+    "mode": {
+      "enum": [
+        "cold",
+        "warm",
+        "mixed"
+      ]
+    },
+    "worker_budget": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "planned_tasks": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "peak_concurrency": {
+      "type": "number",
+      "minimum": 0
+    },
+    "owner_lane_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "cache": {
+      "type": "object",
+      "required": [
+        "exact",
+        "content_stable",
+        "warm_only",
+        "miss"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "exact": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "content_stable": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warm_only": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "miss": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "invalidated": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "stage_elapsed_ms": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
+    "wall_elapsed_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "serial_estimate_ms": {
+      "type": "number",
+      "minimum": 0
+    },
+    "speedup_estimate": {
+      "type": "number",
+      "minimum": 0
+    },
+    "report_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "report_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "class_budgets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "queue_multiplier": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "peak_by_class": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    }
+  }
+}

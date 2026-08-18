@@ -1,0 +1,88 @@
+{
+  "evidence_packet_version": 1,
+  "packet_id": "ER-EXP-001",
+  "producer": {
+    "skill": "decision-terrain-mapper",
+    "run_id": "fixture-expedition-001",
+    "mode": "expedition",
+    "created_at": "2026-08-16T18:15:00Z"
+  },
+  "scope": {
+    "claim_or_question": "What are all authoritative construction paths for domain repositories in this codebase?",
+    "objective": "Establish repository-wide construction authority and identify bypasses without asking the human for discoverable facts.",
+    "required_completeness": "exhaustive",
+    "included_surfaces": [
+      { "surface_id": "runtime-construction", "description": "Runtime constructors and factories." },
+      { "surface_id": "dependency-wiring", "description": "Service and container wiring." },
+      { "surface_id": "tests-and-guards", "description": "Tests and structural enforcement." }
+    ],
+    "excluded_surfaces": []
+  },
+  "coverage_plan": {
+    "source_classes": ["code", "tests", "configuration", "architecture-records"],
+    "independent_surfaces": ["runtime-construction", "dependency-wiring", "tests-and-guards"],
+    "contradiction_risk": "high",
+    "false_negative_cost": "high",
+    "cross_source_reconciliation": true,
+    "parallelizable": true,
+    "selected_mode": "expedition",
+    "mode_rationale": "Three independent repository-wide surfaces and high false-negative cost justify bounded parallel evidence lanes with parent reconciliation."
+  },
+  "claims": [
+    {
+      "claim_id": "ER-EXP-C1",
+      "statement": "Application routes use state_service as the dominant repository-construction seam.",
+      "epistemic_status": "confirmed",
+      "evidence_quality": "strong",
+      "coverage": { "state": "inspected", "scope": "all registered application route modules", "methods": ["AST constructor inventory", "direct inspection of matches"], "limitations": [] },
+      "sources": [{ "kind": "inventory", "ref": "route-construction-inventory.json" }],
+      "confidence": { "level": "high", "rationale": "Every registered route module was included in the finite inventory." },
+      "supports": ["construction-authority"],
+      "contradiction_refs": [],
+      "limitations": [],
+      "origin_lane": "ER-L1"
+    },
+    {
+      "claim_id": "ER-EXP-C2",
+      "statement": "Worker startup uses a separate factory that is authorized by the worker ADR.",
+      "epistemic_status": "confirmed",
+      "evidence_quality": "moderate",
+      "coverage": { "state": "inspected", "scope": "worker startup and applicable ADR", "methods": ["direct code inspection", "ADR comparison"], "limitations": ["Runtime plugin injection was unavailable."] },
+      "sources": [{ "kind": "path", "ref": "app/workers/factory.py" }, { "kind": "document", "ref": "docs/adr/021-worker-factory.md" }],
+      "confidence": { "level": "medium", "rationale": "The static path and governing record agree; runtime plugins were not inspected." },
+      "supports": ["authorized-exception"],
+      "contradiction_refs": [],
+      "limitations": ["Plugin-provided workers excluded."],
+      "origin_lane": "ER-L2"
+    }
+  ],
+  "negative_claims": [
+    {
+      "negative_claim_id": "ER-EXP-N1",
+      "statement": "No additional direct repository constructors exist in registered route modules.",
+      "search_scope": ["all registered route modules"],
+      "search_methods": ["AST constructor scan", "symbol-reference scan", "direct review of every match"],
+      "coverage": { "state": "inspected", "scope": "finite route registry and every referenced module", "methods": ["bounded-exhaustive registry traversal"], "limitations": [] },
+      "evidence_quality": "strong",
+      "sources": [{ "kind": "inventory", "ref": "route-registry-and-constructor-scan.json" }],
+      "exclusions": [],
+      "search_completeness": "bounded-exhaustive",
+      "supports_absence": true,
+      "confidence": { "level": "high", "rationale": "The route registry defines a finite surface and every member was checked." },
+      "limitations": [],
+      "origin_lane": "ER-L1"
+    }
+  ],
+  "contradictions": [],
+  "handoff": {
+    "safe_to_assume": ["ER-EXP-C1", "ER-EXP-C2", "ER-EXP-N1"],
+    "unresolved_facts": [],
+    "owner_intent_required": [],
+    "possible_decision_surfaces": [],
+    "consumer_notes": ["Plugin-provided worker paths remain outside this packet's safe-to-assume scope."]
+  },
+  "lane_receipts": [
+    { "lane_id": "ER-L1", "surface": "registered application routes", "status": "complete", "claim_refs": ["ER-EXP-C1"], "negative_claim_refs": ["ER-EXP-N1"], "contradiction_refs": [], "limitations": [] },
+    { "lane_id": "ER-L2", "surface": "worker construction and governing records", "status": "partial", "claim_refs": ["ER-EXP-C2"], "negative_claim_refs": [], "contradiction_refs": [], "limitations": ["Runtime plugin injection unavailable."] }
+  ]
+}

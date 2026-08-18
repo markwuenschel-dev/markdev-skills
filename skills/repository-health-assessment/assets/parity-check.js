@@ -48,7 +48,7 @@ const HV = globalThis.HealthVerify;
    the sibling skill is not at the default family location. */
 const spinePath = process.env.LEDGER_VERIFY_PATH
   ? path.resolve(process.env.LEDGER_VERIFY_PATH)
-  : path.resolve(here, "../../shared/candidate-ledger-spine/ledger-verify.js");
+  : path.resolve(here, "../../../shared/candidate-ledger-spine/ledger-verify.js");
 try {
   eval(fs.readFileSync(spinePath, "utf8"));
 } catch (e) {
@@ -137,6 +137,18 @@ const CORPUS = [
   ["completed candidate with no resolution", (i) => { i.previous.candidates = [{ candidate_id: "DONE-1", lifecycle_status: "completed" }]; i.candidates = []; }, "both"],
   ["completed candidate with no verification refs", (i) => { i.previous.candidates = [{ candidate_id: "DONE-1", lifecycle_status: "completed", resolution: { completed_at: "2026-07-20" } }]; i.candidates = []; }, "both"],
   ["superseded candidate with no superseded_by", (i) => { i.previous.candidates = [{ candidate_id: "OLD-1", lifecycle_status: "superseded", resolution: { reason: "merged" } }]; i.candidates = []; }, "both"],
+
+  // ---- structural: both layers (v5 sprawl pressure) ----
+  ["sprawl_pressure removed entirely", (i) => { delete i.sprawl_pressure; }, "both"],
+  ["sprawl automated_sprawl_checks outside its enum", (i) => { i.sprawl_pressure.automated_sprawl_checks = "yes"; }, "both"],
+  ["sprawl assessment outside its enum", (i) => { i.sprawl_pressure.assessment = "critical"; }, "both"],
+  ["sprawl competing-implementations group with only one member", (i) => { i.sprawl_pressure.competing_authoritative_implementations[0].members = ["solo.ts"]; }, "both"],
+  ["sprawl duplicated-contract entry with only one location", (i) => { i.sprawl_pressure.duplicated_contract_representations[0].locations = ["only.ts"]; }, "both"],
+  ["unknown property inside a sprawl entry", (i) => { i.sprawl_pressure.stale_reachable_paths[0].pathh = "typo"; }, "both"],
+
+  // ---- cross-reference: verifier-owned by construction (v5 sprawl pressure) ----
+  ["sprawl entry citing an unknown claim_id", (i) => { i.sprawl_pressure.stale_reachable_paths[0].claim_id = "NOPE-99"; }, "verifier-only"],
+  ["sprawl entry citing a claim outside architecture-fitness/maintainability-and-ownership", (i) => { i.sprawl_pressure.stale_reachable_paths[0].claim_id = "CORE-01"; }, "verifier-only"],
 ];
 
 const base = HV.verifyHealth(island);

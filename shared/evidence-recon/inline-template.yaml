@@ -1,0 +1,32 @@
+evidence_packet_version: 1
+packet_id: ""
+producer:
+  skill: ""
+  run_id: ""
+  mode: inline
+  created_at: ""
+scope:
+  claim_or_question: ""
+  objective: ""
+  required_completeness: targeted
+  included_surfaces: []
+  excluded_surfaces: []
+coverage_plan:
+  source_classes: []
+  independent_surfaces: []
+  contradiction_risk: low
+  false_negative_cost: low
+  cross_source_reconciliation: false
+  parallelizable: false
+  selected_mode: inline
+  mode_rationale: ""
+claims: []
+negative_claims: []
+contradictions: []
+handoff:
+  safe_to_assume: []
+  unresolved_facts: []
+  owner_intent_required: []
+  possible_decision_surfaces: []
+  consumer_notes: []
+lane_receipts: []

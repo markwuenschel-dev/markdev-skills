@@ -83,6 +83,20 @@ The generic scale needs a concrete referent per lane, or "mostly systematic" dri
 
 Level 4 adds observability and ownership on top of the anchor; level 2 has the control but not the enforcement; level 1 has the knowledge but not the control.
 
+### Code-sprawl pressure as lane evidence
+
+The island's `sprawl_pressure` block (schema v5) surfaces stale reachable paths, competing authoritative implementations, duplicated contract representations, unowned compatibility layers, and abandoned reachable experiments. It is **not** a thirteenth lane and does not add a seventh dimension — read [COVERAGE-MODEL.md](COVERAGE-MODEL.md)'s criticality rule before treating any of this as a size or count argument. What it does is give `architecture-fitness` and `maintainability-and-ownership` concrete, countable evidence for dimension levels that would otherwise rest on impression. Every entry's `claim_id` must belong to one of those two lanes (`sprawl-claim-foreign` otherwise), so a `sprawl_pressure` finding is always eligible to become a `claim_refs` entry on one of their dimensions — it does not automatically become one; the assessor still writes the `support` line.
+
+How the arrays read against the level-3 anchors above (`architecture-fitness`: "dependency direction is enforced by a lint rule, build graph, or module system — not by convention"; `maintainability-and-ownership`: "ownership is recorded and current; dead paths are removed rather than accumulating"):
+
+- **`competing_authoritative_implementations` non-empty** is direct evidence against `architecture-fitness`'s `boundary_clarity` — if two reachable implementations both claim authority, the authoritative definition is not identifiable, which is the level-3 anchor's own condition stated in the negative. A non-empty group with `automated_sprawl_checks: none` caps that dimension's plausible level at 2: the control (recognising the duplication) exists in the assessor's head, not in anything that would catch a third competing implementation appearing.
+- **`duplicated_contract_representations` non-empty** is the same argument aimed at whichever lane's claim it cites — most often `architecture-fitness` when the duplication is structural, `contracts-and-integration` claims remain the primary home for a contract-shape finding (`claim_refs` there still point at `contracts-and-integration`; `sprawl_pressure` only ever cites `architecture-fitness` or `maintainability-and-ownership`, so use it here for the architectural-boundary angle of the same fact, not the contract-ownership angle).
+- **`stale_reachable_paths` and `abandoned_reachable_experiments` non-empty** are direct evidence against `maintainability-and-ownership`'s `change_containment` and `observed_soundness` — a path that still executes but serves no current purpose is exactly what the level-3 anchor means by "dead paths are removed rather than accumulating," read as failing. `automated_sprawl_checks: enforced` (a dead-code or unused-export lint actually running) is what would let `automated_enforcement` reach level 3 on this evidence instead of capping at 2.
+- **`unowned_compatibility_layers` non-empty** is direct evidence against `maintainability-and-ownership`'s `boundary_clarity` and `change_containment` — a shim nobody owns is a boundary nobody can name, and a change near it has no one to contain the blast radius.
+- **`assessment: high`** does not by itself force a dimension level down; it is a summary judgment, not a fourth arithmetic path (the same reason `HEALTH-GRADING.md`'s "Stamped deviation" rejected `score_effect`). It is the prompt to go read the arrays and write `claim_refs` and `rationale` that actually justify whatever level results.
+
+None of this changes `lane_score`, `overall_raw`, or any cap. Sprawl evidence earns a lower dimension level the same way any other claim does — by being cited with a `support` line under `dimension-incoherent`'s existing coherence rules — never by a separate sprawl arithmetic path.
+
 ## The six dimensions
 
 | Dimension | Weight | Asks |

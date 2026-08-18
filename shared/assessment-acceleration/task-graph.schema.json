@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Repository assessment task graph v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "tasks"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "max_parallel": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "owner",
+          "kind",
+          "depends_on",
+          "weight",
+          "resources",
+          "priority"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "depends_on": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "priority": {
+            "type": "number"
+          },
+          "expected_ms": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "retries": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "timeout_ms": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "allow_failed_dependencies": {
+            "type": "boolean"
+          },
+          "retry_on_timeout": {
+            "type": "boolean"
+          },
+          "executor_class": {
+            "enum": [
+              "agent",
+              "command",
+              "deterministic",
+              "synthesis",
+              "report",
+              "general"
+            ]
+          }
+        }
+      }
+    },
+    "class_budgets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "agent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "command": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "deterministic": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "synthesis": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "report": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "general": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        }
+      }
+    }
+  }
+}

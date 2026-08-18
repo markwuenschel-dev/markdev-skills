@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mwdev.local/schemas/evidence-recon/expedition-lane-v1.json",
+  "title": "Evidence Recon Expedition Lane Return v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["expedition_lane_version", "lane_id", "parent_packet_id", "surface", "status", "claims", "negative_claims", "contradictions", "limitations"],
+  "properties": {
+    "expedition_lane_version": { "const": 1 },
+    "lane_id": { "type": "string", "minLength": 1 },
+    "parent_packet_id": { "type": "string", "minLength": 1 },
+    "surface": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["complete", "partial", "failed", "blocked"] },
+    "claims": { "type": "array" },
+    "negative_claims": { "type": "array" },
+    "contradictions": { "type": "array" },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+  }
+}

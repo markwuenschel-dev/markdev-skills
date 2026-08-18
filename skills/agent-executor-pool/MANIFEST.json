@@ -1,0 +1,43 @@
+{
+  "name": "agent-executor-pool",
+  "version": "1.1.0",
+  "entrypoint": "SKILL.md",
+  "invocation": {
+    "model_invocable": false,
+    "expected_callers": [
+      "production-campaign",
+      "human-directed-swarm-planner",
+      "adaptive-causal-debugging",
+      "repository-improvement-assessment",
+      "repository-health-assessment",
+      "codebase-integrity-audit-loop",
+      "architecture-improvement-intelligence",
+      "shared/assessment-acceleration"
+    ]
+  },
+  "authority": {
+    "class": "execution-scheduler",
+    "owns": [
+      "bounded scheduling mechanics",
+      "worker futures",
+      "resource permits",
+      "worker lease fencing"
+    ],
+    "does_not_own": [
+      "lifecycle",
+      "job authorization",
+      "candidate selection",
+      "repository semantics",
+      "publication"
+    ]
+  },
+  "exports": [
+    "ExecutorPool",
+    "WorkerLeaseStore"
+  ],
+  "scripts": [
+    "scripts/package-check.js",
+    "runtime.test.js",
+    "worker-lease-store.test.js"
+  ]
+}

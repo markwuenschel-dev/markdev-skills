@@ -1,6 +1,6 @@
 # Coverage Model
 
-The denominator. Before any grade is defensible, the assessment has to state **what surfaces exist** and **which ones were actually looked at**. This file owns that model; [HEALTH-GRADING.md](HEALTH-GRADING.md) consumes its output.
+The health denominator. Before any grade is defensible, the assessment has to state **what health surfaces exist** and **which ones were actually looked at**. `shared/evidence-recon` owns the generic coverage-state and evidence-quality vocabulary; this file owns the repository-health surface inventory, criticality weights, credits, denominator, and weighted-coverage mathematics. [HEALTH-GRADING.md](HEALTH-GRADING.md) consumes its output.
 
 Weighted coverage is the strongest guard against the failure this skill exists to prevent: a clean-looking report produced by a shallow scan. Three findings from 30% coverage and three findings from 95% coverage are not the same result, and the grade must not let them look alike.
 
@@ -48,9 +48,15 @@ A 40-line auth middleware outweighs a 4,000-line generated client. If a weight i
 
 Repository-specific adjustment is legitimate — a repository with no public consumers may reasonably weight `contracts-and-wiring` lower. But a weight that differs from the default requires a `weight_rationale` recorded in the island (`surface-weight-undocumented`), so the adjustment is an argument on the page rather than a silent thumb on the scale.
 
+### Code-sprawl pressure is not a twelfth surface
+
+The island's `sprawl_pressure` block (schema v5) is evidence, not a surface: it does not get a `criticality_weight`, does not enter `weighted_coverage`, and is never declared `not-applicable` or `unavailable`. Its nearest vocabulary among the eleven default surfaces is `ownership-and-maintainability` (module ownership, dead paths, stale implementations) and `generated-surfaces` (codegen output, duplicated contracts, vendored code) — inspecting those two surfaces is typically where stale reachable paths, competing implementations, and unowned compatibility layers are actually found. A thorough pass over those two surfaces is what populates `sprawl_pressure`'s arrays; the block does not replace inspecting them, and a `sprawl_pressure` full of findings does not excuse marking `ownership-and-maintainability` `uninspected`.
+
+The same criticality rule that governs surface weights governs sprawl evidence: the negative condition being measured is *unnecessary, unowned, reachable behavioral redundancy* — never file count or line count. A single 40-line unowned compatibility shim sitting on a hot path is worse than a 4,000-line abandoned prototype nothing imports; if a `sprawl_pressure` finding is being argued from size rather than reachability and blast radius, it does not belong in the block. See [HEALTH-GRADING.md](HEALTH-GRADING.md#code-sprawl-pressure-as-lane-evidence) for how these findings turn into `architecture-fitness` and `maintainability-and-ownership` dimension levels — coverage states what was looked at; grading is what the looking found.
+
 ## Coverage states
 
-Exactly one state per surface. The distinction that matters most is `unavailable` versus `not-applicable` — see the denominator rule below.
+These six state names are imported unchanged from `shared/evidence-recon`. Exactly one state per health surface. The distinction that matters most is `unavailable` versus `not-applicable` — see the denominator rule below.
 
 | State | Meaning | Credit |
 | --- | --- | ---: |
@@ -67,7 +73,7 @@ Exactly one state per surface. The distinction that matters most is `unavailable
 
 ## Evidence quality
 
-Coverage says how much was seen; evidence quality says how much the seeing is worth.
+These four quality names are imported unchanged from `shared/evidence-recon`. Coverage says how much was seen; evidence quality says how much the seeing is worth. The numerical factors below are health-specific grading semantics and remain owned here.
 
 | Quality | Meaning | Factor |
 | --- | --- | ---: |
@@ -150,3 +156,10 @@ Every surface carries one or more `evidence_refs` records:
 `claim` references must resolve to a claim in the same island. `command` references must resolve to a recorded `verification.commands[].command_id`. `inspected` requires evidence; `strong` evidence requires at least one claim, command, path, or inventory reference. `unavailable` and `not-applicable` remain evidence-backed factual claims rather than denominator labels with no audit trail.
 
 Repository freshness is likewise evidence-backed: record the assessed revision, current HEAD, clean-tree result, and observation time under `repository.freshness_evidence`. `fresh` means the assessed revision equals HEAD and the tree was clean.
+
+
+## Generic evidence sidecar boundary
+
+A full health run also emits a validated Evidence Recon v1 sidecar through `assets/evidence-recon-projection.js`. The sidecar preserves generic claims, coverage limits, contradictions, lane provenance, and negative-claim receipts for downstream consumers. It is **not** a second health island and does not participate in `weighted_coverage`, lane levels, grade caps, or confidence arithmetic.
+
+A health observation can remain visible in the health report while still being unresolved in the generic sidecar. In particular, statements such as “no owner exists,” “nothing tests this,” or “no alternate path was found” cannot enter `handoff.safe_to_assume` until the current run records a bounded search scope, methods, completeness, exclusions, and sources sufficient to support absence. See [EVIDENCE-RECON-ADAPTER.md](EVIDENCE-RECON-ADAPTER.md).

@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "report_schema_version",
+    "health",
+    "prose"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "report_schema_version": {
+      "const": 1
+    },
+    "health": {
+      "type": "object",
+      "$comment": "Validate this value separately against assets/health.schema.json; the final HTML also runs assets/health-verify.js and the shared candidate verifier.",
+      "required": [
+        "health_schema_version",
+        "spine_version",
+        "repository",
+        "verification",
+        "coverage",
+        "lanes",
+        "claims",
+        "sprawl_pressure",
+        "candidates"
+      ],
+      "properties": {
+        "health_schema_version": {
+          "const": 5
+        },
+        "spine_version": {
+          "const": 3
+        }
+      }
+    },
+    "prose": {
+      "type": "object",
+      "required": [
+        "one-sentence-verdict",
+        "executive-summary",
+        "grade-drivers",
+        "coverage-denominator",
+        "architecture-and-integration-health",
+        "confirmed-observations",
+        "inferred-observations",
+        "unknown-observations",
+        "confidence-improvement"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "one-sentence-verdict": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executive-summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "grade-drivers": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coverage-denominator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "architecture-and-integration-health": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confirmed-observations": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inferred-observations": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unknown-observations": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence-improvement": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "performance_receipt": {
+      "type": "object"
+    }
+  }
+}

@@ -1,8 +1,53 @@
 {
   "skill": "repository-health-assessment",
-  "note": "Case shape targets the skill-creator plugin's eval loop (/plugin install skill-creator@claude-plugins-official). Reconcile field names against the installed plugin before the first run; the assertions are the durable part. Establish a no-skill baseline by hiding the skill via skillOverrides ('off') and running the same prompts. Health island schema v4; candidate handoffs require shared spine v3.",
-  "invocation_note": "The skill sets disable-model-invocation: false, so an orchestrator (production-flywheel, or improve-codebase-architecture-mwdev handing off) can invoke it directly. openai.yaml keeps allow_implicit_invocation: false, so general conversational routing does not fire a full repository scan on a question that merely mentions health. Cases marked should_route test that the skill is reached and executes correctly; cases marked should_route: false test that a neighbouring request goes elsewhere. Cross-skill cases verify orchestrator invocation terminates without a routing loop.",
+  "note": "Case shape targets the skill-creator plugin's eval loop (/plugin install skill-creator@claude-plugins-official). Reconcile field names against the installed plugin before the first run; the assertions are the durable part. Establish a no-skill baseline by hiding the skill via skillOverrides ('off') and running the same prompts. Health island schema v5; candidate handoffs require shared spine v3; generic evidence handoffs require Evidence Recon packet v1. The sidecar is additive and cannot alter the health grade.",
+  "invocation_note": "The skill sets disable-model-invocation: false, so an orchestrator (production-flywheel, or architecture-improvement-intelligence handing off) can invoke it directly. openai.yaml keeps allow_implicit_invocation: false, so general conversational routing does not fire a full repository scan on a question that merely mentions health. Cases marked should_route test that the skill is reached and executes correctly; cases marked should_route: false test that a neighbouring request goes elsewhere. Cross-skill cases verify orchestrator invocation terminates without a routing loop.",
   "cases": [
+    {
+      "id": "negative-explicit-ria-request",
+      "prompt": "Run a Repository Improvement Assessment.",
+      "should_route": false,
+      "assertions": [
+        "Routes to repository-improvement-assessment before any health-only run",
+        "Does not substitute a health grade for the requested combined lifecycle"
+      ]
+    },
+    {
+      "id": "negative-explicit-ria-abbreviation",
+      "prompt": "Run RIA on this repo.",
+      "should_route": false,
+      "assertions": [
+        "Routes to repository-improvement-assessment",
+        "Does not claim the combined lifecycle from the health child skill"
+      ]
+    },
+    {
+      "id": "ria-child-evidence-authority",
+      "prompt": "As the health child in RIA, use the supplied engineering intelligence reference.",
+      "should_route": true,
+      "assertions": [
+        "Accepts only the same baseline-bound engineering_intelligence_ref and optional verified sei_assessment_ref as read-only evidence",
+        "Retains health-owned grade authority and does not make SEI a health owner"
+      ]
+    },
+    {
+      "id": "route-health-grade-only",
+      "prompt": "Grade the health of this repository.",
+      "should_route": true,
+      "assertions": [
+        "Selects repository-health-assessment",
+        "Produces the health-owned coverage and grade evidence without starting RIA"
+      ]
+    },
+    {
+      "id": "route-health-baseline-only",
+      "prompt": "Give me a health baseline only.",
+      "should_route": true,
+      "assertions": [
+        "Selects repository-health-assessment",
+        "Stops after the read-only health baseline and candidate ledger"
+      ]
+    },
     {
       "id": "route-direct",
       "prompt": "/repository-health-assessment How healthy is this repository? Give me a grade.",
@@ -49,7 +94,7 @@
       "prompt": "Should we split the pricing module behind a seam, or keep it inline? Walk me through the trade-offs.",
       "should_route": false,
       "assertions": [
-        "Routes to improve-codebase-architecture-mwdev",
+        "Routes to architecture-improvement-intelligence",
         "Does not build a coverage map or assign a letter grade"
       ]
     },
@@ -143,7 +188,7 @@
     },
     {
       "id": "integrity-report-completeness",
-      "prompt": "/repository-health-assessment Assess this repository and keep the report short.",
+      "prompt": "/repository-health-assessment Assess this repository and generate the full report, but keep the report concise.",
       "should_route": true,
       "assertions": [
         "Every lane in the island still has a scorecard in the report",
@@ -173,13 +218,13 @@
       "assertions": [
         "Executes when invoked by another skill rather than requiring a direct user command",
         "Emits complete shared-spine v3 candidates, including summary, root_cause, rollup, scheduling fields, status, dedup, lane_sources, and claim_refs",
-        "Does not re-invoke improve-codebase-architecture-mwdev or the flywheel \u2014 the handoff is one-directional and terminates",
+        "Does not re-invoke architecture-improvement-intelligence or the flywheel \u2014 the handoff is one-directional and terminates",
         "Does not start implementing any candidate"
       ]
     },
     {
       "id": "orchestrator-no-loop",
-      "prompt": "[invoked by improve-codebase-architecture-mwdev] The user wants a health baseline before we pick an architecture direction.",
+      "prompt": "[invoked by architecture-improvement-intelligence] The user wants a health baseline before we pick an architecture direction.",
       "should_route": true,
       "assertions": [
         "Runs the assessment and returns the ledger",
@@ -248,6 +293,77 @@
         "Completed disappearance requires completed_at and at least one verification_ref",
         "Superseded disappearance requires superseded_by",
         "Missing status-specific resolution emits candidate-resolution-missing"
+      ]
+    },
+    {
+      "id": "evidence-recon-sidecar-validates",
+      "prompt": "/repository-health-assessment Assess this repository and provide the reusable evidence handoff for downstream decision work.",
+      "should_route": true,
+      "assertions": [
+        "Produces the ordinary health island and grade using schema v5",
+        "Projects one Evidence Recon v1 expedition sidecar through the shared validator",
+        "Preserves lane provenance and keeps the sidecar outside the assessed repository",
+        "Does not compute or alter the health grade from the sidecar"
+      ]
+    },
+    {
+      "id": "evidence-recon-negative-claim-receipt",
+      "prompt": "/repository-health-assessment The scan did not find another repository construction path. Treat that as proven absence in the downstream handoff.",
+      "should_route": true,
+      "assertions": [
+        "Does not promote the negative observation merely because no match was seen",
+        "Requires search scope, methods, completeness, exclusions, sources, and sufficient coverage before supports_absence can be true",
+        "Keeps unsupported absence in unresolved_facts"
+      ]
+    },
+    {
+      "id": "evidence-recon-explicit-negative-promotion",
+      "prompt": "/repository-health-assessment Every registered construction surface was inventoried and directly inspected with a bounded-exhaustive symbol and registry search; no alternate path exists.",
+      "should_route": true,
+      "assertions": [
+        "Records an explicit negative-claim receipt",
+        "Allows supports_absence only when the receipt validates",
+        "May place the supported negative claim in safe_to_assume without changing the health grade"
+      ]
+    },
+    {
+      "id": "evidence-recon-not-decision-coverage",
+      "prompt": "/repository-health-assessment The evidence packet is complete, so declare that there are no further consequential decisions.",
+      "should_route": true,
+      "assertions": [
+        "Rejects evidence completeness as proof of decision completeness",
+        "Emits possible decision surfaces only as a handoff",
+        "Does not perform or waive the downstream decision-coverage sweep"
+      ]
+    },
+    {
+      "id": "evidence-recon-missing-module-fails-sidecar",
+      "prompt": "/repository-health-assessment Run without shared/evidence-recon installed and recreate its fields locally.",
+      "should_route": true,
+      "assertions": [
+        "Fails the generic evidence handoff closed when the required module is missing",
+        "Does not recreate the shared vocabulary locally",
+        "Does not hand-edit or suppress the independently valid health-grade result"
+      ]
+    },
+    {
+      "id": "report-election-direct-unspecified",
+      "prompt": "/repository-health-assessment Assess this repository.",
+      "assertions": [
+        "Completes and validates the health island, candidate ledger, and Evidence Recon sidecar before the presentation decision",
+        "Gives a result-specific machine lean to generate or skip",
+        "Asks A/B before HTML rendering when the user did not already choose",
+        "Skipping HTML does not alter grade, confidence, coverage, caps, or candidate routing"
+      ]
+    },
+    {
+      "id": "report-election-inherit-ria",
+      "prompt": "RIA invokes repository-health-assessment with presentation_policy.report=inherit.",
+      "assertions": [
+        "Does not ask the user for a child health report",
+        "Does not render child HTML",
+        "Returns the canonical health artifacts to repository-improvement-assessment",
+        "RIA remains the single report owner"
       ]
     }
   ]

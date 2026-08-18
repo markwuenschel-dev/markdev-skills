@@ -1,0 +1,304 @@
+{
+  "evidence_packet_version": 1,
+  "packet_id": "ER-CANON-001",
+  "producer": {
+    "skill": "repository-health-assessment",
+    "run_id": "fixture-run-001",
+    "mode": "inline",
+    "created_at": "2026-08-16T18:00:00Z"
+  },
+  "scope": {
+    "claim_or_question": "Does the primary history route use the repository-construction seam, and is any exception documented?",
+    "objective": "Establish the current implementation and documentation facts before deciding whether a repair or design decision is needed.",
+    "required_completeness": "targeted",
+    "included_surfaces": [
+      {
+        "surface_id": "history-route",
+        "description": "The route implementation and its service seam."
+      },
+      {
+        "surface_id": "route-tests",
+        "description": "Tests that exercise repository construction for the route family."
+      },
+      {
+        "surface_id": "architecture-records",
+        "description": "ADRs and repository instructions governing construction authority."
+      }
+    ],
+    "excluded_surfaces": [
+      {
+        "surface_id": "generated-code",
+        "reason": "No generated route implementation participates in this bounded question."
+      }
+    ]
+  },
+  "coverage_plan": {
+    "source_classes": [
+      "code",
+      "tests",
+      "architecture-records"
+    ],
+    "independent_surfaces": [
+      "history-route",
+      "route-tests"
+    ],
+    "contradiction_risk": "medium",
+    "false_negative_cost": "medium",
+    "cross_source_reconciliation": true,
+    "parallelizable": false,
+    "selected_mode": "inline",
+    "mode_rationale": "The evidence is bounded to one route family and can be reconciled coherently by the parent without independent lanes."
+  },
+  "claims": [
+    {
+      "claim_id": "ER-C-001",
+      "statement": "The history route directly constructs AthleteContextRepository instead of delegating through state_service.",
+      "epistemic_status": "confirmed",
+      "evidence_quality": "strong",
+      "coverage": {
+        "state": "inspected",
+        "scope": "history route and state-service construction seam",
+        "methods": [
+          "direct file and line inspection",
+          "symbol-reference comparison"
+        ],
+        "limitations": []
+      },
+      "sources": [
+        {
+          "kind": "line",
+          "ref": "app/routes/history.py:51",
+          "note": "Direct constructor call."
+        },
+        {
+          "kind": "line",
+          "ref": "app/services/state_service.py:1-80",
+          "note": "Canonical seam implementation."
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "The behavior is directly visible in the implementation at the assessed revision."
+      },
+      "supports": [
+        "current-state",
+        "possible-integrity-candidate"
+      ],
+      "contradiction_refs": [
+        "ER-X-001"
+      ],
+      "limitations": []
+    },
+    {
+      "claim_id": "ER-C-002",
+      "statement": "The architecture record intends state_service to own repository construction for this route family.",
+      "epistemic_status": "confirmed",
+      "evidence_quality": "moderate",
+      "coverage": {
+        "state": "inspected",
+        "scope": "the applicable architecture record and repository instructions",
+        "methods": [
+          "direct document inspection"
+        ],
+        "limitations": [
+          "The record does not enumerate every route by name."
+        ]
+      },
+      "sources": [
+        {
+          "kind": "document",
+          "ref": "docs/adr/014-repository-construction.md",
+          "note": "Defines the construction boundary."
+        }
+      ],
+      "confidence": {
+        "level": "medium",
+        "rationale": "The record is authoritative for the boundary but leaves route-level coverage implicit."
+      },
+      "supports": [
+        "intended-authority"
+      ],
+      "contradiction_refs": [
+        "ER-X-001"
+      ],
+      "limitations": [
+        "Route-specific exception language is not present."
+      ]
+    },
+    {
+      "claim_id": "ER-C-003",
+      "statement": "The absence of a route-specific regression test may allow the direct-construction path to recur.",
+      "epistemic_status": "inferred",
+      "evidence_quality": "moderate",
+      "coverage": {
+        "state": "sampled",
+        "scope": "tests for the history route and neighboring route families",
+        "methods": [
+          "test-name inventory",
+          "direct inspection of relevant route tests"
+        ],
+        "limitations": [
+          "Dynamic or generated tests were not executed."
+        ]
+      },
+      "sources": [
+        {
+          "kind": "test",
+          "ref": "tests/routes/test_history.py",
+          "note": "Covers route behavior but not construction authority."
+        }
+      ],
+      "confidence": {
+        "level": "medium",
+        "rationale": "The gap is visible, but recurrence risk is a reasoned consequence rather than observed behavior."
+      },
+      "supports": [
+        "verification-gap"
+      ],
+      "contradiction_refs": [],
+      "limitations": [
+        "No mutation test was run."
+      ]
+    },
+    {
+      "claim_id": "ER-C-004",
+      "statement": "Whether the architecture boundary should be enforced by an AST guard is not established by repository evidence.",
+      "epistemic_status": "unknown",
+      "evidence_quality": "moderate",
+      "coverage": {
+        "state": "inspected",
+        "scope": "current architecture records and route tests",
+        "methods": [
+          "document and test inspection"
+        ],
+        "limitations": [
+          "The enforcement mechanism is a policy choice, not a discoverable fact."
+        ]
+      },
+      "sources": [
+        {
+          "kind": "document",
+          "ref": "docs/adr/014-repository-construction.md",
+          "note": "Defines the boundary but does not select an enforcement mechanism."
+        },
+        {
+          "kind": "test",
+          "ref": "tests/routes/test_history.py",
+          "note": "Shows current proof surface without prescribing future enforcement."
+        }
+      ],
+      "confidence": {
+        "level": "medium",
+        "rationale": "Direct inspection establishes that the available records do not choose an enforcement mechanism; the preferred policy remains unknown."
+      },
+      "supports": [
+        "owner-intent"
+      ],
+      "contradiction_refs": [],
+      "limitations": []
+    }
+  ],
+  "negative_claims": [
+    {
+      "negative_claim_id": "ER-N-001",
+      "statement": "No documented exception authorizes direct AthleteContextRepository construction in the history route.",
+      "search_scope": [
+        "repository instructions",
+        "docs/adr/**",
+        "history route comments",
+        "state-service documentation"
+      ],
+      "search_methods": [
+        "bounded document inventory",
+        "exact symbol and exception-term search",
+        "direct inspection of all matching records"
+      ],
+      "coverage": {
+        "state": "inspected",
+        "scope": "all architecture records and repository instructions applicable to repository construction",
+        "methods": [
+          "bounded-exhaustive document search",
+          "direct inspection"
+        ],
+        "limitations": []
+      },
+      "evidence_quality": "strong",
+      "sources": [
+        {
+          "kind": "inventory",
+          "ref": "docs/adr inventory at assessed revision",
+          "note": "All applicable records enumerated."
+        },
+        {
+          "kind": "command",
+          "ref": "rg -n 'AthleteContextRepository|exception|construction' CLAUDE.md AGENTS.md docs/adr app/routes/history.py",
+          "note": "No exception record found."
+        }
+      ],
+      "exclusions": [],
+      "search_completeness": "bounded-exhaustive",
+      "supports_absence": true,
+      "confidence": {
+        "level": "high",
+        "rationale": "The finite authoritative document surface was fully enumerated and inspected."
+      },
+      "limitations": []
+    }
+  ],
+  "contradictions": [
+    {
+      "contradiction_id": "ER-X-001",
+      "claim_refs": [
+        "ER-C-001",
+        "ER-C-002"
+      ],
+      "status": "resolved",
+      "authority_order": [
+        "current implementation for observed behavior",
+        "ADR for intended boundary"
+      ],
+      "resolution": "The sources describe different dimensions: code confirms the present bypass; the ADR confirms the intended authority. Together they establish a concrete divergence.",
+      "remaining_uncertainty": "",
+      "consequence": "A consumer may treat the item as an evidence-supported integrity candidate without pretending the implementation is compliant."
+    }
+  ],
+  "handoff": {
+    "safe_to_assume": [
+      "ER-C-001",
+      "ER-C-002",
+      "ER-N-001"
+    ],
+    "unresolved_facts": [
+      "ER-C-003",
+      "ER-C-004"
+    ],
+    "owner_intent_required": [
+      {
+        "id": "ER-OI-001",
+        "question": "Should the construction boundary be enforced structurally with an AST guard, or only through route-level tests?",
+        "rationale": "Evidence establishes the bypass and missing route-specific proof but cannot choose the desired enforcement policy.",
+        "claim_refs": [
+          "ER-C-001",
+          "ER-C-003",
+          "ER-C-004"
+        ]
+      }
+    ],
+    "possible_decision_surfaces": [
+      {
+        "id": "ER-DS-001",
+        "title": "Construction-boundary enforcement",
+        "rationale": "The repair can remain narrow, but the enforcement mechanism changes future repository-wide guarantees.",
+        "claim_refs": [
+          "ER-C-001",
+          "ER-C-002",
+          "ER-C-003"
+        ]
+      }
+    ],
+    "consumer_notes": [
+      "Evidence completeness does not replace the consumer's decision-coverage sweep."
+    ]
+  },
+  "lane_receipts": []
+}

@@ -1,0 +1,87 @@
+{
+  "name": "evidence-recon",
+  "version": "1.0.0",
+  "purpose": "Canonical evidence packet, coverage/confidence vocabulary, negative-claim receipts, contradiction reconciliation state, and self-scaling inline/expedition mode selection for evidence-producing skills.",
+  "owned_files": [
+    "MANIFEST.json",
+    "EVIDENCE-MODEL.md",
+    "MODE-SELECTION.md",
+    "NEGATIVE-CLAIMS.md",
+    "CONTRADICTION-RECONCILIATION.md",
+    "ADOPTION.md",
+    "MIGRATIONS.md",
+    "evidence-packet.schema.json",
+    "expedition-lane.schema.json",
+    "inline-template.yaml",
+    "expedition-assignment.yaml",
+    "expedition-return.yaml",
+    "canonical-evidence-packet.json",
+    "fixtures/expedition-evidence-packet.json",
+    "evidence-recon.js",
+    "evidence-recon.test.js",
+    "package-check.js"
+  ],
+  "consumers": [
+    "repository-health-assessment",
+    "expanded-grill-with-docs",
+    "decision-terrain-mapper"
+  ],
+  "resolution": {
+    "default": "shared/evidence-recon",
+    "environment_override": "EVIDENCE_RECON_PATH",
+    "missing_or_incompatible": "hard-failure for callers that declare it required"
+  },
+  "runtime": {
+    "engine": "node",
+    "dependencies": []
+  },
+  "protocol_versions": {
+    "evidence_packet_version": 1,
+    "expedition_lane_version": 1
+  },
+  "exports": [
+    "validateEvidencePacket",
+    "validateExpeditionLane",
+    "recommendMode",
+    "mergeExpeditionLanes",
+    "summarizePacket",
+    "COVERAGE_STATES",
+    "EVIDENCE_QUALITIES",
+    "EPISTEMIC_STATUSES"
+  ],
+  "authority": {
+    "owns": [
+      "generic evidence packet shape",
+      "coverage-state vocabulary",
+      "evidence-quality vocabulary",
+      "confirmed/inferred/unknown epistemic vocabulary",
+      "negative-claim receipt requirements",
+      "contradiction-state contract",
+      "inline/expedition mode-selection guidance",
+      "packet validation and deterministic lane merge"
+    ],
+    "does_not_own": [
+      "repository health grading or its weighted denominator",
+      "decision discovery or decision-coverage sweeps",
+      "human interviewing",
+      "architecture or product decisions",
+      "candidate scoring or prioritization",
+      "implementation, mutation, approval, or delivery",
+      "agent scheduling; expedition dispatch remains caller-owned"
+    ]
+  },
+  "non_goals": [
+    "a third user-facing workflow skill",
+    "a mandatory heavy reconnaissance stage",
+    "turning documentation claims into implementation facts",
+    "equating evidence completeness with decision completeness",
+    "allowing negative claims without explicit search coverage"
+  ],
+  "candidate_consumers": [
+    "repository-improvement-assessment",
+    "codebase-integrity-audit-loop",
+    "architecture-improvement-intelligence",
+    "connected-impact-sweep",
+    "adaptive-causal-debugging"
+  ]
+}

@@ -104,7 +104,7 @@
     <p data-prose-required="executive-summary"></p>
   </section>
 
-  <!-- 8 · grade drivers, and the caps that bound the letter -->
+  <!-- 9 · grade drivers, and the caps that bound the letter -->
   <section class="panel">
     <h2>Grade drivers and applied caps</h2>
     <p data-prose-required="grade-drivers"></p>
@@ -126,19 +126,35 @@
          activated optional lanes. Do not hand-maintain this list. -->
   </section>
 
-  <!-- 6 · verification baseline -->
+  <!-- 6 · code-sprawl pressure. Placed immediately after the lane scorecards
+       (not after "grade drivers" or buried near "human-decision blockers")
+       because this evidence INFORMS the architecture-fitness and
+       maintainability-and-ownership scorecards just shown, not a separate
+       finding category — reading it right after the scores it supports lets
+       "grade drivers" (below) cite it without the reader losing the thread. -->
+  <section class="panel">
+    <h2>Code-sprawl pressure</h2>
+    <div data-sprawl></div>
+    <!-- Evidence only: stale reachable paths, competing authoritative
+         implementations, duplicated contract representations, unowned
+         compatibility layers, abandoned reachable experiments, plus the
+         automated_sprawl_checks and assessment enums. No score of its own;
+         it never feeds overall_raw or a cap. -->
+  </section>
+
+  <!-- 7 · verification baseline -->
   <section class="panel">
     <h2>Verification baseline</h2>
     <div data-baseline></div>
   </section>
 
-  <!-- 7 · architecture and integration health map -->
+  <!-- 8 · architecture and integration health map -->
   <section class="panel">
     <h2>Architecture and integration health</h2>
     <p data-prose-required="architecture-and-integration-health"></p>
   </section>
 
-  <!-- 9 · confirmed / inferred / unknown, kept visually distinct -->
+  <!-- 10 · confirmed / inferred / unknown, kept visually distinct -->
   <section class="panel">
     <h2>Confirmed risks, inferences, and unknowns</h2>
     <div class="three">
@@ -155,7 +171,7 @@
     <div data-confidence></div>
   </section>
 
-  <!-- 10 · candidate ledger. Rendered from the SAME #health island by the
+  <!-- 11 · candidate ledger. Rendered from the SAME #health island by the
        shared spine module — there is no second #ledger island, and calling
        LedgerVerify.runLedger() here would look for one and silently render
        nothing. health-verify.js counts the rendered rows against the island,
@@ -167,25 +183,25 @@
     <div data-ledger></div>
   </section>
 
-  <!-- 11 · human-decision blockers -->
+  <!-- 12 · human-decision blockers -->
   <section class="panel">
     <h2>Human-decision blockers</h2>
     <div data-decision-blockers></div>
   </section>
 
-  <!-- 12 · improvement roadmap, ordered by weight × coverage gap -->
+  <!-- 13 · improvement roadmap, ordered by weight × coverage gap -->
   <section class="panel">
     <h2>Improvement roadmap</h2>
     <div data-roadmap></div>
   </section>
 
-  <!-- 13 · run-to-run delta, computed from the previous snapshot -->
+  <!-- 14 · run-to-run delta, computed from the previous snapshot -->
   <section class="panel">
     <h2>Run-to-run delta</h2>
     <div data-delta-panel></div>
   </section>
 
-  <!-- 14 · handoff -->
+  <!-- 15 · handoff -->
   <section class="panel">
     <h2>Handoff</h2>
     <div data-handoff></div>
@@ -211,7 +227,7 @@
 <!-- THE ISLAND — the single source for every number on this page, and the
      machine handoff to the architecture and integrity skills. -->
 <script type="application/json" id="health">
-{ "health_schema_version": 4, "spine_version": 3, "...": "see assets/health.schema.json" }
+{ "health_schema_version": 5, "spine_version": 3, "...": "see assets/health.schema.json" }
 </script>
 
 <!-- Paste the BODY of shared/candidate-ledger-spine/ledger-verify.js

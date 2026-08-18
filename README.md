@@ -7,7 +7,7 @@
 
 <p align="center">
   <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
-  <img src="https://img.shields.io/badge/skills-18-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="18 inventoried skills">
+  <img src="https://img.shields.io/badge/skills-19-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="19 inventoried skills">
   <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
   <a href="CAPABILITY-MAP.md"><img src="https://img.shields.io/badge/start-capability%20map-7c3aed?style=for-the-badge&logo=readme&logoColor=white" alt="Start with the capability map"></a>
 </p>
@@ -184,10 +184,15 @@ markdev-skills/
 │   │
 │   ├── prompt-forge/                       ← craft
 │   ├── skillwright-forge/
-│   └── compact-session/
+│   ├── compact-session/
+│   │
+│   └── agent-executor-pool/                ← mechanism (not directly invocable)
+│       used by repository-health-assessment for bounded worker scheduling
 │
 ├── shared/
 │   ├── candidate-ledger-spine/   ← family scoring spine (schema + verifiers)
+│   ├── evidence-recon/           ← generic evidence packet contract (inline/expedition modes)
+│   ├── assessment-acceleration/  ← scheduling, cache, performance receipts
 │   ├── REPORT-SCORING.md
 │   ├── REQUIREMENTS-LEDGER.md
 │   ├── ROLLOUT-CONTRACT.md

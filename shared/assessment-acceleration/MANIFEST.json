@@ -1,0 +1,71 @@
+{
+  "name": "assessment-acceleration",
+  "version": "1.1.0",
+  "purpose": "Aggressive work-conserving assessment execution: ThreadPool-style READY-queue refill, class-bounded concurrency, content-addressed evidence caching, warm-start reuse, single-flight coalescing, and deterministic report compilation.",
+  "owned_files": [
+    "MANIFEST.json",
+    "ACCELERATION-MODEL.md",
+    "scheduler.js",
+    "task-graph.schema.json",
+    "cache-store.js",
+    "fingerprint.js",
+    "report-compiler.js",
+    "performance-receipt.js",
+    "performance-receipt.schema.json",
+    "package-check.js",
+    "THREADPOOL-EXECUTION.md",
+    "concurrency-profile.js",
+    "concurrency-profile.test.js",
+    "throughput-contract-check.js"
+  ],
+  "consumers": [
+    "repository-improvement-assessment",
+    "repository-health-assessment",
+    "codebase-integrity-audit-loop",
+    "architecture-improvement-intelligence"
+  ],
+  "runtime": {
+    "engine": "node",
+    "dependencies": []
+  },
+  "defaults": {
+    "global_worker_budget": "auto (profile-derived, max 64)",
+    "agent_workers": "auto aggressive (profile-derived, max 64)",
+    "command_workers": "auto conservative (profile-derived)",
+    "deterministic_workers": "auto",
+    "synthesis_workers": "auto",
+    "report_workers": 1,
+    "queue_multiplier": 3,
+    "cache_schema_version": 1
+  },
+  "authority": {
+    "owns": [
+      "assessment task scheduling primitives",
+      "assessment concurrency profile and worker-class budgets",
+      "assessment evidence cache mechanics",
+      "warm-start classification",
+      "atomic report compilation utilities",
+      "assessment performance receipt construction"
+    ],
+    "does_not_own": [
+      "candidate scoring",
+      "health grading",
+      "architecture decisions",
+      "repository mutation",
+      "lifecycle routing",
+      "subagent conclusions",
+      "publication or merge"
+    ]
+  },
+  "non_goals": [
+    "unbounded parallelism",
+    "reusing stale evidence as current evidence",
+    "allowing cache hits to bypass owner verification",
+    "spawning model agents from Node",
+    "changing any assessment owner's output contract"
+  ],
+  "consumes": [
+    "agent-executor-pool",
+    "human-directed-swarm-planner"
+  ]
+}

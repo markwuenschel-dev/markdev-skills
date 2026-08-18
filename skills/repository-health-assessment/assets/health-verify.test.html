@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>health-verify.js — regression fixture (schema v4)</title>
-<script src="../../shared/candidate-ledger-spine/ledger-verify.js" onerror="window.__noLedger=1"></script>
+<title>health-verify.js — regression fixture (schema v5)</title>
+<script src="../../../shared/candidate-ledger-spine/ledger-verify.js" onerror="window.__noLedger=1"></script>
 <script src="./health-verify.js"></script>
 <style>
   :root { --page:#f9f9f7; --surface-1:#fcfcfb; --ink-primary:#0b0b0b; --ink-secondary:#52514e;
@@ -36,7 +36,7 @@
 <body>
 <main>
   <div id="banner">running&hellip;</div>
-  <h1>health-verify.js &mdash; regression fixture (schema v4)</h1>
+  <h1>health-verify.js &mdash; regression fixture (schema v5)</h1>
   <p class="note">
     A grade is a claim about an entire repository, so every input must be
     recomputable and every shortcut to a flattering number must be closed. Each
@@ -50,7 +50,7 @@
     <h2>Good island &mdash; complete binding, candidate rows rendered from the same island</h2>
     <script type="application/json" id="health">
     {
-  "health_schema_version": 4,
+  "health_schema_version": 5,
   "spine_version": 3,
   "generated": "2026-07-25T12:00:00Z",
   "repository": {
@@ -915,6 +915,23 @@
       }
     },
     {
+      "claim_id": "ARCH-04",
+      "lane": "architecture-fitness",
+      "statement": "architecture-fitness: a feature-flagged experimental module remains reachable from the runtime entrypoint after its flag was removed.",
+      "result": "fail",
+      "evidence": [
+        {
+          "path": "src/experimental/streaming-diff/index.ts",
+          "lines": "1-40"
+        }
+      ],
+      "observation": {
+        "confirmed": "The module is still imported by src/runtime/entrypoint.ts.",
+        "inferred": "No one is exercising this path deliberately anymore.",
+        "unknown": "Whether removing it would break anything depending on it accidentally."
+      }
+    },
+    {
       "claim_id": "CONTRACT-01",
       "lane": "contracts-and-integration",
       "statement": "contracts-and-integration: core controls are present on the primary paths.",
@@ -1101,6 +1118,23 @@
       "observation": {
         "confirmed": "No enforcing configuration found."
       }
+    },
+    {
+      "claim_id": "MAINT-04",
+      "lane": "maintainability-and-ownership",
+      "statement": "maintainability-and-ownership: compatibility shims persist with no recorded owner or removal criterion.",
+      "result": "fail",
+      "evidence": [
+        {
+          "path": "src/compat/pre-v2-adapter.ts",
+          "lines": "1-85"
+        }
+      ],
+      "observation": {
+        "confirmed": "No CODEOWNERS entry covers src/compat/.",
+        "inferred": "The shim is reachable from the current runtime path.",
+        "unknown": "Whether any live consumer still depends on the pre-v2 behavior."
+      }
     }
   ],
   "lane_applicability": {
@@ -1146,6 +1180,51 @@
       ],
       "rationale": "Single supported runtime and OS target."
     }
+  },
+  "sprawl_pressure": {
+    "stale_reachable_paths": [
+      {
+        "claim_id": "MAINT-03",
+        "path": "src/legacy/report-renderer-v1.ts",
+        "note": "Superseded by src/report/renderer.ts in the same release; still imported by a deprecated --legacy-report CLI flag with no removal date, and no dead-code lint catches it."
+      }
+    ],
+    "competing_authoritative_implementations": [
+      {
+        "claim_id": "ARCH-02",
+        "group": "date formatting",
+        "members": [
+          "src/util/date-format.ts",
+          "src/legacy/format-date.ts"
+        ]
+      }
+    ],
+    "duplicated_contract_representations": [
+      {
+        "claim_id": "ARCH-03",
+        "contract": "user profile schema",
+        "locations": [
+          "src/api/schema.ts",
+          "clients/python/models.py"
+        ]
+      }
+    ],
+    "unowned_compatibility_layers": [
+      {
+        "claim_id": "MAINT-04",
+        "path": "src/compat/pre-v2-adapter.ts",
+        "note": "Back-compat shim with no CODEOWNERS entry and no documented removal criterion; last touched by an author no longer on the project."
+      }
+    ],
+    "abandoned_reachable_experiments": [
+      {
+        "claim_id": "ARCH-04",
+        "path": "src/experimental/streaming-diff/",
+        "note": "Feature-flagged prototype; the flag was removed in a later release but the module remains imported by the runtime entrypoint."
+      }
+    ],
+    "automated_sprawl_checks": "none",
+    "assessment": "moderate"
   },
   "candidates": [
     {
@@ -1260,6 +1339,7 @@
     <div data-caps class="cardlet"></div>
     <div data-coverage class="cardlet"></div>
     <div data-confidence class="cardlet"></div>
+    <div data-sprawl class="cardlet"></div>
     <div data-baseline class="cardlet"></div>
     <div data-decision-blockers class="cardlet"></div>
     <div data-roadmap class="cardlet"></div>
@@ -1274,7 +1354,7 @@
     <h2>S-BIND &mdash; omitted scorecards and an empty candidate panel must both fail</h2>
     <script type="application/json" id="health-bind">
     {
-  "health_schema_version": 4,
+  "health_schema_version": 5,
   "spine_version": 3,
   "generated": "2026-07-25T12:00:00Z",
   "repository": {
@@ -2139,6 +2219,23 @@
       }
     },
     {
+      "claim_id": "ARCH-04",
+      "lane": "architecture-fitness",
+      "statement": "architecture-fitness: a feature-flagged experimental module remains reachable from the runtime entrypoint after its flag was removed.",
+      "result": "fail",
+      "evidence": [
+        {
+          "path": "src/experimental/streaming-diff/index.ts",
+          "lines": "1-40"
+        }
+      ],
+      "observation": {
+        "confirmed": "The module is still imported by src/runtime/entrypoint.ts.",
+        "inferred": "No one is exercising this path deliberately anymore.",
+        "unknown": "Whether removing it would break anything depending on it accidentally."
+      }
+    },
+    {
       "claim_id": "CONTRACT-01",
       "lane": "contracts-and-integration",
       "statement": "contracts-and-integration: core controls are present on the primary paths.",
@@ -2325,6 +2422,23 @@
       "observation": {
         "confirmed": "No enforcing configuration found."
       }
+    },
+    {
+      "claim_id": "MAINT-04",
+      "lane": "maintainability-and-ownership",
+      "statement": "maintainability-and-ownership: compatibility shims persist with no recorded owner or removal criterion.",
+      "result": "fail",
+      "evidence": [
+        {
+          "path": "src/compat/pre-v2-adapter.ts",
+          "lines": "1-85"
+        }
+      ],
+      "observation": {
+        "confirmed": "No CODEOWNERS entry covers src/compat/.",
+        "inferred": "The shim is reachable from the current runtime path.",
+        "unknown": "Whether any live consumer still depends on the pre-v2 behavior."
+      }
     }
   ],
   "lane_applicability": {
@@ -2370,6 +2484,51 @@
       ],
       "rationale": "Single supported runtime and OS target."
     }
+  },
+  "sprawl_pressure": {
+    "stale_reachable_paths": [
+      {
+        "claim_id": "MAINT-03",
+        "path": "src/legacy/report-renderer-v1.ts",
+        "note": "Superseded by src/report/renderer.ts in the same release; still imported by a deprecated --legacy-report CLI flag with no removal date, and no dead-code lint catches it."
+      }
+    ],
+    "competing_authoritative_implementations": [
+      {
+        "claim_id": "ARCH-02",
+        "group": "date formatting",
+        "members": [
+          "src/util/date-format.ts",
+          "src/legacy/format-date.ts"
+        ]
+      }
+    ],
+    "duplicated_contract_representations": [
+      {
+        "claim_id": "ARCH-03",
+        "contract": "user profile schema",
+        "locations": [
+          "src/api/schema.ts",
+          "clients/python/models.py"
+        ]
+      }
+    ],
+    "unowned_compatibility_layers": [
+      {
+        "claim_id": "MAINT-04",
+        "path": "src/compat/pre-v2-adapter.ts",
+        "note": "Back-compat shim with no CODEOWNERS entry and no documented removal criterion; last touched by an author no longer on the project."
+      }
+    ],
+    "abandoned_reachable_experiments": [
+      {
+        "claim_id": "ARCH-04",
+        "path": "src/experimental/streaming-diff/",
+        "note": "Feature-flagged prototype; the flag was removed in a later release but the module remains imported by the runtime entrypoint."
+      }
+    ],
+    "automated_sprawl_checks": "none",
+    "assessment": "moderate"
   },
   "candidates": [
     {
@@ -2585,6 +2744,16 @@
       document.querySelector('#good-root [data-lane="contracts-and-integration"] [data-dimension-claims="observed_soundness"]').textContent.indexOf("CONTRACT-")>-1);
     check("good: caps panel names each cap with the value that fired it", document.querySelectorAll("#good-root [data-cap]").length===good.grade.caps_applied.length&&good.grade.caps_applied.length>0);
     check("good: confidence panel breaks out all six inputs", document.querySelectorAll("#good-root [data-confidence-input]").length===6);
+    check("good: sprawl panel renders all five evidence groups", document.querySelectorAll("#good-root [data-sprawl] [data-sprawl-count]").length===5);
+    check("good: sprawl panel renders one row per evidence item, count matching the island's own arrays",
+      document.querySelectorAll("#good-root [data-sprawl] [data-sprawl-row]").length===
+      ["stale_reachable_paths","competing_authoritative_implementations","duplicated_contract_representations","unowned_compatibility_layers","abandoned_reachable_experiments"]
+        .reduce(function(n,k){return n+GOOD.sprawl_pressure[k].length;},0));
+    check("good: every sprawl claim_id resolves and belongs to architecture-fitness or maintainability-and-ownership",
+      ["stale_reachable_paths","competing_authoritative_implementations","duplicated_contract_representations","unowned_compatibility_layers","abandoned_reachable_experiments"]
+        .every(function(k){return GOOD.sprawl_pressure[k].every(function(e){
+          var c=GOOD.claims.filter(function(x){return x.claim_id===e.claim_id;})[0];
+          return c&&HV.HEALTH_SPRAWL_LANES.indexOf(c.lane)>-1;});}));
     if (HAS_SPINE) {
       check("good: candidate rows actually render from the SAME island (v2 rendered none)",
         document.querySelectorAll("#good-root [data-candidates] [data-ledger-row]").length===good.candidateCount&&good.candidateCount>0);
@@ -2653,7 +2822,7 @@
       i.lane_applicability["gpu-equivalence"].surface_refs=["ghost-surface"]; }, "lane-applicability-surface");
 
     head("sabotage \u2014 schema parity compiled into the verifier");
-    sab("health_schema_version other than 4", function(i){ i.health_schema_version=3; }, "schema-version");
+    sab("health_schema_version other than 5 (stale v4 island rejected)", function(i){ i.health_schema_version=4; }, "schema-version");
     sab("the entire repository object removed", function(i){ delete i.repository; }, "health-shape");
     sab("an unknown property inside repository", function(i){ i.repository.freshnes="fresh"; }, "unknown-property");
     sab("an unknown property inside a command", function(i){ i.verification.commands[0].durationn=1; }, "unknown-property");
@@ -2668,6 +2837,17 @@
     sab("demoting a critical lane's weight", function(i){ i.lanes[1].criticality_weight=1; }, "lane-weight-locked");
     sab("a claim still carrying affects_dimensions (v2)", function(i){ i.claims[0].affects_dimensions=["observed_soundness"]; }, "claim-shape");
     sab("a claim carrying score_effect (v1)", function(i){ i.claims[0].score_effect=-8; }, "claim-shape");
+
+    head("sabotage — code-sprawl pressure (v5)");
+    sab("sprawl_pressure removed entirely", function(i){ delete i.sprawl_pressure; }, "sprawl-shape");
+    sab("a sprawl entry citing an unknown claim_id", function(i){ i.sprawl_pressure.stale_reachable_paths[0].claim_id="NOPE-99"; }, "sprawl-claim-unknown");
+    sab("a sprawl entry citing a claim outside architecture-fitness/maintainability-and-ownership", function(i){ i.sprawl_pressure.stale_reachable_paths[0].claim_id="CORE-01"; }, "sprawl-claim-foreign");
+    sab("automated_sprawl_checks outside its enum", function(i){ i.sprawl_pressure.automated_sprawl_checks="yes"; }, "sprawl-enum");
+    sab("assessment outside its enum", function(i){ i.sprawl_pressure.assessment="critical"; }, "sprawl-enum");
+    sab("a competing-implementations group with only one member", function(i){ i.sprawl_pressure.competing_authoritative_implementations[0].members=["solo.ts"]; }, "sprawl-shape");
+    sab("a duplicated-contract entry with only one location", function(i){ i.sprawl_pressure.duplicated_contract_representations[0].locations=["only.ts"]; }, "sprawl-shape");
+    sab("an unknown property inside a sprawl entry", function(i){ i.sprawl_pressure.stale_reachable_paths[0].pathh="typo"; }, "unknown-property");
+    sab("an unknown top-level property inside sprawl_pressure", function(i){ i.sprawl_pressure.assessmentt="low"; }, "unknown-property");
 
 
     head("sabotage — shared spine v3 boundary");

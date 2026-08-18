@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {
+    "runtime": [
+      "EXECUTION-MODEL.md"
+    ],
+    "job": [
+      "contracts/executor-job.schema.json"
+    ],
+    "lease": [
+      "contracts/worker-lease.schema.json"
+    ]
+  },
+  "fixtures": {
+    "default_model_read": false
+  }
+}
