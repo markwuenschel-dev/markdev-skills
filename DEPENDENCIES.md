@@ -27,8 +27,8 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 
 | Fork (in this repo) | Upstream parent | Forked at | What diverges |
 | --- | --- | --- | --- |
-| [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` — `mattpocock/skills` | v2.1.2 | Evidence-first mapping interview, bounded parallel scouts, durable tracker scripts + fallback tracker, `expanded-grill-with-docs` handoff contract, release validator |
-| [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` — `mattpocock/skills` | local-unpinned | Ownership-boundary section wiring it to `codebase-integrity-audit-loop` and `human-directed-swarm-planner` |
+| [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` — `mattpocock/skills` | v2.1.2 | **Deprecated** — legacy compatibility alias forwarding to `decision-terrain-mapper` (see *Known, not yet vendored* below) |
+| [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` — `mattpocock/skills` | local-unpinned | **Deprecated** — legacy compatibility alias forwarding to `adaptive-causal-debugging` (see *Known, not yet vendored* below) |
 | [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | **Deprecated** — legacy compatibility alias forwarding to `architecture-improvement-intelligence` (see *Known, not yet vendored* below) |
 
 **Fork naming rule.** A fork must set its frontmatter `name` to the **suffixed** directory name. The `name` field is the invocation name (the directory basename is only a fallback), so a fork that keeps the upstream `name` collides with the skill it forked and neither resolves reliably.
@@ -38,8 +38,8 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | Skill | Used by | Canonical path in this repo | Note |
 | --- | --- | --- | --- |
 | `improve-codebase-architecture-mwdev` | Deprecated — see Fork lineage above | [`skills/improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | Fork of Matt's `improve-codebase-architecture`; legacy alias only |
-| `wayfinder-mwdev` | `production-flywheel` scoping pre-check | [`skills/wayfinder-mwdev`](skills/wayfinder-mwdev/) | Fork of Matt's `wayfinder` |
-| `diagnosing-bugs-mwdev` | flywheel + audit execute interrupt; swarm bug lanes | [`skills/diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | Fork of Matt's `diagnosing-bugs` |
+| `wayfinder-mwdev` | Deprecated — see Fork lineage above | [`skills/wayfinder-mwdev`](skills/wayfinder-mwdev/) | Fork of Matt's `wayfinder`; legacy alias only |
+| `diagnosing-bugs-mwdev` | Deprecated — see Fork lineage above | [`skills/diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | Fork of Matt's `diagnosing-bugs`; legacy alias only |
 | `expanded-grill-with-docs` | flywheel design-lane gate A (default); wayfinder design tickets | [`skills/expanded-grill-with-docs`](skills/expanded-grill-with-docs/) | Original; may invoke Matt's `grilling` / `domain-modeling` as child procedures |
 | `connected-impact-sweep` | audit execute calibration; swarm blast-radius; migration missions | [`skills/connected-impact-sweep`](skills/connected-impact-sweep/) | Original |
 | `implementation-plan-contract` | audit plan gate; planning swarm | [`skills/implementation-plan-contract`](skills/implementation-plan-contract/) | Original |
@@ -54,6 +54,8 @@ Local/family skills confirmed to exist in the working copy this inventory tracks
 | Skill | Role | Local path | Version / commit |
 | --- | --- | --- | --- |
 | `architecture-improvement-intelligence` | Successor to the deprecated `improve-codebase-architecture-mwdev` fork — structural architecture analysis, candidate ranking, design handoff | `~/.agents/skills/architecture-improvement-intelligence` | local-unpinned |
+| `decision-terrain-mapper` | Successor to the deprecated `wayfinder-mwdev` fork — durable decision-map orchestrator for big, foggy efforts | `~/.agents/skills/decision-terrain-mapper` | local-unpinned |
+| `adaptive-causal-debugging` | Successor to the deprecated `diagnosing-bugs-mwdev` fork — adaptive causal investigation for one concrete defect or regression | `~/.agents/skills/adaptive-causal-debugging` | local-unpinned |
 | `software-engineering-intelligence` | Provenance-bound Software Engineering Intelligence snapshot + evidence-backed engineering assessment sidecar, optional offline report | `~/.agents/skills/software-engineering-intelligence` | local-unpinned |
 
 Install examples:
@@ -84,7 +86,7 @@ Still-external companions. Note the routing rule: where this repo owns a capabil
 | `triage` | flywheel triage sub-lane | `mattpocock/skills` | `~/.agents/skills/triage` | local-unpinned |
 | `setup-matt-pocock-skills` | repo setup for tracker / domain docs | `mattpocock/skills` | `~/.agents/skills/setup-matt-pocock-skills` | local-unpinned |
 
-**Superseded by an in-repo fork** — do not route at these directly: `wayfinder` → `wayfinder-mwdev`; `diagnosing-bugs` → `diagnosing-bugs-mwdev`. `improve-codebase-architecture` is superseded by `architecture-improvement-intelligence` (not yet vendored — see *Known, not yet vendored* above); its former in-repo fork, `improve-codebase-architecture-mwdev`, is itself now a deprecated alias, not a live route target.
+**All three in-repo forks are now deprecated.** `wayfinder` is superseded by `decision-terrain-mapper`; `diagnosing-bugs` is superseded by `adaptive-causal-debugging`; `improve-codebase-architecture` is superseded by `architecture-improvement-intelligence`. None of the three successors are yet vendored in this repo (see *Known, not yet vendored* above) — their former in-repo forks (`wayfinder-mwdev`, `diagnosing-bugs-mwdev`, `improve-codebase-architecture-mwdev`) are legacy compatibility aliases only, not live route targets.
 
 ---
 

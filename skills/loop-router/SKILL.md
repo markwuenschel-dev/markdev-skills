@@ -14,11 +14,11 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 
 | Need | Top-level skill |
 | --- | --- |
-| Chart a broad, foggy effort | `wayfinder-mwdev` |
+| Chart a broad, foggy effort | `wayfinder-mwdev` (deprecated alias — forwards to `decision-terrain-mapper`, not yet vendored) |
 | Shape a selected design / approved design package | `expanded-grill-with-docs` |
 | Bind an approved plan into an execution contract | `implementation-plan-contract` |
 | Grade repo health / find integrity candidates | `repository-health-assessment` / `codebase-integrity-audit-loop` |
-| Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` |
+| Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` (deprecated alias — forwards to `adaptive-causal-debugging`, not yet vendored) |
 | Edit, fix, refactor, or add across an existing multi-file system | `connected-impact-sweep` |
 | Parallelize a **known** mission across agent lanes | `human-directed-swarm-planner` |
 | Deliver a user-selected queue end-to-end (design → PR) | `production-flywheel` |
@@ -36,22 +36,22 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 3. **If the user asks to checkpoint before `/clear`** → `compact-session`; if they want a SKILL.md package designed or hardened → `skillwright-forge`.
 4. **If the user selected candidates/queue items and wants them delivered end-to-end** → `production-flywheel`.
 5. **If the user has a mission and wants parallel lanes** (not a multi-item queue) → `human-directed-swarm-planner`.
-6. **If the user wants to grade repo health** → `repository-health-assessment`; for a repair candidate/loop → `codebase-integrity-audit-loop`; for one hard bug → `diagnosing-bugs-mwdev`.
+6. **If the user wants to grade repo health** → `repository-health-assessment`; for a repair candidate/loop → `codebase-integrity-audit-loop`; for one hard bug → `diagnosing-bugs-mwdev` (deprecated alias — forwards to `adaptive-causal-debugging`, not yet vendored).
 7. **If the user asks to edit, fix, refactor, or add across an existing multi-file system** → `connected-impact-sweep`.
-8. **If the user wants an architecture deepening / HTML deepening report** → `improve-codebase-architecture-mwdev`.
+8. **If the user wants an architecture deepening / HTML deepening report** → `improve-codebase-architecture-mwdev` is deprecated (forwards to `architecture-improvement-intelligence`, not yet vendored) — there is no working entry point for this in the current inventory.
 9. **If the user wants a prompt, system prompt, or launch brief written/fixed/ported** → `prompt-forge`.
-10. **If the work is still a broad decision terrain** → `wayfinder-mwdev`; if it is a selected design or decision tree → `expanded-grill-with-docs`; if the design is approved and needs a binding delivery contract → `implementation-plan-contract`.
+10. **If the work is still a broad decision terrain** → `wayfinder-mwdev` is deprecated (forwards to `decision-terrain-mapper`, not yet vendored); if it is a selected design or decision tree → `expanded-grill-with-docs`; if the design is approved and needs a binding delivery contract → `implementation-plan-contract`.
 11. **If two rows still fit** → ask **one** clarifying question, then route. Prefer the less destructive skill until authorized (grill/audit/report before flywheel/swarm edits).
 
 ## Disambiguation cheatsheet
 
 ```text
 idea / ADR / glossary / "grill me"     → expanded-grill-with-docs
-big foggy effort / dependency map       → wayfinder-mwdev
+big foggy effort / dependency map       → wayfinder-mwdev (deprecated, no working replacement in-repo)
 "make this plan executable"             → implementation-plan-contract
 "grade this repo"                       → repository-health-assessment
 "what's wrong with this repo"          → codebase-integrity-audit-loop
-"diagnose this regression"              → diagnosing-bugs-mwdev
+"diagnose this regression"              → diagnosing-bugs-mwdev (deprecated, no working replacement in-repo)
 "parallel audit report"                → codebase-integrity-audit-loop --parallel-report
                                            (uses human-directed-swarm-planner Repo Audit)
 "run a swarm on X"                     → human-directed-swarm-planner

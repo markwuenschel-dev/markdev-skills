@@ -408,9 +408,9 @@ state rule → write failing check/test → minimal change → green → refacto
 
 Failure interrupt:
 
-If behavior is broken, unexpectedly red, flaky, slow, numerically unstable, GPU-dependent, nondeterministic, or unexplained, pause delivery and hand the defect to `/diagnosing-bugs-mwdev`.
+If behavior is broken, unexpectedly red, flaky, slow, numerically unstable, GPU-dependent, nondeterministic, or unexplained, pause delivery and hand the defect to `/diagnosing-bugs-mwdev` — deprecated, forwards to `adaptive-causal-debugging` (not yet vendored in this repo).
 
-This loop owns discovering and selecting **one** integrity candidate. When the selected candidate is a concrete reproducible defect, `/diagnosing-bugs-mwdev` owns the whole diagnostic workflow for it — reproduction, hypothesis testing, root-cause confirmation, narrow repair, and regression verification. Do not restate or re-run those stages here; resume this loop's gate once the fix and its regression test are in.
+This loop owns discovering and selecting **one** integrity candidate. When the selected candidate is a concrete reproducible defect, the diagnostic workflow for it — reproduction, hypothesis testing, root-cause confirmation, narrow repair, and regression verification — belongs to `adaptive-causal-debugging`, not this loop; `diagnosing-bugs-mwdev` is a deprecated alias with no protocol of its own. Do not restate or re-run those stages here; resume this loop's gate once the fix and its regression test are in.
 
 Gate:
 

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Wayfinder MWDEV (Legacy Alias)"
+  short_description: "Legacy route to Decision Terrain Mapper"
+policy:
+  allow_implicit_invocation: false
