@@ -15,10 +15,8 @@ flowchart TD
 
     subgraph DECIDE["decide"]
         direction TB
-        WF["wayfinder-mwdev"]
         EG["expanded-grill-with-docs"]
         IPC["implementation-plan-contract"]
-        WF -->|"ticket is design-sized"| EG
         EG -->|"design approved"| IPC
     end
 
@@ -33,10 +31,8 @@ flowchart TD
         direction TB
         PF["production-flywheel"]
         HDSP["human-directed-swarm-planner"]
-        DBM["diagnosing-bugs-mwdev"]
         CIS["connected-impact-sweep"]
         PF <--> HDSP
-        PF -->|"red · flaky · slow"| DBM
         PF -->|"editing a live system"| CIS
     end
 
@@ -55,8 +51,6 @@ flowchart TD
 
     IPC --> PF
     CIAL -->|"selected candidates"| PF
-    ICA -->|"selected deepenings"| PF
-    PF -->|"too big for one slice"| WF
     PF -->|"Stage 13 publish"| LP
 ```
 
@@ -64,14 +58,12 @@ flowchart TD
 
 | Need | Top-level skill | Does **not** do |
 | --- | --- | --- |
-| Chart a big, foggy effort as a durable decision map | `wayfinder-mwdev` | Implement anything; generate delivery tickets; act as a todo list |
 | Shape one design / approved design package | `expanded-grill-with-docs` | Implement production code; open PRs; choose project priority |
 | Turn selected work into a binding execution contract | `implementation-plan-contract` | Select what to work on; write the code |
 | Grade repository health / establish a baseline | `repository-health-assessment` | Implement fixes; propose architecture direction; review one diff |
 | Audit and repair codebase integrity | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
 | Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
-| Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` | Audit a repository; review architecture; plan a swarm |
 | Change code without breaking neighbours | `connected-impact-sweep` | Decide what the change should be |
 | Land a local change or an explicit PR queue, with an optional EC2 release (`-ec2`) | `land-pr` | Build a selected work queue or land/deploy without the user's explicit request |
 | Write / repair / optimize prompts | `prompt-forge` | Perform the underlying task; author SKILL.md packages |
@@ -84,20 +76,14 @@ flowchart TD
 | From | To | Trigger |
 | --- | --- | --- |
 | `loop-router` | any inventoried skill | Need matches a single row above |
-| `wayfinder-mwdev` | `expanded-grill-with-docs` | A map ticket is design-sized — needs a bounded interview, not one direct decision |
-| `wayfinder-mwdev` | `loop-router` | Decision terrain complete; router selects delivery |
 | `expanded-grill-with-docs` | `implementation-plan-contract` | Design approved; needs a binding execution contract |
 | `expanded-grill-with-docs` | `production-flywheel` | Approved design package reached; user wants delivery |
 | `repository-health-assessment` | `codebase-integrity-audit-loop` | Graded baseline produced integrity candidates to repair |
 | `codebase-integrity-audit-loop` | `production-flywheel` | User selected one or more ledger candidates to ship |
 | `codebase-integrity-audit-loop` | `human-directed-swarm-planner` | User wants parallel report (`--parallel-report`) or a mission swarm |
-| `codebase-integrity-audit-loop` | `diagnosing-bugs-mwdev` | A candidate is a live defect needing diagnosis, not a repair |
 | `human-directed-swarm-planner` | `codebase-integrity-audit-loop` | Repo Audit swarm produced a ledger; next is candidate loops |
 | `human-directed-swarm-planner` | `production-flywheel` | Mission is a **queue** of separate items, not one milestone |
-| `human-directed-swarm-planner` | `diagnosing-bugs-mwdev` | Bug swarm lanes dispatch at the diagnosis skill |
 | `production-flywheel` | `expanded-grill-with-docs` | Design-lane gate A — the default for every queue item |
-| `production-flywheel` | `wayfinder-mwdev` | Candidate is too big for one slice; user elects to decompose (plan, don't build) |
-| `production-flywheel` | `diagnosing-bugs-mwdev` | Work goes red, flaky, slow, or unexplained |
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
 | `production-flywheel` | `land-pr` | Stage 13 after the user explicitly requests landing or deployment (queue mode for leftover batches) |
 | `land-pr` | itself, with `-ec2` | The landed change (or queue) must also be released to EC2 |

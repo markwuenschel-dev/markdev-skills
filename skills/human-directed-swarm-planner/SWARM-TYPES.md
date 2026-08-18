@@ -95,9 +95,9 @@ Outputs:
 
 ## Bug swarm
 
-Use when there is a failing test, production bug, flaky behavior, mysterious regression, or unexplained red state **and** the defect presents several genuinely independent investigative surfaces. One defect with one obvious line of enquiry does not need a swarm — invoke `/diagnosing-bugs-mwdev` directly.
+Use when there is a failing test, production bug, flaky behavior, mysterious regression, or unexplained red state **and** the defect presents several genuinely independent investigative surfaces. One defect with one obvious line of enquiry does not need a swarm — invoke `/adaptive-causal-debugging` directly (`diagnosing-bugs-mwdev` is a deprecated alias, not the live owner).
 
-**This swarm does not own the diagnostic protocol.** `/diagnosing-bugs-mwdev` owns the complete workflow for one concrete reproducible defect — reproduction, hypothesis testing, root-cause confirmation, narrow repair, regression verification — and is the single definition of those stages. This swarm owns the *topology around* that protocol and nothing else. Do not restate, reorder, or substitute the stages here.
+**This swarm does not own the diagnostic protocol.** `adaptive-causal-debugging` owns the complete workflow for one concrete reproducible defect — reproduction, hypothesis testing, root-cause confirmation, narrow repair, regression verification — and is the single definition of those stages. This swarm owns the *topology around* that protocol and nothing else. Do not restate, reorder, or substitute the stages here.
 
 Goal: decide whether parallel investigation is justified, run independent investigations without overlap, and reconcile their evidence into one confirmed diagnostic path.
 
@@ -113,7 +113,7 @@ Owned here:
 
 Topology: **adaptive — derive lanes from the defect's actual independent surfaces.** There is no fixed roster and no target lane count. A surface earns a lane only when it can be investigated without waiting on another lane's findings. Common surfaces, as *examples to choose from, not a roster to fill*: recent-change/diff, call-graph/data-flow, test/fixture/mock, config/environment/CI, dependency/version, data/state shape. If only one surface is real, run one lane — or no swarm at all.
 
-Each lane runs `/diagnosing-bugs-mwdev` for its own bounded question and returns evidence plus falsifiable hypotheses. A lane never declares root cause on its own, and never begins repair.
+Each lane runs `/adaptive-causal-debugging` for its own bounded question and returns evidence plus falsifiable hypotheses. A lane never declares root cause on its own, and never begins repair.
 
 Outputs:
 
@@ -125,7 +125,7 @@ Outputs:
 
 Hard rules:
 
-- No lane proposes a fix. Repair and regression verification happen once, in `/diagnosing-bugs-mwdev`, after the captain has selected the confirmed path.
+- No lane proposes a fix. Repair and regression verification happen once, in `/adaptive-causal-debugging`, after the captain has selected the confirmed path.
 - No path advances until reproduction succeeded, or the inability to reproduce is explicitly reported.
 - Contradictory hypotheses stay distinct until evidence resolves them; the captain does not average them into a consensus.
 

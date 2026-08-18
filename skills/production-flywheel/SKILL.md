@@ -117,16 +117,16 @@ Within that authorization:
 Check whether the required routed skills are available in the current agent environment before beginning.
 
 Required:
-- `improve-codebase-architecture-mwdev`
+- `improve-codebase-architecture-mwdev` — **deprecated**, forwards to `architecture-improvement-intelligence` (not yet vendored); the preflight will find the alias present but it owns no protocol
 - `expanded-grill-with-docs`
 - `to-tickets` or Slice Contract fallback
 - `tdd`
-- `diagnosing-bugs-mwdev`
+- `diagnosing-bugs-mwdev` — **deprecated**, forwards to `adaptive-causal-debugging` (not yet vendored); same caveat as above
 
 Conditional:
 - `codebase-design` (design-it-twice technique)
 - `codebase-integrity-audit-loop` (source of `--parallel-report` ledger candidates; the family scoring spine is `shared/candidate-ledger-spine`)
-- `wayfinder-mwdev` (decompose a candidate too big for one slice — see the wayfinder branch)
+- `wayfinder-mwdev` — **deprecated**, forwards to `decision-terrain-mapper` (not yet vendored); the wayfinder branch below has no working target until it's ported
 - `research`, `domain-modeling` (support the wayfinder branch's ticket types; the grilling and design types both resolve through `expanded-grill-with-docs`, already Required above)
 - `prototype`
 - `triage`

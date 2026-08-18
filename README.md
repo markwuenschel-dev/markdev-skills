@@ -57,10 +57,8 @@ flowchart TD
 
     subgraph DECIDE["decide"]
         direction TB
-        WF["wayfinder-mwdev"]
         EG["expanded-grill-with-docs"]
         IPC["implementation-plan-contract"]
-        WF -->|"ticket is design-sized"| EG
         EG -->|"design approved"| IPC
     end
 
@@ -75,10 +73,8 @@ flowchart TD
         direction TB
         PF["production-flywheel"]
         HDSP["human-directed-swarm-planner"]
-        DBM["diagnosing-bugs-mwdev"]
         CIS["connected-impact-sweep"]
         PF <--> HDSP
-        PF -->|"red · flaky · slow"| DBM
         PF -->|"editing a live system"| CIS
     end
 
@@ -97,7 +93,6 @@ flowchart TD
 
     IPC --> PF
     CIAL -->|"selected candidates"| PF
-    PF -->|"too big for one slice"| WF
     PF -->|"Stage 13 publish"| LP
 
     classDef router fill:#111827,stroke:#111827,color:#ffffff,stroke-width:2px
@@ -108,9 +103,9 @@ flowchart TD
     classDef craft fill:#f1f5f9,stroke:#64748b,color:#334155,stroke-width:1.5px
 
     class R router
-    class WF,EG,IPC decide
+    class EG,IPC decide
     class RHA,CIAL assess
-    class PF,HDSP,DBM,CIS build
+    class PF,HDSP,CIS build
     class LP land
     class PFG,SWF,CS craft
 ```
@@ -118,7 +113,6 @@ flowchart TD
 
 | Need | Skill |
 | :--- | :--- |
-| Chart a big, foggy effort as a durable decision map | [`wayfinder-mwdev`](skills/wayfinder-mwdev/) |
 | Shape one design / approved design package | [`expanded-grill-with-docs`](skills/expanded-grill-with-docs/) |
 | Turn selected work into a binding execution contract | [`implementation-plan-contract`](skills/implementation-plan-contract/) |
 | Unsure which applies | [`loop-router`](skills/loop-router/) |
@@ -136,7 +130,6 @@ flowchart TD
 | :--- | :--- |
 | Deliver an approved queue end-to-end | [`production-flywheel`](skills/production-flywheel/) |
 | Parallelize a known mission into agent lanes | [`human-directed-swarm-planner`](skills/human-directed-swarm-planner/) |
-| Diagnose a hard bug or performance regression | [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) |
 | Change code without leaving the system incoherent | [`connected-impact-sweep`](skills/connected-impact-sweep/) |
 
 ### Land
@@ -176,8 +169,7 @@ markdev-skills/
 ├── skills/
 │   ├── loop-router/
 │   │
-│   ├── wayfinder-mwdev/                    ← decide
-│   ├── expanded-grill-with-docs/
+│   ├── expanded-grill-with-docs/            ← decide
 │   ├── implementation-plan-contract/
 │   │
 │   ├── repository-health-assessment/       ← assess
@@ -185,7 +177,6 @@ markdev-skills/
 │   │
 │   ├── production-flywheel/                ← build
 │   ├── human-directed-swarm-planner/
-│   ├── diagnosing-bugs-mwdev/
 │   ├── connected-impact-sweep/
 │   │
 │   ├── land-pr/                            ← land (queue + EC2 via flags)
@@ -213,19 +204,6 @@ markdev-skills/
 ```
 
 Skills own their procedure. Shared contracts own rubrics once — skills link in; they don’t fork copies.
-
----
-
-## Forks
-
-Two skills are **derivative works** of [Matt Pocock's](https://github.com/mattpocock/skills) originals, kept under a `-mwdev` suffix so an upstream update can never overwrite them:
-
-| Fork | Upstream parent |
-| :--- | :--- |
-| [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` (forked at v2.1.2) |
-| [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` |
-
-A fork must set its frontmatter `name` to the **suffixed** directory name — `name` is the invocation name, so a fork keeping the upstream `name` collides with the skill it forked and neither resolves reliably. See [`DEPENDENCIES.md`](DEPENDENCIES.md) for lineage, attribution, and deprecated/superseded packages.
 
 ---
 
