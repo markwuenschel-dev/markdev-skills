@@ -1,4 +1,0 @@
-interface:
-  display_name: "Land PR + EC2"
-  short_description: "Land a PR and deploy it to EC2"
-  default_prompt: "Use $land-pr-ec2 to land the current change and deploy the merged release to EC2."

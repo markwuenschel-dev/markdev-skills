@@ -49,13 +49,13 @@ Pass/fail cases for **when** each top-level skill should auto-invoke or be recom
 | T16 | "Refactor this behavior across the app" | connected-impact-sweep |
 | T17 | "Add this field everywhere it is consumed" | connected-impact-sweep |
 
-## improve-codebase-architecture-mwdev
+## improve-codebase-architecture-mwdev (deprecated alias)
 
 | # | User utterance (gist) | Expect |
 | --- | --- | --- |
-| T18 | "Find deepening opportunities in this codebase" | improve-codebase-architecture-mwdev |
-| T19 | "HTML architecture deepening report" | improve-codebase-architecture-mwdev |
-| T20 | "Scan for shallow modules and grill one" | improve-codebase-architecture-mwdev |
+| T18 | "Find deepening opportunities in this codebase" | Legacy-alias forward notice; no independent architecture report is generated |
+| T19 | "HTML architecture deepening report" | Same — this package owns no protocol of its own |
+| T20 | "Scan for shallow modules and grill one" | Same |
 
 ## prompt-forge
 

@@ -1,5 +1,5 @@
 interface:
-  display_name: "Improve Codebase Architecture"
-  short_description: "Find and grill architecture improvements"
+  display_name: "Improve Codebase Architecture MWDEV (Legacy Alias)"
+  short_description: "Legacy route to Architecture Improvement Intelligence"
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true
