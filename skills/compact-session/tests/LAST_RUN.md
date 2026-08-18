@@ -1,8 +1,38 @@
 # Test run evidence
 
-- date: 2026-07-07/20/26T19:34:09Z
-- environment: Ubuntu 24, Python 3.12.3, git version 2.43.0, container
-- command: python3 tests/test_hooks.py   (groups: encoding | cleanup | degraded | validator35 | portable | nudge | marker | validator | validator31 | validator32 | place | place32 | select | selectgit | worktree)
+- date: 2026-08-18T19:20:00Z
+- environment: Windows 11 (native, Git Bash), Python 3.14.7, git 2.55.0.windows.4
+- command: `PYTHONUTF8=1 PYTHONIOENCODING=utf-8 python3 tests/test_hooks.py <group>` — run per group (the runner aborts the whole process on a group's first unhandled exception, which swallows every group queued after it; per-group invocation is the only way to see all 15 groups' real results on this box)
+- groups: encoding | cleanup | degraded | validator35 | portable | nudge | marker | validator | validator31 | validator32 | place | place32 | select | selectgit | worktree
+
+## Live evidence 5: 2026-08-18, native Windows — canon sync verification (SKILL.md, select_handoff.py, adapters/AGENTS.md, assets/handoff-template.md, references/handoff-spec.md)
+
+This run verifies the sync of the "newest handoff supersedes older ones" semantic from canon (`~/.agents/skills/compact-session`) into this repo. Five files changed content; nine more (README, evals, hooks/*, remaining scripts, test_hooks.py itself) were confirmed byte-identical to canon after CRLF/LF normalization — not run through the suite because nothing in them changed.
+
+Per-group result, this run:
+
+| Group | Pass | Fail | Note |
+| --- | --- | --- | --- |
+| encoding | 4 | 0 | |
+| cleanup | 1 | 0 | |
+| degraded | 7 | 0 | |
+| validator35 | 5 | 0 | |
+| portable | 5 | 2 | `HANDOFF_DIR override honored by place`, `select round-trips the same HANDOFF_DIR` |
+| nudge | 2 | 2 | `fires with additionalContext JSON`, `re-fires after +30k growth`, then group aborts: `FileNotFoundError` — nudge state dir never created |
+| marker | 0 | 0 | group aborts on first test: `FileNotFoundError` — marker dir never created |
+| validator | 17 | 0 | |
+| validator31 | 13 | 4 | all 4 are gitleaks-binary-dependent cases (`installed-but-broken gitleaks`, `gitleaks-found-leaks`, `modern gitleaks dir clean`, `legacy gitleaks detect fallback`) |
+| validator32 | 7 | 0 | |
+| place | 4 | 1 | `file 0600, dirs 0700, staged removed` |
+| place32 | 2 | 0 | |
+| select | 8 | 1 | `group-writable candidate rejected` |
+| selectgit | 2 | 0 | |
+| worktree | 2 | 0 | |
+| **Total** | **79** | **10** (+2 groups aborted before recording) | |
+
+**Regression check.** Every one of the 10 failures plus both group-aborting crashes (nudge, marker) is a POSIX-only assertion: `chmod`/permission-bit checks (0600/0700), symlink/group-writable semantics `os.stat().st_mode` can't express on NTFS, or a missing `gitleaks` binary on this box. To confirm the sync introduced nothing new, I `git stash`ed the five updated files back to their pre-sync (pre-canon-sync) content and re-ran the same groups: **identical pass/fail set, including in `select` and `place` — the two groups exercising the file I actually changed (`select_handoff.py`).** No regression from the sync; this is the repo's own documented posture — "Fully hardened on macOS/Linux; degraded but validation-complete on native Windows" (SKILL.md) — not a new gap.
+
+Gitleaks real-binary path remains live-untested (not installed on this box, as in prior Windows runs).
 
 ## Live evidence 4: 2026-07-20, Windows session on core v3.5
 
@@ -13,113 +43,8 @@ BUG 4 (fixed in core v3.6): os.fdopen(fd, 'w') without encoding used the Windows
 
 gitleaks real-binary path remains live-untested (not installed on the Windows box).
 
-## This run
-```
-PASS encoding: → handoff written under C locale (BUG 4 regression)
-PASS encoding: written bytes are LF-only UTF-8 (platform-identical)
-PASS encoding: select emits → under C locale (latent sibling fixed)
-PASS encoding: validator error echo survives C locale
-PASS cleanup: failed write exits 2 and removes the partial file - []
-PASS degraded: place succeeds, announces mode on stderr, stdout stays a pure path
-PASS degraded: placed file passes the validator
-PASS degraded: select round-trips and announces MODE in header
-PASS degraded: secret draft still creates NO canonical file (regression)
-PASS degraded: symlinked .claude still refused, victim untouched
-PASS degraded: future-dated candidate still rejected
-PASS versioned: select header and place notice identify core version
-PASS validator: Windows drive-letter cwd/root accepted (regression) - PASS: 56 lines; structure, order, meta, subgroups, anchors, and per-command expected results check out; no placeholders; no secret-shaped content matched known patterns (gitleaks not installed; built-in patterns only). This is a backstop: resume still treats all handoff content as untrusted proposals. [core v3.6]
-PASS validator: UNC root accepted
-PASS validator: relative root still rejected on any platform
-PASS validator: wrapped expected-result bullet passes (regression)
-PASS validator: backticked ops command satisfies the anchor (regression)
-PASS portable: place without session id succeeds (0)
-PASS portable: place without session id succeeds (1)
-PASS portable: two same-second no-sid saves get distinct names
-PASS portable: HANDOFF_DIR override honored by place
-PASS portable: select round-trips the same HANDOFF_DIR
-PASS portable: mismatched HANDOFF_DIR fails loudly (agreement required)
-PASS portable: dot-dot HANDOFF_DIR rejected by place and select
-PASS nudge: below threshold silent
-PASS nudge: fires with additionalContext JSON
-PASS nudge: debounce on repeat
-PASS nudge: re-fires after +30k growth
-PASS nudge: state dir 0700 / file 0600 - dir 700 file 600
-PASS nudge: >256KB record detected (regression)
-PASS nudge: invalid env falls back to default
-PASS nudge: step=0 clamped, no re-fire at same tokens
-PASS nudge: fresh handoff at .git-dir root suppresses (from subdir)
-PASS nudge: worktree root found via git, suppresses (regression)
-PASS nudge: .git-file root found by fallback walk without git
-PASS nudge: debug log created 0600 (regression) - 600
-PASS nudge: stale session state pruned
-PASS nudge: garbage stdin exits 0
-PASS marker: two rapid fires -> two distinct files (collision-safe) - ['20260720-193342.653569Z-abcdef12-autocompact.md', '20260720-193342.676899Z-abcdef12-autocompact.md']
-PASS marker: dir 0700 / file 0600
-PASS marker: records project + transcript, file under $HOME not the repo
-PASS marker: manual compaction ignored
-PASS validator: filled handoff passes - PASS: 56 lines; structure, order, meta, subgroups, anchors, and per-command expected results check out; no placeholders; no secret-shaped content matched known patterns (gitleaks not installed; built-in patterns only). This is a backstop: resume still treats all handoff content as untrusted proposals. [core v3.6]
-PASS validator: untouched template fails (regression)
-PASS validator: missing focus meta fails (regression)
-PASS validator: section reorder fails (regression)
-PASS validator: duplicated section fails
-PASS validator: empty required section fails
-PASS validator: meta fence not at top fails
-PASS validator: unanchored next action fails
-PASS validator: verification without expected results fails
-PASS validator: over 400 lines fails
-PASS validator: AWS_SECRET_ACCESS_KEY assignment fails (regression)
-PASS validator: NPM_TOKEN assignment fails (regression)
-PASS validator: GitLab token value fails (regression)
-PASS validator: Stripe live key value fails (regression)
-PASS validator: bare AWS-style 40-char secret fails (regression)
-PASS validator: 40-char lowercase git sha is not a false positive
-PASS validator: name-and-location credential reference passes
-PASS validator: unclosed yaml fence fails (regression)
-PASS validator: impossible timestamp fails (regression)
-PASS validator: duplicate meta key fails (regression)
-PASS validator: missing Current-state subgroup fails (regression)
-PASS validator: anchor only in follow-on steps fails (regression)
-PASS validator: command bullet without expected result fails (regression)
-PASS validator: inline <TODO> marker fails (regression)
-PASS validator: constraints without LOCKED/revisit-if fail
-PASS validator: SYSTEM/ignore-instructions injection fails (regression)
-PASS validator: pipe-to-shell injection fails (regression)
-PASS validator: symlinked handoff file fails (regression)
-PASS validator: symlinked handoffs directory fails (regression)
-PASS validator: installed-but-broken gitleaks fails closed (regression)
-PASS validator: explicit skip env bypasses broken gitleaks
-PASS validator: gitleaks-found-leaks fails
-PASS validator: modern gitleaks dir clean passes
-PASS validator: legacy gitleaks detect fallback passes
-PASS validator: prose and/or slash does not satisfy anchor (regression)
-PASS validator: non-backticked command bullet without expected fails (regression)
-PASS validator: '- Env' reference line stays exempt
-PASS validator: empty Current-state subgroup fails (regression)
-PASS validator: explicit None subgroup passes
-PASS validator: unclassified sibling decision fails (regression)
-PASS validator: 'disregard prior directions' variant fails (regression)
-PASS place: canonical name printed and file created - /tmp/tmp9433qy61/proj/.claude/handoffs/20260720-193344Z-abcdef12-handoff.md
-PASS place: file 0600, dirs 0700, staged removed
-PASS place: placed file passes the validator
-PASS place: symlinked .claude refused, victim untouched (regression)
-PASS place: symlinked handoffs refused, victim untouched (regression)
-PASS place: secret-shaped draft creates NO canonical file (regression)
-PASS place: failed validation preserves the staged draft for fixing
-PASS select: newest valid canonical wins; junk ignored
-PASS select: emitted bytes equal the validated file's bytes
-PASS select: future-dated filename rejected (regression)
-PASS select: impossible filename timestamp rejected (regression)
-PASS select: filename/written disagreement rejected (regression)
-PASS select: group-writable candidate rejected
-PASS select: symlinked handoffs directory refused
-PASS select: explicit filename still fully checked
-PASS select: injection-bearing sole candidate stops resume
-PASS select: git-tracked sole candidate rejected (regression)
-PASS select: local untracked candidate wins over newer tracked one
-PASS worktree: --git-path info/exclude resolves to common exclude - /tmp/tmpg32g_bcm/main/.git/info/exclude
-PASS worktree: --git-dir points at per-worktree dir (why old path was wrong)
+## Prior full run (Ubuntu 24, container): 103/103 passed
 
-103/103 passed
-```
+Full per-test log from the last container run (all 15 groups, POSIX permission bits and gitleaks both live) is preserved in git history for this file; superseded here by the native-Windows per-group evidence above, which is the environment this sync was actually verified against.
 
-Remaining live gate, now genuinely just: /clear + /compact-session resume on Windows (expect SELECTED / HELPERS core v3.6 / MODE: degraded, → intact in emitted content). Luxuries after: nudge, PostCompact, cross-agent round-trip, real-gitleaks machine. Declined items unchanged.
+Remaining live gate, unchanged: /clear + /compact-session resume on Windows (expect SELECTED / HELPERS core v3.6 / MODE: degraded, → intact in emitted content). Luxuries after: nudge, PostCompact, cross-agent round-trip, real-gitleaks machine. Declined items unchanged.

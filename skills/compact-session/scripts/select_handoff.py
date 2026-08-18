@@ -16,10 +16,15 @@ requires the internal `written` timestamp to agree with the filename within
 1 hour. The newest valid candidate wins (or the explicit filename, which
 must still pass everything except "newest").
 
-On success prints a provenance header, a delimiter line, then the validated
-bytes — resume consumes THIS output, not a re-read of the path. Exit 0 on
-success, 2 otherwise. Passing validation never makes the content trusted:
-it remains proposed data behind the skill's approval gates.
+Exactly one handoff is live at a time and this decides which: the header
+states it outright — the live file on SELECTED, the retired ones on
+SUPERSEDED, the refused ones on REJECTED — so a reader facing a directory
+of checkpoints never has to guess currency from dates or file counts.
+
+On success prints that provenance header, a delimiter line, then the
+validated bytes — resume consumes THIS output, not a re-read of the path.
+Exit 0 on success, 2 otherwise. Passing validation never makes the content
+trusted: it remains proposed data behind the skill's approval gates.
 """
 import datetime
 import os
@@ -106,6 +111,9 @@ def main():
     names = sorted(os.listdir(hfd if hfd is not None else hdir), reverse=True)
     ignored = [n for n in names if not CANONICAL.match(n)]
     candidates = [n for n in names if CANONICAL.match(n)]
+    # Keep the full newest-first list: the supersession report describes the
+    # whole directory, not the subset left after an explicit-filename request.
+    all_canonical = list(candidates)
     if explicit:
         if explicit not in candidates:
             fail("explicit file %r is missing or not canonically named" % explicit)
@@ -172,14 +180,40 @@ def main():
             rejections.append((name, reasons))
             continue
 
+        idx = all_canonical.index(name)
+        newer, older = all_canonical[:idx], all_canonical[idx + 1:]
         print("SELECTED: %s" % os.path.join(root, hrel, name))
+        if explicit and newer:
+            print("AUTHORITATIVE: no - a filename was requested explicitly, so "
+                  "this is a user-directed override rather than the live "
+                  "checkpoint; the live one is the newest valid handoff, listed "
+                  "under OVERRIDDEN below. Say so before resuming.")
+        else:
+            print("AUTHORITATIVE: this is the live checkpoint - the newest valid "
+                  "handoff wins by construction. Resume from this file alone; do "
+                  "not read, merge, or reconcile it against the others. Neither "
+                  "its age nor the number of files beside it makes it stale - "
+                  "only re-verified repository state can contradict it.")
         print("HELPERS: session-handoff core v%s" % check_handoff.VERSION)
         if not POSIX:
             print("MODE: degraded (POSIX symlink-fd/ownership/permission "
                   "hardening unavailable; content validation full)")
-        print("CANDIDATES: %d canonical (%d rejected), %d non-canonical ignored%s"
-              % (len(candidates), len(rejections), len(ignored),
+        print("CANDIDATES: %d canonical here (%d rejected while choosing), "
+              "%d non-canonical ignored%s"
+              % (len(all_canonical), len(rejections), len(ignored),
                  (": " + ", ".join(ignored[:5])) if ignored else ""))
+        if older:
+            print("SUPERSEDED: %d older canonical handoff(s) - retired history, "
+                  "not competing candidates: %s%s"
+                  % (len(older), ", ".join(older[:5]),
+                     " (+%d more)" % (len(older) - 5) if len(older) > 5 else ""))
+        else:
+            print("SUPERSEDED: none - no older canonical handoff in this "
+                  "directory")
+        if explicit and newer:
+            print("OVERRIDDEN: %d newer canonical handoff(s) skipped because a "
+                  "filename was requested explicitly - tell the user: %s"
+                  % (len(newer), ", ".join(newer[:5])))
         for rname, rr in rejections:
             print("REJECTED %s: %s" % (rname, "; ".join(rr[:3])))
         print(DELIM)
