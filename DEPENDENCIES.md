@@ -46,6 +46,7 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.2 (schema v5 + code-sprawl-pressure evidence + Evidence Recon sidecar); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
 | `agent-executor-pool` | bounded read-only worker scheduling for `repository-health-assessment` (and future consumers) | [`skills/agent-executor-pool`](skills/agent-executor-pool/) | Original; generic executor semantics — worker leases, generation/fence tokens, work-conserving refill |
 | `land-pr` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) | Original; single skill covers local-change, PR-queue, and EC2 (`-ec2`) modes — `land-prs`/`land-pr-ec2`/`land-prs-ec2` were removed as redundant |
+| `repository-improvement-assessment` | Combined ASSESS owner: health + integrity + architecture from one baseline | [`skills/repository-improvement-assessment`](skills/repository-improvement-assessment/) | v0.8.4; executeRia + agent-rendezvous adapter. Consumes Health, Integrity, and still-external Architecture/SEI. Shared contracts vendored under `shared/ria-*`, `assessment-runtime-contract`, `assessment-verification-baseline`, `project-intelligence-workspace`, `report-election`, `report-presentation` |
 
 ### Known, not yet vendored
 
@@ -114,6 +115,7 @@ They are **not vendored** into this repo. Canonical ideas live on [jeffbailey.us
 | `shared/HUMAN-DECISIONS.md` | Auto-mode stop taxonomy | Complements graded review with explicit human forks |
 | `shared/evidence-recon/` | Generic evidence packet contract (inline/expedition modes, negative-claim receipts) | Consumed by `repository-health-assessment`'s v5.2 sidecar; own test suite GREEN 14/14 |
 | `shared/assessment-acceleration/` | Aggressive assessment scheduling, cache, performance receipts | Consumed by `repository-health-assessment`'s report builder; own test suite GREEN |
+| `shared/ria-scoring/` | RIA six-dimension composite + spine priority bands | Consumed by `repository-improvement-assessment` report binder |
 
 When you promote a Jeff skill from “optional lane helper” to a hard dependency, pin its install source and commit/tag here.
 

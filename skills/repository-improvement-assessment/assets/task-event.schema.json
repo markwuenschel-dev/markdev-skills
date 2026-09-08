@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/repository-improvement-assessment/ria-task-event.schema.json",
+  "title": "RIA authoritative scheduler task event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "run_id", "task_id", "executor_class", "status", "sequence", "occurred_at", "attempt", "cache_key", "reason_code", "failure_code", "telemetry", "scheduler", "result_ref"],
+  "properties": {
+    "schema_version": { "const": "ria.task-event@1" }, "event_id": { "type": "string", "pattern": "^ria-event:[0-9a-f]{64}$" }, "run_id": { "type": "string" }, "task_id": { "type": "string" },
+    "executor_class": { "type": "string" }, "status": { "enum": ["submitted", "ready", "started", "reused", "completed", "failed", "blocked", "cancelled", "retry"] }, "sequence": { "type": "integer", "minimum": 1 }, "occurred_at": { "type": "string", "format": "date-time" }, "attempt": { "type": "integer", "minimum": 1 },
+    "cache_key": { "type": ["string", "null"] }, "reason_code": { "type": ["string", "null"] }, "failure_code": { "type": ["string", "null"] },
+    "telemetry": { "type": "object", "additionalProperties": false, "required": ["tool_calls", "tokens"], "properties": { "tool_calls": { "$ref": "#/$defs/observation" }, "tokens": { "$ref": "#/$defs/observation" } } },
+    "scheduler": { "type": "object", "additionalProperties": false, "required": ["ready_wait_ms", "resource_blocked_ms", "running_count"], "properties": { "ready_wait_ms": { "type": ["number", "null"], "minimum": 0 }, "resource_blocked_ms": { "type": ["number", "null"], "minimum": 0 }, "running_count": { "type": ["integer", "null"], "minimum": 0 } } },
+    "result_ref": {
+      "anyOf": [
+        { "type": "object", "additionalProperties": false, "minProperties": 1, "properties": { "artifact_id": { "type": "string" }, "baseline_binding": { "$ref": "#/$defs/artifact_ref" }, "cache_key": { "type": "string" }, "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "file_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "kind": { "type": "string" }, "mission_id": { "type": "string" }, "owner": { "type": "string" }, "path": { "type": "string" }, "receipt_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "report_schema_version": { "type": "integer" }, "repository_revision": { "type": "string" }, "schema_version": { "type": "string" }, "scope_hash": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "task_id": { "type": "string" } } },
+        { "type": "null" }
+      ]
+    }
+  },
+  "$defs": {
+    "artifact_ref": { "type": "object", "additionalProperties": false, "required": ["artifact_id", "sha256", "repository_revision"], "properties": { "artifact_id": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "repository_revision": { "type": "string", "minLength": 1 } } },
+    "metric": { "type": "object", "additionalProperties": false, "required": ["value", "evidence"], "properties": { "value": { "type": ["number", "null"], "minimum": 0 }, "evidence": { "enum": ["measured", "estimated", "unavailable"] } } },
+    "observation": { "anyOf": [{ "type": "null" }, { "type": "number", "minimum": 0 }, { "$ref": "#/$defs/metric" }] }
+  }
+}

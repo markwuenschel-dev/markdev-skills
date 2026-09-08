@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/repository-improvement-assessment/assess-report-schema.json",
+  "title": "Repository Improvement Assessment ASSESS return",
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "baselineRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "artifact_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "repository_revision": {
+          "$ref": "#/$defs/stableId"
+        }
+      }
+    },
+    "engineeringIntelligenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "owner",
+        "kind",
+        "schema_version",
+        "sha256",
+        "repository_revision",
+        "mission_id",
+        "scope_hash",
+        "baseline_binding"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^engineering-intelligence:[a-f0-9]{64}$"
+        },
+        "owner": {
+          "const": "repository-improvement-assessment"
+        },
+        "kind": {
+          "const": "engineering-intelligence"
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "repository_revision": {
+          "$ref": "#/$defs/stableId"
+        },
+        "mission_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "scope_hash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "baseline_binding": {
+          "$ref": "#/$defs/baselineRef"
+        }
+      }
+    },
+    "seiAssessmentSnapshotBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshot_id",
+        "revision",
+        "repository_id",
+        "digest"
+      ],
+      "properties": {
+        "snapshot_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "revision": {
+          "$ref": "#/$defs/stableId"
+        },
+        "repository_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "seiAssessmentEvaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "const": "sei.engineering-assessment"
+        },
+        "version": {
+          "$ref": "#/$defs/stableId"
+        }
+      }
+    },
+    "seiAssessmentComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "$ref": "#/$defs/stableId"
+        },
+        "digest": {
+          "$ref": "#/$defs/seiAssessmentDigest"
+        }
+      }
+    },
+    "seiAssessmentDigest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "seiAssessmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "assessment_id",
+        "snapshot_binding",
+        "evaluator",
+        "rubric",
+        "standard",
+        "config_digest",
+        "applicability_digest",
+        "artifact_path",
+        "artifact_sha256"
+      ],
+      "properties": {
+        "schema_version": {
+          "enum": [
+            "sei.engineering-assessment@1",
+            "sei.engineering-assessment@2",
+            "sei.engineering-assessment@3"
+          ]
+        },
+        "assessment_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "snapshot_binding": {
+          "$ref": "#/$defs/seiAssessmentSnapshotBinding"
+        },
+        "evaluator": {
+          "$ref": "#/$defs/seiAssessmentEvaluator"
+        },
+        "rubric": {
+          "$ref": "#/$defs/seiAssessmentComponent"
+        },
+        "standard": {
+          "$ref": "#/$defs/seiAssessmentComponent"
+        },
+        "config_digest": {
+          "$ref": "#/$defs/sha256"
+        },
+        "applicability_digest": {
+          "$ref": "#/$defs/seiAssessmentDigest"
+        },
+        "artifact_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "repositoryHealthAssessmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "owner": {
+          "const": "repository-health-assessment"
+        },
+        "artifact_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "repository_revision": {
+          "$ref": "#/$defs/stableId"
+        }
+      }
+    },
+    "codebaseIntegrityAssessmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "owner": {
+          "const": "codebase-integrity-audit-loop"
+        },
+        "artifact_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "repository_revision": {
+          "$ref": "#/$defs/stableId"
+        }
+      }
+    },
+    "architectureAssessmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "owner": {
+          "const": "architecture-improvement-intelligence"
+        },
+        "artifact_id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "repository_revision": {
+          "$ref": "#/$defs/stableId"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "schema",
+    "required_sections",
+    "markdown",
+    "baseline_ref",
+    "engineering_intelligence_ref",
+    "assessment_refs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "https://markdev-skills.local/repository-improvement-assessment/assess-report-schema.json"
+    },
+    "required_sections": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "Executive Assessment"
+        },
+        {
+          "const": "Health"
+        },
+        {
+          "const": "Integrity"
+        },
+        {
+          "const": "Architecture"
+        },
+        {
+          "const": "Cross-Cutting Synthesis"
+        },
+        {
+          "const": "Highest-Leverage Priorities"
+        },
+        {
+          "const": "Evidence Certainty and Gaps"
+        },
+        {
+          "const": "Downstream Disposition"
+        },
+        {
+          "const": "Coverage and Provenance"
+        },
+        {
+          "const": "Assessment Status"
+        },
+        {
+          "const": "Next Lifecycle"
+        }
+      ],
+      "minItems": 11,
+      "maxItems": 11
+    },
+    "markdown": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseline_ref": {
+      "$ref": "#/$defs/baselineRef"
+    },
+    "engineering_intelligence_ref": {
+      "$ref": "#/$defs/engineeringIntelligenceRef"
+    },
+    "sei_assessment_ref": {
+      "$ref": "#/$defs/seiAssessmentRef"
+    },
+    "assessment_refs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "not": {
+        "type": "array",
+        "minItems": 4
+      },
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/repositoryHealthAssessmentRef"
+        },
+        {
+          "$ref": "#/$defs/codebaseIntegrityAssessmentRef"
+        },
+        {
+          "$ref": "#/$defs/architectureAssessmentRef"
+        }
+      ],
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/repositoryHealthAssessmentRef"
+          },
+          {
+            "$ref": "#/$defs/codebaseIntegrityAssessmentRef"
+          },
+          {
+            "$ref": "#/$defs/architectureAssessmentRef"
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

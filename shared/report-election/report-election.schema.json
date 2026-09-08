@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shared Report Election Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "policy",
+    "report_owner",
+    "lean",
+    "reason",
+    "state"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "policy": {
+      "enum": [
+        "ask",
+        "generate",
+        "skip",
+        "inherit"
+      ]
+    },
+    "report_owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lean": {
+      "enum": [
+        "generate",
+        "skip"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "pending-user-election",
+        "elected-generate",
+        "elected-skip",
+        "inherited"
+      ]
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "finding_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cross_cutting_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "comparison_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "uncertainty_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "visual_structure_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "durable_review_value": {
+          "type": "boolean"
+        },
+        "parent_report_pending": {
+          "type": "boolean"
+        },
+        "report_cost": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "report-presentation",
+  "version": "1.0.0",
+  "entrypoint": "REPORT-PRESENTATION.md",
+  "files": [
+    "REPORT-PRESENTATION.md",
+    "report-presentation.js",
+    "report-presentation.test.js",
+    "package-check.js",
+    "family-adoption.test.js",
+    "report-builders.test.js"
+  ],
+  "exports": [
+    "responsiveCss",
+    "progressiveScript",
+    "horizontalBarChart",
+    "stackedBarChart",
+    "donutChart",
+    "timelineChart",
+    "scoreGauge",
+    "metricCard",
+    "inspectResponsiveReport"
+  ],
+  "determinism": {
+    "external_dependencies": false,
+    "node_builtins_only": true,
+    "view_time_network": false
+  },
+  "tests": [
+    "family-adoption.test.js",
+    "report-builders.test.js"
+  ]
+}

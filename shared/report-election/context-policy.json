@@ -1,0 +1,18 @@
+{
+  "schema_version": 2,
+  "core": [
+    "MANIFEST.json"
+  ],
+  "conditional": {},
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {}
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "shared/ria-owner-return",
+  "version": "1.0.0",
+  "schema": "owner-return.schema.json",
+  "module": "owner-return.js",
+  "test": "owner-return.test.js",
+  "purpose": "Runtime-only uniform return envelope for canonical Health, Integrity, and Architecture artifacts; never embedded in closed domain schemas."
+}
