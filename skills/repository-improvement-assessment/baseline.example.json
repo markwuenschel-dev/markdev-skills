@@ -1,0 +1,44 @@
+{
+  "schema_version": "ria.baseline@1",
+  "artifact_id": "ria-baseline:7d1c6bfea42a4c9f5dca5f343cf61e7e670038c3ec066df53f7be3ce032f055f",
+  "content_sha256": "7d1c6bfea42a4c9f5dca5f343cf61e7e670038c3ec066df53f7be3ce032f055f",
+  "repository": {
+    "mode": "git",
+    "scope": "head",
+    "repository_id": "e2885f2bbe3d7a8b08e328b9abf1e0824bebad97625b300e24649a256c6c4847",
+    "revision": "0123456789abcdef0123456789abcdef01234567",
+    "roots": [
+      {
+        "root": "C:\\example\\repository",
+        "repository_key": "e2885f2bbe3d7a8b08e328b9abf1e0824bebad97625b300e24649a256c6c4847",
+        "revision": "0123456789abcdef0123456789abcdef01234567",
+        "head_revision": "0123456789abcdef0123456789abcdef01234567",
+        "tree": "89abcdef0123456789abcdef0123456789abcdef",
+        "working_tree": { "clean": true, "fingerprint": "dd5ace9e018dbd62336cbe039916ad7c817d0e9bc9934f70d67f3ff75544da88" },
+        "history": "git"
+      }
+    ],
+    "ancestor_reuse_allowed": true
+  },
+  "generated_protected_paths": [
+    { "kind": "exact-existing", "path": "src", "root_index": 0, "purpose": "source" },
+    { "kind": "allowed-absent-generated", "path": "dist", "root_index": 0, "purpose": "generated output" },
+    { "kind": "pattern", "path": "coverage/**", "root_index": 0, "purpose": "generated evidence" }
+  ],
+  "command_authorization": { "state": "granted", "authorization_ref": "user-request", "inherited_from": null, "commands": ["test"] },
+  "verification_contract": {},
+  "sei_compatibility_binding": {
+    "engine_version": "1.3.0",
+    "effective_configuration": {},
+    "config_hash": "b79606fb3afea5bd1609ed40b622142f1c98125abcfe89a76a661b0e8e343910",
+    "execution_contract_hash": "a402c4336ebfd78227dea06341f394c60ab50d13d841cedf38df329afe4a304e",
+    "history_window": { "kind": "full" },
+    "history_window_hash": "259aa8ef98a8b91de574cd904138ef643240c23080cf24da4793a6f10a43fa9d",
+    "assessment_schema_version": "sei.engineering-assessment@3",
+    "analyzer_capabilities": {},
+    "analyzer_capability_hash": "38a5be91af79d7e5ba9809bf383c699b6864ee50446239fe56a45e32b84638fe"
+  },
+  "history_binding": { "kind": "git", "roots": [{ "repository_key": "e2885f2bbe3d7a8b08e328b9abf1e0824bebad97625b300e24649a256c6c4847", "revision": "0123456789abcdef0123456789abcdef01234567" }] },
+  "environment_toolchain": {},
+  "provenance": { "builder": "repository-improvement-assessment/scripts/build-baseline.js" }
+}

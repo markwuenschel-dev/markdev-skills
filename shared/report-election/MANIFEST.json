@@ -1,0 +1,47 @@
+{
+  "name": "report-election",
+  "version": "1.0.0",
+  "purpose": "Shared user-election contract for optional human-facing report projections while canonical machine artifacts remain mandatory.",
+  "owned_files": [
+    "MANIFEST.json",
+    "REPORT-ELECTION.md",
+    "report-election.schema.json",
+    "report-election.js",
+    "report-election.test.js",
+    "package-check.js"
+  ],
+  "consumers": [
+    "repository-improvement-assessment",
+    "repository-health-assessment",
+    "codebase-integrity-audit-loop",
+    "architecture-improvement-intelligence",
+    "software-engineering-intelligence"
+  ],
+  "authority": {
+    "owns": [
+      "report presentation policy ask/generate/skip/inherit",
+      "machine-lean guidance",
+      "nested report-owner inheritance",
+      "report-election validation"
+    ],
+    "does_not_own": [
+      "analysis rigor",
+      "evidence gathering",
+      "candidate scoring",
+      "health grading",
+      "architecture judgment",
+      "lifecycle routing",
+      "report content schemas or renderers"
+    ]
+  },
+  "non_goals": [
+    "making reports mandatory",
+    "letting skipped reports erase canonical artifacts",
+    "asking once per child in nested workflows",
+    "treating benchmark or receipt files as user-facing reports"
+  ],
+  "runtime": {
+    "engine": "node",
+    "dependencies": []
+  }
+}

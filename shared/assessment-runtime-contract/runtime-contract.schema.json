@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assessment-runtime-contract.schema.json",
+  "title": "Assessment owner runtime contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "owner", "version", "entrypoint", "input", "output", "authority", "presentation", "verification", "execution"],
+  "properties": {
+    "schema_version": { "const": "assessment-runtime-contract@1" },
+    "owner": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "entrypoint": { "type": "string", "minLength": 1 },
+    "input": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "optional"],
+      "properties": {
+        "required": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+        "optional": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "output": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "schema", "immutable", "reference_fields"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "schema": { "type": "string", "minLength": 1 },
+        "immutable": { "const": true },
+        "reference_fields": { "type": "array", "minItems": 4, "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+      }
+    },
+    "authority": {
+      "type": "object", "additionalProperties": false,
+      "required": ["owns", "does_not_own", "source_repository_mutation"],
+      "properties": {
+        "owns": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "does_not_own": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "source_repository_mutation": { "const": false }
+      }
+    },
+    "presentation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["supports_report", "accepts_inherit", "canonical_independent_of_report"],
+      "properties": {
+        "supports_report": { "type": "boolean" },
+        "accepts_inherit": { "type": "boolean" },
+        "canonical_independent_of_report": { "const": true }
+      }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "required": ["consumes_shared_baseline", "targeted_reverification_allowed"],
+      "properties": {
+        "consumes_shared_baseline": { "type": "boolean" },
+        "targeted_reverification_allowed": { "type": "boolean" }
+      }
+    },
+    "execution": {
+      "type": "object", "additionalProperties": false,
+      "required": ["executor_class", "flatten_under_ria", "full_skill_read_by_parent"],
+      "properties": {
+        "executor_class": { "enum": ["agent", "deterministic", "hybrid"] },
+        "flatten_under_ria": { "type": "boolean" },
+        "full_skill_read_by_parent": { "const": false }
+      }
+    }
+  }
+}

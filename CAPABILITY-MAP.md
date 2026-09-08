@@ -22,8 +22,11 @@ flowchart TD
 
     subgraph ASSESS["assess"]
         direction TB
+        RIA["repository-improvement-assessment"]
         RHA["repository-health-assessment"]
         CIAL["codebase-integrity-audit-loop"]
+        RIA --> RHA
+        RIA --> CIAL
         RHA -->|"integrity candidates"| CIAL
     end
 
@@ -60,6 +63,7 @@ flowchart TD
 | --- | --- | --- |
 | Shape one design / approved design package | `expanded-grill-with-docs` | Implement production code; open PRs; choose project priority |
 | Turn selected work into a binding execution contract | `implementation-plan-contract` | Select what to work on; write the code |
+| Combined health + integrity + architecture assessment from one baseline | `repository-improvement-assessment` | Graph reconciliation, execution, or publication; a health-only grade |
 | Grade repository health / establish a baseline | `repository-health-assessment` | Implement fixes; propose architecture direction; review one diff |
 | Audit and repair codebase integrity | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
@@ -78,6 +82,7 @@ flowchart TD
 | `loop-router` | any inventoried skill | Need matches a single row above |
 | `expanded-grill-with-docs` | `implementation-plan-contract` | Design approved; needs a binding execution contract |
 | `expanded-grill-with-docs` | `production-flywheel` | Approved design package reached; user wants delivery |
+| `repository-improvement-assessment` | `repository-health-assessment` / `codebase-integrity-audit-loop` / `architecture-improvement-intelligence` | Combined ASSESS projection; children inherit report policy |
 | `repository-health-assessment` | `codebase-integrity-audit-loop` | Graded baseline produced integrity candidates to repair |
 | `codebase-integrity-audit-loop` | `production-flywheel` | User selected one or more ledger candidates to ship |
 | `codebase-integrity-audit-loop` | `human-directed-swarm-planner` | User wants parallel report (`--parallel-report`) or a mission swarm |
@@ -103,10 +108,17 @@ Every top-level skill may reference these without redefining them:
 | Swarm lanes | [`shared/SWARM-LANES.md`](shared/SWARM-LANES.md) | Lane roles, captain rules, merge protocol |
 | Human decisions | [`shared/HUMAN-DECISIONS.md`](shared/HUMAN-DECISIONS.md) | Categories that block auto mode |
 | Loop state | [`shared/LOOP-STATE.md`](shared/LOOP-STATE.md) | Valid next starting points between loops |
+| RIA composite scoring | [`shared/ria-scoring/`](shared/ria-scoring/) | Six-dimension composite + ledger priority bands (−10…+22) |
+| RIA owner return | [`shared/ria-owner-return/`](shared/ria-owner-return/) | Closed `ria.owner-return@1` envelope |
+| Assessment runtime contract | [`shared/assessment-runtime-contract/`](shared/assessment-runtime-contract/) | Parent-facing owner input/output contract |
+| Verification baseline | [`shared/assessment-verification-baseline/`](shared/assessment-verification-baseline/) | Shared isolated command/coverage baseline |
+| Project intelligence workspace | [`shared/project-intelligence-workspace/`](shared/project-intelligence-workspace/) | `.project-intelligence/` durable root |
+| Report election | [`shared/report-election/`](shared/report-election/) | Generate/skip/inherit presentation policy |
+| Report presentation | [`shared/report-presentation/`](shared/report-presentation/) | Shared HTML report canvas |
 
 ## Known, not yet vendored
 
-`software-engineering-intelligence` — a provenance-bound SEI snapshot + evidence-backed engineering assessment sidecar — exists as a local/family skill but is not yet promoted into `skills/`. Not part of the routing graph above until it's ported; see [`DEPENDENCIES.md`](DEPENDENCIES.md).
+`software-engineering-intelligence` and `architecture-improvement-intelligence` remain local/family skills used by RIA but are not yet promoted into `skills/`. Pin them in [`DEPENDENCIES.md`](DEPENDENCIES.md); do not treat them as missing inventory rows.
 
 ## Boundaries (do not blur)
 

@@ -1,0 +1,44 @@
+{
+  "name": "project-intelligence-workspace",
+  "version": "1.0.0",
+  "entrypoint": "PROJECT-INTELLIGENCE-WORKSPACE.md",
+  "files": [
+    "PROJECT-INTELLIGENCE-WORKSPACE.md",
+    "workspace.schema.json",
+    "project-intelligence-workspace.js",
+    "workspace-cli.js",
+    "project-intelligence-workspace.test.js",
+    "package-check.js"
+  ],
+  "exports": [
+    "canonicalRepositoryRoot",
+    "repositoryKey",
+    "layout",
+    "ensureWorkspace",
+    "resolvePath",
+    "contentAddressedPath",
+    "reportPath",
+    "assessmentPath",
+    "decisionPath",
+    "firstExisting",
+    "createScratchSession",
+    "cleanupScratch",
+    "workspace-cli",
+    "canonicalJsonBytes",
+    "storeJsonArtifact",
+    "pruneReclaimable",
+    "gitCommonDir",
+    "repositoryFamilyKey"
+  ],
+  "storage_contract": {
+    "durable_root": ".project-intelligence",
+    "tracked_gitignore_mutation": false,
+    "local_git_exclude": true,
+    "external_durable_state": false,
+    "short_path_external_scratch": "ephemeral-only"
+  },
+  "determinism": {
+    "external_dependencies": false,
+    "node_builtins_only": true
+  }
+}

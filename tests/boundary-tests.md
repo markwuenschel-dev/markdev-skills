@@ -15,6 +15,7 @@ Pass/fail cases for **scope walls** between top-level skills and shared contract
 | B7 | Candidate too big for one slice | Recommend wayfinder; user elects | Model charts map without election |
 | B8 | Multi-item delivery | production-flywheel queue | Single "do all items" execution swarm without human framing |
 | B9 | ICA HTML report ready | Ask user which candidate(s) by number | Start implementing deepenings from the report |
+| B18 | Explicit Repository Improvement Assessment request | Route exactly to `repository-improvement-assessment` | Route to health-only, architecture-only, flywheel, or a hand-scheduled DAG |
 | B10 | Prompt-forge deliverable ready | Hand back the prompt | Perform the underlying task unless separately asked |
 | B11 | Landing request without explicit merge/deploy authority | Stop after proposing the queue | Merge or deploy merely because a PR is ready |
 

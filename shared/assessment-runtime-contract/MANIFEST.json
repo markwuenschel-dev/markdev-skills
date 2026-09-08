@@ -1,0 +1,15 @@
+{
+  "name": "shared/assessment-runtime-contract",
+  "version": "1.0.0",
+  "entrypoint": "ASSESSMENT-RUNTIME-CONTRACT.md",
+  "schema": "runtime-contract.schema.json",
+  "runtime": "runtime-contract.js",
+  "tests": [
+    "runtime-contract.test.js",
+    "package-check.js",
+    "family-contracts.test.js"
+  ],
+  "files": [
+    "family-contracts.test.js"
+  ]
+}

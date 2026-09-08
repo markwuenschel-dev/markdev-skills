@@ -1,0 +1,55 @@
+{
+  "schema_version": "assessment-runtime-contract@1",
+  "owner": "repository-health-assessment",
+  "version": "5.4.0",
+  "entrypoint": "SKILL.md",
+  "input": {
+    "required": [
+      "baseline_ref",
+      "engineering_intelligence_ref",
+      "verification_baseline_ref"
+    ],
+    "optional": [
+      "sei_assessment_ref",
+      "presentation_policy"
+    ]
+  },
+  "output": {
+    "kind": "health-assessment",
+    "schema": "health-assessment@5",
+    "immutable": true,
+    "reference_fields": [
+      "owner",
+      "artifact_id",
+      "sha256",
+      "repository_revision"
+    ]
+  },
+  "authority": {
+    "owns": [
+      "repository health grade",
+      "health evidence",
+      "health candidates"
+    ],
+    "does_not_own": [
+      "integrity candidate ownership",
+      "architecture judgment",
+      "lifecycle routing"
+    ],
+    "source_repository_mutation": false
+  },
+  "presentation": {
+    "supports_report": true,
+    "accepts_inherit": true,
+    "canonical_independent_of_report": true
+  },
+  "verification": {
+    "consumes_shared_baseline": true,
+    "targeted_reverification_allowed": true
+  },
+  "execution": {
+    "executor_class": "hybrid",
+    "flatten_under_ria": true,
+    "full_skill_read_by_parent": false
+  }
+}

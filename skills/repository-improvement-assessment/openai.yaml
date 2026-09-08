@@ -1,0 +1,5 @@
+interface:
+  display_name: "Repository Improvement Assessment"
+  short_description: "Coordinate one bounded ASSESS return from health, integrity, and architecture owners"
+policy:
+  allow_implicit_invocation: false

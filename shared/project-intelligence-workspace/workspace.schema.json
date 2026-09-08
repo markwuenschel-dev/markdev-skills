@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "project-intelligence-workspace.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "workspace_version",
+    "repository_key",
+    "worktree_key",
+    "repository_family_key",
+    "git_common_dir",
+    "directory",
+    "created_at",
+    "updated_at",
+    "lifetimes"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "project-intelligence-workspace@1"
+    },
+    "workspace_version": {
+      "const": 1
+    },
+    "repository_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "directory": {
+      "const": ".project-intelligence"
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lifetimes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "durable",
+        "reclaimable",
+        "ephemeral"
+      ],
+      "properties": {
+        "durable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "reclaimable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "ephemeral": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "worktree_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "repository_family_key": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "git_common_dir": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

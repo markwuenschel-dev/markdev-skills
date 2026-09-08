@@ -1,0 +1,211 @@
+{
+  "skill": "repository-improvement-assessment",
+  "version": "0.8.4",
+  "cases": [
+    {
+      "id": "routing-explicit-repository-improvement-assessment",
+      "prompt": "Run a Repository Improvement Assessment.",
+      "should_route": true,
+      "assertions": [
+        "Selects repository-improvement-assessment before child assessment",
+        "Materializes one RIA-owned opaque engineering_intelligence_ref from the canonical baseline",
+        "Returns exactly the baseline, that evidence ref, and three canonical owner references to the invoking caller",
+        "Does not reserve RECONCILE or dispatch a downstream owner",
+        "After canonical ASSESS completion, asks once whether to generate the combined report unless the user already chose"
+      ]
+    },
+    {
+      "id": "routing-explicit-ria",
+      "prompt": "Run RIA on this repo.",
+      "should_route": true,
+      "assertions": [
+        "Uses health, integrity, and architecture-improvement-intelligence --assessment",
+        "Passes the identical closed baseline/evidence envelope to every owner",
+        "Fails closed for absent, stale, copied, or malformed owner or evidence references",
+        "Returns an ASSESS projection only",
+        "Child report-capable owners inherit RIA presentation policy and do not ask separately"
+      ]
+    },
+    {
+      "id": "routing-negative-health-only",
+      "prompt": "Give me a health baseline only.",
+      "should_route": false,
+      "assertions": [
+        "Routes to repository-health-assessment",
+        "Does not start the combined assessment"
+      ]
+    },
+    {
+      "id": "read-only-assess",
+      "prompt": "Run a read-only Repository Improvement Assessment.",
+      "assertions": [
+        "Collects no future-stage artifact",
+        "Completes and validates the ASSESS projection before presentation election",
+        "Gives a result-specific generate/skip lean and asks one A/B report election when unspecified",
+        "If elected, synthesizes Executive Assessment, owner summaries, cross-cutting patterns, priorities, uncertainty, and downstream disposition without taking owner authority",
+        "Returns to the invoking caller without mutation, graph construction, execution, verification, or integration"
+      ]
+    },
+    {
+      "id": "report-election-explicit-generate",
+      "prompt": "Run RIA and give me the full report.",
+      "assertions": [
+        "Does not ask a redundant report question",
+        "Runs child report-capable owners with inherit",
+        "Generates one combined RIA report after validating the canonical ASSESS projection"
+      ]
+    },
+    {
+      "id": "report-election-explicit-skip",
+      "prompt": "Run RIA, no HTML report.",
+      "assertions": [
+        "Does not ask a redundant report question",
+        "Still completes all three assessment owners and the ASSESS projection",
+        "Returns concise synthesis with no human-facing report file"
+      ]
+    },
+    {
+      "id": "report-election-machine-lean",
+      "prompt": "Run RIA.",
+      "assertions": [
+        "Machine lean is generate or skip, never neutral",
+        "Lean reasoning cites actual result breadth/cross-cutting structure/uncertainty or narrowness",
+        "User owns the final A/B choice"
+      ]
+    },
+    {
+      "id": "startup-exact-reuse",
+      "prompt": "Run RIA again on the exact same revision with unchanged assessment contracts.",
+      "assertions": [
+        "The deterministic startup resolver selects EXACT_REUSE when repository revision, SEI engine/config, runtime contracts, and artifact hashes match",
+        "Reuses valid SEI and owner artifacts instead of redispatching agents or rerunning verification",
+        "Records cache hits and reason codes in the performance receipt"
+      ]
+    },
+    {
+      "id": "startup-incremental-reuse",
+      "prompt": "Run RIA on a descendant revision with a compatible ancestor intelligence artifact.",
+      "assertions": [
+        "The resolver proves Git ancestry and compatibility before selecting INCREMENTAL_REUSE",
+        "Only changed or invalidated evidence shards are recomputed",
+        "A reportless SEI manifest remains reusable and does not require cached HTML"
+      ]
+    },
+    {
+      "id": "startup-fresh-reasoned",
+      "prompt": "Run RIA where no exact or compatible ancestor artifact exists.",
+      "assertions": [
+        "Selects FRESH_BASELINE with explicit reason codes rather than agent preference",
+        "Starts SEI and the shared verification baseline concurrently after revision resolution",
+        "Does not serialize runtime-contract loading, report-policy resolution, or cache checks behind SEI"
+      ]
+    },
+    {
+      "id": "runtime-contracts-not-full-child-reads",
+      "prompt": "Start RIA with Health, Integrity, and Architecture installed.",
+      "assertions": [
+        "Loads each child-owned RUNTIME-CONTRACT.json in parallel ordinary I/O",
+        "The parent does not reread and summarize each full child SKILL.md before dispatch",
+        "Each child remains responsible for reading its own full contract when invoked"
+      ]
+    },
+    {
+      "id": "shared-verification-not-duplicate-suite",
+      "prompt": "Run RIA on a polyglot repository whose Health and Integrity owners need the same test baseline.",
+      "assertions": [
+        "Creates one immutable assessment-verification-baseline from an isolated worktree",
+        "Health and Integrity consume the same validated artifact by default",
+        "A second full suite runs only for a targeted anomaly, conflict, or high-risk verification need"
+      ]
+    },
+    {
+      "id": "owner-artifact-content-addressed-reuse",
+      "prompt": "Rerun only the RIA renderer after changing the presentation code.",
+      "assertions": [
+        "Does not invalidate Health, Integrity, Architecture, or SEI artifacts solely because presentation code changed",
+        "Regenerates report data and HTML from verified existing child artifacts",
+        "Owner cache keys bind owner version, runtime contract, baseline, intelligence, revision, and artifact hash"
+      ]
+    },
+    {
+      "id": "report-real-artifact-binding",
+      "prompt": "Generate the full RIA report from the completed ASSESS projection.",
+      "assertions": [
+        "Dereferences all three real owner artifacts read-only and recomputes their canonical scores where defined",
+        "Rejects demo baselines, placeholder hashes, synthetic owner summaries, hash mismatches, and unresolved child references in production mode",
+        "Fails report sufficiency rather than emitting a decorative artifact receipt"
+      ]
+    },
+    {
+      "id": "report-quantitative-analytics",
+      "prompt": "Generate the full RIA report for a result with numeric Health, Integrity, Architecture, verification, and runtime data.",
+      "assertions": [
+        "Shows overall grade and score, coverage, confidence, owner scorecards, candidate rankings, routing, verification, and runtime visualizations",
+        "Uses only canonical values; unavailable Architecture scores are displayed as Not scored rather than fabricated",
+        "Keeps provenance available without making raw hashes the primary report content"
+      ]
+    },
+    {
+      "id": "report-responsive-ultrawide",
+      "prompt": "Open the RIA HTML on a phone, laptop, and 32-inch widescreen desktop.",
+      "assertions": [
+        "Uses the shared responsive report canvas instead of a fixed 980px column",
+        "Collapses safely to one column on narrow screens and expands analytical panels across the 12-column desktop canvas",
+        "Keeps long-form prose readable while using additional width for charts, scorecards, tables, and evidence panels"
+      ]
+    },
+    {
+      "id": "global-dag-as-completed",
+      "prompt": "Run a fresh RIA with independent preparation, SEI, verification, owner, and report tasks.",
+      "assertions": [
+        "Schedules the whole run as one dependency-aware execution DAG with eager READY submission, as-completed consumption, immediate refill, and work stealing",
+        "Flattens nested owner work into the root pool where possible",
+        "Normalizes each owner result as it completes rather than waiting for a global owner barrier"
+      ]
+    },
+    {
+      "id": "production-path-execute-ria-adapter",
+      "prompt": "Run a Repository Improvement Assessment on this repo.",
+      "assertions": [
+        "Drives the run through executeRia with the agent adapter, not a hand-scheduled CLI checklist",
+        "Does not use ria-stock-adapter.js as production evidence",
+        "Pauses with awaiting-owner-returns / OWNER_RETURN_PENDING until Health, Integrity, and Architecture owner-return files exist"
+      ]
+    },
+    {
+      "id": "verification-baseline-required-envelope",
+      "prompt": "Run RIA so Health and Integrity share one verification baseline.",
+      "assertions": [
+        "Builds one worktree or copy isolation workspace and never uses read-only-source when coverage or tests may write",
+        "Puts verification_baseline_ref in the Health and Integrity envelopes before dispatch",
+        "Fails closed if that ref is missing"
+      ]
+    },
+    {
+      "id": "lineage-and-assess-are-completion-gates",
+      "prompt": "Finish the RIA ASSESS projection.",
+      "assertions": [
+        "Persists lineage/ria-artifacts.json, lineage/ria-current.json, and the ASSESS projection before returning complete",
+        "Does not treat an HTML report without those records as success"
+      ]
+    },
+    {
+      "id": "report-binder-spine-priority-and-health-rows",
+      "prompt": "Generate the full RIA report.",
+      "assertions": [
+        "Integrity priority 20 renders as Strong, not LOW",
+        "Health candidates appear as candidate rows, and the table caption states shown of total",
+        "routing_counts is derived from architecture dispositions when downstream_routing is empty"
+      ]
+    },
+    {
+      "id": "sei-trend-from-lineage-baseline",
+      "prompt": "Run RIA again on a later revision.",
+      "assertions": [
+        "Passes the prior SEI snapshot from lineage as --baseline when a comparable ancestor exists",
+        "Surfaces trend as a report sidecar, not as a fourth assessment_ref or ASSESS field"
+      ]
+    }
+  ],
+  "verification": "node skills/repository-improvement-assessment/scripts/task3-contract-check.js"
+}

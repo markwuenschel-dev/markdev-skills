@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "assessment-verification-baseline.schema.json",
+  "title": "Shared assessment verification baseline v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "artifact_id", "content_sha256", "repository", "baseline_ref", "isolation", "commands", "summary", "created_at"],
+  "properties": {
+    "schema_version": { "const": "assessment-verification-baseline@2" },
+    "artifact_id": { "type": "string", "pattern": "^assessment-verification:[0-9a-f]{64}$" },
+    "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "repository": { "type": "object", "additionalProperties": false, "required": ["repository_id", "revision", "working_tree_fingerprint"], "properties": { "repository_id": { "type": "string", "minLength": 1 }, "revision": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" }, "working_tree_fingerprint": { "type": "string", "minLength": 1 } } },
+    "baseline_ref": { "type": "object", "additionalProperties": false, "required": ["artifact_id", "sha256", "repository_revision"], "properties": { "artifact_id": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "repository_revision": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" } } },
+    "isolation": { "type": "object", "additionalProperties": false, "required": ["mode", "path", "source_repository_mutated"], "properties": { "mode": { "enum": ["worktree", "copy", "container", "read-only-source", "caller-attested", "none"] }, "path": { "type": ["string", "null"] }, "source_repository_mutated": { "const": false } } },
+    "commands": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "command", "status", "exit_code", "duration_ms", "reason", "evidence"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "command": { "type": "string", "minLength": 1 },
+          "status": { "enum": ["passed", "failed", "unavailable", "skipped", "timed-out"] },
+          "exit_code": { "type": ["integer", "null"] },
+          "duration_ms": { "type": "number", "minimum": 0 },
+          "reason": { "type": ["string", "null"] },
+          "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["passed", "failed", "unavailable", "skipped", "timed_out", "duration_ms"],
+      "properties": {
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "unavailable": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "integer", "minimum": 0 },
+        "timed_out": { "type": "integer", "minimum": 0 },
+        "duration_ms": { "type": "number", "minimum": 0 }
+      }
+    },
+    "environment": { "type": "object" },
+    "coverage": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" }
+  }
+}

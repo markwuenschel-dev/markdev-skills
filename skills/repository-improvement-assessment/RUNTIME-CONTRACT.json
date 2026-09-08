@@ -1,0 +1,67 @@
+{
+  "schema_version": "assessment-runtime-contract@1",
+  "owner": "repository-improvement-assessment",
+  "version": "0.8.4",
+  "entrypoint": "SKILL.md",
+  "input": {
+    "required": [
+      "repository",
+      "command_authorization",
+      "lifecycle",
+      "sei_compatibility_binding"
+    ],
+    "optional": [
+      "presentation_policy",
+      "artifact_lineage",
+      "runtime_capacity",
+      "depth",
+      "reuse_controls",
+      "verification_contract",
+      "allow_degraded",
+      "durable_mode",
+      "scope"
+    ]
+  },
+  "output": {
+    "kind": "assess-projection-v1",
+    "schema": "engineering-intelligence.schema.json#/$defs/assessProjection",
+    "immutable": true,
+    "reference_fields": [
+      "owner",
+      "artifact_id",
+      "sha256",
+      "repository_revision"
+    ]
+  },
+  "authority": {
+    "owns": [
+      "ASSESS coordination",
+      "baseline-to-intelligence binding",
+      "combined report election and presentation"
+    ],
+    "does_not_own": [
+      "health grade",
+      "integrity candidates",
+      "architecture judgment",
+      "later lifecycle stages"
+    ],
+    "source_repository_mutation": false
+  },
+  "presentation": {
+    "supports_report": true,
+    "accepts_inherit": true,
+    "canonical_independent_of_report": true
+  },
+  "verification": {
+    "consumes_shared_baseline": true,
+    "targeted_reverification_allowed": true
+  },
+  "execution": {
+    "executor_class": "hybrid",
+    "canonical_plan": "ria.execution-plan@2",
+    "event_stream": "ria.task-event@1",
+    "public_entrypoint": "scripts/ria.js",
+    "flatten_under_ria": true,
+    "full_skill_read_by_parent": false
+  }
+}

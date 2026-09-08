@@ -1,0 +1,13 @@
+{
+  "generated_path_patterns": [
+    "build/**",
+    "coverage/**",
+    "dist/**",
+    "generated/**",
+    ".project-intelligence/**"
+  ],
+  "history_window": {
+    "kind": "revision-range",
+    "start": null
+  }
+}

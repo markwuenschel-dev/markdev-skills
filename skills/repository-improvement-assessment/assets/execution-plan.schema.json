@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/repository-improvement-assessment/ria-execution-plan.schema.json",
+  "title": "Authoritative RIA execution plan v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "lifecycle", "depth", "profile", "allow_degraded", "presentation_policy", "reuse_controls", "max_parallel", "class_budgets", "resource_capacities", "tasks", "execution_semantics"],
+  "properties": {
+    "schema_version": { "const": "ria.execution-plan@2" },
+    "lifecycle": { "enum": ["plan", "run", "continue", "report-only", "verify-only"] },
+    "depth": { "enum": ["quick", "standard", "deep", "custom"] },
+    "profile": { "type": "object", "additionalProperties": false, "required": ["depth", "max_wall_minutes", "max_subagent_tokens", "max_tool_calls", "max_owner_candidates", "max_parallel_agents", "max_heavy_tools", "optional_tools", "evidence_budget"], "properties": { "depth": { "enum": ["quick", "standard", "deep", "custom"] }, "max_wall_minutes": { "type": "integer", "minimum": 1 }, "max_subagent_tokens": { "type": "integer", "minimum": 1 }, "max_tool_calls": { "type": "integer", "minimum": 1 }, "max_owner_candidates": { "type": "integer", "minimum": 1 }, "max_parallel_agents": { "type": "integer", "minimum": 1 }, "max_heavy_tools": { "type": "integer", "minimum": 1 }, "optional_tools": { "type": "boolean" }, "evidence_budget": { "enum": ["bounded", "standard", "deep", "custom"] } } },
+    "allow_degraded": { "type": "boolean" },
+    "presentation_policy": { "enum": ["ask", "generate", "skip"] },
+    "reuse_controls": { "type": "object", "additionalProperties": { "enum": ["auto", "rerun", "require-reuse"] } },
+    "max_parallel": { "type": "integer", "minimum": 1, "maximum": 10 },
+    "class_budgets": { "type": "object", "additionalProperties": false, "required": ["local-deterministic", "heavy-tool", "agent"], "properties": { "local-deterministic": { "type": "integer", "minimum": 1 }, "heavy-tool": { "type": "integer", "minimum": 1 }, "agent": { "type": "integer", "minimum": 1 } } },
+    "resource_capacities": { "type": "object", "additionalProperties": { "type": "integer", "minimum": 1 } },
+    "tasks": {
+      "type": "array", "minItems": 17, "maxItems": 17,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["task_id", "owner", "kind", "executor_class", "dependencies", "priority", "cache_key", "resources", "reuse", "failure_policy", "degraded_mode_reachability", "condition", "estimated_duration_ms", "max_retries"],
+        "properties": {
+          "task_id": { "type": "string", "minLength": 1 }, "owner": { "type": "string", "minLength": 1 }, "kind": { "type": "string", "minLength": 1 },
+          "executor_class": { "enum": ["local-deterministic", "heavy-tool", "agent"] },
+          "dependencies": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+          "priority": { "type": "number" }, "cache_key": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "resources": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["id", "mode", "permits"], "properties": { "id": { "type": "string" }, "mode": { "enum": ["shared", "exclusive"] }, "permits": { "type": "integer", "minimum": 1 } } } },
+          "reuse": { "type": "object", "additionalProperties": false, "required": ["component", "policy"], "properties": { "component": { "type": ["string", "null"] }, "policy": { "enum": ["auto", "rerun", "require-reuse"] } } },
+          "failure_policy": { "type": "object", "additionalProperties": false, "required": ["mode"], "properties": { "mode": { "enum": ["strict", "degrade", "observe"] } } },
+          "degraded_mode_reachability": { "type": "boolean" }, "condition": { "type": ["string", "null"] }, "estimated_duration_ms": { "type": ["number", "null"], "minimum": 0 }, "max_retries": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "execution_semantics": { "type": "object", "additionalProperties": false, "required": ["ready_queue", "completion", "refill", "work_conserving", "invalidation", "cancellation", "persistence"], "properties": { "ready_queue": { "const": "eager" }, "completion": { "const": "as_completed" }, "refill": { "const": "immediate" }, "work_conserving": { "const": true }, "invalidation": { "const": "graph-descendants" }, "cancellation": { "const": "dependency-and-budget" }, "persistence": { "const": "ria.task-event@1" } } }
+  }
+}

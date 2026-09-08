@@ -1,0 +1,283 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openai:repository-improvement-assessment:report-data:v3",
+  "title": "Repository Improvement Assessment report data v3",
+  "description": "A derived, presentation-only analytics model built by hash-binding and normalizing the three canonical owner artifacts. It is not the canonical ASSESS projection.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "report_schema_version",
+    "generated_at",
+    "repository",
+    "mode",
+    "baseline_ref",
+    "assessment_refs",
+    "report_election",
+    "artifact_bindings",
+    "analytics",
+    "synthesis",
+    "blockers",
+    "provenance"
+  ],
+  "properties": {
+    "report_schema_version": {
+      "const": 3
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "name",
+        "revision"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "mode": {
+      "enum": [
+        "plan",
+        "read-only",
+        "run",
+        "continue"
+      ]
+    },
+    "baseline_ref": {
+      "$ref": "#/$defs/ref"
+    },
+    "engineering_intelligence_ref": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "assessment_refs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "$ref": "#/$defs/ownerRef"
+      }
+    },
+    "report_election": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "policy",
+        "lean",
+        "reason",
+        "state"
+      ]
+    },
+    "artifact_bindings": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "required": [
+          "owner",
+          "path",
+          "sha256"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "owner": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "analytics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "health",
+        "integrity",
+        "architecture",
+        "routing_counts",
+        "candidate_portfolio",
+        "trend",
+        "convergence_counts",
+        "performance",
+        "sei_telemetry",
+        "testing",
+        "coverage",
+        "composite"
+      ],
+      "properties": {
+        "health": {
+          "type": "object"
+        },
+        "integrity": {
+          "type": "object"
+        },
+        "architecture": {
+          "type": "object"
+        },
+        "routing_counts": {
+          "type": "array"
+        },
+        "candidate_portfolio": {
+          "type": "object"
+        },
+        "trend": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "convergence_counts": {
+          "type": "array"
+        },
+        "performance": {
+          "type": "object"
+        },
+        "sei_telemetry": {
+          "type": "object"
+        },
+        "testing": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "coverage": {
+          "type": "object"
+        },
+        "composite": {
+          "type": "object"
+        }
+      }
+    },
+    "synthesis": {
+      "type": "object"
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "report_model",
+        "child_artifacts_hash_verified",
+        "child_artifacts_revision_verified",
+        "health_grading_recomputed",
+        "integrity_scoring_recomputed",
+        "architecture_scores_fabricated"
+      ],
+      "properties": {
+        "child_artifacts_hash_verified": {
+          "const": true
+        },
+        "child_artifacts_revision_verified": {
+          "const": true
+        },
+        "health_grading_recomputed": {
+          "const": true
+        },
+        "integrity_scoring_recomputed": {
+          "const": true
+        },
+        "architecture_scores_fabricated": {
+          "const": false
+        }
+      }
+    },
+    "specialist_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "testing-fitness"
+            ]
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ref": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "ownerRef": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/ref"
+        }
+      ],
+      "required": [
+        "owner",
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "owner": {
+          "enum": [
+            "repository-health-assessment",
+            "codebase-integrity-audit-loop",
+            "architecture-improvement-intelligence"
+          ]
+        }
+      }
+    }
+  }
+}
