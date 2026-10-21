@@ -1,55 +1,67 @@
 ---
 name: human-directed-swarm-planner
-description: "Plan and run human-directed agent swarms: parallel subagent lanes executing one human-selected mission. Use when the user asks for a swarm of any type (repo-audit report, exploration, review, bug, planning, research, fitness-check, migration, production implementation), a multi-agent plan, agent lanes, or a parallel execution topology — or when another skill needs a mission or contract decomposed into parallel lanes, or needs broad repo-wide analysis without edits. Supports --auto --max-turns."
+description: "Use when one selected mission needs parallel lanes, swarm decomposition, broad read-only multi-agent analysis, or execution-topology design. Run read-only swarms directly; for repository mutation, produce a conflict/resource-aware topology and hand it to production-flywheel, the sole mutating delivery owner. Not for direct implementation. Supports --auto --max-turns."
 disable-model-invocation: false
 ---
 
 # Human-Directed Swarm Planner
 
-Use this skill to design, route, and run human-directed agent swarms.
+Use this skill to design, route, and coordinate human-directed swarms.
 
-A swarm is an execution topology, not autonomous project selection.
+A swarm is a topology: independent questions/work units, dependencies, resource conflicts, barriers, lane contracts, and integration ownership. It is **not** a second implementation lifecycle.
 
-The human chooses:
+## Ownership boundary
 
-- mission
-- repo/project
-- target candidate, question, branch, failure, or report
-- allowed scope
-- allowed skills/tools
-- whether agents may edit code or only report findings
-- whether auto mode is allowed
+The human or explicit invoking caller chooses the mission, repository, scope, selected candidate/action, authorization boundary, allowed tools, and whether mutation is authorized.
 
-The swarm planner chooses:
+`human-directed-swarm-planner` owns:
 
-- swarm type
-- lane structure
-- subagent decomposition
-- gates
-- failure codes
-- verification plan
-- merge/capture protocol
+- swarm type selection;
+- adaptive lane and subagent decomposition;
+- dependency and conflict topology;
+- write/resource ownership declarations;
+- phase barriers and concurrency shape;
+- captain/integrator assignment;
+- verification topology and evidence-return contracts;
+- read-only swarm execution and synthesis.
+
+`production-flywheel` owns **all mutating production delivery**:
+
+- worktree/branch setup;
+- repository writes and implementation dispatch;
+- commits;
+- producer-side review/repair rounds;
+- independent-verification boundaries;
+- Stage 15 execution handoff;
+- policy-gated push/PR behavior.
+
+This planner never mutates source/config/test files, commits, pushes, opens PRs, or claims completion of downstream implementation. A specialist skill named by the topology may perform mutation only when invoked inside `production-flywheel`'s authorized delivery workflow.
+
+The explicit caller retains mission and authorization ownership. RIA, Health, Integrity, Architecture, RGO, debugging, and other specialists retain their own domain authority. `production-flywheel` is the canonical mutating delivery owner.
 
 ## Core rule
 
-The swarm is human-directed: it executes the human-selected mission and nothing beyond it. Work discovered mid-swarm becomes a reported finding or a proposed next mission, never new scope.
+The swarm is human-directed: it addresses the selected mission and nothing beyond it. Work discovered mid-swarm becomes a finding, closure question, or proposed next mission; it never silently expands scope.
+
+For read-only work, this skill may dispatch and synthesize lanes itself. For mutating work, it stops at an **execution-topology handoff** to `production-flywheel`.
 
 ## Model invocation policy
 
-This skill is model-invokable: invoke it when its role is needed inside the current approved workflow, without waiting for the user to name it.
+This skill is model-invokable when topology materially improves the current approved workflow. Invocation does not create scope or delivery authorization.
 
-Model invocation does not expand scope. The active mission, selected candidate, queue item, or implementation contract carries over unchanged — starting a new audit, roadmap, queue, or unrelated cleanup takes a user request. If invoking this skill would change the user's authorization boundary, pause and ask.
+Do not invoke it for a one-off single-surface edit or a problem with no meaningful independent lanes. Do not use it merely to increase agent count.
 
 ## Operating modes
 
-Manual mode is the default.
+Manual mode is the default. Choose exactly one:
 
-Manual mode:
+- **Plan mode** — the human asks to plan, design, size, or prepare a swarm. Produce the full swarm plan and stop.
+- **Read-only run mode** — the mission is structurally or electively read-only. Dispatch only read-only lanes, synthesize their evidence, and return the required report/owner references.
+- **Execution-topology handoff mode** — mutation is requested or already authorized. Perform only the read-only premise/topology work needed to derive a safe execution topology, then hand that topology and the unchanged authorization boundary to `production-flywheel`. Do not perform the mutation here.
 
-1. Clarify or infer the selected mission.
-2. Choose the appropriate swarm type.
-3. Produce one swarm plan.
-4. Stop with the plan for user approval. Manual mode produces a plan by default: it executes only when the user explicitly requests execution or the active workflow already authorizes it.
+When ambiguous, use Plan mode. A direct request such as "implement this with a swarm" means **derive the swarm topology and route the authorized implementation to `production-flywheel`**, not "mutate from the planner."
+
+## Auto mode
 
 Auto mode may be enabled explicitly:
 
@@ -58,172 +70,129 @@ Auto mode may be enabled explicitly:
 --max-turns <N|max>
 ```
 
-`--auto` without `--max-turns` defaults to `--max-turns 1` (a single mission). `--max-turns N` counts missions: auto mode executes up to N sequential missions, where one mission is one complete swarm job:
+`--auto` without `--max-turns` defaults to one planner mission. `--max-turns N` counts planner missions, not implementation tasks.
 
-```text
-mission selected → lanes assigned → subagents briefed → findings integrated → verification/capture defined → next mission selected or stopped
-```
+A read-only auto mission may run to synthesis here. A mutating auto mission may advance past topology only when the caller supplies a matching exact delivery/action authorization for `production-flywheel`; otherwise stop with `MISSING_DELIVERY_AUTHORIZATION`.
 
-Examples:
-
-```text
-/human-directed-swarm-planner --auto --max-turns 3
-```
-
-Plan or run the top 3 eligible missions from the selected report/ledger, in canonical ledger order (eligibility and ranking per [AUTO-MODE.md](AUTO-MODE.md)).
-
-```text
-/human-directed-swarm-planner --auto --max-turns max
-```
-
-Continue through all eligible missions from the selected report/ledger, in canonical ledger order, until exhausted or blocked.
-
-Auto mode consumes an existing report/ledger or a report produced at the user's direction. It does not create new scope. When `--auto` is set, read [AUTO-MODE.md](AUTO-MODE.md) before the first mission — mission sources, eligibility, ranking, hard stops, and the stop report live there.
+When `--auto` is set, read [AUTO-MODE.md](AUTO-MODE.md) before selecting the first mission and execute the read-only `scripts/auto-guard.js` check. This planner never creates or claims canonical runtime state.
 
 ## Hard rules
 
-- Human direction controls mission and scope.
-- One swarm mission at a time.
-- Cleanup is a mission only when the human names it and its boundary.
-- Each swarm must have a captain/integrator.
-- Each lane must have a concrete output.
-- Every swarm must define gates, failure codes, report requirements, and definition of done.
-- If code changes are allowed, verification commands are required.
-- If code changes are not allowed, findings must be classified and evidence-backed.
-- Auto mode must stop on human-decision categories.
+- Human/caller authorization controls mission and scope.
+- One planner mission at a time.
+- Every swarm has a captain/integrator and concrete lane outputs.
+- Parallel lanes exist only when independence is real and useful.
+- Read-only lanes may gather evidence; mutating lanes are **described here and executed by `production-flywheel`**.
+- Every mutating topology declares allowed/forbidden writes, shared/exclusive resources, dependencies, acceptance evidence, and failure conditions.
+- Artifact-derived premises are rechecked on the execution revision before they become mutation-eligible.
+- Auto mode stops on human-decision categories.
+- No planner output may author a remediation/action graph, claim lifecycle state, select new candidates, or reinterpret delivery authorization.
 
 ## Swarm router
 
-Two swarm classes exist, and they never blur. **Repo Audit** is the read-only class: it inspects the whole repo and produces one scored HTML report plus one candidate ledger, writing nothing but those artifacts, and stops there. Every other type is an **Execution Swarm**: it works one human-selected mission and may edit files only inside that mission's scope — under an approved implementation contract when one exists.
+Route the selected mission to exactly one type, then read [SWARM-TYPES.md](SWARM-TYPES.md).
 
-Route the human-selected mission to exactly one swarm type, then read [SWARM-TYPES.md](SWARM-TYPES.md) for that type's goal, lanes, outputs, and hard rules:
+- **Repo Audit** — structurally read-only multi-lens candidate discovery. Formal health grades belong to `repository-health-assessment`.
+- **RIA Assessment Topology** — subordinate read-only topology selected only by `repository-improvement-assessment` during ASSESS. RIA owns evidence materialization and assessment coordination; this planner only supplies/coordinates lane topology.
+- **Explorer** — read-only terrain, seams, candidates, risks, and unknowns.
+- **Review** — read-only pressure test of an existing change/artifact. Any requested repair becomes an execution-topology handoff.
+- **Bug** — parallel diagnostic investigation only when a defect has genuinely independent surfaces. `adaptive-causal-debugging` owns the diagnostic protocol; this planner owns only parallel investigation topology. Any repository repair executes through `production-flywheel`.
+- **Planning** — production-grade implementation topology/contract design; pairs with `implementation-plan-contract`.
+- **Research** — read-only external/current evidence gathering.
+- **Fitness-check** — design an enforceable check and, if implementation is authorized, emit its mutating topology to `production-flywheel`.
+- **Migration / Connected-Impact** — derive blast radius and work topology; `connected-impact-sweep` provides specialist semantics, while mutation executes through `production-flywheel`.
+- **Production execution topology** — decompose one already-authorized production item/action into independent work units for `production-flywheel`. This is never an alternative execution owner.
 
-- **Repo Audit** — read-only, repo-wide: another skill (e.g. `codebase-integrity-audit-loop --parallel-report`) or the user needs broad multi-lens analysis without edits; derive adaptive evidence lanes, merge into one candidate-discovery report + shared-spine ledger, then stop at the candidate gate. Formal health grades, baselines, and reassessments route to `repository-health-assessment`; structural design routes to `improve-codebase-architecture-mwdev` (deprecated alias — forwards to `architecture-improvement-intelligence`, not yet vendored in this repo).
-- **Explorer** — problem shape unknown; map terrain, seams, candidates, risks, unknowns.
-- **Review** — a change, branch, PR, or generated artifact exists and needs pressure-testing before merge.
-- **Bug** — failing test, production bug, flaky behavior, mysterious regression, unexplained red state, *with several independent investigative surfaces*. Topology only: `adaptive-causal-debugging` owns the diagnostic protocol and each lane runs it (`diagnosing-bugs-mwdev` is a deprecated alias, not the live owner); this swarm never restates those stages. One defect with one line of enquiry goes straight to `adaptive-causal-debugging` with no swarm.
-- **Planning** — target known, execution plan must be production-grade; pairs with implementation-plan-contract.
-- **Research** — work depends on external facts, libraries, standards, or current information.
-- **Fitness-check** — make one recurring failure mode impossible or immediately visible via an enforceable check.
-- **Migration / Connected-Impact** — a schema, path, public API, enum, artifact format, taxonomy, or contract changes; pairs with connected-impact-sweep.
-- **Production implementation** — deliver one selected production *milestone* as parallel lanes with full-shield gates. Boundary: this is **one milestone decomposed into parallel surfaces**; a *queue* of separate items delivered sequentially, each as its own per-item PR, is `production-flywheel`'s job, not a swarm. Opens a PR and stops — never merges.
+## Mutating execution-topology protocol
+
+Before any downstream mutation, fill [assets/execution-topology.yaml](assets/execution-topology.yaml). It is a topology/handoff record, never an authority source.
+
+1. **Bind authority.** Record mission identity, execution revision, selected action/item, and the immutable/user authorization reference that `production-flywheel` must consume. Do not create a new queue or graph.
+2. **Recheck premises.** Classify artifact-derived premises as `confirmed`, `contradicted`, `stale`, or `unverifiable`. Only `confirmed` premises may produce mutating work units.
+3. **Describe work units.** For every downstream mutating unit, declare inputs, allowed/forbidden writes, shared/exclusive resources, dependencies, specialist method, deliverable, acceptance evidence, and failure conditions. Also emit conservative `planned_impact` (allowed paths, expected symbols, resources, generated artifacts, global gates, confidence) when the caller requests campaign scheduling evidence; unknown impact is never guessed.
+4. **Derive conflicts.** Write/write overlap, unsafe write/read coupling, exclusive-resource overlap, generated-state collision, and validation-environment collision require serialization or isolation.
+5. **Schedule barriers.** Use only necessary phases: premise, mutation, integration, verification. Logical lanes may exceed runtime capacity. When `agent-executor-pool` is available, declare parallelism classes/resource capacities and let its bounded scheduler provide backpressure/refill; otherwise schedule conservative waves.
+6. **Keep planner/captain mutation-clean.** If downstream integration requires edits, name an explicit Flywheel-owned integration/reconciliation work unit.
+7. **Encode foreign-failure behavior.** A downstream lane encountering a failure on a foreign-owned surface reports `FOREIGN_FAILURE`; it must not repair that surface unless Flywheel reauthorizes/reshapes ownership.
+8. **Classify discovered work.** Authorized work, bounded closure work, adjacent finding, or new scope. Only Flywheel may admit closure work into mutation, and only under the accepted predicate and existing authorization.
+9. **Emit the handoff.** Target `production-flywheel`, preserve the caller's authorization/scope unchanged, and return the topology reference plus selected work-unit ids and resource/barrier summary. The planner's mutating mission is then complete.
+
+For canonical `--action-graph` delivery, the action graph and its runtime remain authoritative for action readiness and cross-action concurrency. Planner topology may decompose work **inside an already authorized action or claimed wave**; it cannot rewrite the graph, change the frontier, or override D7 safety/resource proofs.
 
 ## Generic swarm output format
 
-Every swarm plan must include:
+Every **Plan-mode** swarm plan includes:
 
 ```markdown
 # Swarm Plan: <mission>
 
 ## Executive mission
-
 ## Human-selected boundary
-
 ## Current baseline
-
 ## Strategic meaning
-
 ## Scope
-
 ## Non-goals
-
 ## Allowed skills/tools
-
 ## Agent lanes
-
 ## Subagent decomposition
-
-## Required commands
-
+## Dependencies / resource conflicts
+## Required evidence / commands
 ## Gates
-
 ## Failure codes
-
 ## Negative fixtures / adversarial checks
-
 ## Report requirements
-
 ## Human decision points
-
-## Merge / integration gate
-
+## Integration topology
 ## Definition of done
-
 ## Final success statement
 ```
 
-**Read-only swarms** (Repo Audit, Explorer, Review, Research — anything where the human disallowed code edits) omit or mark **N/A** the sections that presuppose edits: *Required commands*, *Merge / integration gate*, and edit-verification. This matches the Hard rules — verification commands are required *only* when code changes are allowed; when they aren't, findings must instead be classified and evidence-backed.
+A **Read-only run** returns lane evidence, integrated findings/owner references, unresolved contradictions, known risks, deferred findings, and the next safe route. It reports no source-code mutation.
 
-## Non-goals requirement
+An **Execution-topology handoff** returns:
 
-Every swarm must state explicit non-goals.
+- mission/action identity and execution revision;
+- preserved authorization reference;
+- confirmed/excluded premises;
+- logical lanes/work units;
+- allowed/forbidden writes and shared/exclusive resources;
+- conflict graph, waves, and barriers;
+- integration and verification owners;
+- specialist skills/methods to invoke downstream;
+- `production-flywheel` handoff target;
+- exact blockers/human decisions.
 
-Examples:
-
-- Not broad cleanup.
-- Not a compatibility-wrapper migration.
-- Not a documentation-only project.
-- Not validator weakening.
-- Not demo-first shortcutting.
-- Not autonomous roadmap selection.
-- Not unrelated refactors.
+It does **not** report downstream implementation as complete.
 
 ## Failure codes
 
-Every swarm should define failure codes appropriate to the mission.
-
-Examples:
+Use the smallest relevant set:
 
 ```text
-FAIL-SCOPE-CREEP — work expanded beyond the human-selected mission.
-FAIL-FAKE-GREEN — report claims pass while required checks were skipped.
-FAIL-CONTRACT-DRIFT — producer and consumer schemas disagree.
-FAIL-STALE-PATH — retired path remains reachable from active entrypoint.
-FAIL-WEAK-VALIDATOR — validator accepts invalid fixture.
-FAIL-UNVERIFIED-RUNTIME — runtime behavior claimed without smoke/playtest proof.
-FAIL-MISSING-PROVENANCE — generated artifact lacks source/owner metadata.
-FAIL-UNRESOLVED-LANE-CONFLICT — lanes disagree and the captain did not resolve it.
+FAIL-SCOPE-EXPANSION — topology moved beyond the authorized mission or valid closure boundary.
+FAIL-UNVERIFIED-PREMISE — a mutating unit was derived from an unconfirmed artifact premise.
+FAIL-OWNERSHIP-VIOLATION — topology assigns conflicting or undeclared ownership.
+FAIL-DIRECT-MUTATION-OWNERSHIP — the planner attempted repository mutation instead of handing off to production-flywheel.
+FAIL-FOREIGN-EDIT — a downstream lane modified a foreign-owned surface while handling a failure.
+FAIL-UNATTRIBUTED-GATE-FAILURE — a complete-gate failure has no owner or affected surface.
+FAIL-UNRESOLVED-LANE-CONFLICT — independent lanes cannot be safely reconciled.
+MISSING_DELIVERY_AUTHORIZATION — mutation was requested but no valid Flywheel delivery/action authorization exists.
 ```
 
-## Report requirements
-
-Final swarm handoff must include:
-
-- swarm type
-- human-selected mission
-- allowed scope
-- agents/lanes used
-- subagents assigned
-- findings by lane
-- integrated decision
-- files changed, if any
-- commands run and results
-- skipped checks
-- known risks
-- blocked decisions
-- deferred unrelated findings
-- next recommended command
+Add mission-specific failure codes only when they answer a concrete risk.
 
 ## Skill invocation discipline
 
-This swarm may invoke other skills only inside the human-selected mission.
+This planner may invoke read-only specialists inside the selected mission. Examples include assessment owners under RIA, review/research lenses, `connected-impact-sweep` report-only analysis, or `adaptive-causal-debugging` / compatibility-fallback investigative lanes.
 
-Allowed examples:
-
-- `codebase-integrity-audit-loop` for report/candidate ledger and integrity candidates
-- `connected-impact-sweep` for migration/contract/coherence execution
-- `implementation-plan-contract` for converting the selected mission into an execution contract before lanes are shaped
-- review/static/research skills only when the mission calls for them
-
-Skills run as lanes inside the mission, never as independent autonomous missions, unless the user explicitly directs it.
+For mutating work, the planner **names** specialist methods/skills in the topology; `production-flywheel` invokes them under its delivery authorization. `tdd`, debugging repair, migration edits, implementation agents, and integration repair do not become independent delivery owners.
 
 ## Mission completion
 
-A mission is complete only when:
+Planner completion depends on mode:
 
-- the selected swarm mission has produced its required output
-- lane findings are integrated
-- conflicts are resolved or surfaced as human decisions
-- verification/capture requirements are stated or executed
-- next mission state is explicit
-- auto mode ledger is updated when applicable
+- **Plan:** topology/plan is complete and ready for human/caller decision.
+- **Read-only run:** lane evidence is integrated and required report/owner references are returned.
+- **Execution-topology handoff:** a valid topology is bound to the selected authorization and handed to `production-flywheel`, or the exact blocker is reported.
+
+Downstream implementation, commit, verification, publication, and lifecycle completion are not planner completion claims.

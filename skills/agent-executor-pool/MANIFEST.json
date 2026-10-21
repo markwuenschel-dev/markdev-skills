@@ -1,6 +1,6 @@
 {
   "name": "agent-executor-pool",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "entrypoint": "SKILL.md",
   "invocation": {
     "model_invocable": false,
@@ -21,7 +21,8 @@
       "bounded scheduling mechanics",
       "worker futures",
       "resource permits",
-      "worker lease fencing"
+      "worker lease fencing",
+      "durable bounded-attempt records"
     ],
     "does_not_own": [
       "lifecycle",
@@ -33,11 +34,14 @@
   },
   "exports": [
     "ExecutorPool",
-    "WorkerLeaseStore"
+    "WorkerLeaseStore",
+    "AttemptStore"
   ],
   "scripts": [
     "scripts/package-check.js",
     "runtime.test.js",
-    "worker-lease-store.test.js"
+    "worker-lease-store.test.js",
+    "worker-lease-contention.test.js",
+    "attempt-store.test.js"
   ]
 }

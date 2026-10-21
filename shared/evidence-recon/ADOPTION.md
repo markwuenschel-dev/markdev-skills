@@ -21,3 +21,8 @@ Repository Improvement Assessment, the integrity and architecture assessment ski
 ## Integration law
 
 A consumer may specialize the shared vocabulary but may not fork it. Domain-specific scoring, denominators, decision graphs, grades, and verification remain consumer-owned. Shared packet validation is a prerequisite for generic evidence handoff, not permission to bypass the consumer's own completeness or authority gates.
+
+
+## Durable packet storage
+
+When a packet is persisted, use `writeEvidencePacketForRepository()` so durable evidence lands under `.project-intelligence/evidence/`. Inline packets may remain in memory when no durable handoff is needed.

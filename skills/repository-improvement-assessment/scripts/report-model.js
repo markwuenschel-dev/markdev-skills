@@ -4,7 +4,7 @@ const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
-const { weightedComposite, normalizeCoverageMetrics, ledgerPriorityBand } = require("./scoring.js");
+const { finiteOrNull, weightedComposite, normalizeCoverageMetrics, ledgerPriorityBand } = require("./scoring.js");
 const { validatePerformanceReceipt } = require("./performance-receipt.js");
 const { validateElectionRecord } = require("../../shared/report-election/report-election.js");
 
@@ -23,11 +23,8 @@ function canonical(value) {
 function canonicalJson(value) { return JSON.stringify(canonical(value)); }
 function sha256(bytes) { return crypto.createHash("sha256").update(bytes).digest("hex"); }
 function nonempty(value) { return typeof value === "string" && value.trim().length > 0; }
-function finite(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
-}
+function shortOwnerName(owner) { return owner === OWNERS[0] ? "Health" : owner === OWNERS[1] ? "Integrity" : owner === OWNERS[2] ? "Architecture" : String(owner); }
+const finite = finiteOrNull; // P1: one shared coercion path (shared/ria-scoring/scoring.js)
 function countBy(values, selector) {
   const counts = new Map();
   for (const value of values || []) {
@@ -165,6 +162,9 @@ function normalizeHealth(health, HV, LV) {
     score: finite(verified.grade.raw_score),
     final_grade: verified.grade.final_grade,
     raw_grade: verified.grade.raw_grade,
+    // Health's own gradability verdict. RIA propagates it instead of computing a letter.
+    not_gradable: verified.grade.not_gradable === true || verified.grade.final_grade === "Not gradable",
+    not_gradable_reason: verified.grade.reason || null,
     weighted_coverage: finite(verified.coverage.weighted_coverage),
     evidence_strength: finite(verified.coverage.evidence_strength),
     core_availability: finite(verified.coverage.core_availability),
@@ -181,6 +181,19 @@ function normalizeHealth(health, HV, LV) {
     })).sort((a, b) => (a.score ?? Infinity) - (b.score ?? Infinity) || stableCompare(a.id, b.id)),
     coverage_states: coverageStates,
     evidence_quality: evidenceQuality,
+    // Claims carry confirmed/inferred/unknown observations and evidence paths; surfaces
+    // carry the reason a surface was uncovered. Both were reduced to counts here and the
+    // detail discarded, which is why the report's uncertainty section had nothing to say.
+    claims: (Array.isArray(health.claims) ? health.claims : []).map(claim => ({
+      claim_id: claim.claim_id,
+      lane: claim.lane,
+      statement: claim.statement || "",
+      result: claim.result,
+      observation: claim.observation || {},
+      evidence: (Array.isArray(claim.evidence) ? claim.evidence : []).map(item => ({ path: item?.path || "", note: item?.note || "" })),
+    })),
+    review_proof_basis: reviewProofBasisCounts(health.claims),
+    surfaces: verified.coverage.rows.map(row => ({ id: row.id, coverage: row.coverage, applicable: row.applicable === true, reason: row.reason || null })),
     commands,
     command_summary: countBy(commands, command => command.result),
     caps: verified.grade.caps_applied || [],
@@ -202,6 +215,8 @@ function spineCandidates(verified) {
     scores: candidate.scores || {},
     recommended_action: candidate.rollup?.recommended_action || null,
     execution_mode: candidate.rollup?.execution_mode || null,
+    lane_sources: Array.isArray(candidate.lane_sources) ? candidate.lane_sources.map(String) : [],
+    claim_refs: Array.isArray(candidate.claim_refs) ? candidate.claim_refs.map(String) : [],
     rank: candidate.rank,
   }));
 }
@@ -253,7 +268,8 @@ function normalizeArchitecture(candidateSet, optionalLedger, LV) {
   });
   candidates.sort((a, b) => (b.priority ?? -Infinity) - (a.priority ?? -Infinity) || a.rank - b.rank || stableCompare(a.candidate_id, b.candidate_id));
   const architectureFitnessModule = require(path.resolve(__dirname, "..", "..", "architecture-improvement-intelligence", "assets", "architecture-fitness.js"));
-  const fitness = candidateSet.architecture_fitness ? architectureFitnessModule.normalizeArchitectureFitness(candidateSet.architecture_fitness) : null;
+  const fitnessInput = architectureFitnessModule.normalizeCandidateFitness(candidateSet);
+  const fitness = fitnessInput.architecture_fitness ? architectureFitnessModule.readArchitectureFitness(fitnessInput.architecture_fitness) : null;
   return {
     candidate_count: candidates.length,
     scored_count: candidates.filter(candidate => candidate.priority !== null).length,
@@ -263,6 +279,7 @@ function normalizeArchitecture(candidateSet, optionalLedger, LV) {
     critic_counts: countBy(candidates, candidate => candidate.critic_outcome),
     coverage_receipt: candidateSet.coverage_receipt || null,
     fitness,
+    ...(fitnessInput.architecture_fitness_unavailable ? { fitness_unavailable: fitnessInput.architecture_fitness_unavailable } : {}),
   };
 }
 function normalizeTestingFitness(file, ref, revision) {
@@ -273,55 +290,282 @@ function normalizeTestingFitness(file, ref, revision) {
   if (value.source?.repository_revision && value.source.repository_revision !== revision) throw new Error("TESTING_FITNESS_REVISION_MISMATCH");
   return value;
 }
+/** Repository Health's Evidence Recon sidecar, carried as an evidence-recon specialist_ref
+ * on the Health owner return. RIA is its consumer: it hash-binds the packet and lists it as
+ * a specialist binding. It never contributes a score.
+ *
+ * Since evidence-recon 1.1.0 the packet may name the health artifact it was projected from
+ * (producer.artifact_refs[kind=health-artifact]). When present, its sha256 must equal the
+ * hash-bound Health artifact's sha256, or the sidecar belongs to a different health run.
+ * A packet without the structured ref is a legacy 1.0.0 sidecar: tolerated, and recorded as
+ * artifact_bound=false so the report does not claim a binding it never checked. */
+function normalizeEvidenceRecon(file, ref, revision, healthSha256 = null) {
+  if (!file || !ref) return null;
+  if (file.sha256 !== ref.sha256) throw new Error(`EVIDENCE_RECON_SHA256_MISMATCH:expected=${ref.sha256}:actual=${file.sha256}`);
+  if (ref.repository_revision && ref.repository_revision !== revision) throw new Error("EVIDENCE_RECON_REVISION_MISMATCH");
+  const value = file.value;
+  if (!value || Number(value.evidence_packet_version) !== 1) throw new Error("EVIDENCE_RECON_SCHEMA_INVALID");
+  if (value.producer?.skill && value.producer.skill !== "repository-health-assessment") throw new Error(`EVIDENCE_RECON_FOREIGN_PRODUCER:${value.producer.skill}`);
+  if (ref.packet_id && value.packet_id !== ref.packet_id) throw new Error("EVIDENCE_RECON_PACKET_ID_MISMATCH");
+  const refs = value.producer?.artifact_refs;
+  if (refs !== undefined && !Array.isArray(refs)) throw new Error("EVIDENCE_RECON_ARTIFACT_REFS_INVALID");
+  const healthRefs = (refs || []).filter(item => item && item.kind === "health-artifact");
+  if (healthRefs.length > 1) throw new Error("EVIDENCE_RECON_HEALTH_ARTIFACT_REF_DUPLICATE");
+  let artifact_bound = false;
+  if (healthRefs.length === 1) {
+    const bound = healthRefs[0];
+    if (typeof bound.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(bound.sha256)) throw new Error("EVIDENCE_RECON_HEALTH_ARTIFACT_REF_INVALID");
+    if (!healthSha256) throw new Error("EVIDENCE_RECON_HEALTH_ARTIFACT_UNAVAILABLE");
+    if (bound.sha256 !== healthSha256) throw new Error(`EVIDENCE_RECON_HEALTH_ARTIFACT_MISMATCH:expected=${healthSha256}:actual=${bound.sha256}`);
+    artifact_bound = true;
+  }
+  return { packet_id: value.packet_id ?? null, sha256: file.sha256, path: file.path, artifact_bound };
+}
+/** Display-only split of Health claims that came from review-fitness reports
+ * (claim.review_source, set by repository-health-assessment review-to-claims). proof_basis
+ * "judgment" marks claims backed by a judged baseline (review-fitness-report v1.1
+ * coverage.judged_rules); every other review-sourced claim is mechanical. Never scored. */
+function reviewProofBasisCounts(claims) {
+  const reviewed = (Array.isArray(claims) ? claims : []).filter(claim => claim && claim.review_source && typeof claim.review_source === "object");
+  if (!reviewed.length) return null;
+  const judgment = reviewed.filter(claim => claim.review_source.proof_basis === "judgment").length;
+  return { review_claims: reviewed.length, mechanical: reviewed.length - judgment, judgment, treatment: "display only; never changes a score" };
+}
 function healthLaneMap(health) {
   return new Map((health.lanes || []).map((lane) => [lane.id, lane]));
 }
+/** Health's cap ceilings are letters on its own five-band rubric, anchored to the 0-4
+ * maturity scale (health-verify.js). Passing the bare letter to the RIA scorer made it
+ * resolve on the thirteen-band scale instead, so a Health "B" ceiling (below 90) became
+ * a ceiling of 86.999. Translate to a score here, where the source rubric is known. */
+const HEALTH_GRADE_FLOORS = Object.freeze([["A", 90], ["B", 75], ["C", 50], ["D", 25], ["F", 0]]);
+function healthCeilingScore(letter) {
+  const index = HEALTH_GRADE_FLOORS.findIndex(([grade]) => grade === letter);
+  if (index === -1) return null;
+  return index === 0 ? 100 : HEALTH_GRADE_FLOORS[index - 1][1] - 0.001;
+}
+function translateHealthCaps(caps) {
+  return (Array.isArray(caps) ? caps : []).map((cap) => {
+    const ceiling_score = healthCeilingScore(cap?.ceiling);
+    return ceiling_score === null ? cap : { ...cap, ceiling_score, ceiling_rubric: "repository-health-assessment" };
+  });
+}
+/** Optional Health lanes heavy enough to be critical (criticality_weight >= 4 in
+ * health-verify.js HEALTH_LANE_DEFINITIONS). They are not RIA weights — RIA_WEIGHTS is the
+ * fixed six-dimension table in shared/ria-scoring — so they are rendered explicitly and bind
+ * the composite through Health's weakest-critical-lane cap, which translateHealthCaps carries. */
+const HEALTH_OPTIONAL_CRITICAL_LANES = Object.freeze(["security-and-production-safety", "data-and-migrations"]);
 function compositeAnalytics(health, architecture, testing) {
   const lanes = healthLaneMap(health);
   const dimension = (id, source = "repository-health-assessment") => {
     const lane = lanes.get(id);
     return { score: finite(lane?.score), source, coverage: health.weighted_coverage === null ? null : health.weighted_coverage / 100, confidence: health.confidence_index === null ? null : health.confidence_index / 100 };
   };
+  // verification-readiness is ALWAYS Health's lane. review-testing now contributes claims
+  // inside that lane upstream (repository-health-assessment review-to-claims), so letting a
+  // ria.testing-fitness sidecar replace the lane score here would count the same evidence
+  // twice — once as Health claims, once as the substituted score — while Health's cap on the
+  // replaced lane still bound the composite.
   const dimensions = {
     "correctness-and-integrity": dimension("correctness-and-integrity"),
     "architecture-fitness": architecture.fitness
       ? { score: finite(architecture.fitness.score), source: "architecture-improvement-intelligence", coverage: finite(architecture.fitness.coverage), confidence: finite(architecture.fitness.confidence) }
       : dimension("architecture-fitness"),
     "contracts-and-integration": dimension("contracts-and-integration"),
-    "verification-readiness": testing
-      ? { score: finite(testing.score), source: "review-testing", coverage: finite(testing.rubric_coverage), confidence: finite(testing.evidence_confidence) }
-      : dimension("verification-readiness"),
+    "verification-readiness": dimension("verification-readiness"),
     "build-and-delivery": dimension("build-and-delivery"),
     "maintainability-and-ownership": dimension("maintainability-and-ownership"),
   };
-  return weightedComposite(dimensions, undefined, health.caps || []);
+  const optional_critical_lanes = HEALTH_OPTIONAL_CRITICAL_LANES.filter((id) => lanes.has(id)).map((id) => {
+    const lane = lanes.get(id);
+    return { id, score: finite(lane.score), health_grade: lane.grade ?? null, criticality_weight: finite(lane.criticality_weight), critical: lane.critical === true, treatment: "rendered; binds the composite only through Health's weakest-critical-lane cap, never as extra RIA weight" };
+  });
+  const testing_informational = testing ? {
+    source: "review-testing",
+    score: finite(testing.score),
+    grade: testing.grade ?? null,
+    rubric_coverage: finite(testing.rubric_coverage),
+    evidence_confidence: finite(testing.evidence_confidence),
+    treatment: "informational; displayed beside the Health verification-readiness lane, never substituted and never combined with Health caps",
+  } : null;
+  const computed = weightedComposite(dimensions, undefined, translateHealthCaps(health.caps));
+  if (health.not_gradable) {
+    // Health refused to grade (core surface uninspected/unavailable or coverage below the
+    // gradability floor). A letter computed over its lane scores would launder that refusal.
+    return {
+      ...computed,
+      raw_score: null, raw_grade: null, final_score: null, final_grade: "Not gradable", binding_cap: null,
+      not_gradable: true,
+      reason: `Repository Health is Not gradable: ${health.not_gradable_reason || "reason not recorded"}`,
+      optional_critical_lanes,
+      testing_informational,
+    };
+  }
+  return { ...computed, not_gradable: false, reason: null, optional_critical_lanes, testing_informational };
 }
 
-const ROUTE_KEYS = Object.freeze(["ready", "needs_expanded_grill", "needs_decision_terrain_mapper", "needs_prototype", "blocked"]);
+/** Health routes candidates to an owner (to_architecture / to_integrity) or to the human
+ * decision queue; Integrity and Architecture route to their own disposition queues. */
+const ROUTE_KEYS = Object.freeze(["ready", "needs_expanded_grill", "needs_decision_terrain_mapper", "needs_prototype", "blocked", "decision_queue", "to_architecture", "to_integrity"]);
 const DISPOSITION_TO_ROUTE = Object.freeze({
   ready_for_integrity_loop: "ready",
   ready: "ready",
   needs_expanded_grill: "needs_expanded_grill",
   needs_decision_terrain_mapper: "needs_decision_terrain_mapper",
   needs_prototype: "needs_prototype",
-  blocked_needs_human_decision: "blocked",
-  "blocked-needs-human-decision": "blocked",
+  blocked_needs_human_decision: "decision_queue",
+  "blocked-needs-human-decision": "decision_queue",
+  "needs-human-decision": "decision_queue",
   blocked: "blocked",
 });
+/** spine-v3 recommended_action → the owner that acts on a Health candidate
+ * (shared/candidate-ledger-spine/REPORT-SCORING.md:40). reject is never routed. */
+const HEALTH_ACTION_TO_ROUTE = Object.freeze({
+  design: "to_architecture",
+  prototype: "to_architecture",
+  "direct-fix": "to_integrity",
+  "fitness-check": "to_integrity",
+  triage: "to_integrity",
+});
+function healthRoute(candidate) {
+  // Two names, one state: execution_mode blocked-needs-human-decision ⇔ status needs-human-decision.
+  if (candidate.execution_mode === "blocked-needs-human-decision" || candidate.status === "needs-human-decision") return "decision_queue";
+  return HEALTH_ACTION_TO_ROUTE[candidate.recommended_action] || null;
+}
+function ledgerRoute(candidate) {
+  // execution_mode is a routing value only when it names the human-decision block;
+  // sequential / swarm / connected-impact-sweep describe HOW to run, so fall back to status.
+  if (candidate.execution_mode === "blocked-needs-human-decision") return "decision_queue";
+  return DISPOSITION_TO_ROUTE[candidate.status] || null;
+}
 function deriveRouting(source, health, integrity, architecture) {
   const routing = source.downstream_routing || {};
   const authored = ROUTE_KEYS.some((key) => Array.isArray(routing[key]) && routing[key].length > 0);
   if (authored) return Object.fromEntries(ROUTE_KEYS.map((key) => [key, Array.isArray(routing[key]) ? routing[key].map(String) : []]));
   const buckets = Object.fromEntries(ROUTE_KEYS.map((key) => [key, []]));
-  const push = (disposition, id) => {
-    const key = DISPOSITION_TO_ROUTE[disposition];
-    if (key) buckets[key].push(id);
-  };
-  for (const candidate of architecture.candidates || []) push(candidate.disposition, candidate.candidate_id);
-  for (const candidate of integrity.candidates || []) push(candidate.execution_mode || candidate.status, candidate.candidate_id);
-  for (const candidate of health.candidates || []) push(candidate.execution_mode || candidate.status, candidate.candidate_id);
+  const push = (key, id) => { if (key && !buckets[key].includes(id)) buckets[key].push(id); };
+  for (const candidate of architecture.candidates || []) push(DISPOSITION_TO_ROUTE[candidate.disposition], candidate.candidate_id);
+  for (const candidate of integrity.candidates || []) push(ledgerRoute(candidate), candidate.candidate_id);
+  for (const candidate of health.candidates || []) push(healthRoute(candidate), candidate.candidate_id);
   return buckets;
 }
+/** Namespace of a candidate id (`<namespace>:<local>`), or null for an unprefixed legacy id. */
+const OWNER_NAMESPACES = Object.freeze({ [OWNERS[0]]: "health", [OWNERS[1]]: "integrity", [OWNERS[2]]: "architecture" });
+function idNamespace(id) {
+  const match = String(id || "").match(/^([a-z]+):/);
+  return match && Object.values(OWNER_NAMESPACES).includes(match[1]) ? match[1] : null;
+}
+/** A candidate_id may appear under two owners only as an adopted upstream candidate:
+ * either it carries one of those owners' namespace prefix (Integrity adopting a Health
+ * ledger row keeps "health:<id>"), or — for legacy unprefixed ids — every copy carries the
+ * same title, i.e. it is the same row. Any other repeat is a collision between two
+ * independently minted ids and would merge unrelated candidates in routing and priorities. */
+function assertNoCrossOwnerDuplicates(health, integrity, architecture) {
+  const owners = new Map();
+  const titles = new Map();
+  const record = (owner, candidates) => { for (const candidate of candidates || []) { const id = String(candidate.candidate_id); if (!owners.has(id)) { owners.set(id, new Set()); titles.set(id, new Set()); } owners.get(id).add(owner); titles.get(id).add(String(candidate.title ?? "").trim().toLowerCase()); } };
+  record(OWNERS[0], health.candidates);
+  record(OWNERS[1], integrity.candidates);
+  record(OWNERS[2], architecture.candidates);
+  for (const [id, set] of owners) {
+    if (set.size < 2) continue;
+    const namespace = idNamespace(id);
+    const origin = [...set].find((owner) => OWNER_NAMESPACES[owner] === namespace);
+    const sameRow = namespace === null && titles.get(id).size === 1 && !titles.get(id).has("");
+    if (!origin && !sameRow) throw new Error(`CANDIDATE_ID_CROSS_OWNER_DUPLICATE:${id}:${[...set].map(shortOwnerName).join("+")}: prefix each minted id with the owner's candidate_namespace (${Object.values(OWNER_NAMESPACES).join("|")}:)`);
+  }
+}
+// SKILL.md promises the combined report synthesizes "cross-cutting patterns" and
+// "uncertainty/coverage" — the whole reason a combined view beats three separate
+// artifacts. Both were pass-throughs of a `synthesis` key the production path never
+// supplies, so both rendered empty on every run while the section headers implied
+// they had been checked and nothing was found. These derive them from the bound
+// owner artifacts, which already carry the data.
+
+const IDENTIFIER_TOKEN = /[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+/g;
+const PATH_LIKE = /^[A-Za-z0-9_@.-]+(?:[/][A-Za-z0-9_@.-]+)+$/;
+const PATH_EXTENSION = /[.](?:js|jsx|ts|tsx|py|json|md|go|rs|java|rb|sql|sh|ya?ml|toml|ini|cfg)$/;
+
+/** Tokens worth joining on: shared constant/identifier names and shared file paths.
+ * Anything else is too weak to claim two owners are talking about the same thing. */
+function mentionTokens(text) {
+  const value = String(text || "");
+  if (!value) return [];
+  const tokens = new Set();
+  for (const match of value.match(IDENTIFIER_TOKEN) || []) tokens.add(match);
+  for (const word of value.split(/[^A-Za-z0-9_@./-]+/)) {
+    const candidate = word.replace(/[.,;:)]+$/, "");
+    if (PATH_LIKE.test(candidate) && PATH_EXTENSION.test(candidate)) tokens.add(candidate);
+  }
+  return [...tokens];
+}
+
+function ownerMentions(health, integrity, architecture) {
+  const mentions = [];
+  const add = (owner, token, label) => { if (token) mentions.push({ owner, token, label }); };
+  for (const claim of health.claims || []) {
+    const text = [claim.statement, claim.observation?.confirmed, claim.observation?.inferred, claim.observation?.unknown].filter(Boolean).join(" ");
+    for (const token of mentionTokens(text)) add(OWNERS[0], token, `${claim.claim_id} (${claim.lane})`);
+    for (const evidence of claim.evidence || []) if (nonempty(evidence.path)) add(OWNERS[0], evidence.path, `${claim.claim_id} (${claim.lane})`);
+  }
+  for (const candidate of health.candidates || []) for (const token of mentionTokens(candidate.title)) add(OWNERS[0], token, candidate.candidate_id);
+  for (const candidate of integrity.candidates || []) for (const token of mentionTokens(candidate.title)) add(OWNERS[1], token, candidate.candidate_id);
+  for (const candidate of architecture.candidates || []) {
+    const text = [candidate.title, candidate.structural_problem, candidate.proposed_state].filter(Boolean).join(" ");
+    for (const token of mentionTokens(text)) add(OWNERS[2], token, candidate.candidate_id);
+  }
+  return mentions;
+}
+
+function deriveCrossCutting(health, integrity, architecture) {
+  const byToken = new Map();
+  for (const mention of ownerMentions(health, integrity, architecture)) {
+    if (!byToken.has(mention.token)) byToken.set(mention.token, new Map());
+    const owners = byToken.get(mention.token);
+    if (!owners.has(mention.owner)) owners.set(mention.owner, new Set());
+    owners.get(mention.owner).add(mention.label);
+  }
+  const patterns = [];
+  for (const [token, owners] of byToken) {
+    if (owners.size < 2) continue;
+    const parts = [...owners.entries()]
+      .sort((a, b) => OWNERS.indexOf(a[0]) - OWNERS.indexOf(b[0]))
+      .map(([owner, labels]) => `${shortOwnerName(owner)}: ${[...labels].sort().slice(0, 4).join(", ")}`);
+    patterns.push({
+      title: token,
+      detail: `${owners.size} owners independently reference ${token}. ${parts.join(" · ")}.`,
+      owners: [...owners.keys()].sort((a, b) => OWNERS.indexOf(a) - OWNERS.indexOf(b)),
+      evidence_count: [...owners.values()].reduce((total, labels) => total + labels.size, 0),
+    });
+  }
+  return patterns
+    .sort((a, b) => b.owners.length - a.owners.length || b.evidence_count - a.evidence_count || stableCompare(a.title, b.title))
+    .slice(0, 12);
+}
+
+function deriveUncertainty(health, architecture) {
+  const confirmed = [], inferred = [], unknown = [];
+  for (const claim of health.claims || []) {
+    const label = `${claim.claim_id} (${claim.lane})`;
+    if (nonempty(claim.observation?.confirmed)) confirmed.push(`${label}: ${claim.observation.confirmed}`);
+    if (nonempty(claim.observation?.inferred)) inferred.push(`${label}: ${claim.observation.inferred}`);
+    if (nonempty(claim.observation?.unknown)) unknown.push(`${label}: ${claim.observation.unknown}`);
+    if (claim.result === "unknown" && !nonempty(claim.observation?.unknown)) unknown.push(`${label}: recorded as unknown with no observation`);
+  }
+  const coverage_gaps = [];
+  for (const surface of health.surfaces || []) {
+    if (surface.coverage === "unavailable") coverage_gaps.push(`surface ${surface.id} unavailable — ${surface.reason || "reason not recorded"}`);
+    else if (surface.coverage === "partial") coverage_gaps.push(`surface ${surface.id} partially covered${surface.reason ? ` — ${surface.reason}` : ""}`);
+  }
+  if (architecture.coverage_receipt && typeof architecture.coverage_receipt === "object") {
+    for (const [key, value] of Object.entries(architecture.coverage_receipt)) {
+      if (Array.isArray(value) && value.length) coverage_gaps.push(`architecture coverage receipt ${key}: ${value.slice(0, 6).map(String).join(", ")}`);
+    }
+  }
+  const sort = (values) => [...new Set(values)].sort(stableCompare);
+  return { confirmed: sort(confirmed), inferred: sort(inferred), unknown: sort(unknown), coverage_gaps: sort(coverage_gaps) };
+}
+
 function normalizeSynthesis(request, health, integrity, architecture, composite = null) {
   const source = request.synthesis && typeof request.synthesis === "object" ? request.synthesis : {};
   const normalizedRouting = deriveRouting(source, health, integrity, architecture);
@@ -344,23 +588,30 @@ function normalizeSynthesis(request, health, integrity, architecture, composite 
     ...integrity.candidates.slice(0, 7).map(candidate => ({ title: candidate.title, why: `Canonical integrity priority ${candidate.priority ?? "not scored"}; ${candidate.band}.`, owner: OWNERS[1], canonical_id: candidate.candidate_id, disposition: candidate.execution_mode || candidate.status, priority_score: candidate.priority, priority_band: candidate.band })),
     ...architecture.candidates.slice(0, 5).map(candidate => ({ title: candidate.title, why: candidate.structural_problem || "Architecture candidate survived the architecture critic.", owner: OWNERS[2], canonical_id: candidate.candidate_id, disposition: candidate.disposition, priority_score: candidate.priority, priority_band: candidate.band || ledgerPriorityBand(candidate.priority) })),
   ];
+  const authoredPatterns = Array.isArray(source.cross_cutting_patterns) && source.cross_cutting_patterns.length;
+  const crossCutting = authoredPatterns ? source.cross_cutting_patterns : deriveCrossCutting(health, integrity, architecture);
+  const crossCuttingProvenance = authoredPatterns ? "authored" : "derived";
+  const uncertaintyKeys = ["confirmed", "inferred", "unknown", "coverage_gaps"];
+  const authoredUncertainty = uncertaintyKeys.some((key) => Array.isArray(source.uncertainty?.[key]) && source.uncertainty[key].length);
+  const uncertainty = authoredUncertainty
+    ? Object.fromEntries(uncertaintyKeys.map((key) => [key, Array.isArray(source.uncertainty?.[key]) ? source.uncertainty[key] : []]))
+    : deriveUncertainty(health, architecture);
+  const uncertaintyProvenance = authoredUncertainty ? "authored" : "derived";
   const priorities = sourcePriorities
     .map((item) => ({ ...item, priority_band: item.priority_band || ledgerPriorityBand(item.priority_score) }))
     .sort((a, b) => (b.priority_score ?? -Infinity) - (a.priority_score ?? -Infinity) || stableCompare(a.canonical_id, b.canonical_id))
     .slice(0, 12)
     .map((item, index) => ({ ...item, rank: index + 1 }));
   return {
-    overall_condition: nonempty(source.overall_condition) ? source.overall_condition : composite?.final_score !== null && composite?.final_score !== undefined ? `Overall RIA grade ${composite.final_grade} (${composite.final_score}/100) from the weighted assessment dimensions, with ${integrity.candidate_count} integrity and ${architecture.candidate_count} architecture candidates.` : `Repository health grade ${health.final_grade} (${health.score ?? "not scored"}/100) with ${integrity.candidate_count} integrity and ${architecture.candidate_count} architecture candidates.`,
+    overall_condition: nonempty(source.overall_condition) ? source.overall_condition : composite?.not_gradable ? `Overall RIA composite is Not gradable — ${composite.reason}. No letter is computed; ${integrity.candidate_count} integrity and ${architecture.candidate_count} architecture candidates remain listed.` : composite?.final_score !== null && composite?.final_score !== undefined ? `Overall RIA grade ${composite.final_grade} (${composite.final_score}/100) from the weighted assessment dimensions, with ${integrity.candidate_count} integrity and ${architecture.candidate_count} architecture candidates.` : `Repository health grade ${health.final_grade} (${health.score ?? "not scored"}/100) with ${integrity.candidate_count} integrity and ${architecture.candidate_count} architecture candidates.`,
     executive_summary: nonempty(source.executive_summary) ? source.executive_summary : `The assessment is bound to one immutable revision and three validated owner artifacts. Quantitative Health grading, canonical Integrity scoring, Architecture dispositions, coverage, verification, routing, and runtime data are rendered from those artifacts rather than re-authored prose.`,
     owner_summaries: ownerSummaries,
-    cross_cutting_patterns: Array.isArray(source.cross_cutting_patterns) ? source.cross_cutting_patterns : [],
+    cross_cutting_patterns: crossCutting,
     top_priorities: priorities,
-    uncertainty: {
-      confirmed: Array.isArray(source.uncertainty?.confirmed) ? source.uncertainty.confirmed : [],
-      inferred: Array.isArray(source.uncertainty?.inferred) ? source.uncertainty.inferred : [],
-      unknown: Array.isArray(source.uncertainty?.unknown) ? source.uncertainty.unknown : [],
-      coverage_gaps: Array.isArray(source.uncertainty?.coverage_gaps) ? source.uncertainty.coverage_gaps : [],
-    },
+    uncertainty,
+    // A section that renders blank when nothing was computed is indistinguishable from
+    // one that was computed and found nothing. The renderer needs to tell them apart.
+    synthesis_provenance: { cross_cutting_patterns: crossCuttingProvenance, uncertainty: uncertaintyProvenance },
     downstream_routing: normalizedRouting,
   };
 }
@@ -472,7 +723,71 @@ function convergenceAnalytics(patterns) {
   for (const row of pairRows) grouped.set(row.label, (grouped.get(row.label) || 0) + row.value);
   return [...grouped.entries()].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value || stableCompare(a.label, b.label));
 }
-function buildReportData({ request, healthFile, integrityFile, architectureFile, testingFitnessFile = null, skillRoot, fixture = false }) {
+/** composite-scoring-v3 Phase 8: the v2 composite, computed on every report beside v1 and
+ * shown as an uncalibrated shadow. `v2` carries what the bound run knows beyond the three
+ * owner files: { architecture_evidence, sei: {status, assessment, sha256}, verification:
+ * {artifact, sha256}, run: {failed_tasks, allow_degraded} }. Absent pieces degrade the
+ * shadow explicitly (missing evidence); they never change v1. */
+function compositeV2ForReport({ request, validated, HV, healthRaw, integrityRaw, architectureRaw, files, v2 }) {
+  const { compositeV2Analytics, headlineSelection } = require("./composite-v2-model.js");
+  const binding = { repository_id: request.baseline_ref?.artifact_id || "baseline:unbound", root_id: "root-0", revision: validated.repository.revision };
+  const context = v2 && typeof v2 === "object" ? v2 : {};
+  const sources = [
+    ...files.map(([owner, file]) => ({ kind: "owner-artifact", owner, sha256: file.sha256 })),
+    ...(context.sei?.status === "bound" ? [{ kind: "sei-assessment", sha256: context.sei.sha256 }] : []),
+    ...(context.verification?.sha256 ? [{ kind: "verification-baseline", sha256: context.verification.sha256 }] : []),
+    ...(context.architecture_evidence ? [{ kind: "architecture-evidence-binding", schema_version: context.architecture_evidence.schema_version, packets: (context.architecture_evidence.packets ?? []).map(item => item.sha256 ?? item.legacy_ref ?? null) }] : []),
+  ];
+  const result = compositeV2Analytics({
+    health: { raw: healthRaw, verified: HV.verifyHealth(healthRaw) },
+    integrity: { raw: integrityRaw },
+    architecture: { raw: architectureRaw, receipt: context.architecture_evidence ?? null },
+    sei: context.sei ?? { status: "missing", assessment: null, sha256: null },
+    verification: context.verification ?? null,
+    binding,
+    run: context.run ?? { failed_tasks: [], allow_degraded: false },
+    source_bindings: sources,
+    sources: context.sources ?? null,
+    receipts: context.receipts ?? null,
+  });
+  return { ...result.composite, headline: headlineSelection(result.composite), binder_limitations: result.limitations, rejected_links: result.rejected_links };
+}
+
+/** Narrow availability fallback for the v2 shadow (composite-scoring-v3 §5.3; Promotion A
+ * deployment review 2026-10-17). Returns a reason string only when `error` is a missing
+ * implementation file of the shadow itself (a module or data file under the skills tree that a
+ * partial deployment removed, or FAIL-RIA-COMPOSITE-IMPLEMENTATION-MISSING naming a file on the
+ * config loader's own IMPLEMENTATION_FILES list that is in fact absent) AND the presentation
+ * policy, read directly, reports v1. Every other error returns null and must be rethrown:
+ * every other FAIL-* code (FAIL-RIA-COMPOSITE-CONFIG included), non-degradable blockers
+ * (receipt hash mismatches, binding failures, invalid evidence), bare-package resolution, and
+ * any error when the policy is unreadable or selects v2 as the headline. */
+function compositeV2Unavailable(error) {
+  if (!error || error.non_degradable === true) return null;
+  const skills = path.resolve(__dirname, "..", "..");
+  let missing = null;
+  if (error.code === "FAIL-RIA-COMPOSITE-IMPLEMENTATION-MISSING") {
+    let declared = [];
+    try { declared = require(path.join(skills, "shared", "ria-scoring", "composite-v2-config.js")).IMPLEMENTATION_FILES ?? []; } catch { return null; }
+    const relative = error.missing_implementation;
+    if (typeof relative !== "string" || !declared.includes(relative)) return null;
+    const file = path.resolve(skills, ...relative.split("/"));
+    if (fs.existsSync(file)) return null;
+    missing = file;
+  } else if (/^FAIL-/.test(String(error.code ?? ""))) return null;
+  else if (error.code === "MODULE_NOT_FOUND") {
+    const named = /Cannot find module '([^']+)'/.exec(String(error.message))?.[1] ?? null;
+    if (named && path.isAbsolute(named)) missing = named;
+    else if (named && named.startsWith(".") && Array.isArray(error.requireStack) && error.requireStack[0]) missing = path.resolve(path.dirname(error.requireStack[0]), named);
+  } else if (error.code === "ENOENT" && typeof error.path === "string") missing = error.path;
+  if (!missing || path.relative(skills, path.resolve(missing)).startsWith("..") || path.isAbsolute(path.relative(skills, path.resolve(missing)))) return null;
+  let policy;
+  try { policy = JSON.parse(fs.readFileSync(path.join(skills, "shared", "ria-scoring", "composite-v2.policy.json"), "utf8")); } catch { return null; }
+  if (policy?.reported_composite !== "v1") return null;
+  return `v2 shadow unavailable: ${path.relative(skills, path.resolve(missing)).replace(/\\/g, "/")} is missing from this installation; v1 is the reported composite`;
+}
+
+function buildReportData({ request, healthFile, integrityFile, architectureFile, testingFitnessFile = null, evidenceReconFile = null, skillRoot, fixture = false, v2 = null }) {
   const validated = validateRequest(request, { fixture });
   const { LV, HV } = loadVerifiers(skillRoot);
   const healthRaw = bindArtifact(OWNERS[0], validated.refs.get(OWNERS[0]), healthFile, healthPayload, validated.repository.revision);
@@ -481,9 +796,14 @@ function buildReportData({ request, healthFile, integrityFile, architectureFile,
   const health = normalizeHealth(healthRaw, HV, LV);
   const integrity = normalizeLedger(integrityRaw, LV);
   const architecture = normalizeArchitecture(architectureRaw, architectureLedger(architectureFile.value), LV);
+  assertNoCrossOwnerDuplicates(health, integrity, architecture);
   const testing = normalizeTestingFitness(testingFitnessFile, request.testing_fitness_ref ?? null, validated.repository.revision);
+  const evidenceRecon = normalizeEvidenceRecon(evidenceReconFile, request.evidence_recon_ref ?? null, validated.repository.revision, healthFile.sha256);
   const coverage = normalizeCoverageMetrics(request.coverage_metrics ?? testing?.coverage_metrics ?? null);
   const composite = compositeAnalytics(health, architecture, testing);
+  let compositeV2 = null, compositeV2UnavailableReason = null;
+  try { compositeV2 = compositeV2ForReport({ request, validated, HV, healthRaw, integrityRaw, architectureRaw, files: [[OWNERS[0], healthFile], [OWNERS[1], integrityFile], [OWNERS[2], architectureFile]], v2 }); }
+  catch (error) { compositeV2UnavailableReason = compositeV2Unavailable(error); if (compositeV2UnavailableReason === null) throw error; }
   const synthesis = normalizeSynthesis(request, health, integrity, architecture, composite);
   const routingCounts = Object.entries(synthesis.downstream_routing).map(([label, values]) => ({ label: label.replaceAll("_", " "), value: values.length }));
   const healthCount = (health.candidates || []).length;
@@ -515,7 +835,10 @@ function buildReportData({ request, healthFile, integrityFile, architectureFile,
       { owner: OWNERS[1], path: integrityFile.path, sha256: integrityFile.sha256 },
       { owner: OWNERS[2], path: architectureFile.path, sha256: architectureFile.sha256 },
     ],
-    specialist_bindings: testing && testingFitnessFile ? [{ kind: "testing-fitness", path: testingFitnessFile.path, sha256: testingFitnessFile.sha256 }] : [],
+    specialist_bindings: [
+      ...(testing && testingFitnessFile ? [{ kind: "testing-fitness", path: testingFitnessFile.path, sha256: testingFitnessFile.sha256 }] : []),
+      ...(evidenceRecon ? [{ kind: "evidence-recon", path: evidenceRecon.path, sha256: evidenceRecon.sha256 }] : []),
+    ],
     analytics: {
       health,
       integrity,
@@ -523,9 +846,11 @@ function buildReportData({ request, healthFile, integrityFile, architectureFile,
       testing,
       coverage,
       composite,
+      ...(compositeV2 ? { composite_v2: compositeV2 } : {}),
       routing_counts: routingCounts,
       candidate_portfolio: candidatePortfolio,
       trend,
+      verification_trust: request.verification_trust && typeof request.verification_trust === "object" ? request.verification_trust : null,
       convergence_counts: convergenceAnalytics(synthesis.cross_cutting_patterns),
       performance: performanceAnalytics(request.performance_receipt),
       sei_telemetry: request.sei_telemetry_summary ?? { schema_version:"sei.telemetry-summary@1", gate_observation_ratio:null, gate_observation_status:"UNAVAILABLE", failure_code:"NOT_RECORDED" },
@@ -541,7 +866,14 @@ function buildReportData({ request, healthFile, integrityFile, architectureFile,
       integrity_scoring_recomputed: true,
       architecture_fitness_recomputed: architecture.fitness !== null,
       testing_fitness_hash_verified: testing !== null,
+      testing_fitness_substituted: false,
+      evidence_recon_hash_verified: evidenceRecon !== null,
+      evidence_recon_artifact_bound: evidenceRecon !== null && evidenceRecon.artifact_bound === true,
+      composite_not_gradable_propagated: composite.not_gradable === true,
       composite_scoring_recomputed: true,
+      composite_v2_shadow: compositeV2 !== null,
+      composite_v2_reported: compositeV2?.reported === true,
+      ...(compositeV2UnavailableReason ? { composite_v2_unavailable: compositeV2UnavailableReason } : {}),
       architecture_scores_fabricated: false,
     },
   });
@@ -555,5 +887,12 @@ module.exports = {
   readJson,
   buildReportData,
   validateRequest,
+  compositeAnalytics,
+  compositeV2ForReport,
+  compositeV2Unavailable,
+  deriveRouting,
+  assertNoCrossOwnerDuplicates,
   placeholderHash,
+  normalizeEvidenceRecon,
+  reviewProofBasisCounts,
 };

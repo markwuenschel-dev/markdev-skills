@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {
+    "action_graph": {
+      "condition_ids": [
+        "context.production-flywheel.action_graph"
+      ],
+      "refs": [
+        "ACTION-GRAPH-MODE.md"
+      ]
+    },
+    "campaign": {
+      "condition_ids": [
+        "context.production-flywheel.campaign"
+      ],
+      "refs": [
+        "references/authority-boundaries.md",
+        "references/campaign-delegation.md"
+      ]
+    },
+    "graph": {
+      "condition_ids": [
+        "context.production-flywheel.graph"
+      ],
+      "refs": [
+        "GRAPH-MODE.md"
+      ]
+    },
+    "integration": {
+      "condition_ids": [
+        "context.production-flywheel.integration"
+      ],
+      "refs": [
+        "INTEGRATION-REASSESSMENT-STAGE.md",
+        "references/action-graph-stage15-contract.md"
+      ]
+    },
+    "queue": {
+      "condition_ids": [
+        "context.production-flywheel.queue"
+      ],
+      "refs": [
+        "references/manual-delivery.md",
+        "references/queue-advance.md",
+        "references/queue-and-preflight.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.references.v3-1-contract.md": {
+        "path": "references/v3-1-contract.md",
+        "selector": "heading"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

@@ -28,7 +28,7 @@ Extra surfaces may be added when a repository has something the list does not an
 
 ### Core surfaces
 
-The five marked ● trigger the *Not gradable* rule: if any resolves to `unavailable`, the repository is not gradable regardless of the arithmetic. A grade that omits the runtime, the domain libraries, the boundaries, the contracts, or the tests is not a grade.
+The five marked ● trigger the *Not gradable* rule: if any resolves to `unavailable` **or** `uninspected`, the repository is not gradable regardless of the arithmetic. Both states give a core surface zero credit; the reason differs (could not look versus did not look), the verdict does not. A grade that omits the runtime, the domain libraries, the boundaries, the contracts, or the tests is not a grade.
 
 `core_surfaces` in the island is **additive only**. It can designate further surfaces as core; it can never drop a default. Otherwise the cheapest way past the Not-gradable rule would be to redefine what counts as core, which is exactly the move the rule exists to prevent.
 
@@ -123,7 +123,7 @@ Four of the eleven surfaces, to show the arithmetic:
   reason: no CUDA toolchain in the assessment environment
 
 - id: generated-surfaces
-  criticality_weight: 3
+  criticality_weight: 2
   coverage: not-applicable
   reason: repository contains no generated or vendored code
 ```

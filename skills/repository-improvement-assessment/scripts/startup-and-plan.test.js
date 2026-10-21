@@ -17,7 +17,16 @@ test("resolver modes map to node cache states and v2 plan exposes real scheduler
     fs.writeFileSync(artifact, "{}\n"); const digest = crypto.createHash("sha256").update(fs.readFileSync(artifact)).digest("hex"); const cleanFingerprint = crypto.createHash("sha256").update(Buffer.alloc(0)).digest("hex");
     const base = { repository: { root: repo }, engine_version: "1.3.0", config_hash: "1".repeat(64), execution_contract_hash: "2".repeat(64), lineage: { sei_artifacts: [{ repository_key: repositoryIdentity(repo).repository_key, working_tree_fingerprint: cleanFingerprint, revision: a, engine_version: "1.3.0", config_hash: "1".repeat(64), execution_contract_hash: "2".repeat(64), sha256: digest, path: artifact }] }, owners: [] };
     let startup = resolveStartup(base); assert.equal(startup.startup_mode, "EXACT_REUSE"); assert.equal(startup.node_cache_state, "EXACT_REUSE");
-    fs.writeFileSync(path.join(repo, "dirty.txt"), "dirty"); assert.equal(resolveStartup(base).startup_mode, "FRESH_BASELINE"); fs.rmSync(path.join(repo, "dirty.txt"));
+    // Under `head` scope the assessed tree is the committed revision, so uncommitted work
+    // must not invalidate reuse — otherwise one scratch file silently forces a full
+    // recomputation of work the run already has. Under `worktree` scope the tree IS the
+    // identity, so there the same file must invalidate.
+    fs.writeFileSync(path.join(repo, "dirty.txt"), "dirty");
+    assert.equal(resolveStartup(base).startup_mode, "EXACT_REUSE");
+    assert.equal(resolveStartup({ ...base, scope: "head" }).startup_mode, "EXACT_REUSE");
+    assert.equal(resolveStartup({ ...base, scope: "worktree" }).startup_mode, "FRESH_BASELINE");
+    fs.rmSync(path.join(repo, "dirty.txt"));
+    assert.equal(resolveStartup(base).startup_mode, "EXACT_REUSE");
     fs.writeFileSync(path.join(repo, "b.txt"), "b"); git(repo, ["add", "."]); git(repo, ["commit", "-m", "b"]); startup = resolveStartup(base); assert.equal(startup.startup_mode, "INCREMENTAL_REUSE"); assert.equal(startup.node_cache_state, "INCREMENTAL_REUSE");
     const plan = buildExecutionPlan({ startup_resolution: startup, depth: "standard", presentation_policy: "generate" });
     assert.equal(plan.schema_version, "ria.execution-plan@2"); assert.equal(plan.tasks.length, 17); assert.deepEqual([...new Set(plan.tasks.map((task) => task.executor_class))].sort(), ["agent", "heavy-tool", "local-deterministic"]);

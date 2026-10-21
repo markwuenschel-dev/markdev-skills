@@ -1,19 +1,20 @@
 {
   "name": "repository-health-assessment",
-  "version": "5.3.0",
+  "version": "5.7.0",
   "schema_version": 5,
-  "description": "Read-only repository health assessment: weighted coverage, lane maturity scorecards, an anchored A-F grade with caps and confidence, a validated generic Evidence Recon sidecar, and a candidate ledger routed to the architecture and integrity skills.",
+  "description": "Read-only repository health assessment: weighted coverage, six required lanes plus declared optional lanes with per-dimension claim support, an anchored A-F grade with caps and confidence, review-* reports translated into lane claims, a validated Evidence Recon sidecar, and a candidate ledger routed to the architecture and integrity skills.",
   "invocation": {
     "model_invocable": true,
     "implicit_conversational_routing": false,
     "expected_callers": [
       "user",
-      "repository-improvement-assessment",
-      "loop-router",
-      "production-flywheel",
-      "architecture-improvement-intelligence",
-      "codebase-integrity-audit-loop"
-    ]
+      "repository-improvement-assessment"
+    ],
+    "consumers": {
+      "codebase-integrity-audit-loop": "candidate ledger rows (recommended_action direct-fix | fitness-check | triage); reconciles and hands off, never called by this skill",
+      "architecture-improvement-intelligence": "bare spine-v3 candidate plus optional health_context (recommended_action design | prototype)",
+      "repository-improvement-assessment": "ria.owner-return@1 with the health artifact reference and an evidence-recon specialist_ref"
+    }
   },
   "depends_on": [
     {
@@ -81,11 +82,118 @@
       "required": true,
       "kind": "interaction-contract",
       "minimum_report_election_version": 1
+    },
+    {
+      "skill": "shared/project-intelligence-workspace",
+      "path": "project-intelligence-workspace.js",
+      "provides": "repository-local ignored storage for assessment artifacts, evidence, verification, reports, cache, and scratch",
+      "required": true,
+      "kind": "runtime-storage"
+    },
+    {
+      "skill": "shared/review-fitness-runtime",
+      "path": "schemas/report.schema.json",
+      "provides": "review-fitness-report/v1 contract consumed by assets/review-to-claims.js",
+      "required": false,
+      "kind": "specification",
+      "failure_mode": "review workers are recorded in evidence_workers with a limitation; lanes keep their RHA-native evidence"
+    },
+    {
+      "skill": "repository-health-assessment",
+      "path": "assets/review-to-claims.js",
+      "provides": "translation of a review-fitness-report/v1 into health lane claims carrying review_source",
+      "required": false,
+      "kind": "module",
+      "failure_mode": "the review report yields zero claims and one limitation for the lane"
+    },
+    {
+      "skill": "review-algorithms",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-architecture",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-data",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-testing",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-reliability",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-process",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-maintainability",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-security",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-performance",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "at least one owning lane in REVIEW-LANES.md is active"
+    },
+    {
+      "skill": "review-accessibility",
+      "provides": "review-fitness-report/v1 for the lanes mapped in REVIEW-LANES.md",
+      "required": false,
+      "kind": "evidence-producer",
+      "condition": "a frontend surface exists and an owning lane is active"
+    },
+    {
+      "skill": "shared/assessment-verification-baseline",
+      "path": "verification-baseline.js",
+      "provides": "immutable assessment-verification-baseline@3 adopted in RIA mode",
+      "required": "in RIA mode",
+      "kind": "module"
+    },
+    {
+      "skill": "shared/ria-owner-return",
+      "path": "owner-return.schema.json",
+      "provides": "ria.owner-return@1 shape written by write-health-artifact.js --ria-envelope --return-out",
+      "required": "in RIA mode",
+      "kind": "specification"
     }
   ],
   "known_risk": "This package validates health provenance, projects a conservative generic Evidence Recon sidecar, and delegates candidate scoring, dependency, eligibility, ranking, lifecycle, and rendering to the canonical shared spine. Missing or incompatible required modules are hard failures. The sidecar never owns or alters the health grade.",
   "dev_dependencies": {
-    "ajv": "^8 \u2014 used only by assets/parity-check.js, never by the generated report",
+    "ajv": "^8 — used only by assets/parity-check.js, never by the generated report",
     "ledger-verify.js": "required for parity-check.js and package-check.js; resolved from shared/candidate-ledger-spine or LEDGER_VERIFY_PATH",
     "evidence-recon.js": "required for package-check.js and evidence-recon-projection.js; resolved from shared/evidence-recon, EVIDENCE_RECON_PATH, or an explicit path"
   },
@@ -104,7 +212,18 @@
     "package_check": "assets/package-check.js",
     "evidence_recon_adapter": "EVIDENCE-RECON-ADAPTER.md",
     "evidence_recon_projection": "assets/evidence-recon-projection.js",
-    "evidence_recon_writer": "assets/write-evidence-recon-sidecar.js"
+    "evidence_recon_writer": "assets/write-evidence-recon-sidecar.js",
+    "runtime_contract": "RUNTIME-CONTRACT.json",
+    "report_presentation": "shared/report-presentation",
+    "health_artifact_writer": "assets/write-health-artifact.js",
+    "ria_mode": "RIA-MODE.md",
+    "review_lanes": "REVIEW-LANES.md",
+    "parallel_assessment": "PARALLEL-ASSESSMENT.md",
+    "performance": "PERFORMANCE.md",
+    "migrations": "MIGRATIONS.md",
+    "report_builder": "assets/build-report.js",
+    "report_input_schema": "assets/report-input.schema.json",
+    "review_to_claims": "assets/review-to-claims.js"
   },
   "performance": {
     "profile": "aggressive-threadpool",
@@ -113,14 +232,22 @@
     "agent_workers": "auto aggressive",
     "command_workers": "separately bounded",
     "work_conserving_refill": true,
-    "nested_under_ria": "flatten into RIA global pool"
+    "nested_under_ria": "flatten into RIA global pool",
+    "verification_under_ria": "consume shared assessment-verification baseline; targeted re-verification only",
+    "report_layout": "responsive widescreen/ultrawide analytics"
   },
   "consumes": [
     "shared/candidate-ledger-spine",
     "shared/evidence-recon",
     "shared/assessment-acceleration",
     "agent-executor-pool",
-    "shared/report-election"
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract",
+    "shared/assessment-verification-baseline",
+    "shared/project-intelligence-workspace",
+    "shared/review-fitness-runtime",
+    "shared/ria-owner-return"
   ],
   "shared_evidence_recon_version": 1,
   "shared_report_election_version": 1,
@@ -128,6 +255,66 @@
     "canonical_machine_artifact": "validated health island + candidate ledger + Evidence Recon sidecar",
     "interactive_report_default": "ask",
     "nested_policy": "inherit",
-    "report_optional": true
+    "report_optional": true,
+    "canonical_outputs": [
+      {
+        "artifact": "health island (assessments/health/)",
+        "consumers": [
+          "user",
+          "repository-improvement-assessment",
+          "architecture-improvement-intelligence",
+          "codebase-integrity-audit-loop"
+        ]
+      },
+      {
+        "artifact": "Evidence Recon sidecar (evidence/health/)",
+        "consumers": [
+          "repository-improvement-assessment via owner-return specialist_refs kind evidence-recon",
+          "downstream skills reading handoff.safe_to_assume"
+        ]
+      }
+    ]
+  },
+  "storage": {
+    "workspace": "shared/project-intelligence-workspace@1",
+    "durable_root": ".project-intelligence",
+    "reports": "reports/health",
+    "external_durable_state": false,
+    "health_artifacts": "assessments/health",
+    "evidence": "evidence/health"
+  },
+  "input_profiles": {
+    "_note": "RUNTIME-CONTRACT.json carries only the ria profile, because shared/assessment-runtime-contract validates a closed input {required, optional} shape. Standalone is documented here.",
+    "standalone": {
+      "trigger": "no RIA envelope supplied",
+      "required": [
+        "repository_root"
+      ],
+      "optional": [
+        "excluded_scope",
+        "prior_health_artifact",
+        "report_preference",
+        "negative_claim_receipts"
+      ]
+    },
+    "ria": {
+      "trigger": "RIA envelope supplied (owner_rendezvous.envelopes.health); see RIA-MODE.md",
+      "required": [
+        "baseline_ref",
+        "engineering_intelligence_ref",
+        "verification_baseline_ref",
+        "presentation_policy"
+      ],
+      "optional": [
+        "sei_assessment_ref",
+        "candidate_namespace"
+      ],
+      "constraints": {
+        "presentation_policy": "string \"inherit\"",
+        "candidate_namespace": "string \"health\"; every candidate_id minted under RIA is \"health:<local>\"",
+        "verification_baseline_ref": "assessment-verification-baseline@3 only; @2 rejected",
+        "closed": true
+      }
+    }
   }
 }

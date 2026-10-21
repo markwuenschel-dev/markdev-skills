@@ -1,12 +1,22 @@
 {
   "skill": "expanded-grill-with-docs",
-  "version": "1.3.1",
-  "invocation": {"allow_implicit_invocation": true},
+  "version": "3.2.0",
+  "invocation": {
+    "allow_implicit_invocation": true,
+    "overwrite_compatible_with": [
+      "1.3.1",
+      "2.0.0",
+      "3.0.0",
+      "3.1.0"
+    ]
+  },
   "applicability": {
     "positive_triggers": [
       "A selected direction remains underspecified",
       "A feature, migration, architecture, policy, or audit-repair candidate needs design before delivery",
-      "Consequential design alternatives or uncertainties remain"
+      "Consequential design alternatives, decision dependencies, or uncertainties remain",
+      "The user asks to grill or stress-test a selected plan and preserve the result in design documents",
+      "The user wants a deep high-bandwidth interview with batched questions and expert rationales"
     ],
     "negative_triggers": [
       "Choose the next project priority",
@@ -14,44 +24,260 @@
       "Generate tickets or an implementation plan",
       "Authorize or verify completed production work"
     ],
-    "preconditions": ["A direction is selected or can be confirmed as selected"],
-    "confidence_or_escalation_rule": "Inspect evidence before questioning; stop or route elsewhere when selection, permission, or ownership boundaries cannot be established."
+    "preconditions": [
+      "A direction is selected or can be confirmed as selected"
+    ],
+    "confidence_or_escalation_rule": "Inspect permitted evidence before questioning; stop or route elsewhere when selection, authority, or permission boundaries cannot be established."
   },
   "policy": {
-    "primary_pattern": "adaptive evidence-first pipeline",
+    "primary_pattern": "shared-evidence-recon-backed exhaustive sweep-driven design interrogation with conditional graph escalation",
+    "interview_engine": {
+      "primary_product": "high-bandwidth human decision interview",
+      "default_grilling_intensity": "exhaustive",
+      "batching_policy": "maximum coherent consequential active set (flat open decisions or graph frontier)",
+      "fixed_question_cap": null,
+      "descriptive_packet_sizes": {
+        "ordinary": "8-15",
+        "deep": "15-25",
+        "broad_or_high_consequence": "25+ when independent and sharp"
+      },
+      "candidate_overgeneration": true,
+      "coverage_sweep_required": true,
+      "question_quality_gate_required": true,
+      "bulk_acceptance_supported": true,
+      "omission_counts_as_acceptance": false,
+      "max_conditional_depth": 1,
+      "answer_burden_policy": "Use answer burden to improve grouping, compression, and response ergonomics; do not suppress an independent consequential decision merely to reduce count.",
+      "coverage_sweep_required_on_every_substantive_activation": true,
+      "sweep_before_representation_choice": true,
+      "sweep_depth_driver": "decision uncertainty, consequence, and evidence surface; never expected diff size, line count, or ticket label",
+      "topology_re_evaluation_after_answer_bundle": true
+    },
+    "decision_model": {
+      "canonical_state": "stable decision records represented as either a flat decision set or a dependency graph",
+      "record_types": [
+        "fact",
+        "human_decision",
+        "derived_requirement",
+        "risk_or_deferral"
+      ],
+      "representation_policy": "run mandatory coverage sweep first; use flat mode when decisions are independent; materialize graph only when meaningful topology exists",
+      "flat_mode": {
+        "structure": "flat decision set with stable IDs, evidence, owner, state, recommendation, rationale, quality receipt, and resolution",
+        "packet_selection": "all independent consequential open human decisions that are evidence-ready and pass the question-quality gate",
+        "graph_machinery_omitted": [
+          "dependency edges",
+          "descendant traversal",
+          "branch invalidation propagation",
+          "frontier computation"
+        ]
+      },
+      "graph_mode": {
+        "structure": "directed acyclic dependency graph, or tree when single-parent",
+        "materialization_triggers": [
+          "prerequisite ordering",
+          "conditional branching",
+          "fact dependencies that gate human decisions",
+          "mutually exclusive paths",
+          "invalidation relationships",
+          "answers that unlock descendants",
+          "multi-round evolution where prior answers change eligibility"
+        ],
+        "research_frontier": "discoverable fact nodes whose prerequisites are settled",
+        "decision_frontier": "human-decision nodes whose prerequisites and fact dependencies are settled",
+        "packet_selection": "all independent consequential eligible frontier decisions that pass the question-quality gate"
+      },
+      "graph_non_triggers": [
+        "task label such as architecture, design, or migration",
+        "expected implementation diff size or line count",
+        "question count by itself",
+        "historical preference for graph representation"
+      ],
+      "zero_edge_graph_policy": "prefer flat mode when no meaningful edges or branch relationships exist",
+      "dynamic_promotion": {
+        "allowed": true,
+        "trigger": "meaningful topology appears after later evidence or answers",
+        "preserve": [
+          "stable IDs",
+          "evidence",
+          "recommendations",
+          "question-quality receipts",
+          "answers",
+          "resolutions",
+          "document history"
+        ],
+        "restart_interview": false
+      },
+      "recommendation_required": true,
+      "rationale_must_name_mechanism_and_consequence": true,
+      "shared_understanding_confirmation_required": true
+    },
+    "question_quality": {
+      "positive_dimensions": [
+        "decision_leverage",
+        "specificity",
+        "discriminative_power",
+        "evidence_grounding",
+        "downstream_unlock",
+        "recommendation_quality",
+        "rationale_quality",
+        "answerability"
+      ],
+      "minimum_total": 18,
+      "hard_failures": [
+        "discoverable_fact_asked_of_user",
+        "no_materially_distinct_answers",
+        "missing_recommendation",
+        "generic_or_empty_rationale",
+        "unrelated_compound_decisions",
+        "invalidated_or_ineligible_branch"
+      ],
+      "failure_action": "rewrite, merge, split, research, or discard before presentation"
+    },
     "steps": [
-      "Bound direction and inspect evidence",
-      "Frame the decision surface",
-      "Map consequential uncertainties",
-      "Select relevant specialist lanes",
-      "Synthesize and prioritize candidate questions",
-      "Run adaptive grilling rounds",
-      "Establish domain language and decisions",
-      "Compare designs or prototype only when needed",
+      "Bound direction, authority, permissions, artifact depth, and interview intensity",
+      "Inspect evidence through a validated shared Evidence Recon v1 packet, self-scaling inline or expedition",
+      "Run the mandatory coverage sweep and seed stable candidate decision records",
+      "Launch proportional specialist research, question-discovery, and critique lanes",
+      "Research discoverable facts and overgenerate candidate questions",
+      "Deduplicate, sharpen, critique, and quality-gate the candidate pool",
+      "Analyze meaningful topology and materialize a flat decision set or dependency graph",
+      "Ask the maximum coherent recommendation-led packet",
+      "Adapt canonical decision state and documents after every answer bundle or bulk acceptance",
+      "Re-evaluate topology after every answer bundle and promote flat state when needed",
+      "Establish domain language and durable decisions",
+      "Compare mechanisms or prototype only when needed",
+      "Adversarially challenge the emerging contract and rerun coverage",
       "Produce proportional design artifacts",
-      "Check consistency and seek human approval"
+      "Confirm shared understanding and seek human approval"
     ],
     "branches": [
-      "Use only relevant lanes",
-      "Stop grilling early when uncertainty is safely deferrable",
+      "Research facts without asking the user",
+      "Do not block unrelated decisions on running research",
+      "Use as many non-overlapping specialist lanes as the uncertainty warrants",
+      "Use one-level conditional subquestions only when the parent answer cleanly activates the child branch",
+      "Preserve unanswered questions as open even when other questions are bulk-accepted",
+      "Stay flat when no meaningful topology exists",
+      "Promote flat state to graph mode when topology appears without restarting the interview",
+      "Stop only when all consequential records are accounted for and a fresh quality-gated coverage sweep finds no consequential omission",
       "Use formal artifacts only when warranted",
-      "Hand off to separate strict hardening when authorization-grade validation is required"
+      "Hand off to strict hardening only when authorization-grade validation is required"
     ],
-    "authoritative_sources": ["Repository instructions and durable project artifacts", "Human decision owner"],
-    "degrees_of_freedom": {"question_selection": "high", "artifact_shapes": "medium", "implementation_boundary": "low"}
+    "authoritative_sources": [
+      "Human decision owner",
+      "Repository instructions and durable project artifacts within their authority",
+      "Explicit governing standards or policies"
+    ],
+    "degrees_of_freedom": {
+      "question_discovery": "high",
+      "question_formulation": "high",
+      "question_batch_size": "high, no fixed cap",
+      "artifact_shapes": "medium",
+      "implementation_boundary": "low",
+      "human_decision_authority": "none"
+    },
+    "evidence_model": {
+      "canonical_contract": "shared/evidence-recon evidence packet v1",
+      "evidence_discipline_required": true,
+      "heavy_dispatch_required": false,
+      "mode_policy": "select inline for narrow bounded evidence; expedition for wide heterogeneous or high-completeness evidence surfaces",
+      "mode_drivers": [
+        "breadth of evidence surface",
+        "independent source classes",
+        "contradiction risk",
+        "required completeness",
+        "false-negative cost",
+        "cross-source reconciliation",
+        "parallelizability"
+      ],
+      "negative_claim_rule": "absence claims require explicit coverage receipts before they can enter safe_to_assume",
+      "consumer_boundary": "Evidence Recon establishes what available evidence supports; it never replaces the mandatory decision-coverage sweep, human decision ownership, or flat-vs-graph topology analysis.",
+      "fact_handling": "settle discoverable facts from validated evidence; keep unresolved facts visible; never ask the human to restate discoverable facts"
+    },
+    "project_intelligence_workspace": {
+      "package": "shared/project-intelligence-workspace",
+      "runtime_state_root": ".project-intelligence/decisions/grill/<session-id>",
+      "runtime_state_hidden": true,
+      "approved_repository_documents_remain_repository_native": true,
+      "tracked_source_mutation_for_runtime_state": false
+    }
   },
   "termination": {
-    "success_conditions": ["Human-approved design and rollout contract or explicit approval blockers", "Delivery can proceed without inventing core requirements"],
-    "failure_conditions": ["Direction is not selected", "Blocking evidence conflict has no owner", "Required permission is unavailable"],
-    "stop_conditions": ["Remaining uncertainty is resolved, owned, or safely deferrable", "Further questions have lower value than answer burden"],
-    "rollback_or_recovery": ["Preserve draft documents and unresolved questions", "Route strict validation to a separate capability"]
+    "success_conditions": [
+      "The active Evidence Recon v1 packet validates, its limitations remain visible, and no unsupported negative claim is treated as safe fact",
+      "Every consequential canonical decision-state record is accounted for",
+      "When graph mode is active, the decision frontier is empty and every consequential branch is accounted for",
+      "A final coverage and candidate-generation sweep in the active representation yields no consequential question that survives the quality gate",
+      "Adversarial review leaves no unowned contradiction",
+      "The human confirms the shared-understanding summary",
+      "A human-approved design and rollout contract exists, or exact approval blockers are recorded",
+      "Delivery can proceed without inventing core requirements"
+    ],
+    "failure_conditions": [
+      "Direction is not selected",
+      "After graph materialization, dependency topology is incoherent or cyclic and cannot be reframed",
+      "A blocking evidence conflict has no authoritative owner",
+      "Required permission is unavailable",
+      "Required Evidence Recon validation fails or a blocking factual conflict cannot be reconciled"
+    ],
+    "stop_conditions": [
+      "Every consequential record is evidenced, decided, derived, invalidated, accepted, or explicitly deferred with owner and revisit trigger",
+      "When graph mode is active, the decision frontier is empty and all consequential branches are accounted for",
+      "Fresh coverage and question-craft passes produce no additional consequential quality-gated questions in either flat or graph mode",
+      "Shared understanding has been explicitly confirmed"
+    ],
+    "rollback_or_recovery": [
+      "Preserve draft documents, canonical decision state, representation mode, evidence, candidate-question receipts, and unresolved records",
+      "Preserve stable IDs and settled state during flat-to-graph promotion",
+      "Route strict validation to a separate capability"
+    ]
   },
   "interface": {
-    "inputs": ["selected direction", "problem or intended outcome", "scope", "constraints", "decision owner", "research and prototype permissions", "destination system"],
-    "outputs": ["adaptive interview", "evolving design documents", "design and rollout contract", "approval or blockers", "delivery handoff"],
-    "artifacts": ["design.md", "glossary.md", "decisions.md", "open-questions.md", "optional formal proposal/spec/design/rollout artifacts"],
-    "allowed_tools": ["Read/Grep/Glob for read-only repository inspection", "Write for document changes within stated scope", "explicitly permitted throwaway prototype tools"],
+    "inputs": [
+      "selected direction",
+      "problem or intended outcome",
+      "scope and non-goals",
+      "constraints and known decisions",
+      "decision owner",
+      "research and prototype permissions",
+      "destination system",
+      "optional grilling intensity override",
+      "optional pre-existing Evidence Recon v1 packet/reference"
+    ],
+    "outputs": [
+      "validated Evidence Recon v1 packet/reference with limitations and handoff summary",
+      "high-bandwidth recommendation-led adaptive interview",
+      "question-quality receipt",
+      "canonical decision state in flat or graph form",
+      "representation rationale and any promotion receipt",
+      "evolving design documents",
+      "shared-understanding summary",
+      "design and rollout contract",
+      "approval or blockers",
+      "delivery handoff"
+    ],
+    "artifacts": [
+      "change-preflight.yaml",
+      "evidence-recon-ref.yaml",
+      "flat-decision-set.yaml when topology is absent",
+      "decision-graph.yaml when meaningful topology exists",
+      "interview-round.md",
+      "question-quality.yaml",
+      "design.md",
+      "glossary.md",
+      "decisions.md",
+      "open-questions.md",
+      "optional proposal/spec/design-comparison/walking-skeleton/rollout artifacts"
+    ],
+    "allowed_tools": [
+      "Read-only repository and permitted research tools",
+      "Document writes within stated scope",
+      "Explicitly permitted disposable prototype tools",
+      "Bounded specialist agents or installed skills for research, question discovery, and critique"
+    ],
     "mcp_dependencies": [],
-    "side_effects": ["Writes design documentation only; never implementation"]
+    "side_effects": [
+      "Writes design documentation only; never implementation"
+    ]
   }
 }

@@ -72,13 +72,21 @@ async function executePlan(plan, options = {}) {
   const terminalEvents = new Set();
   const readyAt = new Map(); const resourceBlockedAt = new Map(); const attempts = new Map(); const running = new Map(); const controllers = new Map();
   const failures = []; const degradedFailures = []; const observationalFailures = [];
-  let sequence = state.last_sequence; let peakConcurrency = 0; let budgetFailure = null; let totalToolCalls = 0; let totalTokens = 0;
+  // state.json is now written on terminal events only, so after a crash its last_sequence can lag
+  // the event log. Resume numbering from whichever is further ahead, or sequences get reused.
+  const loggedSequence = events.reduce((max, event) => Math.max(max, Number(event.sequence) || 0), 0);
+  let sequence = Math.max(state.last_sequence, loggedSequence); let peakConcurrency = 0; let budgetFailure = null; let totalToolCalls = 0; let totalTokens = 0;
   const startedAt = now();
   function persist() { state.last_sequence = sequence; state.updated_at = new Date(now()).toISOString(); if (options.state_path) atomicJson(options.state_path, state); }
   function emit(task, status, extra = {}) {
     const event = createTaskEvent({ run_id: runId, task_id: task.task_id, executor_class: task.executor_class, status, sequence: ++sequence, occurred_at: new Date(now()).toISOString(), attempt: extra.attempt ?? attempts.get(task.task_id) ?? 1, cache_key: task.cache_key, reason_code: extra.reason_code ?? null, failure_code: extra.failure_code ?? null, telemetry: extra.telemetry, scheduler: extra.scheduler, result_ref: extra.result_ref ?? null });
     events.push(event); if (options.event_log_path) appendTaskEvent(options.event_log_path, event); if (TERMINAL_EVENTS.has(status)) { terminalEvents.add(task.task_id); state.terminal_status[task.task_id] = status; }
-    persist(); options.on_event?.(event); return event;
+    // task_results only change immediately before a terminal event, so that is the only time the
+    // state can differ from what is on disk. Every non-terminal event is already in the event log.
+    // Persisting on every event rewrote a state file carrying the full SEI snapshot ~140 times a
+    // run: 38.5 s and ~7.5 GB of writes on dominion-realm.
+    if (TERMINAL_EVENTS.has(status)) persist();
+    options.on_event?.(event); return event;
   }
   for (const task of plan.tasks) {
     pool.submit({ job_id: task.task_id, scope_id: runId, class: CLASS_MAP[task.executor_class], dependencies: task.dependencies, resources: task.resources, priority: task.priority, executor_depth: 0, mutating: false });
@@ -148,7 +156,9 @@ async function executePlan(plan, options = {}) {
     } else {
       const failure = { task_id: id, code: settled.error?.code ?? "TASK_FAILED", message: settled.error?.message ?? String(settled.error) };
       emit(task, "failed", { failure_code: failure.code, reason_code: failure.message });
-      if (task.failure_policy.mode === "strict") { failures.push(failure); pool.fail(id, failure); }
+      // An error marked non_degradable (evidence tampering, dangling bound refs) blocks even when
+      // the task's policy would degrade: it is never turned into ordinary missing evidence.
+      if (task.failure_policy.mode === "strict" || settled.error?.non_degradable === true) { failures.push(failure); pool.fail(id, failure); }
       else { pool.complete(id, { degraded_failure: failure }); if (task.failure_policy.mode === "degrade") degradedFailures.push(failure); else observationalFailures.push(failure); }
     }
   }

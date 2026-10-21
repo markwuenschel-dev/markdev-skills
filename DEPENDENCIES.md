@@ -43,10 +43,13 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | `expanded-grill-with-docs` | flywheel design-lane gate A (default); wayfinder design tickets | [`skills/expanded-grill-with-docs`](skills/expanded-grill-with-docs/) | Original; may invoke Matt's `grilling` / `domain-modeling` as child procedures |
 | `connected-impact-sweep` | audit execute calibration; swarm blast-radius; migration missions | [`skills/connected-impact-sweep`](skills/connected-impact-sweep/) | Original |
 | `implementation-plan-contract` | audit plan gate; planning swarm | [`skills/implementation-plan-contract`](skills/implementation-plan-contract/) | Original |
-| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.2 (schema v5 + code-sprawl-pressure evidence + Evidence Recon sidecar); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
+| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.7.0 (synced from canon 2026-10-21); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
 | `agent-executor-pool` | bounded read-only worker scheduling for `repository-health-assessment` (and future consumers) | [`skills/agent-executor-pool`](skills/agent-executor-pool/) | Original; generic executor semantics — worker leases, generation/fence tokens, work-conserving refill |
 | `land-pr` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) | Original; single skill covers local-change, PR-queue, and EC2 (`-ec2`) modes — `land-prs`/`land-pr-ec2`/`land-prs-ec2` were removed as redundant |
-| `repository-improvement-assessment` | Combined ASSESS owner: health + integrity + architecture from one baseline | [`skills/repository-improvement-assessment`](skills/repository-improvement-assessment/) | v0.8.4; executeRia + agent-rendezvous adapter. Consumes Health, Integrity, and still-external Architecture/SEI. Shared contracts vendored under `shared/ria-*`, `assessment-runtime-contract`, `assessment-verification-baseline`, `project-intelligence-workspace`, `report-election`, `report-presentation` |
+| `pr-mwdev` | `land-pr` and `production-flywheel` PR creation | [`skills/pr-mwdev`](skills/pr-mwdev/) | PR-body writer. Visuals menu adapted from [Dex Horthy](https://github.com/dexhorthy)'s `show-me` ([`humanlayer/skills`](https://github.com/humanlayer/skills)) — content copied, not a dependency; see the package's `CREDITS.md` |
+| `wizard-mwdev` | `land-pr` (human-only setup steps) | [`skills/wizard-mwdev`](skills/wizard-mwdev/) | Interactive bash wizard generator; package records no upstream credit |
+| `retro-mwdev` | user-invoked only (`disable-model-invocation`) | [`skills/retro-mwdev`](skills/retro-mwdev/) | Session retrospective; invokes Matt-lineage `writing-for-agents` (local-unpinned); package records no upstream credit |
+| `repository-improvement-assessment` | Combined ASSESS owner: health + integrity + architecture from one baseline | [`skills/repository-improvement-assessment`](skills/repository-improvement-assessment/) | v0.10.0 (synced from canon 2026-10-21; adds composite-v2 scoring); executeRia + agent-rendezvous adapter. Consumes Health, Integrity, and still-external Architecture/SEI. Shared contracts vendored under `shared/ria-*`, `assessment-runtime-contract`, `assessment-verification-baseline`, `project-intelligence-workspace`, `report-election`, `report-presentation` |
 
 ### Known, not yet vendored
 
@@ -58,6 +61,12 @@ Local/family skills confirmed to exist in the working copy this inventory tracks
 | `decision-terrain-mapper` | Successor to the deprecated `wayfinder-mwdev` fork — durable decision-map orchestrator for big, foggy efforts | `~/.agents/skills/decision-terrain-mapper` | local-unpinned |
 | `adaptive-causal-debugging` | Successor to the deprecated `diagnosing-bugs-mwdev` fork — adaptive causal investigation for one concrete defect or regression | `~/.agents/skills/adaptive-causal-debugging` | local-unpinned |
 | `software-engineering-intelligence` | Provenance-bound Software Engineering Intelligence snapshot + evidence-backed engineering assessment sidecar, optional offline report | `~/.agents/skills/software-engineering-intelligence` | local-unpinned |
+
+### Shared modules referenced but not vendored
+
+Synced skills reference these canon `shared/` modules by relative path; they are not yet copied into `shared/` here, so those code paths only resolve in the canon layout (`~/.agents/skills/shared/`):
+
+`action-graph-execution`, `action-integration-reassessment`, `orchestration-runtime`, `remediation-graph`, `capability-registry`, `review-fitness-runtime`, `software-engineering-intelligence`, `skill-context-profiler`, `repository-scope.js`, `git-diff-scope.js` — all local-unpinned.
 
 Install examples:
 

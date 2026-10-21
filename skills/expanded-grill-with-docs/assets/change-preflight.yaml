@@ -1,18 +1,54 @@
 change:
-  title: ""
-  selected_direction: ""
+  title: ''
+  selected_direction: ''
+  intended_outcome: ''
   decision_owner:
-    name: ""
+    name: ''
     status: unresolved
   scope:
     included: []
     excluded: []
+    non_goals: []
   known_constraints: []
   known_decisions: []
   unresolved_questions: []
-  research_allowed: true
-  prototype_allowed: false
-  implementation_authorized: false
+  interview:
+    grilling_intensity: exhaustive
+    batching_policy: maximum_coherent
+    fixed_question_cap: null
+    max_conditional_depth: 1
+    bulk_acceptance_supported: true
+    omission_counts_as_acceptance: false
+    coverage_sweep_required: true
+    sweep_before_representation_choice: true
+    sweep_depth_driver: decision_uncertainty_consequence_and_evidence_surface
+  evidence_recon:
+    evidence_packet_version: 1
+    packet_ref: ""
+    selected_mode: pending
+    validation_status: pending
+    negative_claim_receipts_required: true
+    replaces_decision_coverage_sweep: false
+  research:
+    allowed: true
+    permitted_surfaces: []
+  prototype:
+    allowed: false
+    named_uncertainty_id: ''
+  artifact_depth: decision_contract
   destination_system:
-    name: ""
+    name: ''
     status: unresolved
+  implementation_authorized: false
+  shared_understanding:
+    confirmed: false
+    confirmed_by: ''
+  approval:
+    status: blocked
+    approved_by: ''
+  decision_state:
+    representation_policy: auto_after_mandatory_sweep
+    materialized_as: null
+    graph_materialization: only_when_meaningful_topology_exists
+    flat_to_graph_promotion_allowed: true
+    stable_ids_preserved_on_promotion: true

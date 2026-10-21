@@ -8,11 +8,14 @@ const path = require("node:path");
 const { runPool, planWaves, defaultWorkerBudget } = require("./scheduler.js");
 const { resolveConcurrencyProfile } = require("./concurrency-profile.js");
 const { CacheStore, classifyReuse, sha256 } = require("./cache-store.js");
+const { ProductionCommandEvidenceCache, descriptorFor } = require("./command-evidence-cache.js");
 const { escapeHtml, safeJsonForScript, compileTemplate } = require("./report-compiler.js");
 const { PerformanceReceipt } = require("./performance-receipt.js");
 const { fingerprintFiles, parsePorcelainZ } = require("./fingerprint.js");
 
 async function main() {
+  assert.equal(typeof ProductionCommandEvidenceCache, "function");
+  assert.equal(descriptorFor({ repository_key: "repo", tree_hash: "tree", command: "node test", environment_fingerprint: "env", config_hash: "config" }).namespace, "production-command-evidence");
   const aggressive = resolveConcurrencyProfile({}, { host_parallelism: 8 });
   assert.equal(aggressive.class_budgets.agent, 16, "read-only agent budget should aggressively oversubscribe host parallelism");
   assert.ok(aggressive.class_budgets.command < aggressive.class_budgets.agent, "local commands must remain more conservative than remote/read-only agents");

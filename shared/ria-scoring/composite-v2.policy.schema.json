@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ria.composite-v2.policy.schema.json",
+  "title": "RIA composite v2 presentation policy (composite-scoring-v3 §11)",
+  "description": "Selects which composite is the report headline. Contains no scoring numbers; changing it never changes config_sha256 or implementation_sha256.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "reported_composite",
+    "calibration_ref"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ria.composite-v2.policy@1"
+    },
+    "reported_composite": {
+      "enum": [
+        "v1",
+        "v2"
+      ]
+    },
+    "calibration_ref": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "receipt_path",
+            "receipt_sha256"
+          ],
+          "properties": {
+            "receipt_path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "receipt_sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "reported_composite"
+        ],
+        "properties": {
+          "reported_composite": {
+            "const": "v2"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "calibration_ref": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -40,6 +40,15 @@ test("strict owner failure blocks while policy-gated degraded mode preserves rea
   assert.equal(degraded.status, "degraded"); assert.ok(event(degraded, "owner-integrity", "failed")); assert.ok(event(degraded, "cross-owner-synthesis", "completed"));
 });
 
+test("a non_degradable failure blocks even under allow_degraded", async () => {
+  const base = handlers();
+  const tampered = { ...base, "local-deterministic": async (input) => { if (input.task.task_id === "owner-artifact-verification") { const error = new Error("fixture tampered evidence"); error.code = "FIXTURE_TAMPER"; error.non_degradable = true; throw error; } return base["local-deterministic"](input); } };
+  const result = await executePlan(plan({ allow_degraded: true }), { handlers: tampered, cache: new MemoryArtifactCache(), run_nonce: "non-degradable" });
+  assert.equal(result.status, "blocked");
+  assert.deepEqual(result.failures.map((failure) => failure.code), ["FIXTURE_TAMPER"]);
+  assert.deepEqual(result.degraded_failures, []);
+});
+
 test("required reuse miss is explicit and report skip remains graph-terminal", async () => {
   const required = await executePlan(plan({ reuse_controls: { SEI: "require-reuse" } }), { handlers: handlers(), cache: new MemoryArtifactCache(), run_nonce: "required" });
   assert.equal(required.status, "blocked"); assert.equal(event(required, "sei-snapshot", "failed").failure_code, "REQUIRED_REUSE_MISS");

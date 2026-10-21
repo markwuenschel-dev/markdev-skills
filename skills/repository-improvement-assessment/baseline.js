@@ -10,6 +10,7 @@ const REVISION = /^(?:[0-9a-f]{40}|[0-9a-f]{64})$/;
 const PATH_KINDS = new Set(["exact-existing", "allowed-absent-generated", "pattern"]);
 const AUTHORIZATION_STATES = new Set(["granted", "denied", "inherited"]);
 const SCOPES = new Set(["head", "worktree"]);
+const CLEAN_WORKING_TREE = crypto.createHash("sha256").update(Buffer.alloc(0)).digest("hex");
 
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
@@ -39,6 +40,21 @@ function normalizedRoot(root) {
 }
 function normalizedPathKey(value) { return process.platform === "win32" ? value.toLowerCase() : value; }
 
+/** Count working-tree entries in a `--porcelain=v1 -z` buffer. A rename or copy
+ * entry is followed by a second NUL-terminated token holding the original path;
+ * that token belongs to the same entry and must not be counted again. */
+function countPorcelainEntries(status) {
+  const tokens = String(status).split("\0");
+  let count = 0;
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    if (!token) continue;
+    count += 1;
+    if (token[0] === "R" || token[0] === "C" || token[1] === "R" || token[1] === "C") index += 1;
+  }
+  return count;
+}
+
 function gitPreflight(root) {
   const canonicalRoot = normalizedRoot(root);
   const topLevel = git(canonicalRoot, ["rev-parse", "--show-toplevel"], { allowFailure: true });
@@ -57,6 +73,7 @@ function gitPreflight(root) {
     revision,
     tree,
     clean: status.length === 0,
+    uncommitted_entry_count: countPorcelainEntries(status),
     working_tree_fingerprint: sha256(status),
   });
 }
@@ -149,12 +166,28 @@ function baselineBody(input) {
   const durableMode = input.durable_mode ?? "git";
   if (!new Set(["git", "content-addressed-degraded"]).has(durableMode)) fail("FAIL-RIA-BASELINE", "durable_mode is invalid");
   const scope = input.scope ?? (durableMode === "git" ? "head" : "worktree");
+  const requireClean = input.require_clean ?? false;
+  if (typeof requireClean !== "boolean") fail("FAIL-RIA-BASELINE", "require_clean must be a boolean");
   if (!SCOPES.has(scope)) fail("FAIL-RIA-BASELINE", "scope must be head or worktree");
   if (durableMode === "content-addressed-degraded" && scope !== "worktree") fail("FAIL-RIA-BASELINE", "non-Git degraded mode supports only worktree scope");
   const roots = declaredRoots.map((root) => {
     const preflight = gitPreflight(root);
     if (!preflight.ok && durableMode === "git") fail("FAIL-RIA-GIT-PREFLIGHT", `normal durable mode requires Git: ${preflight.root}`);
-    if (preflight.ok && scope === "head" && !preflight.clean) fail("FAIL-RIA-BASELINE-SCOPE", `head scope requires a clean checkout: ${preflight.root}`);
+    // `head` assesses HEAD, and verification isolates to a detached worktree pinned
+    // to that same commit, so uncommitted work is out of scope by construction rather
+    // than by refusing to start. Callers that want the hard stop opt in.
+    if (preflight.ok && scope === "head" && requireClean && !preflight.clean) {
+      const entries = preflight.uncommitted_entry_count;
+      fail("FAIL-RIA-BASELINE-SCOPE", `head scope with require_clean:true requires a clean checkout: ${preflight.root} has ${entries} uncommitted ${entries === 1 ? "entry" : "entries"}. Commit or stash them, or drop require_clean to assess the committed HEAD and leave them out of scope.`);
+    }
+    if (preflight.ok && scope === "head") {
+      // `head` assesses HEAD, so the working tree is not part of what was assessed and
+      // must not enter baseline identity — otherwise one untracked scratch file changes
+      // the content hash and silently defeats exact reuse. This is byte-identical to what
+      // a clean checkout produced before the gate became opt-in. Uncommitted work is
+      // reported outside the artifact, by the caller, so it stays visible without binding.
+      return Object.freeze({ ...preflight, clean: true, working_tree_fingerprint: CLEAN_WORKING_TREE });
+    }
     if (preflight.ok && scope === "worktree") {
       const surface = sha256(canonicalJson(treeEntries(preflight.root)));
       return Object.freeze({ ...preflight, head_revision: preflight.revision, revision: sha256(canonicalJson({ head_revision: preflight.revision, surface })), tree: surface, working_tree_fingerprint: surface });

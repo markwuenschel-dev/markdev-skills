@@ -6,7 +6,9 @@ const path = require("node:path");
 const TERMINAL = new Set(["reused", "completed", "failed", "blocked", "cancelled"]);
 function canonical(value) { if (Array.isArray(value)) return value.map(canonical); if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])])); return value; }
 function sha256(value) { return crypto.createHash("sha256").update(JSON.stringify(canonical(value))).digest("hex"); }
-function finite(value) { return value === null || value === undefined ? null : Number.isFinite(Number(value)) && Number(value) >= 0 ? Number(value) : null; }
+const { finiteOrNull } = require("../../shared/ria-scoring/scoring.js");
+// P1: shared coercion, then the receipt's own non-negative rule as a wrapper.
+function finite(value) { const number = finiteOrNull(value); return number !== null && number >= 0 ? number : null; }
 function observation(value) { if (Number.isFinite(value)) return { value: Number(value), evidence: "measured" }; if (value && Number.isFinite(value.value) && ["measured", "estimated", "unavailable"].includes(value.evidence)) return { value: Number(value.value), evidence: value.evidence }; return { value: null, evidence: "unavailable" }; }
 function metric(value, evidence = "measured") { return { value: finite(value), evidence: finite(value) === null ? "unavailable" : evidence }; }
 function fail(detail) { throw new Error(`FAIL-RIA-PERFORMANCE-RECEIPT: ${detail}`); }

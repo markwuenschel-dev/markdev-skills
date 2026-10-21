@@ -1,0 +1,107 @@
+{
+  "name": "codebase-integrity-audit-loop",
+  "version": "2.1.0",
+  "entrypoint": "SKILL.md",
+  "contracts": [
+    "PARALLEL-REPORT.md",
+    "PERFORMANCE.md",
+    "HTML-REPORT.md",
+    "LENSES.md",
+    "AUTO-MODE.md",
+    "contracts/candidate-handoff.schema.json",
+    "contracts/completion-binding-parity.json",
+    "MUTATION-RUNTIME-CONTRACT.json"
+  ],
+  "depends_on": [
+    "shared/candidate-ledger-spine",
+    "shared/assessment-acceleration",
+    "agent-executor-pool",
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract",
+    "shared/assessment-verification-baseline",
+    "shared/project-intelligence-workspace",
+    "production-flywheel",
+    "independent-verification",
+    "shared/ria-scoring",
+    "shared/evidence-recon",
+    "shared/ria-owner-return"
+  ],
+  "files": {
+    "report_builder": "assets/build-report.js",
+    "report_schema": "assets/report-input.schema.json",
+    "report_scaffold": "assets/report-scaffold.html",
+    "ledger_writer": "assets/write-ledger.js",
+    "runtime_contract": "RUNTIME-CONTRACT.json",
+    "mutation_runtime_contract": "MUTATION-RUNTIME-CONTRACT.json",
+    "candidate_handoff": "scripts/candidate-handoff.js",
+    "verification_consumer": "independent-verification/scripts/consume_verdict.py",
+    "candidate_handoff_schema": "contracts/candidate-handoff.schema.json",
+    "completion_binding_parity": "contracts/completion-binding-parity.json",
+    "completion_binding_parity_test": "scripts/completion-binding-parity.test.js",
+    "authority_check": "scripts/authority-contract.test.js",
+    "report_presentation": "shared/report-presentation",
+    "coverage_verifier": "assets/integrity-coverage.js",
+    "coverage_verifier_test": "assets/integrity-coverage.test.js",
+    "ria_canonical_ledger": "assets/canonical-ria-ledger.json",
+    "migrations": "MIGRATIONS.md",
+    "report_scoring_compatibility": "REPORT-SCORING.md"
+  },
+  "runtime": {
+    "engine": "node",
+    "dependencies": [],
+    "shared_acceleration": "shared/assessment-acceleration"
+  },
+  "tests": [
+    "scripts/candidate-handoff.test.js",
+    "scripts/assessment-mutation.test.js",
+    "scripts/authority-contract.test.js",
+    "scripts/completion-binding-parity.test.js",
+    "assets/integrity-coverage.test.js"
+  ],
+  "performance": {
+    "profile": "aggressive-threadpool",
+    "evidence_lanes": "adaptive micro-lanes; queue depth targets multiple of active workers",
+    "agent_workers": "auto aggressive",
+    "command_workers": "separately bounded",
+    "work_conserving_refill": true,
+    "nested_under_ria": "flatten into the RIA global pool",
+    "cache_scope": "lane shard",
+    "report_runtime_network": false,
+    "verification_under_ria": "consume shared assessment-verification baseline; targeted re-verification only",
+    "report_layout": "responsive widescreen/ultrawide analytics"
+  },
+  "consumes": [
+    "shared/candidate-ledger-spine",
+    "shared/assessment-acceleration",
+    "agent-executor-pool",
+    "human-directed-swarm-planner",
+    "repository-health-assessment",
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract",
+    "shared/assessment-verification-baseline",
+    "shared/project-intelligence-workspace",
+    "production-flywheel",
+    "independent-verification"
+  ],
+  "presentation": {
+    "canonical_machine_artifact": "standalone shared-spine v3 candidate ledger",
+    "interactive_report_default": "ask",
+    "nested_policy": "inherit",
+    "report_optional": true
+  },
+  "storage": {
+    "workspace": "shared/project-intelligence-workspace@1",
+    "durable_root": ".project-intelligence",
+    "reports": "reports/integrity",
+    "external_durable_state": false,
+    "tracked_source_mutation": false
+  },
+  "authority": {
+    "source_repository_mutation": false,
+    "mutation_owner": "production-flywheel",
+    "completion_authority": "independent-verification",
+    "candidate_unit": "one"
+  }
+}

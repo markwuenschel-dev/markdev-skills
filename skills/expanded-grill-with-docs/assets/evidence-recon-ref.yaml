@@ -1,0 +1,27 @@
+evidence_recon:
+  evidence_packet_version: 1
+  packet_ref: ""
+  packet_id: ""
+  producer_skill: expanded-grill-with-docs
+  mode: inline | expedition
+  validation:
+    status: pending | valid | invalid
+    validated_by: shared/evidence-recon/evidence-recon.js
+    problems: []
+  coverage_plan:
+    required_completeness: targeted | representative | exhaustive
+    source_classes: []
+    included_surfaces: []
+    excluded_surfaces: []
+    contradiction_risk: low | medium | high | critical
+    false_negative_cost: low | medium | high | critical
+    mode_rationale: ""
+  handoff_summary:
+    safe_to_assume: []
+    unresolved_facts: []
+    owner_intent_required: []
+    possible_decision_surfaces: []
+  boundary:
+    replaces_decision_coverage_sweep: false
+    resolves_human_decisions: false
+    selects_flat_or_graph: false

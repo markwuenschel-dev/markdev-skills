@@ -1,0 +1,425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/repository-improvement-assessment/request.schema.json",
+  "title": "RIA request",
+  "description": "Input to `node scripts/ria.js --request <request.json>`. Closed: an unknown top-level field is rejected at the door rather than silently ignored.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "repository",
+    "command_authorization",
+    "sei_compatibility_binding"
+  ],
+  "properties": {
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One repository root, or several. At least one of root/roots is required.",
+      "properties": {
+        "root": {
+          "type": "string",
+          "minLength": 1
+        },
+        "roots": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "root"
+          ]
+        },
+        {
+          "required": [
+            "roots"
+          ]
+        }
+      ]
+    },
+    "command_authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Authority to execute verification commands. Verification refuses to run unless state is granted or inherited.",
+      "required": [
+        "state"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "granted",
+            "denied",
+            "inherited"
+          ]
+        },
+        "authorization_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "inherited_from": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Required when state is inherited."
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "sei_compatibility_binding": {
+      "type": "object",
+      "description": "Binds the run to one SEI engine configuration. All nine fields are required; the four hash fields must be 64 lowercase hex characters.",
+      "required": [
+        "engine_version",
+        "effective_configuration",
+        "config_hash",
+        "execution_contract_hash",
+        "history_window",
+        "history_window_hash",
+        "assessment_schema_version",
+        "analyzer_capabilities",
+        "analyzer_capability_hash"
+      ],
+      "properties": {
+        "engine_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effective_configuration": {
+          "type": "object"
+        },
+        "config_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "execution_contract_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "history_window": {
+          "type": "object"
+        },
+        "history_window_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "assessment_schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "analyzer_capabilities": {
+          "type": "object"
+        },
+        "analyzer_capability_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "lifecycle": {
+      "enum": [
+        "plan",
+        "run",
+        "continue",
+        "report-only",
+        "verify-only"
+      ],
+      "default": "run"
+    },
+    "mode": {
+      "enum": [
+        "plan",
+        "run",
+        "continue",
+        "report-only",
+        "verify-only"
+      ],
+      "description": "Alias for lifecycle. lifecycle wins when both are present."
+    },
+    "depth": {
+      "enum": [
+        "quick",
+        "standard",
+        "deep",
+        "custom"
+      ],
+      "default": "standard"
+    },
+    "custom_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Required when depth is custom; rejected otherwise. Every value is a positive integer.",
+      "properties": {
+        "max_wall_minutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_subagent_tokens": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_tool_calls": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_owner_candidates": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_parallel_agents": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_heavy_tools": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "durable_mode": {
+      "enum": [
+        "git",
+        "content-addressed-degraded"
+      ],
+      "default": "git"
+    },
+    "scope": {
+      "enum": [
+        "head",
+        "worktree"
+      ],
+      "description": "head assesses the committed HEAD revision; uncommitted work is out of scope and does not affect baseline identity, so exact reuse is unaffected. worktree is currently accepted ONLY with durable_mode content-addressed-degraded (non-Git roots): on a Git repository it sets repository.revision to a synthetic content hash that SEI cannot anchor its history window to, and the run is refused up front with FAIL-RIA-SCOPE-UNSUPPORTED."
+    },
+    "require_clean": {
+      "type": "boolean",
+      "default": false,
+      "description": "Opt in to refusing to start while the working tree is dirty. Off by default because head scope already excludes uncommitted work."
+    },
+    "presentation_policy": {
+      "enum": [
+        "generate",
+        "skip",
+        "ask",
+        "inherit"
+      ],
+      "default": "skip",
+      "description": "generate renders the report. skip renders none. ask and inherit are accepted but the CLI cannot hold an interactive election, so both behave like skip and say so on stderr. Any other value is rejected."
+    },
+    "reuse_controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Per-component reuse policy. Keys are CASE-SENSITIVE and deliberately inconsistent: SEI is upper, verification is lower, the three owners are TitleCase.",
+      "properties": {
+        "SEI": {
+          "enum": [
+            "auto",
+            "rerun",
+            "require-reuse"
+          ],
+          "default": "auto"
+        },
+        "verification": {
+          "enum": [
+            "auto",
+            "rerun",
+            "require-reuse"
+          ],
+          "default": "auto"
+        },
+        "Health": {
+          "enum": [
+            "auto",
+            "rerun",
+            "require-reuse"
+          ],
+          "default": "auto"
+        },
+        "Integrity": {
+          "enum": [
+            "auto",
+            "rerun",
+            "require-reuse"
+          ],
+          "default": "auto"
+        },
+        "Architecture": {
+          "enum": [
+            "auto",
+            "rerun",
+            "require-reuse"
+          ],
+          "default": "auto"
+        }
+      }
+    },
+    "verification_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Commands run inside the isolated checkout to establish the verification baseline. OMITTING this makes the run unverified: it proceeds, Health caps its grade at C, and the result, stderr and report all say so. Note the checkout is a fresh detached worktree holding tracked files only — no node_modules, virtualenv or build output — so a command that needs installed dependencies must install them itself.",
+      "properties": {
+        "commands": {
+          "type": "array",
+          "description": "Each entry is a LITERAL SHELL STRING executed via execSync in the isolation worktree - it is interpreted by cmd.exe or /bin/sh, not exec-d as argv. Write what you would type: \"node --test\", not \"test\". The one reserved sentinel is \"node-version\", which runs the current node binary with --version. An entry may instead be {command, kind} to pin the Health command class explicitly and suppress kind inference.",
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "command"
+                ],
+                "properties": {
+                  "command": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "kind": {
+                    "enum": [
+                      "test",
+                      "build",
+                      "lint",
+                      "typecheck",
+                      "other"
+                    ]
+                  },
+                  "timeout_ms": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 600000,
+                    "description": "Per-command limit. A command still running at the limit is killed and recorded as timed-out, which makes the baseline untrustworthy. Default 10 minutes."
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "allow_degraded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Proceed past a failing verification gate and a strict owner failure, marking the run degraded instead of blocked."
+    },
+    "generated_protected_paths": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "path",
+          "root_index"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "exact-existing",
+              "allowed-absent-generated",
+              "pattern"
+            ]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "root_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "purpose": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "runtime_root": {
+      "type": "string",
+      "description": "Defaults to <root>/.project-intelligence/assessments/ria/runtime."
+    },
+    "state_path": {
+      "type": "string",
+      "description": "Required when lifecycle is continue; returned by the previous run as state_path."
+    },
+    "run_nonce": {
+      "type": "string"
+    },
+    "startup_resolution": {
+      "type": "object"
+    },
+    "history_binding": {
+      "type": "object"
+    },
+    "environment_toolchain": {
+      "type": "object"
+    },
+    "provenance": {
+      "type": "object"
+    },
+    "artifact_lineage": {
+      "type": "object"
+    },
+    "runtime_capacity": {
+      "type": "object"
+    },
+    "adapter_options": {
+      "type": "object",
+      "description": "Reserved for a custom --adapter. Deliberately open; RIA itself reads nothing here."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "depth": {
+            "const": "custom"
+          }
+        },
+        "required": [
+          "depth"
+        ]
+      },
+      "then": {
+        "required": [
+          "custom_budget"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle": {
+            "const": "continue"
+          }
+        },
+        "required": [
+          "lifecycle"
+        ]
+      },
+      "then": {
+        "required": [
+          "state_path"
+        ]
+      }
+    }
+  ]
+}

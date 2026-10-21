@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, "..");
 const skillsRoot = path.resolve(root, "..");
 const manifest = JSON.parse(fs.readFileSync(path.join(root, "MANIFEST.json"), "utf8"));
 assert.equal(manifest.name, "repository-improvement-assessment");
-assert.equal(manifest.version, "0.8.4");
+assert.equal(manifest.version, "0.10.0");
 assert.equal(JSON.parse(fs.readFileSync(path.join(root, "RUNTIME-CONTRACT.json"), "utf8")).version, manifest.version, "runtime contract version must match manifest");
 for (const relative of [...manifest.contracts, ...manifest.scripts]) {
   assert.ok(fs.existsSync(path.join(root, relative)), `manifest path missing: ${relative}`);

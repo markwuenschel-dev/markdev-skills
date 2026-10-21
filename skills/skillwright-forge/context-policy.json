@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {},
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.references.authoring-standard.md": {
+        "path": "references/authoring-standard.md",
+        "selector": "heading"
+      },
+      "source.references.evaluation-playbook.md": {
+        "path": "references/evaluation-playbook.md",
+        "selector": "heading"
+      },
+      "source.references.pattern-catalog.md": {
+        "path": "references/pattern-catalog.md",
+        "selector": "heading"
+      },
+      "source.references.research-basis.md": {
+        "path": "references/research-basis.md",
+        "selector": "heading"
+      },
+      "source.references.security-governance.md": {
+        "path": "references/security-governance.md",
+        "selector": "heading"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

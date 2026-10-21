@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-report-responsive="1">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,7 +45,7 @@
     background:var(--page); color:var(--ink-primary); font-family:var(--sans);
     min-height:100vh; padding:28px 24px 80px;
   }
-  .wrap { max-width:1080px; margin:0 auto; }
+  .wrap { width:min(3000px,calc(100vw - 2 * clamp(12px,2.2vw,48px))); margin:0 auto; container-type:inline-size; container-name:report; }
   .masthead { display:flex; justify-content:space-between; align-items:flex-start;
               gap:20px; flex-wrap:wrap; padding-bottom:16px;
               border-bottom:2px solid var(--ink-primary); }
@@ -76,11 +76,12 @@
   ul.problems { list-style:none; padding:0; margin:6px 0 0; }
   footer { font-family:var(--mono); font-size:10px; color:var(--ink-muted);
            margin-top:28px; padding-top:12px; border-top:1px solid var(--hairline); }
+  /* REPORT:SHARED_PRESENTATION_CSS */
 </style>
 </head>
 <body>
 <div class="report-root">
-<div class="wrap">
+<div class="wrap rp-shell">
 
   <!-- 1 · masthead. The grade never appears without coverage beside it. -->
   <header class="masthead">
@@ -96,6 +97,11 @@
     <h2>Overall grade</h2>
     <div data-grade></div>
     <p class="lead" style="margin-top:16px;" data-prose-required="one-sentence-verdict"></p>
+  </section>
+
+  <section class="panel">
+    <h2>Quantitative dashboard</h2>
+    <div class="rp-chart-grid"><!-- REPORT:RESPONSIVE_ANALYTICS --></div>
   </section>
 
   <!-- 1 · executive summary -->
@@ -208,6 +214,11 @@
   </section>
 
   <section class="panel">
+    <h2>Performance receipt</h2>
+    <pre class="rp-code"><!-- REPORT:PERFORMANCE_RECEIPT --></pre>
+  </section>
+
+  <section class="panel">
     <h2>Verification</h2>
     <ul class="problems" data-verify-problems></ul>
     <p style="font-family:var(--mono);font-size:10px;color:var(--ink-muted);">
@@ -227,18 +238,18 @@
 <!-- THE ISLAND — the single source for every number on this page, and the
      machine handoff to the architecture and integrity skills. -->
 <script type="application/json" id="health">
-{ "health_schema_version": 5, "spine_version": 3, "...": "see assets/health.schema.json" }
+<!-- REPORT:HEALTH_ISLAND -->
 </script>
 
 <!-- Paste the BODY of shared/candidate-ledger-spine/ledger-verify.js
      here FIRST (candidates are scored by the shared spine, never here). -->
 <script>
-/* PASTE ledger-verify.js BODY */
+/* REPORT:LEDGER_VERIFY */
 </script>
 
 <!-- Then paste the BODY of assets/health-verify.js here. -->
 <script>
-/* PASTE health-verify.js BODY */
+/* REPORT:HEALTH_VERIFY */
 </script>
 
 <script>
@@ -249,5 +260,6 @@
     HealthVerify.runHealth({});
   });
 </script>
+<script>/* REPORT:SHARED_PRESENTATION_SCRIPT */</script>
 </body>
 </html>

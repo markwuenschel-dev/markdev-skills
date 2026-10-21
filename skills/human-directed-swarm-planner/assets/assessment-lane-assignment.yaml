@@ -1,0 +1,59 @@
+# DEPRECATED (2026-10-01): no script produces or consumes this file. RIA no longer
+# runs captain-dispatched Phase 1 lanes: `repository-improvement-assessment/scripts/ria.js`
+# owns the run and hands each owner the closed envelope in
+# shared/ria-owner-return/owner-return.schema.json; the current topology is
+# SWARM-TYPES.md ## RIA Assessment Topology. The design-now exception, the
+# "Lane capabilities" section, and merge_authorized referenced below belonged to
+# that retired model; SWARM-TYPES.md no longer defines them.
+# Kept in place for older runs that cite it; do not build new runs on it.
+#
+# Launch contract for one Repository Improvement Assessment Phase 1 lane (retired model)
+# (health, integrity, or architecture triage — occasionally a bound
+# handoff-mode design invocation under the design-now exception). The
+# parent fills every field; a lane receives nothing broader. Modeled on
+# decision-terrain-mapper/assets/scout-assignment.yaml — same posture: the parent
+# owns everything the lane would otherwise have to (re)discover.
+
+assessment_lane_assignment:
+  run_id: ""                       # matches assessment-baseline.yaml's run_id
+  lane: ""                         # health | integrity | architecture
+  target_skill: ""                 # repository-health-assessment | codebase-integrity-audit-loop |
+                                    # architecture-improvement-intelligence (only for the user-elective
+                                    # standalone lane, or the design-now handoff exception) — the
+                                    # default architecture lane triages in place, reusing Repo
+                                    # Audit's Deepening-seams lens, and dispatches no family skill
+  target_mode: ""                  # --parallel-report | standalone | handoff (design-now exception
+                                    # only, requires bound_candidate_id)
+  baseline_ref: ""                 # path/pointer to this run's Phase 0 assessment-baseline.yaml
+  candidate_id_prefix: ""          # this lane's reserved namespace — never mint outside it
+
+  bound_candidate_id: null         # design-now handoff exception only; retired model, no longer in SWARM-TYPES.md
+
+  capabilities:
+    repository_read: true
+    shared_commands: true          # health may set this false if it declines an injected
+                                    # command record; retired model, SWARM-TYPES.md's Lane capabilities section removed
+    own_commands: false
+    mutation: false
+    user_interaction: false
+    candidate_selection: false
+
+  merge_authorized: false          # always false for this swarm type; distinct from
+                                    # capabilities.mutation — retired model, no longer in SWARM-TYPES.md
+
+  known_decisions: []
+  known_constraints: []
+  relevant_prior_reports: []
+
+  explicit_non_goals:
+    - no repository-wide review beyond this lane's scope
+    - no candidate selection
+    - no implementation
+    - no HTML report opened from inside the lane
+
+  # architecture_status (deferred_until_selected | design_requested) is set
+  # by the architecture lane on candidates it triages — it lives in the
+  # lane's return packet (assessment-lane-return.yaml's triage_findings),
+  # not here.
+
+  expected_return: assessment_lane_return   # the packet in assessment-lane-return.yaml

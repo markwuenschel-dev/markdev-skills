@@ -1,11 +1,19 @@
+# Compatibility projection of the canonical decision state. Prefer flat-decision-set.yaml or decision-graph.yaml for new integrations.
 uncertainties:
-  - id: U-001
+  - id: D-001
+    node_type: human_decision
     category: architecture
     question: ""
     why_it_matters: ""
     owner: ""
+    prerequisite_ids: []
+    fact_dependency_ids: []
     evidence_needed: []
     resolution_route: ""
     blocking: true
     state: open
     resolution: ""
+    recommended_answer: ""
+    recommendation_confidence: medium
+    consequence_if_deferred: ""
+    revisit_trigger: ""

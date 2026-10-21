@@ -89,11 +89,11 @@ The island's `sprawl_pressure` block (schema v5) surfaces stale reachable paths,
 
 How the arrays read against the level-3 anchors above (`architecture-fitness`: "dependency direction is enforced by a lint rule, build graph, or module system — not by convention"; `maintainability-and-ownership`: "ownership is recorded and current; dead paths are removed rather than accumulating"):
 
-- **`competing_authoritative_implementations` non-empty** is direct evidence against `architecture-fitness`'s `boundary_clarity` — if two reachable implementations both claim authority, the authoritative definition is not identifiable, which is the level-3 anchor's own condition stated in the negative. A non-empty group with `automated_sprawl_checks: none` caps that dimension's plausible level at 2: the control (recognising the duplication) exists in the assessor's head, not in anything that would catch a third competing implementation appearing.
+- **`competing_authoritative_implementations` non-empty** is direct evidence against `architecture-fitness`'s `boundary_clarity` — if two reachable implementations both claim authority, the authoritative definition is not identifiable, which is the level-3 anchor's own condition stated in the negative. With `automated_sprawl_checks: none`, set that dimension no higher than 2. This is assessor guidance, not a verifier-enforced cap: the verifier checks only the coherence rules below. The reason is that the control (recognising the duplication) lives in the assessor's head, not in anything that would catch a third competing implementation appearing.
 - **`duplicated_contract_representations` non-empty** is the same argument aimed at whichever lane's claim it cites — most often `architecture-fitness` when the duplication is structural, `contracts-and-integration` claims remain the primary home for a contract-shape finding (`claim_refs` there still point at `contracts-and-integration`; `sprawl_pressure` only ever cites `architecture-fitness` or `maintainability-and-ownership`, so use it here for the architectural-boundary angle of the same fact, not the contract-ownership angle).
-- **`stale_reachable_paths` and `abandoned_reachable_experiments` non-empty** are direct evidence against `maintainability-and-ownership`'s `change_containment` and `observed_soundness` — a path that still executes but serves no current purpose is exactly what the level-3 anchor means by "dead paths are removed rather than accumulating," read as failing. `automated_sprawl_checks: enforced` (a dead-code or unused-export lint actually running) is what would let `automated_enforcement` reach level 3 on this evidence instead of capping at 2.
+- **`stale_reachable_paths` and `abandoned_reachable_experiments` non-empty** are direct evidence against `maintainability-and-ownership`'s `change_containment` and `observed_soundness` — a path that still executes but serves no current purpose is exactly what the level-3 anchor means by "dead paths are removed rather than accumulating," read as failing. `automated_sprawl_checks: enforced` (a dead-code or unused-export lint actually running) is what would let `automated_enforcement` reach level 3 on this evidence; without it, set that dimension no higher than 2 (assessor guidance, not a verifier cap).
 - **`unowned_compatibility_layers` non-empty** is direct evidence against `maintainability-and-ownership`'s `boundary_clarity` and `change_containment` — a shim nobody owns is a boundary nobody can name, and a change near it has no one to contain the blast radius.
-- **`assessment: high`** does not by itself force a dimension level down; it is a summary judgment, not a fourth arithmetic path (the same reason `HEALTH-GRADING.md`'s "Stamped deviation" rejected `score_effect`). It is the prompt to go read the arrays and write `claim_refs` and `rationale` that actually justify whatever level results.
+- **`assessment: high`** does not by itself force a dimension level down; it is a summary judgment, not a fourth arithmetic path (the same reason the *Stamped deviation* under [Every dimension carries its own support](#every-dimension-carries-its-own-support) rejected `score_effect`). It is the prompt to go read the arrays and write `claim_refs` and `rationale` that actually justify whatever level results.
 
 None of this changes `lane_score`, `overall_raw`, or any cap. Sprawl evidence earns a lower dimension level the same way any other claim does — by being cited with a `support` line under `dimension-incoherent`'s existing coherence rules — never by a separate sprawl arithmetic path.
 
@@ -172,7 +172,8 @@ The verifier enforces six things:
    - level ≥ 2 needs at least one supporting claim resulting `pass` or `partial` — a control that is absent, failing, or unverified cannot evidence partial maturity;
    - level 4 needs at least one claim resulting `pass` outright, since it means systematic *and* regression-resistant;
    - a dimension whose supporting claims are all `unknown` cannot exceed level 1;
-   - level ≤ 1 must not rest exclusively on passing claims.
+   - level ≤ 1 must not rest exclusively on passing claims;
+   - judgment claims carry less weight at the top of the scale: level ≥ 3 cannot rest only on them (`level-judgment-only`), and level 4's outright `pass` must come from a claim that is not a judgment (`level4-needs-mechanical-pass`). See [Judgment evidence](#judgment-evidence).
 
 Rules 3–6 exist because earlier schema versions accepted a claim reading `fail` sitting under six levels of 4 (and the grade *improved*), and accepted one claim justifying an entire lane. Coherence checking does not automate the judgment; it makes an incoherent judgment impossible to ship quietly.
 
@@ -215,7 +216,11 @@ The raw mean is a starting point, not the answer. A strong average can hide one 
 | `baseline-no-commands` | Nothing was run | C |
 | `coverage-below-80` | `weighted_coverage < 80` | B |
 | `coverage-below-60` | `weighted_coverage < 60` | C |
-| `uncontained-critical-failure` | A known, reachable, uncontained critical failure | D |
+| `uncontained-critical-failure` | `uncontained_critical_failure` is a `{claim_id, statement}` object whose `claim_id` resolves to a claim with `result: fail` that is not a judgment claim | D |
+
+Coverage thresholds (40, 60, 80) compare the **unrounded** `weighted_coverage`. 79.96% is below 80 even though it displays as 80.0%.
+
+`uncontained_critical_failure` is `null` when no such failure is known. Any other value must be the object above; a string, a boolean, an object naming a non-`fail` claim, or one naming a judgment claim (`uncontained-critical-judgment`) is rejected rather than read as a trigger.
 
 A `partial` baseline used to cap nothing at all, which let a repository whose only executed command was a passing build earn an **A** — nothing had demonstrated the code runs. Partial now caps, and the two reasons for it cap differently.
 
@@ -228,11 +233,20 @@ Every applied cap is recorded in `caps_applied` with the trigger value that fire
 Not a cap — a different verdict entirely.
 
 ```text
-weighted_coverage < 40   OR   any core surface has coverage: unavailable
+weighted_coverage < 40   OR   any core surface has coverage: unavailable or uninspected
   → final_grade = "Not gradable"
 ```
 
-Emit the reason and the coverage map, and stop grading. Never fabricate an F: F means *assessed and substantially unverified*, a far stronger claim than *not assessed*. The distinction only survives contact with an impatient reader if the tool refuses to blur it.
+Emit the reason and the coverage map, and stop grading. "Stop grading" is narrow:
+
+| Still runs | Stops |
+| --- | --- |
+| Lane scorecards, `overall_raw` and `raw_grade` (shown as diagnostics, never as the grade) | Caps: `caps_applied` is empty |
+| Confidence index | Any letter in `final_grade` |
+| Candidate ledger, Evidence Recon sidecar, artifact write | Quoting `raw_grade` as the repository's grade |
+| Report election and §9 handoffs | |
+
+The closing summary leads with the Not gradable reason and the surfaces that caused it. Never fabricate an F: F means *assessed and substantially unverified*, a far stronger claim than *not assessed*. The distinction only survives contact with an impatient reader if the tool refuses to blur it.
 
 ## The verification baseline is derived, not declared
 
@@ -311,7 +325,32 @@ claims:
 
 Separating `confirmed` / `inferred` / `unknown` is load-bearing. It feeds `determinism_ratio`, it tells the next run what to re-check rather than re-derive, and it stops an inference from hardening into a fact between report and roadmap.
 
+Claims translated from a `review-*` report also carry `review_source: {domain, report_sha256, rule_id, dimension, proof_basis}` and are otherwise ordinary claims of their owning lane ([REVIEW-LANES.md](REVIEW-LANES.md)), subject to the judgment rules below.
+
 Claims are also the reassessment unit. A later run re-verifies `CONTRACT-01` without rescanning unrelated lanes, and the delta reports claim results changing rather than grades moving for unstated reasons.
+
+## Judgment evidence
+
+`review_source.proof_basis` is required on every review claim and records what the review runtime actually proved:
+
+- **`mechanical`**: a deterministic analyzer re-derived the fact from the source at the assessed revision. It is as strong as any directly observed claim.
+- **`judgment`**: a model judged the rule (a dimension's `baseline` rule), and the runtime checked only the judgment's signature and its binding to the source. The judgment may be right, but nothing re-derived it.
+
+`assets/review-to-claims.js` sets `judgment` exactly when the rule is in the report's `coverage.judged_rules` (`review-fitness-report/v1.1`) or its proofs are of type `model-judgment`. A v1 report has no judged rules, so all its claims are `mechanical`.
+
+A judgment claim is admissible evidence, but weaker. The verifier enforces five rules:
+
+| Rule | A judgment claim cannot… | Problem code |
+| --- | --- | --- |
+| R1 | carry `observation.confirmed`; its text goes in `observation.inferred` | `claim-judgment-confirmed` |
+| R2 | be the outright `pass` that level 4 requires | `level4-needs-mechanical-pass` |
+| R3 | be the only support for a level ≥ 3 | `level-judgment-only` |
+| R5 | be what makes a surface's `evidence_quality` `strong` (a strong surface needs a mechanical claim, command, path, or inventory too) | `surface-strong-judgment-only` |
+| R6 | be the `claim_id` of `uncontained_critical_failure`, so it never fires the D cap | `uncontained-critical-judgment` |
+
+A judgment claim may still support any level up to 2 alone, and any level alongside a mechanical or directly observed claim.
+
+> **No new arithmetic factor.** Judgment does not get its own confidence weight or a discount on `lane_score`. R1 already lowers confidence through `determinism_ratio`, which counts only `confirmed` observations. It also keeps judgments out of the Evidence Recon sidecar's `safe_to_assume`: the projection promotes `confirmed` observations, and promotes a negative claim only when an explicit coverage receipt backs it. A second discount would be a second arithmetic path to the same number, which this file rejects for `score_effect`.
 
 ## Candidate scoring is not here
 

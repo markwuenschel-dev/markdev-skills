@@ -1,0 +1,113 @@
+# Human-Directed Swarm Planner execution-topology handoff.
+# This file describes work topology only. It is never a mutation, queue, graph,
+# lifecycle-state, or delivery authority. production-flywheel is the sole
+# mutating delivery owner for work represented here.
+
+execution_topology:
+  authority:
+    topology_owner: human-directed-swarm-planner
+    execution_owner: production-flywheel
+    mutation_permitted_in_planner: false
+    source_authorization_ref: ""   # user/caller/action-graph authorization; required for mutation
+    action_graph_ref: null          # optional; planner never rewrites it
+
+  mission:
+    statement: ""
+    execution_revision: ""
+    mode: ""                       # plan | read_only | topology_handoff
+    mission_source:
+      type: direct                  # direct | remediation_frontier | other_artifact
+      artifact: null
+      selected_items: []
+
+  premise_preflight:
+    - id: ""
+      reported_premise: ""
+      premise_status: ""            # confirmed | contradicted | stale | unverifiable
+      evidence: []
+      mutation_eligible: false
+
+  work_units:
+    - id: ""
+      phase: ""                     # premise | mutation | integration | verification
+      objective: ""
+      inputs: []
+      dependencies: []
+      specialist_skill: null         # method/skill Flywheel may invoke; does not transfer delivery ownership
+      deliverable: ""
+      acceptance_evidence: []
+      failure_conditions: []
+      ownership:
+        allowed_writes: []
+        forbidden_writes: []
+        shared_resources: []
+        exclusive_resources: []
+      planned_impact:
+        allowed_paths: []
+        expected_symbols: []
+        shared_resources: []
+        exclusive_resources: []
+        generated_artifacts: []
+        global_gates: []
+        confidence: ""                # high | medium; unknown => do not multi-admit
+      executor:
+        class: implementation          # read_only | implementation | validation | integration | publication
+        executor_depth: 1
+
+  resources:
+    - id: ""
+      kind: ""                      # path | generated_state | service | environment | other
+      concurrency: ""               # partitionable | exclusive-write | exclusive-runtime | serialized
+      rationale: ""
+
+  conflicts:
+    - work_units: []
+      kind: ""                      # write_write | exclusive_resource | write_read | generated_state | validation_environment
+      rationale: ""
+
+  phases:
+    - id: premise
+      mode: parallel
+      work_units: []
+      barrier: "All artifact-derived premises are classified."
+    - id: mutation
+      mode: conflict-aware
+      work_units: []
+      barrier: "Flywheel-owned work units complete under declared ownership."
+    - id: integration
+      mode: serialized
+      work_units: []
+      barrier: "Flywheel integrates/reconciles the authorized unit and runs its declared oracle."
+    - id: verification
+      mode: parallel
+      work_units: []
+      barrier: "Required verification evidence is reconciled by the delivery workflow."
+
+  scheduling:
+    max_active_lanes: 8
+    class_budgets:
+      read_only: 16
+      implementation: 8
+      validation: 8
+      integration: 1
+      publication: 1
+    resource_capacities: {}
+    waves: []
+    captain_topology_owner: human-directed-swarm-planner
+    integration_owner: ""           # downstream work-unit/role, enforced by Flywheel
+    verification_owner: ""          # downstream role/authority, enforced by Flywheel
+
+  closure_work:
+    - id: ""
+      required_for_acceptance_predicate: ""
+      intent_unchanged: false
+      no_new_consequential_decision: false
+      bounded_blast_radius: false
+      decision: ""                  # propose | stop_and_escalate; Flywheel decides admission to mutation
+
+  handoff:
+    target_skill: production-flywheel
+    selected_work_units: []
+    preserved_scope: []
+    blockers: []
+    notes: "Planner topology only; production-flywheel validates authorization and executes mutation."

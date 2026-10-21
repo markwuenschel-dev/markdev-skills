@@ -1,0 +1,110 @@
+# DEPRECATED (2026-10-01): no script produces or consumes this file. RIA no longer
+# runs a captain-built Phase 0 swarm: `repository-improvement-assessment/scripts/ria.js`
+# owns the run and hands each owner the closed envelope in
+# shared/ria-owner-return/owner-return.schema.json, and Repository Health's shared
+# facts travel as its Evidence Recon sidecar (specialist_refs kind "evidence-recon").
+# Kept in place for older runs that cite it; do not build new runs on it.
+#
+# Repository Improvement Assessment — Phase 0 shared evidence manifest.
+# Built once by the RIA captain alongside assessment-baseline.yaml — same
+# run_id, same assessed_revision — and consumed read-only by every lane via
+# evidence_refs: {kind: inventory, ref: EV-017}, so a repository fact is
+# discovered once here and cited everywhere instead of re-derived per lane.
+# See SWARM-TYPES.md ## RIA Assessment Topology and
+# repository-health-assessment/COVERAGE-MODEL.md ## Surface evidence
+# references for the evidence_refs shape this file stays compatible with.
+
+assessment_evidence_manifest:
+  run_id: ""                       # matches assessment-baseline.yaml's run_id
+  assessed_revision: ""            # matches assessment-baseline.yaml's frame.assessed_revision
+  prior_manifest_ref: ""           # path to a previous run's manifest, for delta assessment
+
+  # Top-level directory / module-root layout. One entry per major branch of
+  # the tree, not a full recursive listing.
+  repo_map:
+    - id: ""                       # EV-###
+      path: ""
+      kind: ""                     # directory | module_root | package_root
+      description: ""
+      fingerprint: ""
+      reused: false
+      reused_from_revision: ""
+
+  # Cheap to recompute each run — no fingerprint/reuse fields.
+  languages_and_build_systems:
+    - id: ""                       # EV-###
+      language: ""
+      build_system: ""
+      path_scope: ""
+      description: ""
+
+  manifests:
+    - id: ""                       # EV-###
+      path: ""
+      manifest_type: ""            # e.g. package.json | pyproject.toml | Cargo.toml
+      description: ""
+      fingerprint: ""
+      reused: false
+      reused_from_revision: ""
+
+  entrypoints:
+    - id: ""                       # EV-###
+      kind: ""                     # cli | server | worker | job | other
+      path: ""
+      description: ""
+      fingerprint: ""
+      reused: false
+      reused_from_revision: ""
+
+  modules:
+    - id: ""                       # EV-###
+      path: ""
+      purpose: ""
+      surface_id: ""                # one of the eleven canonical surface ids, or ""
+      fingerprint: ""
+      reused: false
+      reused_from_revision: ""
+
+  public_interfaces:
+    - id: ""                       # EV-###
+      kind: ""                     # api | exported_symbol | schema | event | config_key
+      path: ""
+      symbol: ""
+      description: ""
+      fingerprint: ""
+      reused: false
+      reused_from_revision: ""
+
+  test_surfaces:
+    - id: ""                       # EV-###
+      kind: ""                     # unit | integration | e2e | golden | fixture
+      path: ""
+      description: ""
+      fingerprint: ""
+      reused: false
+      reused_from_revision: ""
+
+  # Cheap to recompute each run — no fingerprint/reuse fields; excluded from
+  # normal lane review scope by default, recorded so exclusion is a decision.
+  generated_and_vendored_surfaces:
+    - id: ""                       # EV-###
+      kind: ""                     # generated | vendored
+      path: ""
+      source_of_truth: ""          # what generates it, when kind is generated
+      description: ""
+
+  # Derived from modules[]; cheap to recompute — no fingerprint/reuse fields.
+  dependency_edges:
+    - id: ""                       # EV-###
+      from_module: ""              # an EV-### from modules[], or a path
+      to_module: ""                # an EV-### from modules[], or a path
+      kind: ""                     # imports | calls | extends | other
+      description: ""
+
+  # Cheap to recompute each run — no fingerprint/reuse fields.
+  docs_and_adrs:
+    - id: ""                       # EV-###
+      path: ""
+      title: ""
+      kind: ""                     # doc | adr
+      description: ""

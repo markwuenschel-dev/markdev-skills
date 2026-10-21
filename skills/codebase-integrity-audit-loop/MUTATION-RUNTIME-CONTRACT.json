@@ -1,0 +1,40 @@
+{
+  "schema_version": "integrity-mutation-runtime-contract@1",
+  "owner": "codebase-integrity-audit-loop",
+  "version": "1.0.0",
+  "authorized_handoff": {
+    "kind": "integrity-candidate-handoff@1",
+    "schema": "contracts/candidate-handoff.schema.json",
+    "unit": "exactly one selected candidate",
+    "mutation_owner": "production-flywheel",
+    "completion_authority": "independent-verification",
+    "required_bindings": ["candidate_id", "repository_identity", "base_revision", "scope_hash", "evidence_hash", "candidate_hash", "authorization_hash", "authority_key_id", "authority_mac"],
+    "completion_binding": {
+      "kind": "integrity-candidate-closure@1",
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["candidate_id", "repository_identity", "base_revision", "handoff_sha256", "execution_receipt_sha256"],
+        "properties": {
+          "candidate_id": { "type": "string", "minLength": 1, "x-binding": "exact handoff.candidate_id" },
+          "repository_identity": { "type": "string", "minLength": 1, "x-binding": "exact handoff.repository.identity" },
+          "base_revision": { "type": "string", "minLength": 1, "x-binding": "exact handoff.repository.base_revision" },
+          "handoff_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$", "x-binding": "exact canonical handoff SHA-256" },
+          "execution_receipt_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$", "x-binding": "exact production-flywheel execution receipt SHA-256" }
+        }
+      },
+      "completion_semantics": {
+        "completion_authority": "independent-verification",
+        "execution_owner": "production-flywheel",
+        "fresh_canonical_verdict_required": true,
+        "handoff_match_required": true,
+        "result_status": "completed"
+      }
+    }
+  },
+  "writes": {
+    "allowed_roots": [".project-intelligence/assessments/integrity", ".project-intelligence/reports/integrity", ".project-intelligence/evidence", ".project-intelligence/cache"],
+    "tracked_source": false
+  },
+  "unsafe_auto_result": "AUTO_REQUIRES_EXACT_HANDOFF_AUTHORIZATION"
+}

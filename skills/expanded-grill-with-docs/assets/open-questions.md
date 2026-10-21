@@ -1,4 +1,4 @@
-# Open Questions
+# Open Questions, Risks, and Deferrals
 
-| ID | Question | Why it matters | Owner | Status | Evidence or decision route |
-|---|---|---|---|---|---|
+| ID | Type | Question or risk | Why it matters | Dependencies | Owner | Status | Evidence or decision route | Consequence if deferred | Revisit trigger |
+|---|---|---|---|---|---|---|---|---|---|

@@ -112,10 +112,39 @@ function ensureLocalGitExclude(repositoryRoot) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   const existing = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
   const lines = existing.split(/\r?\n/).map(line => line.trim());
-  if (lines.includes(EXCLUDE_PATTERN)) return { path: filePath, changed: false, pattern: EXCLUDE_PATTERN };
-  const separator = existing.length === 0 || existing.endsWith("\n") ? "" : os.EOL;
-  fs.appendFileSync(filePath, `${separator}${EXCLUDE_PATTERN}${os.EOL}`, "utf8");
-  return { path: filePath, changed: true, pattern: EXCLUDE_PATTERN };
+  const already = lines.includes(EXCLUDE_PATTERN);
+  if (!already) {
+    const separator = existing.length === 0 || existing.endsWith("\n") ? "" : os.EOL;
+    fs.appendFileSync(filePath, `${separator}${EXCLUDE_PATTERN}${os.EOL}`, "utf8");
+  }
+  return { path: filePath, changed: !already, pattern: EXCLUDE_PATTERN, ...inspectIgnoreCoverage(repositoryRoot) };
+}
+/** `.git/info/exclude` is local-only: it does not survive a clone, and it never untracks
+ * anything already committed. Both facts are invisible at the call site, so report them
+ * instead of leaving the caller to assume the directory is safely ignored everywhere.
+ * This only INSPECTS — MANIFEST.json declares tracked_gitignore_mutation:false, so the
+ * tracked .gitignore stays the human's to edit. */
+function inspectIgnoreCoverage(repositoryRoot) {
+  const repo = canonicalRepositoryRoot(repositoryRoot);
+  let tracked_gitignore = false;
+  try {
+    const gitignore = path.join(repo, ".gitignore");
+    if (fs.existsSync(gitignore)) {
+      tracked_gitignore = fs.readFileSync(gitignore, "utf8").split(/\r?\n/).map(line => line.trim())
+        .some(line => line === EXCLUDE_PATTERN || line === WORKSPACE_DIR_NAME || line === `${WORKSPACE_DIR_NAME}/` || line === `/${WORKSPACE_DIR_NAME}`);
+    }
+  } catch { /* an unreadable .gitignore is reported as uncovered, never as covered */ }
+  let tracked_files = [];
+  try {
+    const listed = runGit(repo, ["ls-files", "--", WORKSPACE_DIR_NAME]);
+    tracked_files = String(listed || "").split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  } catch { /* leave empty when git cannot answer */ }
+  return {
+    local_only: !tracked_gitignore,
+    tracked_gitignore,
+    tracked_files,
+    suggested_gitignore_line: tracked_gitignore ? null : EXCLUDE_PATTERN,
+  };
 }
 function ensureWorkspace(repositoryRoot, { excludeFromGit = true } = {}) {
   const resolved = layout(repositoryRoot);

@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "urn:agent-executor-pool:attempt-record:v1", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "campaign_id", "task_id", "status", "max_attempts", "attempts"],
+  "properties": { "schema_version": { "const": 1 }, "campaign_id": { "type": "string", "minLength": 1 }, "task_id": { "type": "string", "minLength": 1 }, "status": { "enum": ["pending", "running", "retryable", "succeeded", "hard-stop"] }, "max_attempts": { "type": "integer", "minimum": 1, "maximum": 10 }, "stop_reason": { "type": "string" }, "attempts": { "type": "array", "items": { "type": "object", "required": ["attempt_id", "attempt_number", "status", "started_at", "evidence"], "properties": { "attempt_id": { "type": "string", "minLength": 1 }, "attempt_number": { "type": "integer", "minimum": 1 }, "status": { "enum": ["running", "succeeded", "failed"] }, "started_at": { "type": "string", "minLength": 1 }, "evidence": { "type": "array" } } } } }
+}

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Connected Impact Sweep"
+  short_description: "Explicit revision-bound connected-system impact analysis"
+policy:
+  allow_implicit_invocation: false

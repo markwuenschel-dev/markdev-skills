@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
-  <img src="https://img.shields.io/badge/skills-17-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="17 inventoried skills">
+  <img src="https://img.shields.io/badge/skills-20-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="20 inventoried skills">
   <img src="https://img.shields.io/badge/shared_contracts-16-64748b?style=for-the-badge&logo=json&logoColor=white" alt="16 shared contracts">
   <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
 </p>
@@ -84,6 +84,8 @@ flowchart TD
     subgraph LAND["land — one PR, a queue, or + EC2 (-ec2)"]
         direction TB
         LP["land-pr"]
+        PRB["pr-mwdev"]
+        LP -->|"PR body"| PRB
     end
 
     subgraph CRAFT["craft — any time"]
@@ -91,7 +93,10 @@ flowchart TD
         PFG["prompt-forge"]
         SWF["skillwright-forge"]
         CS["compact-session"]
+        WIZ["wizard-mwdev"]
+        RETRO["retro-mwdev"]
         PFG -.->|"artifact is a SKILL.md"| SWF
+        RETRO -.->|"skill fixes"| SWF
     end
 
     IPC --> PF
@@ -109,8 +114,8 @@ flowchart TD
     class EG,IPC decide
     class RIA,RHA,CIAL assess
     class PF,HDSP,CIS build
-    class LP land
-    class PFG,SWF,CS craft
+    class LP,PRB land
+    class PFG,SWF,CS,WIZ,RETRO craft
 ```
 ### Decide
 
@@ -142,6 +147,7 @@ flowchart TD
 | :--- | :--- |
 | Land one change, or an explicit PR queue | [`land-pr`](skills/land-pr/) |
 | Same, plus release the affected service(s) to EC2 | [`land-pr`](skills/land-pr/) with `-ec2` |
+| Write or rewrite the PR body a reviewer judges | [`pr-mwdev`](skills/pr-mwdev/) |
 
 ### Craft
 
@@ -150,6 +156,8 @@ flowchart TD
 | Write / repair / optimize a prompt | [`prompt-forge`](skills/prompt-forge/) |
 | Design, audit, or harden a SKILL.md package | [`skillwright-forge`](skills/skillwright-forge/) |
 | Checkpoint a long session before `/clear` | [`compact-session`](skills/compact-session/) |
+| Script a wizard for steps only a human can perform | [`wizard-mwdev`](skills/wizard-mwdev/) |
+| Retrospect a session to fix the agent's environment | [`retro-mwdev`](skills/retro-mwdev/) |
 
 **Start here for routing and handoffs:** [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md)  
 **External dependencies and lineage:** [`DEPENDENCIES.md`](DEPENDENCIES.md)
@@ -185,10 +193,13 @@ markdev-skills/
 │   ├── connected-impact-sweep/
 │   │
 │   ├── land-pr/                            ← land (queue + EC2 via flags)
+│   ├── pr-mwdev/                           ← PR body for land-pr / flywheel
 │   │
 │   ├── prompt-forge/                       ← craft
 │   ├── skillwright-forge/
 │   ├── compact-session/
+│   ├── wizard-mwdev/
+│   ├── retro-mwdev/
 │   │
 │   └── agent-executor-pool/                ← mechanism (not directly invocable)
 │       used by repository-health-assessment for bounded worker scheduling

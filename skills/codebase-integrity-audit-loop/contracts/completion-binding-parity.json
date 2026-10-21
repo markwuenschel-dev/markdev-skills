@@ -1,0 +1,78 @@
+{
+  "schema_version": "integrity-completion-binding-parity@1",
+  "legacy_contract": {
+    "revision": "2d77970d41ea8ec79585cc5148bf2496e0de3cdd",
+    "path": "codebase-integrity-audit-loop/RUNTIME-CONTRACT.json",
+    "version": "2.0.0",
+    "field_path": "authorized_handoff.completion_binding",
+    "completion_semantics": {
+      "completion_authority": "independent-verification",
+      "execution_owner": "production-flywheel",
+      "fresh_canonical_verdict_required": true,
+      "handoff_match_required": true,
+      "result_status": "completed"
+    }
+  },
+  "obligations": [
+    {
+      "legacy_field": "candidate_id",
+      "legacy_required": true,
+      "legacy_type": "string",
+      "legacy_enum": null,
+      "legacy_constraints": { "minLength": 1 },
+      "legacy_binding_semantics": "exact handoff.candidate_id",
+      "new_owning_contract": "MUTATION-RUNTIME-CONTRACT.json",
+      "new_field": "candidate_id",
+      "migration_behavior": "preserved-without-rename",
+      "test_covering_it": "completion-binding parity preserves every legacy semantic obligation"
+    },
+    {
+      "legacy_field": "repository_identity",
+      "legacy_required": true,
+      "legacy_type": "string",
+      "legacy_enum": null,
+      "legacy_constraints": { "minLength": 1 },
+      "legacy_binding_semantics": "exact handoff.repository.identity",
+      "new_owning_contract": "MUTATION-RUNTIME-CONTRACT.json",
+      "new_field": "repository_identity",
+      "migration_behavior": "preserved-without-rename",
+      "test_covering_it": "completion-binding parity preserves every legacy semantic obligation"
+    },
+    {
+      "legacy_field": "base_revision",
+      "legacy_required": true,
+      "legacy_type": "string",
+      "legacy_enum": null,
+      "legacy_constraints": { "minLength": 1 },
+      "legacy_binding_semantics": "exact handoff.repository.base_revision",
+      "new_owning_contract": "MUTATION-RUNTIME-CONTRACT.json",
+      "new_field": "base_revision",
+      "migration_behavior": "preserved-without-rename",
+      "test_covering_it": "completion-binding parity preserves every legacy semantic obligation"
+    },
+    {
+      "legacy_field": "handoff_sha256",
+      "legacy_required": true,
+      "legacy_type": "string",
+      "legacy_enum": null,
+      "legacy_constraints": { "pattern": "^[a-f0-9]{64}$" },
+      "legacy_binding_semantics": "exact canonical handoff SHA-256",
+      "new_owning_contract": "MUTATION-RUNTIME-CONTRACT.json",
+      "new_field": "handoff_sha256",
+      "migration_behavior": "preserved-without-rename",
+      "test_covering_it": "completion-binding parity preserves every legacy semantic obligation"
+    },
+    {
+      "legacy_field": "execution_receipt_sha256",
+      "legacy_required": true,
+      "legacy_type": "string",
+      "legacy_enum": null,
+      "legacy_constraints": { "pattern": "^[a-f0-9]{64}$" },
+      "legacy_binding_semantics": "exact production-flywheel execution receipt SHA-256",
+      "new_owning_contract": "MUTATION-RUNTIME-CONTRACT.json",
+      "new_field": "execution_receipt_sha256",
+      "migration_behavior": "preserved-without-rename",
+      "test_covering_it": "completion-binding parity preserves every legacy semantic obligation"
+    }
+  ]
+}

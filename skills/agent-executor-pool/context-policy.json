@@ -1,20 +1,61 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "core": [
     "SKILL.md"
   ],
   "conditional": {
-    "runtime": [
-      "EXECUTION-MODEL.md"
-    ],
-    "job": [
-      "contracts/executor-job.schema.json"
-    ],
-    "lease": [
-      "contracts/worker-lease.schema.json"
-    ]
+    "job": {
+      "condition_ids": [
+        "context.agent-executor-pool.job"
+      ],
+      "refs": [
+        "contracts/executor-job.schema.json"
+      ]
+    },
+    "lease": {
+      "condition_ids": [
+        "context.agent-executor-pool.lease"
+      ],
+      "refs": [
+        "contracts/worker-lease.schema.json"
+      ]
+    },
+    "attempt": {
+      "condition_ids": [
+        "context.agent-executor-pool.attempt"
+      ],
+      "refs": [
+        "contracts/attempt-record.schema.json",
+        "attempt-store.js"
+      ]
+    },
+    "runtime": {
+      "condition_ids": [
+        "context.agent-executor-pool.runtime"
+      ],
+      "refs": [
+        "EXECUTION-MODEL.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.worker-lease-contention.test.js": {
+        "path": "worker-lease-contention.test.js",
+        "selector": "symbol"
+      },
+      "source.attempt-store.test.js": {
+        "path": "attempt-store.test.js",
+        "selector": "symbol"
+      }
+    }
   },
   "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
     "default_model_read": false
   }
 }

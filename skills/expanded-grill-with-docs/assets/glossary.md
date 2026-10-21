@@ -7,4 +7,10 @@
 
 ## States and transitions
 
+## Completion semantics
+
+## Valid and invalid states
+
 ## Invariants
+
+## Ownership

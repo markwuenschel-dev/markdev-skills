@@ -7,6 +7,7 @@
   "additionalProperties": false,
   "properties": {
     "spine_version": { "const": 3 },
+    "coverage": { "type": "object", "required": ["schema_version", "dimensions"], "properties": { "schema_version": { "const": "integrity.coverage@2" } }, "description": "Optional per-dimension Integrity coverage receipt (composite-scoring-v3 §7.1). Required, and fully verified by codebase-integrity-audit-loop/assets/integrity-coverage.js, under --ria-envelope." },
     "candidates": {
       "type": "array",
       "items": { "$ref": "#/$defs/candidate" }
@@ -42,6 +43,18 @@
         "resolution": { "type": "object", "additionalProperties": false, "required": ["superseded_by", "reason"], "properties": { "superseded_by": { "type": ["string", "null"] }, "reason": { "type": ["string", "null"] } } }
       }
     },
+    "riaProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["failure_predicate", "input_binding", "proofs"],
+      "description": "Bound proof from which RIA derives the normalized failure predicate and computes the evidentiary state (composite-scoring-v3 §7.2). Never a workflow status.",
+      "properties": {
+        "failure_predicate": { "type": "object", "additionalProperties": false, "required": ["predicate_id", "statement"], "properties": { "predicate_id": { "type": "string", "minLength": 1 }, "statement": { "type": "string", "minLength": 1 } } },
+        "input_binding": { "type": "object", "additionalProperties": false, "required": ["repository_id", "root_id", "revision"], "properties": { "repository_id": { "type": "string", "minLength": 1 }, "root_id": { "type": "string", "minLength": 1 }, "revision": { "type": "string", "minLength": 1 } } },
+        "proofs": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["kind"], "properties": { "kind": { "enum": ["reproduction", "analyzer", "sei-metric", "observation", "judgment", "counter-evidence", "resolution"] } } } },
+        "containment": { "type": "object", "required": ["kind", "check_id", "receipt_sha256", "outcome", "predicate_id"], "properties": { "kind": { "enum": ["runtime-guard", "prevention-check"] }, "outcome": { "const": "pass" } } }
+      }
+    },
     "candidate": {
       "type": "object",
       "additionalProperties": false,
@@ -61,7 +74,10 @@
         "unlocks": { "type": "array", "items": { "type": "string" } },
         "status": { "type": "string" },
         "dedup": { "type": "object", "required": ["duplicate_group", "merged_from"] },
-        "candidate_lifecycle": { "$ref": "#/$defs/lifecycle" }
+        "candidate_lifecycle": { "$ref": "#/$defs/lifecycle" },
+        "ria_dimensions": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["correctness", "contracts", "security", "reliability"] }, "description": "RIA composite v2 (composite-scoring-v3 §6.4). Optional in the spine; required for Integrity-minted findings in RIA mode." },
+        "defect_class": { "enum": ["logic-error", "contract-drift", "missing-validation", "security-exposure", "failure-handling", "concurrency", "data-integrity", "stale-or-dead-path", "other"] },
+        "ria_proof": { "$ref": "#/$defs/riaProof" }
       }
     }
   }

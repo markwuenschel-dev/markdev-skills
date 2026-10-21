@@ -159,6 +159,33 @@ function tieBreakCompare(a, b) {
  * the queue. Stored rollup.priority_score and status are checked, never
  * trusted for display.
  */
+const LEDGER_RIA_DIMENSIONS = ["correctness", "contracts", "security", "reliability"];
+const LEDGER_DEFECT_CLASSES = ["logic-error", "contract-drift", "missing-validation", "security-exposure", "failure-handling", "concurrency", "data-integrity", "stale-or-dead-path", "other"];
+const LEDGER_PROOF_KINDS = ["reproduction", "analyzer", "sei-metric", "observation", "judgment", "counter-evidence", "resolution"];
+
+function verifyRiaFields(c, ref, push) {
+  if (!c) return;
+  if (c.ria_dimensions !== undefined) {
+    const dims = c.ria_dimensions;
+    if (!Array.isArray(dims) || dims.length === 0 || dims.some((d) => LEDGER_RIA_DIMENSIONS.indexOf(d) < 0) || new Set(dims).size !== dims.length)
+      push("ria-dimensions", ref, ref + ": ria_dimensions must be a non-empty unique subset of " + LEDGER_RIA_DIMENSIONS.join(" | "));
+  }
+  if (c.defect_class !== undefined && LEDGER_DEFECT_CLASSES.indexOf(c.defect_class) < 0)
+    push("defect-class", ref, ref + ": defect_class must be one of " + LEDGER_DEFECT_CLASSES.join(" | "));
+  if (c.ria_proof !== undefined) {
+    const proof = c.ria_proof;
+    const predicate = proof && proof.failure_predicate;
+    const binding = proof && proof.input_binding;
+    const ok = proof && typeof proof === "object" && !Array.isArray(proof) &&
+      predicate && typeof predicate.predicate_id === "string" && predicate.predicate_id.trim() &&
+      typeof predicate.statement === "string" && predicate.statement.trim() &&
+      binding && ["repository_id", "root_id", "revision"].every((k) => typeof binding[k] === "string" && binding[k].trim()) &&
+      Array.isArray(proof.proofs) && proof.proofs.length > 0 &&
+      proof.proofs.every((p) => p && typeof p === "object" && LEDGER_PROOF_KINDS.indexOf(p.kind) >= 0);
+    if (!ok) push("ria-proof-shape", ref, ref + ": ria_proof needs failure_predicate {predicate_id, statement}, input_binding {repository_id, root_id, revision} and proofs[] with kind in " + LEDGER_PROOF_KINDS.join(" | "));
+  }
+}
+
 function verifyLedger(ledger, opts) {
   const problems = [];
   const push = (code, candidateId, message) =>
@@ -238,6 +265,11 @@ function verifyLedger(ledger, opts) {
         push("lifecycle-resolution", ref, ref + ": terminal lifecycle requires resolution.reason");
       }
     }
+
+    // RIA composite v2 fields (composite-scoring-v3 §6.4, §7.2). Optional in the
+    // spine; when present their shape is validated here. Whether a proof is
+    // admissible is decided by shared/ria-scoring/evidence-model.js, never here.
+    verifyRiaFields(c, ref, push);
 
     if (!scoresOk) return; // can't compute a priority worth showing
 
@@ -407,6 +439,7 @@ function judgmentGlyph(c) {
  * bar (fill = position on the −10…+22 axis), mono priority, ⚖ when hdr ≥ 4. */
 function renderLedgerRows(el, verified) {
   el.textContent = "";
+  const fragment = document.createDocumentFragment();
   for (const c of verified.candidates) {
     const row = ledgerEl("div", "display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--hairline,#e1e0d9);");
     row.setAttribute("data-ledger-row", c.candidate_id);
@@ -432,8 +465,9 @@ function renderLedgerRows(el, verified) {
     track.appendChild(fill);
     row.appendChild(track);
     row.appendChild(ledgerEl("span", LEDGER_MONO + "font-size:12px;color:var(--ink-secondary,#52514e);min-width:52px;text-align:right;", "pri " + c.computed.priority));
-    el.appendChild(row);
+    fragment.appendChild(row);
   }
+  el.appendChild(fragment);
 }
 
 /** Render the full strength meter for one candidate: verdict line, derived
@@ -567,9 +601,11 @@ function renderChipInto(el, verified) {
 function renderProblemsInto(el, verified) {
   el.textContent = "";
   if (verified.ok) return;
+  const fragment = document.createDocumentFragment();
   for (const p of verified.problems) {
-    el.appendChild(ledgerEl("li", LEDGER_MONO + "font-size:11px;color:#d03b3b;", "[" + p.code + "] " + p.message));
+    fragment.appendChild(ledgerEl("li", LEDGER_MONO + "font-size:11px;color:#d03b3b;", "[" + p.code + "] " + p.message));
   }
+  el.appendChild(fragment);
 }
 
 /**

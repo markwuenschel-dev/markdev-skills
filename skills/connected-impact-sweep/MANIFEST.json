@@ -1,0 +1,26 @@
+{
+  "name": "connected-impact-sweep",
+  "version": "2.0.0",
+  "entrypoint": "SKILL.md",
+  "runtime": "node-builtins",
+  "invocation": "explicit-only",
+  "gate_api": "connected-impact-gate@2",
+  "owned_files": [
+    "MANIFEST.json",
+    "SKILL.md",
+    "benchmark.js",
+    "benchmark.test.js",
+    "context-policy.json",
+    "fixtures/gate-corpus.json",
+    "impact-gate.js",
+    "impact-gate.test.js",
+    "openai.yaml",
+    "package.test.js",
+    "references/contract-sweep.md",
+    "references/cross-system-sweep.md",
+    "references/data-migration-sweep.md",
+    "references/light-sweep.md",
+    "scripts/run-impact-gate.js",
+    "test-support/git-impact-fixture.js"
+  ]
+}

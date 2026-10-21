@@ -1,7 +1,7 @@
 {
   "skill": "repository-health-assessment",
   "note": "Case shape targets the skill-creator plugin's eval loop (/plugin install skill-creator@claude-plugins-official). Reconcile field names against the installed plugin before the first run; the assertions are the durable part. Establish a no-skill baseline by hiding the skill via skillOverrides ('off') and running the same prompts. Health island schema v5; candidate handoffs require shared spine v3; generic evidence handoffs require Evidence Recon packet v1. The sidecar is additive and cannot alter the health grade.",
-  "invocation_note": "The skill sets disable-model-invocation: false, so an orchestrator (production-flywheel, or architecture-improvement-intelligence handing off) can invoke it directly. openai.yaml keeps allow_implicit_invocation: false, so general conversational routing does not fire a full repository scan on a question that merely mentions health. Cases marked should_route test that the skill is reached and executes correctly; cases marked should_route: false test that a neighbouring request goes elsewhere. Cross-skill cases verify orchestrator invocation terminates without a routing loop.",
+  "invocation_note": "The skill sets disable-model-invocation: false, so an orchestrator (repository-improvement-assessment, through its owner rendezvous) can invoke it directly. openai.yaml keeps allow_implicit_invocation: false, so general conversational routing does not fire a full repository scan on a question that merely mentions health. Cases marked should_route test that the skill is reached and executes correctly; cases marked should_route: false test that a neighbouring request goes elsewhere. Cross-skill cases verify orchestrator invocation terminates without a routing loop.",
   "cases": [
     {
       "id": "negative-explicit-ria-request",
@@ -56,7 +56,7 @@
         "Builds the complete eleven-surface inventory before reporting any findings",
         "Reports weighted coverage as a percentage alongside the grade",
         "Does not modify any file in the repository",
-        "Writes the report to the OS temp directory, not into the repo"
+        "Writes the report to the Git-locally-excluded .project-intelligence/reports/health workspace, not tracked source state"
       ]
     },
     {
@@ -205,7 +205,7 @@
       "should_route": true,
       "assertions": [
         "Still assesses the verification-readiness lane rather than omitting it",
-        "Marks the verification surface inspected with strong evidence \u2014 confirming that no tests exist IS an inspection result; coverage answers 'did we assess it', not 'is it healthy'",
+        "Marks the verification surface inspected with strong evidence — confirming that no tests exist IS an inspection result; coverage answers 'did we assess it', not 'is it healthy'",
         "Never marks the verification surface not-applicable: it is a core surface, and absence of tests is a level-0 finding rather than an inapplicable surface",
         "Scores verification-readiness dimensions at level 0 with supporting claims resulting fail or unknown",
         "Derives baseline as not-run or untrustworthy and applies the corresponding C cap"
@@ -213,18 +213,18 @@
     },
     {
       "id": "orchestrator-invocation",
-      "prompt": "[invoked by production-flywheel] Assess repository health and hand back a candidate ledger for the queue.",
+      "prompt": "[invoked by repository-improvement-assessment owner rendezvous with an RIA envelope] Assess repository health and return the owner artifact.",
       "should_route": true,
       "assertions": [
         "Executes when invoked by another skill rather than requiring a direct user command",
         "Emits complete shared-spine v3 candidates, including summary, root_cause, rollup, scheduling fields, status, dedup, lane_sources, and claim_refs",
-        "Does not re-invoke architecture-improvement-intelligence or the flywheel \u2014 the handoff is one-directional and terminates",
+        "Writes ria.owner-return@1 with --ria-envelope and --return-out and does not re-invoke repository-improvement-assessment — the handoff is one-directional and terminates",
         "Does not start implementing any candidate"
       ]
     },
     {
       "id": "orchestrator-no-loop",
-      "prompt": "[invoked by architecture-improvement-intelligence] The user wants a health baseline before we pick an architecture direction.",
+      "prompt": "The user wants a health baseline before we pick an architecture direction.",
       "should_route": true,
       "assertions": [
         "Runs the assessment and returns the ledger",
@@ -234,7 +234,7 @@
     },
     {
       "id": "negative-implicit-mention",
-      "prompt": "Our repo health has been rough lately \u2014 the team keeps breaking main. Any advice on process?",
+      "prompt": "Our repo health has been rough lately — the team keeps breaking main. Any advice on process?",
       "should_route": false,
       "assertions": [
         "Answers the process question conversationally",
@@ -259,7 +259,7 @@
       "assertions": [
         "Every candidate in the island has a visible row in the report",
         "Candidate priorities are computed by the shared spine module, not by this skill",
-        "A green health chip above an empty candidate panel is impossible \u2014 row count is verified against the island"
+        "A green health chip above an empty candidate panel is impossible — row count is verified against the island"
       ]
     },
     {
@@ -358,12 +358,85 @@
     },
     {
       "id": "report-election-inherit-ria",
-      "prompt": "RIA invokes repository-health-assessment with presentation_policy.report=inherit.",
+      "prompt": "RIA invokes repository-health-assessment with an envelope whose presentation_policy is the string \"inherit\".",
       "assertions": [
         "Does not ask the user for a child health report",
         "Does not render child HTML",
         "Returns the canonical health artifacts to repository-improvement-assessment",
         "RIA remains the single report owner"
+      ]
+    },
+    {
+      "id": "report-responsive-quantitative-dashboard",
+      "prompt": "/repository-health-assessment Assess this repository and generate the report.",
+      "assertions": [
+        "Renders the canonical score and grade, lane profile, coverage-state distribution, evidence-quality distribution, and command durations as zero-network visualizations",
+        "Uses the shared responsive 12-column report canvas and expands on widescreen displays without stretching prose across the full viewport",
+        "Displays unavailable values explicitly rather than converting them to zero"
+      ]
+    },
+    {
+      "id": "ria-shared-verification-baseline",
+      "prompt": "RIA invokes repository-health-assessment with a validated shared verification baseline.",
+      "assertions": [
+        "Verifies and consumes the immutable assessment-verification-baseline",
+        "Does not rerun the whole repository suite merely to duplicate Integrity verification",
+        "May request targeted independent re-verification only for a concrete anomaly, conflict, or high-risk claim",
+        "Rejects an assessment-verification-baseline@2 artifact instead of adopting it",
+        "Adopts every health_verification.commands entry verbatim and derives its own verification.baseline"
+      ]
+    },
+    {
+      "id": "runtime-contract-owned-by-health",
+      "prompt": "RIA prepares to invoke repository-health-assessment.",
+      "assertions": [
+        "RIA reads the compact source-owned RUNTIME-CONTRACT.json rather than summarizing the full health skill",
+        "The health child still reads its full SKILL.md after invocation",
+        "Contract version and schema participate in content-addressed owner-artifact reuse"
+      ]
+    },
+    {
+      "id": "execute-uninspected-core-not-gradable",
+      "prompt": "/repository-health-assessment Grade this repository. We ran out of time before anyone looked at the test suite, but everything else was inspected.",
+      "should_route": true,
+      "assertions": [
+        "Marks the verification surface uninspected, not unavailable or not-applicable",
+        "Emits final_grade Not gradable because a core surface is uninspected, even though weighted coverage is above 40%",
+        "Still shows lane scorecards and raw_score as diagnostics without quoting raw_grade as the grade",
+        "Applies no caps and still emits the candidate ledger and Evidence Recon sidecar"
+      ]
+    },
+    {
+      "id": "ria-mode-skips-report-election",
+      "prompt": "[RIA owner rendezvous] Envelope supplied at owner_rendezvous.envelopes.health with presentation_policy \"inherit\". Run the Health owner.",
+      "should_route": true,
+      "assertions": [
+        "Reads RIA-MODE.md and treats the supplied envelope as RIA mode",
+        "Does not ask the A/B report question and does not run build-report.js",
+        "Does not emit the architecture or integrity handoff packets",
+        "Writes the owner return with write-health-artifact.js --ria-envelope --return-out and attaches the sidecar with --evidence-recon"
+      ]
+    },
+    {
+      "id": "review-lane-insufficient-evidence-limitation",
+      "prompt": "/repository-health-assessment Assess this repository; it has a public HTTP API and a Postgres schema with migrations.",
+      "should_route": true,
+      "assertions": [
+        "Dispatches the lane-mapped review-* workers from REVIEW-LANES.md in parallel with the topology evidence workers, including review-architecture and review-data",
+        "Runs review-to-claims.js on each returned report; a report with fitness.status insufficient-evidence yields zero claims",
+        "Records each such worker in evidence_workers with status partial (or failed/timeout as applicable) and a limitation, not as complete",
+        "Does not substitute any review score for a lane score and does not raise coverage because a review worker ran"
+      ]
+    },
+    {
+      "id": "evidence-recon-negative-not-promoted",
+      "prompt": "/repository-health-assessment One lane reported: nothing tests the payment reconciliation path. Put that in the safe facts for the next skill.",
+      "should_route": true,
+      "assertions": [
+        "Treats \"nothing tests\" as a negative claim even though it does not start with \"no\"",
+        "Keeps it in handoff.unresolved_facts without an explicit negative-claim receipt",
+        "Does not place it in handoff.safe_to_assume",
+        "Does not change the health grade because of the sidecar"
       ]
     }
   ]

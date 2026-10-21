@@ -4,46 +4,358 @@
   "title": "Shared assessment verification baseline v2",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "artifact_id", "content_sha256", "repository", "baseline_ref", "isolation", "commands", "summary", "created_at"],
+  "required": [
+    "schema_version",
+    "artifact_id",
+    "content_sha256",
+    "repository",
+    "baseline_ref",
+    "isolation",
+    "commands",
+    "summary",
+    "created_at"
+  ],
+  "if": {
+    "properties": {
+      "schema_version": {
+        "const": "assessment-verification-baseline@3"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "trust",
+      "health_verification"
+    ]
+  },
   "properties": {
-    "schema_version": { "const": "assessment-verification-baseline@2" },
-    "artifact_id": { "type": "string", "pattern": "^assessment-verification:[0-9a-f]{64}$" },
-    "content_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "repository": { "type": "object", "additionalProperties": false, "required": ["repository_id", "revision", "working_tree_fingerprint"], "properties": { "repository_id": { "type": "string", "minLength": 1 }, "revision": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" }, "working_tree_fingerprint": { "type": "string", "minLength": 1 } } },
-    "baseline_ref": { "type": "object", "additionalProperties": false, "required": ["artifact_id", "sha256", "repository_revision"], "properties": { "artifact_id": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "repository_revision": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" } } },
-    "isolation": { "type": "object", "additionalProperties": false, "required": ["mode", "path", "source_repository_mutated"], "properties": { "mode": { "enum": ["worktree", "copy", "container", "read-only-source", "caller-attested", "none"] }, "path": { "type": ["string", "null"] }, "source_repository_mutated": { "const": false } } },
+    "schema_version": {
+      "enum": [
+        "assessment-verification-baseline@2",
+        "assessment-verification-baseline@3"
+      ]
+    },
+    "trust": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Verdict derived from summary counters. @3 only. Consumers refuse a baseline whose state is not trustworthy rather than inferring trust from the artifact's existence.",
+      "required": [
+        "state",
+        "reason"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "trustworthy",
+            "partial",
+            "untrustworthy",
+            "not-run"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^assessment-verification:[0-9a-f]{64}$"
+    },
+    "content_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_id",
+        "revision",
+        "working_tree_fingerprint"
+      ],
+      "properties": {
+        "repository_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "working_tree_fingerprint": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "baseline_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        }
+      }
+    },
+    "isolation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "path",
+        "source_repository_mutated"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "worktree",
+            "copy",
+            "container",
+            "read-only-source",
+            "caller-attested",
+            "none"
+          ]
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "source_repository_mutated": {
+          "const": false,
+          "description": "Tracked source files were not modified. Creating a detached worktree does write .git/worktrees/ metadata in the source repository; that is bookkeeping, not a change to the assessed tree."
+        },
+        "overlay": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "description": "Present when scope was `worktree`: the uncommitted changes copied over the detached checkout so the isolation reflects the working tree.",
+          "required": [
+            "copied",
+            "removed",
+            "entries"
+          ],
+          "properties": {
+            "copied": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "removed": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "entries": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
     "commands": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "command", "status", "exit_code", "duration_ms", "reason", "evidence"],
+        "required": [
+          "id",
+          "command",
+          "status",
+          "exit_code",
+          "duration_ms",
+          "reason",
+          "evidence",
+          "kind",
+          "kind_inferred"
+        ],
         "properties": {
-          "id": { "type": "string", "minLength": 1 },
-          "command": { "type": "string", "minLength": 1 },
-          "status": { "enum": ["passed", "failed", "unavailable", "skipped", "timed-out"] },
-          "exit_code": { "type": ["integer", "null"] },
-          "duration_ms": { "type": "number", "minimum": 0 },
-          "reason": { "type": ["string", "null"] },
-          "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed",
+              "unavailable",
+              "skipped",
+              "timed-out"
+            ]
+          },
+          "exit_code": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "duration_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "kind": {
+            "enum": [
+              "test",
+              "build",
+              "lint",
+              "typecheck",
+              "other"
+            ],
+            "description": "Health-compatible command class. Drives repository-health-assessment grade caps: a failing `test` caps harder than a failing non-test."
+          },
+          "kind_inferred": {
+            "type": "boolean",
+            "description": "true when `kind` was derived from the command string rather than declared by the caller, so an inference is never read as an assertion. Unrecognised commands derive `other`, never `test`."
+          }
         }
       }
     },
     "summary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["passed", "failed", "unavailable", "skipped", "timed_out", "duration_ms"],
+      "required": [
+        "passed",
+        "failed",
+        "unavailable",
+        "skipped",
+        "timed_out",
+        "duration_ms"
+      ],
       "properties": {
-        "passed": { "type": "integer", "minimum": 0 },
-        "failed": { "type": "integer", "minimum": 0 },
-        "unavailable": { "type": "integer", "minimum": 0 },
-        "skipped": { "type": "integer", "minimum": 0 },
-        "timed_out": { "type": "integer", "minimum": 0 },
-        "duration_ms": { "type": "number", "minimum": 0 }
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unavailable": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "timed_out": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duration_ms": {
+          "type": "number",
+          "minimum": 0
+        }
       }
     },
-    "environment": { "type": "object" },
-    "coverage": { "type": "object" },
-    "created_at": { "type": "string", "format": "date-time" }
+    "environment": {
+      "type": "object"
+    },
+    "coverage": {
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "health_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The exact array repository-health-assessment expects at verification.commands, so the seam needs no hand translation. @3 only.",
+      "required": [
+        "commands"
+      ],
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command_id",
+              "kind",
+              "command",
+              "result"
+            ],
+            "properties": {
+              "command_id": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+              },
+              "kind": {
+                "enum": [
+                  "test",
+                  "build",
+                  "lint",
+                  "typecheck",
+                  "other"
+                ]
+              },
+              "command": {
+                "type": "string",
+                "minLength": 1
+              },
+              "result": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "error",
+                  "skipped"
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "exit_code": {
+                "type": "integer"
+              },
+              "elapsed_seconds": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

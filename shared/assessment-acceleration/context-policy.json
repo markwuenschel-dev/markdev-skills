@@ -1,0 +1,40 @@
+{
+  "schema_version": 2,
+  "core": [
+    "MANIFEST.json"
+  ],
+  "conditional": {
+    "cache": {
+      "condition_ids": [
+        "context.shared.assessment-acceleration.cache"
+      ],
+      "refs": [
+        "ACCELERATION-MODEL.md"
+      ]
+    },
+    "production_command_evidence": {
+      "condition_ids": [
+        "context.shared.assessment-acceleration.production_command_evidence"
+      ],
+      "refs": [
+        "command-evidence-cache.js"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.command-evidence-cache.test.js": {
+        "path": "command-evidence-cache.test.js",
+        "selector": "symbol"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

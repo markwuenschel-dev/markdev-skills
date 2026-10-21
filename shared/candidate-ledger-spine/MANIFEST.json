@@ -14,10 +14,12 @@
   ],
   "consumers": [
     "repository-health-assessment",
-    "improve-codebase-architecture-mwdev",
+    "architecture-improvement-intelligence",
     "codebase-integrity-audit-loop",
     "human-directed-swarm-planner",
-    "production-flywheel"
+    "production-flywheel",
+    "remediation-graph-optimizer",
+    "shared/remediation-graph"
   ],
   "resolution": {
     "default": "shared/candidate-ledger-spine",

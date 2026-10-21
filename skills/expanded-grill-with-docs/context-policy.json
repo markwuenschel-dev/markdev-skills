@@ -1,0 +1,67 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {},
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.references.adaptive-grilling.md": {
+        "path": "references/adaptive-grilling.md",
+        "selector": "heading"
+      },
+      "source.references.architecture-note.md": {
+        "path": "references/architecture-note.md",
+        "selector": "heading"
+      },
+      "source.references.coverage-lenses.md": {
+        "path": "references/coverage-lenses.md",
+        "selector": "heading"
+      },
+      "source.references.document-spine.md": {
+        "path": "references/document-spine.md",
+        "selector": "heading"
+      },
+      "source.references.migration-v1.2.3-to-v1.3.md": {
+        "path": "references/migration-v1.2.3-to-v1.3.md",
+        "selector": "heading"
+      },
+      "source.references.migration-v1.3-to-v2.0.md": {
+        "path": "references/migration-v1.3-to-v2.0.md",
+        "selector": "heading"
+      },
+      "source.references.migration-v2.0-to-v3.0.md": {
+        "path": "references/migration-v2.0-to-v3.0.md",
+        "selector": "heading"
+      },
+      "source.references.migration-v3.0-to-v3.1.md": {
+        "path": "references/migration-v3.0-to-v3.1.md",
+        "selector": "heading"
+      },
+      "source.references.migration-v3.1-to-v3.2.md": {
+        "path": "references/migration-v3.1-to-v3.2.md",
+        "selector": "heading"
+      },
+      "source.references.question-craft.md": {
+        "path": "references/question-craft.md",
+        "selector": "heading"
+      },
+      "source.references.readiness-check.md": {
+        "path": "references/readiness-check.md",
+        "selector": "heading"
+      },
+      "source.references.specialist-lanes.md": {
+        "path": "references/specialist-lanes.md",
+        "selector": "heading"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

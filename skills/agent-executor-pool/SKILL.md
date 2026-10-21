@@ -12,8 +12,10 @@ Its model is analogous to a bounded executor / Python `ThreadPoolExecutor`: subm
 
 Assessment callers may deliberately use a much larger `read_only` budget than mutation/command budgets. The executor never invents a fixed worker count for them; the caller's concurrency profile is authoritative.
 
-Read [EXECUTION-MODEL.md](EXECUTION-MODEL.md) for semantics. `runtime.js` is the pure deterministic scheduler; `worker-lease-store.js` provides durable fenced assignment leases.
+Read [EXECUTION-MODEL.md](EXECUTION-MODEL.md) for semantics. `runtime.js` is the pure deterministic scheduler; `worker-lease-store.js` provides cross-process-safe fenced assignment leases; `attempt-store.js` durably records bounded attempts and their evidence for resume.
 
 ## Hard boundary
 
 Executor capacity never creates work. Callers own job meaning and authorization. A job with `executor_depth > 1` in a mutating class is rejected. Integration/publication classes default to capacity one.
+
+Lease and attempt stores are mechanism, not completion authority. A recovered generation fences every older worker. Exhausted attempt budgets hard-stop; they never silently reset. Stored command or worker evidence remains producer evidence and cannot replace Independent Verification.

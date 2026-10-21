@@ -1,0 +1,402 @@
+{
+  "schema_version": "ria.composite-v2.config@1",
+  "config_version": "1.0.0",
+  "owners": [
+    "health",
+    "architecture",
+    "integrity",
+    "sei"
+  ],
+  "dimensions": {
+    "correctness": {
+      "weight": 20,
+      "critical": true,
+      "sources": {
+        "health": {
+          "lane": "correctness-and-integrity"
+        },
+        "integrity": {
+          "defect_dimension": "correctness"
+        }
+      },
+      "shares": {
+        "health": 0.35,
+        "integrity": 0.65
+      }
+    },
+    "architecture": {
+      "weight": 15,
+      "critical": true,
+      "sources": {
+        "health": {
+          "lane": "architecture-fitness"
+        },
+        "architecture": {
+          "fitness_dimensions": [
+            "boundary_integrity",
+            "dependency_direction_cycle_control",
+            "cohesion_locality"
+          ]
+        },
+        "sei": {
+          "dimensions": [
+            "architecture"
+          ]
+        }
+      },
+      "shares": {
+        "health": 0.2,
+        "architecture": 0.6,
+        "sei": 0.2
+      }
+    },
+    "contracts": {
+      "weight": 12,
+      "critical": true,
+      "sources": {
+        "health": {
+          "lane": "contracts-and-integration"
+        },
+        "architecture": {
+          "fitness_dimensions": [
+            "interface_contract_clarity",
+            "state_data_ownership"
+          ]
+        },
+        "integrity": {
+          "defect_dimension": "contracts"
+        }
+      },
+      "shares": {
+        "health": 0.2,
+        "architecture": 0.55,
+        "integrity": 0.25
+      }
+    },
+    "verification": {
+      "weight": 15,
+      "critical": true,
+      "sources": {
+        "health": {
+          "lane": "verification-readiness"
+        },
+        "architecture": {
+          "fitness_dimensions": [
+            "architectural_testability_observability"
+          ]
+        },
+        "sei": {
+          "dimensions": [
+            "verification"
+          ]
+        }
+      },
+      "shares": {
+        "health": 0.35,
+        "architecture": 0.2,
+        "sei": 0.45
+      }
+    },
+    "delivery": {
+      "weight": 8,
+      "critical": false,
+      "sources": {
+        "health": {
+          "lane": "build-and-delivery"
+        },
+        "sei": {
+          "dimensions": [
+            "delivery"
+          ]
+        }
+      },
+      "shares": {
+        "health": 0.5,
+        "sei": 0.5
+      }
+    },
+    "maintainability": {
+      "weight": 10,
+      "critical": false,
+      "sources": {
+        "health": {
+          "lane": "maintainability-and-ownership"
+        },
+        "architecture": {
+          "fitness_dimensions": [
+            "change_containment_evolvability",
+            "duplication_competing_implementations"
+          ]
+        },
+        "sei": {
+          "dimensions": [
+            "maintainability"
+          ]
+        }
+      },
+      "shares": {
+        "health": 0.33,
+        "architecture": 0.34,
+        "sei": 0.33
+      }
+    },
+    "security": {
+      "weight": 8,
+      "critical": true,
+      "sources": {
+        "health": {
+          "lane": "security-and-production-safety"
+        },
+        "integrity": {
+          "defect_dimension": "security"
+        },
+        "sei": {
+          "dimensions": [
+            "security"
+          ]
+        }
+      },
+      "shares": {
+        "health": 0.33,
+        "integrity": 0.34,
+        "sei": 0.33
+      }
+    },
+    "reliability": {
+      "weight": 7,
+      "critical": false,
+      "sources": {
+        "integrity": {
+          "defect_dimension": "reliability"
+        },
+        "sei": {
+          "dimensions": [
+            "reliability"
+          ]
+        }
+      },
+      "shares": {
+        "integrity": 0.5,
+        "sei": 0.5
+      }
+    },
+    "change_and_docs": {
+      "weight": 5,
+      "critical": false,
+      "sources": {
+        "sei": {
+          "dimensions": [
+            "change_discipline",
+            "documentation",
+            "developer_experience"
+          ]
+        }
+      },
+      "shares": {
+        "sei": 1
+      }
+    }
+  },
+  "eligibility": {
+    "health": {
+      "min_weighted_coverage": 60,
+      "established_min_weighted_coverage": 80
+    },
+    "architecture": {
+      "min_mapped_coverage": 0.6
+    },
+    "integrity": {
+      "scored_min_coverage": 0.6,
+      "provisional_min_coverage": 0.4
+    },
+    "sei": {
+      "eligible_maturities": [
+        "provisional",
+        "established"
+      ],
+      "ineligible_confidences": [
+        "NOT_ESTABLISHED"
+      ]
+    }
+  },
+  "sei_confidence": {
+    "HIGH": 0.9,
+    "MODERATE": 0.65,
+    "LOW": 0.4
+  },
+  "contested": {
+    "spread_threshold": 20,
+    "decay_divisor": 80,
+    "minimum_multiplier": 0.5
+  },
+  "confidence_bands": {
+    "high": 0.75,
+    "moderate": 0.5
+  },
+  "integrity_scoring": {
+    "no_defect_score": 100,
+    "severity_schedule": [
+      {
+        "severity": 5,
+        "ceiling": 40,
+        "step": 3,
+        "floor": 25
+      },
+      {
+        "severity": 4,
+        "ceiling": 60,
+        "step": 3,
+        "floor": 45
+      },
+      {
+        "severity": 3,
+        "ceiling": 75,
+        "step": 2,
+        "floor": 60
+      },
+      {
+        "severity": 2,
+        "ceiling": 90,
+        "step": 2,
+        "floor": 80
+      },
+      {
+        "severity": 1,
+        "ceiling": 97,
+        "step": 1,
+        "floor": 90
+      }
+    ]
+  },
+  "integrity_surface_map": {
+    "correctness": [
+      "runtime-code",
+      "domain-libraries",
+      "data-lifecycle"
+    ],
+    "contracts": [
+      "contracts-and-wiring",
+      "generated-surfaces"
+    ],
+    "security": [
+      "runtime-code",
+      "contracts-and-wiring",
+      "specialized-paths"
+    ],
+    "reliability": [
+      "runtime-code",
+      "operational-behavior"
+    ]
+  },
+  "integrity_defect_checks": {
+    "correctness": [
+      "logic-error",
+      "data-integrity",
+      "concurrency",
+      "stale-or-dead-path"
+    ],
+    "contracts": [
+      "contract-drift",
+      "missing-validation"
+    ],
+    "security": [
+      "security-exposure",
+      "missing-validation"
+    ],
+    "reliability": [
+      "failure-handling",
+      "concurrency"
+    ]
+  },
+  "lane_dimension_map": {
+    "correctness-and-integrity": [
+      "correctness"
+    ],
+    "contracts-and-integration": [
+      "contracts"
+    ],
+    "security-and-production-safety": [
+      "security"
+    ],
+    "data-and-migrations": [
+      "correctness"
+    ],
+    "numerical-correctness": [
+      "correctness"
+    ],
+    "performance-and-resources": [
+      "reliability"
+    ]
+  },
+  "dependence": {
+    "adopted_strength_threshold": 0.5
+  },
+  "status": {
+    "not_gradable_min_scored_weight_ratio": 0.7
+  },
+  "caps": {
+    "ceilings": {
+      "C": 76.9,
+      "D+": 69.9,
+      "D": 66.9
+    },
+    "rules": {
+      "verification-tests-failing": "C",
+      "verification-checks-failing": "C",
+      "confirmed-critical-failure": "D",
+      "critical-dimension-floor": "D+"
+    },
+    "confirmed_critical_min_severity": 4
+  },
+  "critical_floor": {
+    "point_below": 50,
+    "min_independent_established_sources": 2
+  },
+  "imports": {
+    "grade_bands": {
+      "module": "shared/ria-scoring/scoring.js",
+      "loader": "commonjs",
+      "export": "GRADE_BANDS"
+    },
+    "health_evidence_factor": {
+      "module": "repository-health-assessment/assets/health-verify.js",
+      "loader": "global:HealthVerify",
+      "export": "HEALTH_EVIDENCE_FACTOR"
+    },
+    "health_coverage_credit": {
+      "module": "repository-health-assessment/assets/health-verify.js",
+      "loader": "global:HealthVerify",
+      "export": "HEALTH_COVERAGE_CREDIT"
+    },
+    "health_default_surfaces": {
+      "module": "repository-health-assessment/assets/health-verify.js",
+      "loader": "global:HealthVerify",
+      "export": "HEALTH_DEFAULT_SURFACES"
+    },
+    "health_lane_definitions": {
+      "module": "repository-health-assessment/assets/health-verify.js",
+      "loader": "global:HealthVerify",
+      "export": "HEALTH_LANE_DEFINITIONS"
+    },
+    "architecture_fitness_weights": {
+      "module": "architecture-improvement-intelligence/assets/architecture-fitness.js",
+      "loader": "commonjs",
+      "export": "WEIGHTS"
+    },
+    "sei_rubric": {
+      "module": "shared/software-engineering-intelligence/engineering-assessment-rubric.json",
+      "loader": "json",
+      "export": "dimensions"
+    },
+    "evidence_qualities": {
+      "module": "shared/evidence-recon/evidence-recon.js",
+      "loader": "commonjs",
+      "export": "EVIDENCE_QUALITIES"
+    },
+    "coverage_states": {
+      "module": "shared/evidence-recon/evidence-recon.js",
+      "loader": "commonjs",
+      "export": "COVERAGE_STATES"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "skill": "repository-improvement-assessment",
-  "version": "0.8.4",
+  "version": "0.10.0",
   "cases": [
     {
       "id": "routing-explicit-repository-improvement-assessment",
@@ -20,7 +20,7 @@
       "should_route": true,
       "assertions": [
         "Uses health, integrity, and architecture-improvement-intelligence --assessment",
-        "Passes the identical closed baseline/evidence envelope to every owner",
+        "Passes the same closed baseline/evidence bindings to every owner, plus that owner's own candidate_namespace (health|integrity|architecture)",
         "Fails closed for absent, stale, copied, or malformed owner or evidence references",
         "Returns an ASSESS projection only",
         "Child report-capable owners inherit RIA presentation policy and do not ask separately"
@@ -204,6 +204,63 @@
       "assertions": [
         "Passes the prior SEI snapshot from lineage as --baseline when a comparable ancestor exists",
         "Surfaces trend as a report sidecar, not as a fourth assessment_ref or ASSESS field"
+      ]
+    },
+    {
+      "id": "composite-v2-shadow-present",
+      "prompt": "Generate the full RIA report.",
+      "assertions": [
+        "analytics.composite_v2 is a ria.composite@2 document with reported false and calibration_state uncalibrated",
+        "The report headline, gauge and grade pill show the v1 composite; the section 'v2 composite — uncalibrated shadow' shows v2",
+        "Effective influence lists Health, Architecture, Integrity and SEI beside their nominal shares (scripts/composite-v2-shadow.test.js)"
+      ]
+    },
+    {
+      "id": "composite-v2-provisional-with-bounds",
+      "prompt": "Assess a repository where some dimensions lack evidence.",
+      "assertions": [
+        "composite_v2.status is provisional, never final, while any applicable dimension is provisional or not scored",
+        "The shadow shows the point with its bounds; missing contributions widen the upper bound by their bound share (§8.3)"
+      ]
+    },
+    {
+      "id": "composite-v2-contested",
+      "prompt": "Assess a repository where owners disagree sharply on one dimension.",
+      "assertions": [
+        "A dimension whose scored judgments spread more than 20 points is flagged contested with the side-by-side values",
+        "Disagreement lowers that dimension's confidence and never raises it (D2)"
+      ]
+    },
+    {
+      "id": "composite-v2-integrity-no-negative-claim",
+      "prompt": "Assess with an Integrity ledger whose dimension has no findings and no negative claim.",
+      "assertions": [
+        "The Integrity contribution for that dimension is insufficient_evidence, never a clean 100 (§7.3)",
+        "Sampling every mapped surface without a supports_absence negative claim does not score (scripts/composite-v2-appendix-a.test.js variant a)"
+      ]
+    },
+    {
+      "id": "composite-v2-critical-floor",
+      "prompt": "Assess a repository whose critical dimension scores below 50 from two independent established sources.",
+      "assertions": [
+        "composite_v2.caps lists critical-dimension-floor with the dimension id and ceiling 69.9",
+        "A binding 69.9 displays as D+ 69.9, never 70 (§9.2)"
+      ]
+    },
+    {
+      "id": "composite-v2-degraded-run",
+      "prompt": "Run RIA with allow_degraded after an owner fails, or without a bound SEI assessment.",
+      "assertions": [
+        "The failed owner's contributions are failed and composite_v2.run_state is degraded; status is never final, with or without allow_degraded",
+        "Tampered or mis-bound evidence blocks the run instead of degrading it (non_degradable FAIL-RIA-* codes)"
+      ]
+    },
+    {
+      "id": "sei-root-commit-repo",
+      "prompt": "Run RIA on a repository whose only significant commit before HEAD is the root commit.",
+      "assertions": [
+        "SEI completes its trend baseline instead of failing on the parentless root commit; the run reaches the owner rendezvous (exit 3)",
+        "scripts/sei-root-commit.integration.test.js covers the Appendix B repository"
       ]
     }
   ],

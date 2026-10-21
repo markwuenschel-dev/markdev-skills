@@ -45,8 +45,9 @@ assert.match(architecturePerf, /work[- ]steal/i);
 assert.match(architecturePerf, /single-flight/i);
 
 const ria = read("repository-improvement-assessment/SKILL.md");
-assert.match(ria, /launch all three canonical owners concurrently/i);
-assert.match(ria, /one RIA-owned global executor/i);
+assert.match(ria, /launch every missing canonical owner concurrently/i);
+assert.match(ria, /global task DAG/i);
+assert.match(ria, /global READY queue/i);
 
 const swarms = read("human-directed-swarm-planner/SWARM-TYPES.md");
 assert.doesNotMatch(swarms, /Captain \+ four default lanes/i);

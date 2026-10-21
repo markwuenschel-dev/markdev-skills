@@ -9,7 +9,10 @@ const path = require("node:path");
 const test = require("node:test");
 const { createOwnerReturn } = require("../../shared/ria-owner-return/owner-return.js");
 const { executeRia, OWNER_TASKS } = require("./ria.js");
-const { createAdapter, returnPath } = require("./ria-agent-adapter.js");
+const { createAdapter, returnPath, findPriorSeiSnapshot, isSeiSnapshotFile } = require("./ria-agent-adapter.js");
+const { recordArtifact } = require("./workspace-lineage.js");
+const { repositoryIdentity } = require("./startup-resolver.js");
+const workspace = require("../../shared/project-intelligence-workspace/project-intelligence-workspace.js");
 const { deriveCompatibilityBinding } = require("./compatibility-binding.js");
 
 function git(root, args) { return childProcess.execFileSync("git", ["-C", root, ...args], { encoding: "utf8" }).trim(); }
@@ -141,4 +144,42 @@ test("Health and Integrity envelopes carry verification_baseline_ref", async (co
   const integrity = JSON.parse(fs.readFileSync(first.owner_rendezvous.envelopes["codebase-integrity-audit-loop"], "utf8"));
   assert.equal(health.verification_baseline_ref.artifact_id, "verification:test");
   assert.equal(integrity.verification_baseline_ref.artifact_id, "verification:test");
+});
+
+test("findPriorSeiSnapshot ignores engineering-intelligence artifacts recorded as sei_artifacts", async (context) => {
+  const root = fixture(context);
+  workspace.ensureWorkspace(root);
+  const id = repositoryIdentity(root);
+  const eiPath = path.join(root, "ei.json");
+  const snapshotPath = path.join(root, "snapshot.json");
+  fs.writeFileSync(eiPath, `${JSON.stringify({ kind: "engineering-intelligence", schema_version: "1.0.0", engineering_intelligence: { snapshot_id: "nested" } })}\n`);
+  fs.writeFileSync(snapshotPath, `${JSON.stringify({ snapshot_id: "sei-real", repository: { repository_id: "r", revision: "a".repeat(40) }, collectors: [], measurements: [] })}\n`);
+  assert.equal(isSeiSnapshotFile(eiPath), false);
+  assert.equal(isSeiSnapshotFile(snapshotPath), true);
+  const eiBytes = fs.readFileSync(eiPath);
+  recordArtifact(root, "sei", {
+    repository_key: id.repository_key,
+    revision: "b".repeat(40),
+    working_tree_fingerprint: id.working_tree_fingerprint,
+    engine_version: "1.3.0",
+    config_hash: "a".repeat(64),
+    execution_contract_hash: "b".repeat(64),
+    sha256: hash(eiBytes),
+    path: eiPath,
+    artifact_id: "sei:wrong-kind",
+  });
+  assert.equal(findPriorSeiSnapshot(root, "git", id.revision), null);
+  const snapBytes = fs.readFileSync(snapshotPath);
+  recordArtifact(root, "sei", {
+    repository_key: id.repository_key,
+    revision: "c".repeat(40),
+    working_tree_fingerprint: id.working_tree_fingerprint,
+    engine_version: "1.3.0",
+    config_hash: "a".repeat(64),
+    execution_contract_hash: "b".repeat(64),
+    sha256: hash(snapBytes),
+    path: snapshotPath,
+    artifact_id: "sei:real",
+  });
+  assert.equal(findPriorSeiSnapshot(root, "git", id.revision), path.resolve(snapshotPath));
 });

@@ -1,0 +1,43 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {},
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.references.agent-briefs.md": {
+        "path": "references/agent-briefs.md",
+        "selector": "heading"
+      },
+      "source.references.failure-catalog.md": {
+        "path": "references/failure-catalog.md",
+        "selector": "heading"
+      },
+      "source.references.model-adapters.md": {
+        "path": "references/model-adapters.md",
+        "selector": "heading"
+      },
+      "source.references.optimization-loop.md": {
+        "path": "references/optimization-loop.md",
+        "selector": "heading"
+      },
+      "source.references.quick-prompts.md": {
+        "path": "references/quick-prompts.md",
+        "selector": "heading"
+      },
+      "source.references.system-prompts.md": {
+        "path": "references/system-prompts.md",
+        "selector": "heading"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

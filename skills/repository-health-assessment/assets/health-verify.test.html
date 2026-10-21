@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>health-verify.js — regression fixture (schema v5)</title>
-<script src="../../../shared/candidate-ledger-spine/ledger-verify.js" onerror="window.__noLedger=1"></script>
+<script src="../../shared/candidate-ledger-spine/ledger-verify.js" onerror="window.__noLedger=1"></script>
 <script src="./health-verify.js"></script>
 <style>
   :root { --page:#f9f9f7; --surface-1:#fcfcfb; --ink-primary:#0b0b0b; --ink-secondary:#52514e;
@@ -589,6 +589,10 @@
             {
               "claim_id": "VERIF-02",
               "support": "Evidences where the authoritative definition lives for this lane."
+            },
+            {
+              "claim_id": "VERIF-04",
+              "support": "Informs, as a model judgment, whether tests name the boundary behaviour they protect for this lane."
             }
           ],
           "rationale": "Level 2 for boundary clarity: present but inconsistently applied."
@@ -991,6 +995,13 @@
       ],
       "observation": {
         "confirmed": "Controls observed directly on the primary path."
+      },
+      "review_source": {
+        "domain": "testing",
+        "report_sha256": "3f1c9a7e2b4d6f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708",
+        "rule_id": "testing.ci-integration.suite-gates-merge",
+        "dimension": "ci_integration",
+        "proof_basis": "mechanical"
       }
     },
     {
@@ -1023,6 +1034,29 @@
       ],
       "observation": {
         "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "VERIF-04",
+      "lane": "verification-readiness",
+      "statement": "verification-readiness: review-testing judged that test names state the behaviour they protect on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/verif/main.test.ts",
+          "lines": "1-80",
+          "note": "review-proof-bundle/v1 model-judgment claim testing.test-quality.baseline"
+        }
+      ],
+      "observation": {
+        "inferred": "Test names state the protected behaviour on the primary paths [model judgment, signature- and binding-checked only]."
+      },
+      "review_source": {
+        "domain": "testing",
+        "report_sha256": "3f1c9a7e2b4d6f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708",
+        "rule_id": "testing.test-quality.baseline",
+        "dimension": "test_quality",
+        "proof_basis": "judgment"
       }
     },
     {
@@ -1226,6 +1260,22 @@
     "automated_sprawl_checks": "none",
     "assessment": "moderate"
   },
+  "evidence_workers": [
+    {
+      "worker_id": "worker-contracts-1",
+      "lane": "contracts-and-integration",
+      "status": "complete",
+      "limitations": []
+    },
+    {
+      "worker_id": "worker-maintainability-1",
+      "lane": "maintainability-and-ownership",
+      "status": "partial",
+      "limitations": [
+        "Ownership metadata sampled for top-level packages only; nested packages were not inspected."
+      ]
+    }
+  ],
   "candidates": [
     {
       "candidate_id": "CONTRACT-007",
@@ -1272,6 +1322,30 @@
       "dedup": {
         "duplicate_group": "api-schema-ownership",
         "merged_from": []
+      },
+      "candidate_lifecycle": {
+        "candidate_id": "CONTRACT-007",
+        "discovered_by": "repository-health-assessment",
+        "current_owner": {
+          "skill": "repository-health-assessment",
+          "stage": "awaiting-human-decision"
+        },
+        "lifecycle_status": "awaiting-selection",
+        "history": [
+          {
+            "event": "discovered",
+            "timestamp": "2026-07-25T12:00:00Z",
+            "artifact": "health-assessment:fixture"
+          }
+        ],
+        "completion": {
+          "completed_at": null,
+          "verification_refs": []
+        },
+        "resolution": {
+          "superseded_by": null,
+          "reason": null
+        }
       }
     }
   ],
@@ -1310,6 +1384,36 @@
             "PR-412"
           ],
           "reason": "schema generation added to release CI"
+        }
+      },
+      {
+        "candidate_id": "OLD-002",
+        "status": "ready",
+        "candidate_lifecycle": {
+          "candidate_id": "OLD-002",
+          "discovered_by": "repository-health-assessment",
+          "current_owner": {
+            "skill": "codebase-integrity-audit-loop",
+            "stage": "verified"
+          },
+          "lifecycle_status": "completed",
+          "history": [
+            {
+              "event": "completed",
+              "timestamp": "2026-07-19T09:00:00Z",
+              "artifact": "PR-418"
+            }
+          ],
+          "completion": {
+            "completed_at": "2026-07-19",
+            "verification_refs": [
+              "PR-418"
+            ]
+          },
+          "resolution": {
+            "superseded_by": null,
+            "reason": null
+          }
         }
       }
     ],
@@ -2678,6 +2782,8 @@
     var setDim=function(i,li,level,ids){var l=i.lanes[li];Object.keys(l.scores).forEach(function(k,n){
       l.scores[k].level=level;l.scores[k].claim_refs=ids.map(function(id){return {claim_id:id,support:"distinct support text "+n};});});};
 
+    /* headless:begin \u2014 pure-model checks between these markers also run under
+       Node via assets/test/run-headless.js; keep them free of DOM access. */
     head("units \u2014 arithmetic");
     check("laneScore: the design note's example is 48.75, not 52.5",
       HV.laneScore({observed_soundness:3,automated_enforcement:1,verification_readiness:2,boundary_clarity:2,change_containment:1,operational_reproducibility:2}).score===48.75);
@@ -2723,6 +2829,8 @@
     check("coverage below 40% never becomes an F", HV.applyCaps({overall_raw:20,weighted_coverage:35,lanes:lanesOf([["correctness-and-integrity",20,5]]),baseline:"trustworthy",baseline_reason:"all-passing"}).final_grade===HV.HEALTH_NOT_GRADABLE);
     check("an unavailable core surface outranks 99% coverage", HV.applyCaps({overall_raw:95,weighted_coverage:99,lanes:lanesOf([["correctness-and-integrity",95,5]]),baseline:"trustworthy",baseline_reason:"all-passing",unavailable_core_surfaces:["verification"]}).not_gradable===true);
 
+    /* headless:end */
+
     head("good island \u2014 end to end");
     var good=HV.runHealth({root:document.getElementById("good-root")});
     if (HAS_SPINE) {
@@ -2743,6 +2851,8 @@
       document.querySelectorAll('#good-root [data-lane="contracts-and-integration"] [data-dimension]').length===6&&
       document.querySelector('#good-root [data-lane="contracts-and-integration"] [data-dimension-claims="observed_soundness"]').textContent.indexOf("CONTRACT-")>-1);
     check("good: caps panel names each cap with the value that fired it", document.querySelectorAll("#good-root [data-cap]").length===good.grade.caps_applied.length&&good.grade.caps_applied.length>0);
+    check("good: handoff routes CONTRACT-007 to the decision queue by execution_mode",
+      (document.querySelector('#good-root [data-handoff-row="decision"]')||{textContent:""}).textContent.indexOf("CONTRACT-007")>-1);
     check("good: confidence panel breaks out all six inputs", document.querySelectorAll("#good-root [data-confidence-input]").length===6);
     check("good: sprawl panel renders all five evidence groups", document.querySelectorAll("#good-root [data-sprawl] [data-sprawl-count]").length===5);
     check("good: sprawl panel renders one row per evidence item, count matching the island's own arrays",
@@ -2764,6 +2874,7 @@
         good.ledger.candidates.some(function(c){return c.candidate_id==="CONTRACT-007"&&c.computed.priority===8;}));
     } else { skip("good: candidate rendering assertions","sibling spine module absent"); }
 
+    /* headless:begin */
     head("good island \u2014 computed run-to-run delta");
     check("delta: a changed claim result is detected", good.delta.claims.some(function(c){return c.claim_id==="CONTRACT-01"&&c.transition==="changed";}));
     check("delta: an explicit terminal lifecycle_status is honoured", good.delta.candidates.some(function(c){return c.candidate_id==="OLD-001"&&c.transition==="completed";}));
@@ -2872,6 +2983,136 @@
     sab("completed candidate without resolution is rejected", function(i){ i.previous.candidates=[{candidate_id:"DONE-1",lifecycle_status:"completed"}]; i.candidates=[]; }, "candidate-resolution-missing");
     sab("completed candidate without verification_refs is rejected", function(i){ i.previous.candidates=[{candidate_id:"DONE-1",lifecycle_status:"completed",resolution:{completed_at:"2026-07-20"}}]; i.candidates=[]; }, "candidate-resolution-missing");
     sab("superseded candidate without superseded_by is rejected", function(i){ i.previous.candidates=[{candidate_id:"OLD-1",lifecycle_status:"superseded",resolution:{reason:"merged"}}]; i.candidates=[]; }, "candidate-resolution-missing");
+
+    head("v5.3 — unrounded coverage thresholds");
+    var t1=lanesOf([["correctness-and-integrity",95,5]]);
+    var ng=HV.applyCaps({overall_raw:95,weighted_coverage:HV.roundPct(39.95),weighted_coverage_raw:39.95,lanes:t1,baseline:"trustworthy",baseline_reason:"all-passing"});
+    check("coverage 39.95% (displays as "+HV.roundPct(39.95)+"%) is Not gradable", ng.final_grade===HV.HEALTH_NOT_GRADABLE&&/39\.95/.test(ng.reason), ng.final_grade+" / "+ng.reason);
+    var c80=HV.applyCaps({overall_raw:95,weighted_coverage:HV.roundPct(79.96),weighted_coverage_raw:79.96,lanes:t1,baseline:"trustworthy",baseline_reason:"all-passing"});
+    check("coverage 79.96% (displays as 80%) still fires coverage-below-80 and holds an A-scoring repo at B",
+      c80.final_grade==="B"&&c80.caps_applied.some(function(c){return c.cap==="coverage-below-80";}), c80.final_grade);
+    var c80ok=HV.applyCaps({overall_raw:95,weighted_coverage:80,weighted_coverage_raw:80,lanes:t1,baseline:"trustworthy",baseline_reason:"all-passing"});
+    check("control: coverage exactly 80% fires no coverage cap", !c80ok.caps_applied.some(function(c){return c.cap.indexOf("coverage-")===0;})&&c80ok.final_grade==="A", c80ok.final_grade);
+    var wc=HV.weightedCoverage([{id:"runtime-code",criticality_weight:3,coverage:"inspected",evidence_quality:"strong"},{id:"data-lifecycle",criticality_weight:3,coverage:"inspected",evidence_quality:"strong"},{id:"verification",criticality_weight:3,coverage:"uninspected",evidence_quality:"none"}]);
+    check("weightedCoverage exposes the unrounded value next to the display value", wc.weighted_coverage===66.7&&Math.abs(wc.weighted_coverage_raw-200/3)<1e-9, wc.weighted_coverage+" / "+wc.weighted_coverage_raw);
+
+    head("v5.3 — uninspected core surface is Not gradable");
+    (function(){ var i=clone(GOOD); var s=i.coverage.filter(function(x){return x.id==="runtime-code";})[0]; s.coverage="uninspected"; s.evidence_quality="none";
+      var v=HV.verifyHealth(i);
+      check("an uninspected core surface makes the island Not gradable (it used to grade)", v.grade.final_grade===HV.HEALTH_NOT_GRADABLE&&v.grade.caps_applied.length===0, v.grade.final_grade);
+      check("the Not-gradable verdict names the surface and why", v.grade.not_gradable_surfaces.length===1&&v.grade.not_gradable_surfaces[0].id==="runtime-code"&&
+        v.grade.not_gradable_surfaces[0].coverage==="uninspected"&&v.grade.reason.indexOf("runtime-code (uninspected")>-1, v.grade.reason);
+      check("Not gradable is a verdict, not a verification failure", v.ok===true, JSON.stringify(v.problems.slice(0,2))); })();
+    (function(){ var i=clone(GOOD); var s=i.coverage.filter(function(x){return x.id==="operational-behavior";})[0]; s.coverage="uninspected"; s.evidence_quality="none";
+      var v=HV.verifyHealth(i);
+      check("control: an uninspected NON-core surface still grades", v.grade.final_grade!==HV.HEALTH_NOT_GRADABLE, v.grade.final_grade); })();
+
+    head("v5.3 — closed cap names and persisted grade");
+    check("applyCaps without a baseline reason still emits a closed cap name",
+      HV.applyCaps({overall_raw:95,weighted_coverage:95,lanes:t1,baseline:"not-run"}).caps_applied.some(function(c){return c.cap==="baseline-no-commands";}));
+    check("every cap the canonical island fires is in HEALTH_CAP_NAMES",
+      HV.verifyHealth(GOOD).grade.caps_applied.every(function(c){return HV.HEALTH_CAP_NAMES.indexOf(c.cap)>-1;}));
+    sab("a declared cap list that omits a fired cap is cap-undeclared", function(i){ i.grade={caps_applied:[{cap:"weakest-critical-lane",trigger:"contracts-and-integration scored 48.75 (D)"}]}; }, "cap-undeclared");
+    sab("a cap name outside the closed set is rejected", function(i){ i.grade={caps_applied:["untrustworthy-baseline"]}; }, "cap-unknown");
+    (function(){
+      var bare=HV.verifyHealth(GOOD,{persisted:true});
+      check("persisted: an island with no stored grade is rejected", !bare.ok&&bare.problems.filter(function(p){return p.code==="grade-not-persisted";}).length===2, bare.problems.map(function(p){return p.code;}).join(","));
+      check("pre-grade input islands still verify without the persisted option", HV.verifyHealth(GOOD).ok===true);
+      var blk=HV.computeGradeBlock(GOOD); var i=clone(GOOD); i.grade=blk;
+      var v=HV.verifyHealth(i,{persisted:true});
+      check("persisted: computeGradeBlock(island) embedded and re-verified is a fixed point", v.ok===true&&blk.final_grade===HV.verifyHealth(GOOD).grade.final_grade, JSON.stringify(v.problems.slice(0,2)));
+      var j=clone(i); j.grade.caps_applied[0].trigger="something else";
+      var vj=HV.verifyHealth(j,{persisted:true});
+      check("persisted: a declared trigger that disagrees with the computed one is cap-trigger-mismatch", vj.problems.some(function(p){return p.code==="cap-trigger-mismatch";}));
+      var k=clone(i); k.grade.caps_applied=k.grade.caps_applied.slice(1);
+      check("persisted: dropping a fired cap is cap-undeclared", HV.verifyHealth(k,{persisted:true}).problems.some(function(p){return p.code==="cap-undeclared";}));
+      var m=clone(i); m.grade.caps_applied=m.grade.caps_applied.map(function(c){return c.cap;});
+      check("persisted: bare cap-name strings (no trigger) are rejected", HV.verifyHealth(m,{persisted:true}).problems.some(function(p){return p.code==="grade-not-persisted";}));
+    })();
+
+    head("v5.3 — uncontained critical failure");
+    (function(){ var i=clone(GOOD); i.uncontained_critical_failure={claim_id:"CORE-03",statement:"Unvalidated writes reach the primary store."};
+      var v=HV.verifyHealth(i);
+      check("a {claim_id, statement} naming a fail claim fires the D cap", v.ok&&v.grade.final_grade==="D"&&v.grade.caps_applied.some(function(c){return c.cap==="uncontained-critical-failure"&&c.trigger.indexOf("CORE-03")===0;}), v.grade.final_grade+" "+JSON.stringify(v.problems.slice(0,2))); })();
+    (function(){ var i=clone(GOOD); i.uncontained_critical_failure="false"; var v=HV.verifyHealth(i);
+      check("the string \"false\" is rejected and does NOT fire the D cap", !v.ok&&v.problems.some(function(p){return p.code==="uncontained-critical-shape";})&&!v.grade.caps_applied.some(function(c){return c.cap==="uncontained-critical-failure";})); })();
+    (function(){ var i=clone(GOOD); i.uncontained_critical_failure=true; var v=HV.verifyHealth(i);
+      check("legacy boolean true is rejected with a migration note", v.problems.some(function(p){return p.code==="uncontained-critical-shape"&&p.message.indexOf("Migration")>-1;})); })();
+    sab("a statement naming a passing claim is rejected", function(i){ i.uncontained_critical_failure={claim_id:"CORE-01",statement:"x"}; }, "uncontained-critical-claim-not-failing");
+    sab("a statement naming an unknown claim is rejected", function(i){ i.uncontained_critical_failure={claim_id:"NOPE-99",statement:"x"}; }, "uncontained-critical-claim-unknown");
+    check("null means none known", HV.verifyHealth((function(){var i=clone(GOOD);i.uncontained_critical_failure=null;return i;})()).ok===true);
+
+    head("v5.3 — candidate_lifecycle (spine v3) in the delta");
+    var lifeDone=function(id){return {candidate_id:id,discovered_by:"repository-health-assessment",current_owner:{skill:"codebase-integrity-audit-loop",stage:"verified"},lifecycle_status:"completed",
+      history:[],completion:{completed_at:"2026-07-20",verification_refs:["PR-9"]},resolution:{superseded_by:null,reason:null}};};
+    check("the canonical island's candidate_lifecycle is accepted", HV.verifyHealth(GOOD).ok===true&&GOOD.candidates[0].candidate_lifecycle!=null);
+    check("a vanished candidate completed via candidate_lifecycle is honoured", HV.verifyHealth(GOOD).delta.candidates.some(function(c){return c.candidate_id==="OLD-002"&&c.transition==="completed"&&c.lifecycle_source==="candidate_lifecycle";}));
+    (function(){ var i=clone(GOOD); i.previous.candidates=[{candidate_id:"GONE-9",status:"ready",lifecycle_status:"ready",candidate_lifecycle:lifeDone("GONE-9")}];
+      var t=HV.verifyHealth(i).delta.candidates.filter(function(c){return c.candidate_id==="GONE-9";})[0];
+      check("candidate_lifecycle is read before the legacy lifecycle_status", t&&t.transition==="completed", t&&t.transition); })();
+    (function(){ var i=clone(GOOD); var l=lifeDone("GONE-9"); l.completion.verification_refs=[]; i.previous.candidates=[{candidate_id:"GONE-9",candidate_lifecycle:l}];
+      var v=HV.verifyHealth(i);
+      check("candidate_lifecycle completed with no verification_refs is candidate-resolution-missing", v.problems.some(function(p){return p.code==="candidate-resolution-missing"&&p.ref==="GONE-9";})); })();
+    (function(){ var i=clone(GOOD); i.previous.candidates=[{candidate_id:"CONTRACT-007",candidate_lifecycle:lifeDone("CONTRACT-007")}];
+      var t=HV.verifyHealth(i).delta.candidates.filter(function(c){return c.candidate_id==="CONTRACT-007";})[0];
+      check("a candidate completed via candidate_lifecycle and present again is reopened", t&&t.transition==="reopened", t&&t.transition); })();
+    (function(){ var i=clone(GOOD); i.previous.candidates=[{candidate_id:"CONTRACT-007",status:"completed"}];
+      var t=HV.verifyHealth(i).delta.candidates.filter(function(c){return c.candidate_id==="CONTRACT-007";})[0];
+      check("legacy status completed and present again is still reopened", t&&t.transition==="reopened", t&&t.transition); })();
+    sab("candidate_lifecycle bound to another candidate_id is rejected", function(i){ i.candidates[0].candidate_lifecycle.candidate_id="OTHER"; }, "candidate-lifecycle");
+
+    head("v5.3 — handoff routing by rollup, not status");
+    var rc=function(mode,action,status){return HV.routeCandidate({status:status||"ready",rollup:{execution_mode:mode,recommended_action:action,blocked_by:[],priority_score:1}});};
+    check("blocked-needs-human-decision routes to the decision queue whatever the action", rc("blocked-needs-human-decision","direct-fix")==="decision"&&rc("blocked-needs-human-decision","design")==="decision");
+    check("design and prototype route to architecture", rc("sequential","design")==="architecture"&&rc("swarm","prototype")==="architecture");
+    check("direct-fix, fitness-check and triage route to integrity", rc("sequential","direct-fix")==="integrity"&&rc("connected-impact-sweep","fitness-check")==="integrity"&&rc("sequential","triage")==="integrity");
+    check("reject routes nowhere", rc("sequential","reject")==="none");
+    check("scheduling status does not route: a 'blocked' direct-fix still goes to integrity", rc("sequential","direct-fix","blocked")==="integrity");
+    check("canonical: CONTRACT-007 (design, blocked-needs-human-decision) is in the decision queue", HV.handoffGroups(GOOD.candidates).decision.indexOf("CONTRACT-007")>-1&&HV.handoffGroups(GOOD.candidates).architecture.length===0);
+
+    head("v5.3 — duplicate support compared normalized");
+    check("normalizeSupportText lowercases, strips punctuation, collapses whitespace", HV.normalizeSupportText("  It is,  FINE!! ")==="it is fine");
+    sab("support lines differing only in punctuation/case/whitespace are still duplicates", function(i){
+      var l=i.lanes[1],p=passClaim(i,l.lane),variants=["It is fine.","it is fine","IT IS FINE!","it, is fine","It  is   fine?","it is fine;"];
+      Object.keys(l.scores).forEach(function(k,n){l.scores[k].level=3;l.scores[k].claim_refs=[{claim_id:p,support:variants[n]}];});}, "claim-ref-duplicate-support");
+
+    head("v5.3 — evidence workers");
+    check("the canonical island's evidence_workers verify", HV.verifyHealth(GOOD).ok===true&&GOOD.evidence_workers.length>0);
+    sab("a partial worker with no limitation is rejected", function(i){ i.evidence_workers[1].limitations=[]; }, "evidence-worker-limitation-missing");
+    sab("a failed worker on a lane whose core surface is marked inspected is rejected", function(i){
+      i.evidence_workers.push({worker_id:"w-core",lane:"correctness-and-integrity",status:"failed",limitations:["worker crashed"]}); }, "evidence-worker-coverage-contradiction");
+    (function(){ var i=clone(GOOD); i.evidence_workers.push({worker_id:"w-core",lane:"correctness-and-integrity",status:"timeout",limitations:["worker timed out"]});
+      ["runtime-code","domain-libraries"].forEach(function(id){var s=i.coverage.filter(function(x){return x.id===id;})[0];s.coverage="sampled";});
+      var v=HV.verifyHealth(i);
+      check("control: a timed-out worker is fine once its core surfaces are downgraded from inspected", !v.problems.some(function(p){return p.code==="evidence-worker-coverage-contradiction";}), v.problems.map(function(p){return p.code;}).join(",")); })();
+
+    head("v5.3 — review_source on claims");
+    sab("a review_source domain outside the ten review domains is rejected", function(i){ i.claims.filter(function(c){return c.review_source;})[0].review_source.domain="vibes"; }, "claim-review-source");
+    check("all ten review domains are accepted", HV.HEALTH_REVIEW_DOMAINS.length===10&&HV.HEALTH_REVIEW_DOMAINS.every(function(d){
+      var i=clone(GOOD); i.claims.filter(function(c){return c.review_source;})[0].review_source.domain=d; return HV.verifyHealth(i).ok;}));
+
+    head("v5.6 — judgment evidence (review_source.proof_basis, R1–R6)");
+    var judged=function(i){ return i.claims.filter(function(c){return c.review_source&&c.review_source.proof_basis==="judgment";})[0]; };
+    var vrLane=function(i){ return i.lanes.filter(function(l){return l.lane==="verification-readiness";})[0]; };
+    check("control: the good island carries a judgment claim in observation.inferred and verifies clean", !!judged(GOOD) && !("confirmed" in judged(GOOD).observation) && good.ok===true);
+    check("proof_basis vocabulary is exactly mechanical | judgment", JSON.stringify(HV.HEALTH_PROOF_BASES)===JSON.stringify(["mechanical","judgment"]));
+    sab("a review_source without proof_basis is rejected", function(i){ delete i.claims.filter(function(c){return c.review_source;})[0].review_source.proof_basis; }, "claim-review-source");
+    sab("a proof_basis outside mechanical | judgment is rejected", function(i){ i.claims.filter(function(c){return c.review_source;})[0].review_source.proof_basis="verified"; }, "claim-review-source");
+    sab("R1: a judgment claim with observation.confirmed is rejected", function(i){ judged(i).observation.confirmed="Test names state the protected behaviour."; }, "claim-judgment-confirmed");
+    sab("R1: an empty confirmed string on a judgment claim is still rejected", function(i){ judged(i).observation.confirmed=""; }, "claim-judgment-confirmed");
+    sab("R3: a level-3 dimension resting only on a judgment claim is rejected", function(i){ vrLane(i).scores.observed_soundness.claim_refs=[{claim_id:judged(i).claim_id,support:"judged soundness"}]; }, "level-judgment-only");
+    sab("R2: level 4 whose only passing claim is a judgment is rejected", function(i){ vrLane(i).scores.verification_readiness.claim_refs=[{claim_id:judged(i).claim_id,support:"judged pass"},{claim_id:"VERIF-02",support:"mechanical partial"}]; }, "level4-needs-mechanical-pass");
+    (function(){ var i=clone(GOOD); vrLane(i).scores.verification_readiness.claim_refs.push({claim_id:judged(i).claim_id,support:"judged corroboration"}); var v=HV.verifyHealth(i);
+      check("control: level 4 with a mechanical pass plus a judgment claim is accepted", v.ok, v.problems.map(function(p){return p.code;}).join(",")); })();
+    (function(){ var i=clone(GOOD); vrLane(i).scores.observed_soundness.level=2; vrLane(i).scores.observed_soundness.claim_refs=[{claim_id:judged(i).claim_id,support:"judged soundness"}]; var v=HV.verifyHealth(i);
+      check("control: a judgment claim alone may support level 2", !v.problems.some(function(p){return p.code==="level-judgment-only";}), v.problems.map(function(p){return p.code;}).join(",")); })();
+    sab("R5: a strong surface backed only by a judgment claim is rejected", function(i){ i.coverage.filter(function(s){return s.id==="verification";})[0].evidence_refs=[{kind:"claim",ref:judged(i).claim_id}]; }, "surface-strong-judgment-only");
+    (function(){ var i=clone(GOOD); i.coverage.filter(function(s){return s.id==="verification";})[0].evidence_refs.push({kind:"claim",ref:judged(i).claim_id}); var v=HV.verifyHealth(i);
+      check("control: a judgment claim next to a command on a strong surface is accepted", v.ok, v.problems.map(function(p){return p.code;}).join(",")); })();
+    sab("R6: uncontained_critical_failure naming a failing judgment claim is rejected", function(i){ var c=judged(i); c.result="fail"; i.uncontained_critical_failure={claim_id:c.claim_id,statement:"judged critical failure"}; }, "uncontained-critical-judgment");
+    (function(){ var i=clone(GOOD); var c=judged(i); c.result="fail"; i.uncontained_critical_failure={claim_id:c.claim_id,statement:"judged critical failure"}; var v=HV.verifyHealth(i);
+      check("R6: a judged critical failure does not fire the D cap", !v.grade.caps_applied.some(function(x){return x.cap==="uncontained-critical-failure";}), JSON.stringify(v.grade.caps_applied)); })();
+    /* headless:end */
 
     head("report binding completeness");
     var bind=HV.runHealth({root:document.getElementById("bind-root"),islandSelector:"#health-bind"});

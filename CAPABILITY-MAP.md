@@ -42,6 +42,8 @@ flowchart TD
     subgraph LAND["land — one PR, a queue, or + EC2 (-ec2)"]
         direction TB
         LP["land-pr"]
+        PRB["pr-mwdev"]
+        LP -->|"PR body"| PRB
     end
 
     subgraph CRAFT["craft — any time"]
@@ -49,7 +51,10 @@ flowchart TD
         PFG["prompt-forge"]
         SWF["skillwright-forge"]
         CS["compact-session"]
+        WIZ["wizard-mwdev"]
+        RETRO["retro-mwdev"]
         PFG -.->|"artifact is a SKILL.md"| SWF
+        RETRO -.->|"skill fixes"| SWF
     end
 
     IPC --> PF
@@ -73,6 +78,9 @@ flowchart TD
 | Write / repair / optimize prompts | `prompt-forge` | Perform the underlying task; author SKILL.md packages |
 | Design / audit / harden a SKILL.md package | `skillwright-forge` | Write ordinary prompts or application code |
 | Checkpoint a long session before `/clear` | `compact-session` | Clear context itself; substitute for git commits |
+| Write or rewrite a PR body (visual summary, evidence, merge danger) | `pr-mwdev` | Push, open, or merge a PR |
+| Generate an interactive wizard for steps only a human can perform | `wizard-mwdev` | Steps the agent can perform itself |
+| Retrospect a session to find environment fixes | `retro-mwdev` | Apply the fixes itself (read-only; routes each to its owner) |
 | Unsure which applies | `loop-router` | Execute work itself beyond routing |
 
 ## When to hand off
@@ -92,6 +100,8 @@ flowchart TD
 | `production-flywheel` | `human-directed-swarm-planner` | One milestone needs parallel lanes, not sequential queue items |
 | `production-flywheel` | `land-pr` | Stage 13 after the user explicitly requests landing or deployment (queue mode for leftover batches) |
 | `land-pr` | itself, with `-ec2` | The landed change (or queue) must also be released to EC2 |
+| `land-pr` / `production-flywheel` | `pr-mwdev` | A PR is being created; the caller hands in its evidence for the body |
+| `retro-mwdev` | `skillwright-forge` (or the named owner) | A ranked environment fix is accepted |
 | `prompt-forge` | `skillwright-forge` | The artifact is a SKILL.md package, not a prompt |
 | `prompt-forge` | (exit) | Prompt delivered; do not execute the prompted task unless the user separately asks |
 

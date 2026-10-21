@@ -1,524 +1,78 @@
 ---
 name: codebase-integrity-audit-loop
-description: "Use when the user asks to audit, improve, harden, or repair codebase integrity: bugs, wiring/integration drift, schema/contract problems, static-analysis findings, stale paths, architecture fitness concerns, or recurring breakage that should become an enforceable check. One disciplined loop per candidate: report + ledger, select one, execute, verify, capture. Supports --auto --max-turns, and --parallel-report for a read-only repo-wide swarm report that stops at candidate selection."
-disable-model-invocation: false
+description: Read-only integrity assessment and candidate-reconciliation owner. Use to scan bugs, wiring drift, schema or contract failures, stale paths, and enforceable-check opportunities; emit a verified candidate ledger, select one candidate, and prepare an exact authorized handoff. It never edits tracked source, creates implementation worktrees, commits, or claims completion.
 ---
 
 # Codebase Integrity Audit Loop
 
-A loopable command for turning codebase drift into one scoped, verified, future-resistant fix.
+This skill owns integrity evidence, candidate reconciliation, deterministic ranking through `shared/candidate-ledger-spine`, and integrity report projections. It is an assessment owner, not a source-mutation owner.
 
-## Shared candidate contract and lifecycle
-
-Resolve `shared/candidate-ledger-spine/{REPORT-SCORING.md,candidate.schema.json,ledger-verify.js}` repository-relatively, or use an explicit shared-spine override. Missing or incompatible version-3 code is a hard failure: this loop must not score, rank, or repair from a partial envelope.
-
-Consume exactly one candidate source per active loop: a verified health ledger, an architecture candidate ledger, an audit-loop parallel-report ledger, a user-selected candidate, or an issue/defect record reconciled into the canonical envelope. Validate this input before selection:
-
-```yaml
-integrity_candidate_input:
-  source_skill: repository-health-assessment | improve-codebase-architecture-mwdev | loop-router | user
-  candidate_id: ""
-  candidate_envelope: {}
-  source_artifacts: { health_report: null, architecture_report: null, ledger: "" }
-  repository: { assessed_revision: "", current_head: "", freshness: "", baseline_commands: [] }
-  scope: { included: [], excluded: [], non_goals: [] }
-  known_decisions: []
-  unresolved_human_decisions: []
-  recommended_action: ""
-  execution_mode: ""
-  verification_obligations: []
-  mutation_authorized: false
-  merge_authorized: false
-```
-
-Confirm human selection (unless an already-authorized caller supplied it), ensure no other candidate is active, recover prior state, establish a fresh baseline, and validate the treatment branch against current evidence. Treatment is one of `direct-fix`, `fitness-check`, `triage`, `design`, `prototype`, `diagnosing-bugs`, `connected-impact migration`, or `blocked-needs-human-decision`; execution topology is not a treatment branch.
-
-Only independent verification can write `candidate_lifecycle.lifecycle_status: completed`, with `completion.completed_at` and non-empty `completion.verification_refs`. A failed or unavailable verification remains non-completed. After closure, decide whether reassessment is warranted; if so, emit a `repository_health_reassessment_request` preserving prior report, revision, completed IDs, verification references, expected lanes/surfaces/caps, and all continuity requirements. Request it and return; this loop never computes a health grade.
-
-This command is not a broad cleanup mission. It is a disciplined integrity loop:
+The active path is:
 
 ```text
-recover/scan → HTML report + candidate ledger → candidate gate → lens selection → branch execution → verify → capture → next loop state
+scan and reconcile evidence
+→ verified candidate ledger
+→ select exactly one candidate
+→ require exact authorization
+→ hash-bound handoff to production-flywheel
+→ opaque execution receipt and canonical independent-verification evidence
+→ ledger update
 ```
 
-## Model invocation policy
+## Authority boundary
 
-This skill is model-invokable: invoke it when its role is needed inside the current approved workflow, without waiting for the user to name it.
+- Writes are limited to declared `.project-intelligence/assessments/integrity/`, `.project-intelligence/reports/integrity/`, and related local evidence/cache artifacts.
+- Never modify tracked source, create an implementation branch or worktree, run mutating repair steps, commit, publish, or merge.
+- `production-flywheel` owns any authorized source mutation. Under exact authorization it owns repair of a selected defect and uses `/adaptive-causal-debugging` for the diagnostic protocol.
+- `independent-verification` is the completion authority. This skill consumes the canonical packet/verdict files and records only the validated receipt reference.
+- One selected candidate is the unit of handoff and execution. A ledger, rank, recommendation, design approval, `--max-turns`, or generated report is not mutation authorization.
 
-Model invocation does not expand scope. The active mission, selected candidate, queue item, or implementation contract carries over unchanged — starting a new audit, roadmap, queue, or unrelated cleanup takes a user request. If invoking this skill would change the user's authorization boundary, pause and ask.
+## Modes
 
-## Operating modes
+### Assessment (default)
 
-Manual mode is the default.
+Read [PERFORMANCE.md](PERFORMANCE.md) for bounded evidence collection and [LENSES.md](LENSES.md) only for relevant lenses. Reconcile claims into the v3 shared candidate ledger, using `shared/candidate-ledger-spine/canonical-ledger.json` as the example and `shared/candidate-ledger-spine/ledger-verify.js` as the validator. Persist it through `assets/write-ledger.js`. Under RIA, pass `--ria-envelope <exact-input-envelope.json>` — the closed `{ baseline_ref, engineering_intelligence_ref, sei_assessment_ref?, verification_baseline_ref, presentation_policy: "inherit", candidate_namespace: "integrity" }` envelope from `shared/ria-owner-return/owner-return.schema.json` — with `RIA_RUNTIME_ROOT` set when RIA names a return path outside `.project-intelligence/`; the writer returns `ria.owner-return@1` without adding orchestration fields to the ledger. Prefix every `candidate_id` you mint with `integrity:`. **Adopt upstream candidates:** a Health ledger row routed here (`recommended_action` `direct-fix`, `fitness-check`, or `triage`) enters this ledger as a row that keeps its `candidate_id` (e.g. `health:CONTRACT-007`), `lane_sources`, and `claim_refs` unchanged; reconcile it, never re-mint it. RIA rejects a `candidate_id` that two owners minted independently. The assessment-only interface is `RUNTIME-CONTRACT.json`; mutation/handoff-only fields live separately in `MUTATION-RUNTIME-CONTRACT.json`. The ledger remains canonical whether HTML is generated or skipped.
 
-Manual mode:
+### RIA mode: coverage receipt and negative claims
 
-1. Produce or resume a report.
-2. Ask the user to select one candidate.
-3. Execute exactly one selected candidate.
-4. Capture the result.
-5. Record next loop state.
-6. Stop.
+Under `--ria-envelope` the writer also requires a top-level `coverage` receipt (`integrity.coverage@2`) and verifies it with `assets/integrity-coverage.js` before storing anything; `assets/canonical-ria-ledger.json` is the worked example. Composite-scoring-v3 §7.1 is the contract.
 
-Auto mode may be enabled explicitly:
+- **One receipt per dimension.** `coverage.dimensions` holds exactly `correctness`, `contracts`, `security` and `reliability`. Record every surface the RIA config maps to that dimension (`shared/ria-scoring/composite-v2.config.json` `integrity_surface_map`): correctness → runtime-code, domain-libraries, data-lifecycle; contracts → contracts-and-wiring, generated-surfaces; security → runtime-code, contracts-and-wiring, specialized-paths; reliability → runtime-code, operational-behavior. A surface inspected for correctness gives security nothing; record a security entry with security methods (authorization review, secret scan, input-validation review) and its own evidence.
+- **Surface entries** are `{surface_id, criticality_weight, state, evidence_quality, methods, scope, evidence_refs, reason, weight_rationale}`. Use Health's default weights (`repository-health-assessment/COVERAGE-MODEL.md`); a different weight needs `weight_rationale`. `inspected`, `sampled` and `inventory-only` need `evidence_refs` (`{kind: candidate|claim|path|command|inventory|rationale, ref, revision?}`); `inspected` needs strong or moderate evidence; core surfaces are never `not-applicable`. Never write a coverage number: the verifier computes it and rejects any declared one.
+- **"No findings" needs a negative claim.** A dimension with no confirmed defect scores only if `negative_claims` holds an Evidence Recon receipt with `supports_absence: true` whose `search_scope` lists `surface:<id>` for every applicable mapped surface, whose `search_methods` list `defect-check:<class>` for every configured check (`integrity_defect_checks`: correctness → logic-error, data-integrity, concurrency, stale-or-dead-path; contracts → contract-drift, missing-validation; security → security-exposure, missing-validation; reliability → failure-handling, concurrency), and whose `exclusions` remove no graded surface or row. Sampling alone never yields a clean score.
+- **Minted rows** (`integrity:` ids) carry `ria_dimensions`, `defect_class` and `ria_proof` `{failure_predicate {predicate_id, statement}, input_binding, proofs[]}`. Bind proofs to `{repository_id: <envelope baseline_ref.artifact_id>, root_id: "root-0", revision: <envelope baseline_ref.repository_revision>}`. A reproduction proof records `expected`, `actual`, `exit_code`, `check_id` and `receipt_sha256`; an exit code alone, a harness error or a missing dependency is not a reproduction. Name `predicate_id` as `<dimension>:<defect-class>:<subject>` so the same failure from another owner can be matched. **Adopted rows** keep their upstream id, `lane_sources` and `claim_refs`; RIA derives their dimensions from `lane_sources` and records any ambiguity as a limitation, returned in the owner return's `warnings`.
 
-```text
---auto
---max-turns <N|max>
+### `--parallel-report`
+
+Read [PARALLEL-REPORT.md](PARALLEL-REPORT.md). This is read-only assessment and always stops at the candidate gate. It cannot select, authorize, or execute a candidate. If combined with `--auto`, assessment wins and nothing mutates.
+
+### Selected candidate handoff
+
+Ask the user to select exactly one current candidate unless an authorized caller already supplied its exact identity. Before creating a handoff, require:
+
+- candidate ID and complete canonical candidate envelope;
+- repository identity and current base revision;
+- sorted relative scope paths;
+- hash-bound evidence references;
+- acceptance criteria with exact commands and expected outcomes;
+- an independent-verification strategy;
+- an authorization record binding the same candidate, repository, base revision, candidate hash, scope hash, and evidence hash with `permitted_mutation: true`, signed by the configured Flywheel authority key through `signAuthorization`.
+
+Use `scripts/candidate-handoff.js` and `contracts/candidate-handoff.schema.json`. The HMAC secret never enters the handoff; only `authority_key_id` and `authority_mac` are persisted. Reject stale base revisions, substituted candidates, changed evidence, broadened scope, mismatched or unauthenticated authorization, or more than one candidate. Persist the immutable handoff only under `.project-intelligence/assessments/integrity/handoffs/`, then return it to `production-flywheel`.
+
+### `--auto`
+
+Read [AUTO-MODE.md](AUTO-MODE.md). Compatibility auto mode may process only a supplied list of separately pre-authorized, hash-bound handoffs, one candidate at a time. It never turns a discovered ledger into blanket authorization. Unsafe legacy use returns a structured deprecation/redirect result without source mutation.
+
+## Receipt and closure rule
+
+After Flywheel returns, validate that its opaque execution receipt binds the exact handoff hash. A candidate may be marked completed only when Independent Verification's read-only consumer validates the canonical packet, receipt chain, PASS verdict, and locked `completion_binding` for that handoff and execution-receipt hash. Store only the derived receipt reference in the ledger; never accept a caller-manufactured verification object or infer success from prose, cached PASS, or worker self-report.
+
+## Verification
+
+```bash
+node scripts/candidate-handoff.test.js
+node scripts/authority-contract.test.js
 ```
 
-`--auto` without `--max-turns` defaults to `--max-turns 1` (a single turn). A turn means one complete candidate loop:
-
-```text
-candidate selected → scoped → planned → executed → reviewed → verified → captured → ledger updated
-```
-
-Examples:
-
-```text
-/codebase-integrity-audit-loop --auto --max-turns 3
-```
-
-Execute the top 3 executable candidates from the report in recommended order.
-
-```text
-/codebase-integrity-audit-loop --auto --max-turns max
-```
-
-Execute all executable candidates from the report in recommended order until the ledger is exhausted or a hard stop occurs.
-
-Auto mode consumes the candidate ledger. It does not create new scope. When `--auto` is set, read [AUTO-MODE.md](AUTO-MODE.md) before selecting the first candidate — candidate ranking, hard stops, per-turn capture, and the final report format live there.
-
-Parallel report mode may be enabled explicitly:
-
-```text
---parallel-report
-```
-
-`--parallel-report` produces the Stage 2 report and ledger through a read-only **Repo Audit Swarm** (four expert lanes, merged and scored) instead of a single-agent scan, then stops at the Stage 3 candidate gate — nothing is executed in the same invocation. When set, read [PARALLEL-REPORT.md](PARALLEL-REPORT.md) and follow it; Stages 4–13 belong to a later loop. Selection afterward is the normal candidate gate; auto mode applies to the emitted ledger only when the user explicitly passes `--auto` against that ledger in a later invocation. If `--auto` and `--parallel-report` are passed together, `--parallel-report` takes precedence — the ledger is produced and the invocation stops at the candidate gate; the co-passed `--auto` is deferred to the next invocation and executes nothing now.
-
-## Hard rules
-
-- Recovery and scanning must precede judgment.
-- A self-contained report with candidate ledger is required before candidate selection unless resuming from a valid existing report.
-- No production code changes before a candidate is explicitly selected for the current loop.
-- Exactly one candidate per loop.
-- Exactly one seam, boundary, finding category, or fitness concern per pass.
-- Broad cleanup is forbidden — adjacent findings go to the ledger as new candidates.
-- Enforceable checks are preferred over prose-only recommendations.
-- Compatibility shims, thin wrappers, or fake backward compatibility appear only when explicitly selected as the candidate.
-- Validators stay at full strength; a red report is information, not an obstacle.
-- Integrity claims wait for verification-before-completion to pass.
-- Durable knowledge must be captured in one authoritative place.
-- Auto mode must stop on unresolved human-decision categories.
-
-## Stage 1 — Recover / Scan
-
-Recover and scan the current code health state before recommending edits.
-
-Inspect or run, when available:
-
-- test suites and focused reproductions
-- linters and type checkers
-- import/dependency/call graphs
-- static-analysis output
-- schema, DTO, API, and contract consistency checks
-- build/CI visibility and generated artifact checks
-- entrypoints, CLIs, scripts, endpoints, config keys, jobs, and runtime paths
-- docs, ADRs, runbooks, RAG/policy corpus files, prompts, and few-shot examples that influence runtime behavior
-- stale paths, duplicate implementations, legacy runners, obsolete shims, reachable dead code, and retired references
-- numerical/GPU/kernel invariants when relevant
-
-Separate deterministic/computational findings from inferential findings.
-
-Gate:
-
-- Current code health state is summarized from evidence.
-- Claims distinguish confirmed facts, plausible inferences, and unknowns.
-- Important seams, boundaries, and recurring patterns are named.
-- No production code has been changed.
-
-## Stage 2 — HTML Report + Candidate Ledger
-
-Produce or update a self-contained HTML codebase integrity report.
-
-The report follows the canonical candidate schema in `shared/candidate-ledger-spine/REPORT-SCORING.md`. It is a candidate-discovery report, not a repository health grade; formal overall grades, scorecards, weighted coverage, caps, and confidence route to `repository-health-assessment`. On top of the shared candidate spine, an integrity report surfaces these integrity-specific views:
-
-- high-level code health map
-- findings grouped by category (categories below)
-- active seams and integration points with health status
-- deterministic findings separated from inferential findings
-- explicit unknowns
-- stale, duplicate, unclear ownership, or dead-path findings
-- broad-cleanup opportunities intentionally rejected as out of scope
-
-Candidate categories:
-
-- Bug
-- Wiring / Integration
-- Static
-- Data / Schema / Contract
-- Architecture Fitness
-- Algorithm / Numerical
-- CUDA / GPU
-- Testing / Fixture / Golden
-- Build / CI
-- Maintainability
-- Other
-
-Each candidate card must include:
-
-- Candidate ID
-- Location with file:line evidence where possible
-- Category
-- Current friction, symptom, or failure mode
-- Root seam or boundary involved
-- Integrity rule or principle violated
-- Confirmed facts vs plausible inferences vs unknowns
-- Scores and priority rollup per [`shared/candidate-ledger-spine/REPORT-SCORING.md`](../shared/candidate-ledger-spine/REPORT-SCORING.md) — the canonical scoring spine for every scored report in this skill family
-- Expected benefits and before/after framing when helpful
-- Recommended branch: design / prototype / triage / fitness-check / direct fix
-- Recommended lenses
-- Enforceable check opportunity
-- Status: open / selected / shipped / fixed / check-added / rejected / superseded / blocked / needs-human-decision / needs-rereport (where `needs-human-decision` ⇔ REPORT-SCORING `execution_mode: blocked-needs-human-decision`, and `rejected` is where `recommended_action: reject` lands — see REPORT-SCORING.md)
-
-Gate:
-
-- The report exists and is self-contained.
-- The candidate ledger is present.
-- Every candidate is independently selectable.
-- No production code has been changed.
-- Manual mode: ask the user to select exactly one candidate.
-- Auto mode: rank per [AUTO-MODE.md](AUTO-MODE.md) and select the next safe candidate.
-
-## Stage 3 — Candidate Gate
-
-After one candidate is selected, summarize:
-
-```markdown
-## Selected integrity candidate
-
-**Candidate ID:**
-**Location / seam / boundary:**
-**Category:**
-**Current friction:**
-**Integrity rule / principle:**
-**Evidence:**
-**Scores / priority rollup (per [`shared/candidate-ledger-spine/REPORT-SCORING.md`](../shared/candidate-ledger-spine/REPORT-SCORING.md)):**
-**Recommended branch:** design / prototype / triage / fitness-check / direct fix
-**Review lenses:** any relevant lens from Stage 4's catalogue (core: Wiring & Integration, Bug & Correctness, Consistency, Test/CI; supporting: Polyglot boundary, Bazel/build, API/schema/contract, Numerical correctness, CUDA/GPU, Static analysis, Security, Data integrity, Architecture fitness, Maintainability)
-**Verification strategy:**
-**Adjacent concerns out of scope:**
-```
-
-Gate:
-
-- Exactly one candidate is selected.
-- Adjacent concerns are explicitly out of scope.
-- The selected candidate has a defined verification strategy.
-- The branch is justified.
-
-## Stage 4 — Lens Selection
-
-Apply only the lenses relevant to the selected candidate.
-
-Core lenses:
-
-- Wiring & Integration
-- Bug & Correctness
-- Consistency
-- Test / CI
-
-Supporting lenses:
-
-- Polyglot boundary
-- Bazel / build
-- API / schema / contract
-- Numerical correctness
-- CUDA / GPU
-- Static analysis / RepoAudit-style data-flow
-- Security
-- Data integrity
-- Architecture fitness
-- Maintainability
-
-When the Wiring & Integration lens is selected, read [LENSES.md](LENSES.md) for its checklist, required output format, enforceable checks, and anti-patterns.
-
-Gate:
-
-- Only relevant lenses were applied.
-- Lens findings remain scoped to the selected candidate.
-- At least one concrete enforceable check opportunity is identified when feasible.
-- Lens findings do not expand the current loop into broad cleanup.
-
-## Calibration rules
-
-connected-impact-sweep is the single source of truth for edit-coherence calibration. Read that companion skill (routed command, or its SKILL.md in the sibling skill folder) whenever a loop executes changes, and apply its rules:
-
-- passthrough consumers vs value-branching logic
-- human-decision categories (the canonical list under that skill's `## Human-decision categories` heading)
-- golden files and fixtures
-- reachability beyond static imports
-- hand-maintained mirrors
-- runtime prose / RAG corpus as contract surface
-- staged edits vs completed edits
-
-## Stage 5 — Branch
-
-Choose exactly one branch.
-
-### Design branch
-
-Use when the issue, root cause, seam, ownership, policy, migration behavior, or desired check shape is unclear.
-
-Gate:
-
-- Target issue is explicit.
-- Rejected alternatives are named.
-- Durable terms are captured.
-- ADR-worthy decisions are identified.
-- No implementation work has started unless explicitly staged.
-
-### Prototype branch
-
-Use when prose is insufficient to evaluate the candidate.
-
-Prototype files may include:
-
-- `LOGIC.md`
-- `BOUNDARY.md`
-- `KERNEL.md`
-- `UI.md`
-
-Gate:
-
-- Prototype answers one explicit question.
-- Prototype is deleted or marked for clean absorption.
-- Prototype does not become an unowned alternate path.
-
-### Triage branch
-
-Use for failing checks, external reports, stale paths, suspected bugs, or unclear ownership.
-
-Gate:
-
-- Concern has one category and one state.
-- Ownership is assigned or marked unknown.
-- Agent-eligible work has a durable brief.
-- Rejections/out-of-scope decisions are captured.
-
-### Fitness-check branch
-
-Preferred when the goal is lasting integrity.
-
-Pattern:
-
-1. State the integrity rule clearly.
-2. Write or improve an enforceable check that fails or is missing before the fix.
-3. Make the minimal change to pass.
-4. Refactor only while green.
-5. Document the check for future agents.
-6. Prove the check catches the original class of problem.
-
-Possible checks:
-
-- regression test
-- seam/integration test
-- import/dependency-direction rule
-- schema/contract compatibility test
-- generated-contract drift check
-- config-wiring check
-- state-update path check
-- static-analysis rule
-- consistency lint/type rule
-- numerical invariant test
-- CPU/GPU equivalence test
-- CI gate or smoke test
-
-Gate:
-
-- Rule is stated before implementation.
-- Check is shown failing or missing before it is fixed.
-- Check targets the seam/root cause, not incidental symptoms.
-- Check is documented for future agents.
-
-### Direct fix branch
-
-Use only when the candidate is clear, low-risk, and contained.
-
-Gate:
-
-- Target seam is explicit.
-- Desired state is explicit.
-- Verification command is known.
-- One vertical slice only.
-- No adjacent cleanup.
-
-## Execution mode selection
-
-Select exactly one execution mode:
-
-- sequential delivery
-- subagent-driven development
-- connected-impact sweep
-
-Use connected-impact sweep when the selected candidate touches contracts, schemas, public APIs, CLI behavior, config keys, artifact paths, pipeline outputs, cross-language seams, shared models, state update paths, fixtures, goldens, numerical/kernel output contracts, hand-maintained mirrors, or runtime policy corpus surfaces.
-
-When applying the companion skill `connected-impact-sweep` during execution, preserve this loop's candidate gate, scope limits, pause rules, and capture rules.
-
-## Stage 6 — Worktree Gate
-
-Create or switch to an isolated worktree or branch for the selected candidate when available.
-
-Requirements:
-
-- Working tree starts clean.
-- Baseline verification commands are known and documented.
-- Baseline verification runs before changes.
-- If baseline verification cannot run, document why and what risk that introduces.
-- Pre-existing unrelated failures are recorded separately.
-
-Gate:
-
-- Isolated worktree or branch exists, or reason for not using one is documented.
-- Working tree is clean at start.
-- Baseline verification commands are defined and executed, or inability is documented.
-- Pre-existing unrelated failures are noted.
-
-## Stage 7 — Plan Gate
-
-Break work into ordered tasks with verification steps. When the candidate warrants a full plan document — multiple tasks, fan-out surfaces, or a swarm handoff — run the companion skill `implementation-plan-contract` and use its contract as this stage's output.
-
-Gate:
-
-- Each task maps to the selected candidate.
-- Each task has a verification step.
-- No task expands into adjacent cleanup.
-- Execution mode is selected.
-
-## Stage 8 — Execute
-
-Follow the selected execution mode.
-
-For behavior or check changes, use:
-
-```text
-state rule → write failing check/test → minimal change → green → refactor while green → verify
-```
-
-Failure interrupt:
-
-If behavior is broken, unexpectedly red, flaky, slow, numerically unstable, GPU-dependent, nondeterministic, or unexplained, pause delivery and hand the defect to `/diagnosing-bugs-mwdev` — deprecated, forwards to `adaptive-causal-debugging` (not yet vendored in this repo).
-
-This loop owns discovering and selecting **one** integrity candidate. When the selected candidate is a concrete reproducible defect, the diagnostic workflow for it — reproduction, hypothesis testing, root-cause confirmation, narrow repair, and regression verification — belongs to `adaptive-causal-debugging`, not this loop; `diagnosing-bugs-mwdev` is a deprecated alias with no protocol of its own. Do not restate or re-run those stages here; resume this loop's gate once the fix and its regression test are in.
-
-Gate:
-
-- Each task is completed in order or explicitly skipped with reason.
-- Parallel/subagent work is reconciled into one coherent branch.
-- No duplicate implementation paths remain.
-- No abandoned prototypes, scripts, or throwaway artifacts remain.
-- New checks enforce the selected rule where possible.
-
-## Stage 9 — Review Loop
-
-Run structured review.
-
-Review must check:
-
-- only the selected candidate was addressed
-- no broad cleanup occurred
-- no unauthorized shims/wrappers were added
-- dependency direction is correct
-- public interfaces did not widen unnecessarily
-- tests/checks enforce the intended rule where possible
-- docs, ADRs, corpus surfaces, prompts, fixtures, and generated artifacts match the implementation where relevant
-- stale prototypes and throwaway harnesses are gone
-
-Gate:
-
-- Critical/high-confidence review issues are fixed.
-- False positives are documented briefly.
-- Deferred issues are captured as follow-ups.
-- Tests/checks are rerun after review fixes.
-
-## Stage 10 — Verification Before Completion
-
-Run the strongest relevant verification available.
-
-Examples:
-
-- Python: pytest, Ruff, Pyright, mypy, import-linter, schema/contract tests
-- TypeScript/React: tests, tsc, ESLint, API contract tests
-- Java/Kotlin: unit/integration tests, Gradle/Maven/Bazel target tests, ArchUnit/dependency checks
-- C++/CUDA: build, unit tests, sanitizer checks where available, kernel smoke tests, CPU/GPU equivalence tests
-- Julia/numerical: unit tests, property/invariant tests, tolerance checks, benchmark-baseline checks
-- Bazel: affected target tests, build graph checks, visibility/dependency checks
-- Quant/ML: walk-forward checks, threshold validation, artifact-contract checks, leakage checks
-- RAG: retrieval/eval harnesses, policy corpus consistency checks, bridge contract tests
-
-Gate:
-
-- Relevant tests pass.
-- Type/lint/build passes when available.
-- New or updated integrity checks pass.
-- Numerical/GPU checks pass when applicable.
-- Manual/HITL verification is complete when required.
-- Acceptance criteria are checked one by one.
-- No debug logs, temporary harnesses, stale prototypes, or accidental artifacts remain.
-- The agent can state exact command output proving completion.
-
-## Stage 11 — Finish + Ship or Capture
-
-If code, tests, static rules, CI config, generated contracts, corpus files, or enforceable checks changed, follow branch/PR process.
-
-PR body must include:
-
-- selected candidate
-- what changed
-- why
-- architecture/integrity impact
-- verification evidence
-- new or updated fitness checks
-- agent-readability impact
-- risks/follow-ups
-
-If the loop produced only a report, triage decision, rejected candidate, design note, prototype result, or follow-up issue, capture without forcing a PR.
-
-## Stage 12 — Capture
-
-Capture durable knowledge in one authoritative place.
-
-- HTML report and candidate ledger → report artifact
-- new/updated enforceable checks → the check itself + documentation
-- architecture/integrity decisions → ADR, CONTEXT.md, or project docs
-- policy/taxonomy/RAG decisions → authoritative corpus/policy docs
-- risk register/themes/remediation items → report or issue tracker
-- rejected options/out-of-scope items → appropriate archive
-- future candidates → follow-up issue or next report
-
-Gate:
-
-- Every durable decision has a single source of truth.
-- Candidate ledger is updated.
-- Selected candidate is marked with final status.
-- Follow-up work is captured outside the current loop.
-- Current loop state is closed.
-
-## Stage 13 — Next Loop State
-
-Record exactly one next valid starting point:
-
-- stop
-- fresh report
-- existing report candidate gate
-- follow-up issue
-- retry failed loop
-- rerun after dependency/context change
-
-Gate:
-
-- Next state is unambiguous.
-- No next candidate is auto-selected unless auto mode remains active and within `--max-turns`.
-- No unowned observations remain only in chat context.
-- Repo is clean or intentionally preserved for the next iteration.
+Failure codes are stable: `EXACT_MUTATION_AUTHORIZATION_REQUIRED`, `STALE_BASE_REVISION`, `CANDIDATE_HASH_MISMATCH`, `SCOPE_HASH_MISMATCH`, `EVIDENCE_HASH_MISMATCH`, `AUTHORIZATION_*`, `BOUND_EXECUTION_RECEIPT_REQUIRED`, and `FRESH_INDEPENDENT_VERIFICATION_REQUIRED`.

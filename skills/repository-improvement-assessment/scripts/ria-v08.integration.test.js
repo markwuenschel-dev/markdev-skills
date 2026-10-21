@@ -97,9 +97,9 @@ test("selective Integrity rerun, strict owner failure, degraded owner failure, a
   const selective = await executeRia(request(root, { reuse_controls: { Integrity: "rerun" } }), stockAdapter);
   assert.equal(selective.execution.events.some((event) => event.task_id === "owner-integrity" && event.status === "completed"), true);
   assert.equal(selective.execution.events.some((event) => event.task_id === "owner-health" && event.status === "reused"), true);
-  const strict = await executeRia(request(root, { test_fail_owner: "codebase-integrity-audit-loop", reuse_controls: { Integrity: "rerun" } }), stockAdapter);
+  const strict = await executeRia(request(root, { adapter_options: { test_fail_owner: "codebase-integrity-audit-loop" }, reuse_controls: { Integrity: "rerun" } }), stockAdapter);
   assert.equal(strict.status, "blocked");
-  const degraded = await executeRia(request(root, { allow_degraded: true, test_fail_owner: "codebase-integrity-audit-loop", reuse_controls: { Integrity: "rerun" } }), stockAdapter);
+  const degraded = await executeRia(request(root, { allow_degraded: true, adapter_options: { test_fail_owner: "codebase-integrity-audit-loop" }, reuse_controls: { Integrity: "rerun" } }), stockAdapter);
   assert.equal(degraded.status, "degraded");
   assert.equal(degraded.assessment, null);
   assert.equal(degraded.partial_assessment.stage, "ASSESS-PARTIAL");

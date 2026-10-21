@@ -1,0 +1,27 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {
+    "summary_visual": {
+      "condition_ids": [
+        "context.pr.summary_visual"
+      ],
+      "refs": [
+        "references/visuals.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {}
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

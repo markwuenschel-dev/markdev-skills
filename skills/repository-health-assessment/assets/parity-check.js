@@ -48,7 +48,7 @@ const HV = globalThis.HealthVerify;
    the sibling skill is not at the default family location. */
 const spinePath = process.env.LEDGER_VERIFY_PATH
   ? path.resolve(process.env.LEDGER_VERIFY_PATH)
-  : path.resolve(here, "../../../shared/candidate-ledger-spine/ledger-verify.js");
+  : path.resolve(here, "../../shared/candidate-ledger-spine/ledger-verify.js");
 try {
   eval(fs.readFileSync(spinePath, "utf8"));
 } catch (e) {
@@ -64,6 +64,9 @@ catch (e) {
 }
 const ajv = new Ajv({ strict: false, allErrors: true });
 const schemaOk = ajv.compile(JSON.parse(fs.readFileSync(path.join(here, "health.schema.json"), "utf8")));
+
+const judgedClaim = (i) => i.claims.find((c) => c.review_source && c.review_source.proof_basis === "judgment");
+const vrLane = (i) => i.lanes.find((l) => l.lane === "verification-readiness");
 
 /* Each entry: [name, mutate, owner] where owner is "both" or "verifier-only". */
 const CORPUS = [
@@ -149,6 +152,47 @@ const CORPUS = [
   // ---- cross-reference: verifier-owned by construction (v5 sprawl pressure) ----
   ["sprawl entry citing an unknown claim_id", (i) => { i.sprawl_pressure.stale_reachable_paths[0].claim_id = "NOPE-99"; }, "verifier-only"],
   ["sprawl entry citing a claim outside architecture-fitness/maintainability-and-ownership", (i) => { i.sprawl_pressure.stale_reachable_paths[0].claim_id = "CORE-01"; }, "verifier-only"],
+
+  // ---- v5.3 contract repairs ----
+  ["uncontained_critical_failure as the string \"false\"", (i) => { i.uncontained_critical_failure = "false"; }, "both"],
+  ["uncontained_critical_failure as legacy boolean true", (i) => { i.uncontained_critical_failure = true; }, "both"],
+  ["uncontained_critical_failure missing its statement", (i) => { i.uncontained_critical_failure = { claim_id: "CORE-03" }; }, "both"],
+  ["uncontained_critical_failure naming a passing claim", (i) => { i.uncontained_critical_failure = { claim_id: "CORE-01", statement: "x" }; }, "verifier-only"],
+  ["uncontained_critical_failure naming an unknown claim", (i) => { i.uncontained_critical_failure = { claim_id: "NOPE-99", statement: "x" }; }, "verifier-only"],
+  ["cap name outside the closed set (old untrustworthy-baseline)", (i) => { i.grade = { caps_applied: ["untrustworthy-baseline"] }; }, "both"],
+  ["cap object with an unknown property", (i) => { i.grade = { caps_applied: [{ cap: "weakest-critical-lane", triggr: "x" }, { cap: "coverage-below-80" }] }; }, "both"],
+  ["cap fired but not declared", (i) => { i.grade = { caps_applied: [{ cap: "weakest-critical-lane" }] }; }, "verifier-only"],
+  ["evidence worker partial with no limitation", (i) => { i.evidence_workers[1].limitations = []; }, "both"],
+  ["evidence worker with an unknown status", (i) => { i.evidence_workers[0].status = "done"; }, "both"],
+  ["evidence worker on an unknown lane", (i) => { i.evidence_workers[0].lane = "vibes"; }, "both"],
+  ["unknown property in an evidence worker", (i) => { i.evidence_workers[0].worker = "x"; }, "both"],
+  ["failed worker on a lane whose core surface is marked inspected", (i) => { i.evidence_workers.push({ worker_id: "w-core", lane: "correctness-and-integrity", status: "failed", limitations: ["crashed"] }); }, "verifier-only"],
+  ["review_source with a domain outside the ten review domains", (i) => { i.claims.find((c) => c.review_source).review_source.domain = "vibes"; }, "both"],
+  ["review_source with a malformed report_sha256", (i) => { i.claims.find((c) => c.review_source).review_source.report_sha256 = "abc"; }, "both"],
+  ["review_source with an unknown property", (i) => { i.claims.find((c) => c.review_source).review_source.ruleid = "x"; }, "both"],
+  ["candidate_lifecycle bound to another candidate_id", (i) => { i.candidates[0].candidate_lifecycle.candidate_id = "OTHER"; }, "verifier-only"],
+  ["candidate_lifecycle completed with no verification refs", (i) => { const l = i.candidates[0].candidate_lifecycle; l.lifecycle_status = "completed"; l.completion = { completed_at: "2026-07-20", verification_refs: [] }; }, "both"],
+  ["previous candidate_lifecycle completed with no completed_at", (i) => { const p = i.previous.candidates.find((c) => c.candidate_lifecycle); p.candidate_lifecycle.completion.completed_at = null; }, "both"],
+
+  // ---- v5.6 judgment evidence (review_source.proof_basis, R1-R6) ----
+  ["review_source without proof_basis", (i) => { delete i.claims.find((c) => c.review_source).review_source.proof_basis; }, "both"],
+  ["review_source proof_basis outside mechanical | judgment", (i) => { i.claims.find((c) => c.review_source).review_source.proof_basis = "verified"; }, "both"],
+  ["R1 judgment claim carrying observation.confirmed", (i) => { judgedClaim(i).observation.confirmed = "x"; }, "both"],
+  ["R3 level-3 dimension resting only on a judgment claim", (i) => { vrLane(i).scores.observed_soundness.claim_refs = [{ claim_id: judgedClaim(i).claim_id, support: "judged soundness" }]; }, "verifier-only"],
+  ["R2 level 4 whose only passing claim is a judgment", (i) => { vrLane(i).scores.verification_readiness.claim_refs = [{ claim_id: judgedClaim(i).claim_id, support: "judged pass" }, { claim_id: "VERIF-02", support: "mechanical partial" }]; }, "verifier-only"],
+  ["R5 strong surface backed only by a judgment claim", (i) => { i.coverage.find((s) => s.id === "verification").evidence_refs = [{ kind: "claim", ref: judgedClaim(i).claim_id }]; }, "verifier-only"],
+  ["R6 uncontained_critical_failure naming a judgment claim", (i) => { const c = judgedClaim(i); c.result = "fail"; i.uncontained_critical_failure = { claim_id: c.claim_id, statement: "x" }; }, "verifier-only"],
+];
+
+/* Closed vocabularies stated in both layers must be identical. */
+const schemaDoc = JSON.parse(fs.readFileSync(path.join(here, "health.schema.json"), "utf8"));
+const sameSet = (a, b) => Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((x) => b.indexOf(x) > -1);
+const VOCAB = [
+  ["caps_applied names = HEALTH_CAP_NAMES", schemaDoc.$defs.capName.enum, HV.HEALTH_CAP_NAMES],
+  ["review_source.domain = HEALTH_REVIEW_DOMAINS", schemaDoc.properties.claims.items.properties.review_source.properties.domain.enum, HV.HEALTH_REVIEW_DOMAINS],
+  ["review_source.proof_basis = HEALTH_PROOF_BASES", schemaDoc.properties.claims.items.properties.review_source.properties.proof_basis.enum, HV.HEALTH_PROOF_BASES],
+  ["evidence_workers status = HEALTH_WORKER_STATUSES", schemaDoc.properties.evidence_workers.items.properties.status.enum, HV.HEALTH_WORKER_STATUSES],
+  ["evidence_workers lane = HEALTH_LANE_DEFINITIONS", schemaDoc.properties.evidence_workers.items.properties.lane.enum, Object.keys(HV.HEALTH_LANE_DEFINITIONS)],
 ];
 
 const base = HV.verifyHealth(island);
@@ -162,6 +206,13 @@ line(schemaOk(island) ? "ok  " : "FAIL", "schema accepts it");
 if (!schemaOk(island)) fail++;
 line(baseOk ? "ok  " : "FAIL", "verifier accepts it with the installed shared-spine dependency");
 if (!baseOk) fail++;
+
+console.log("\nclosed vocabularies");
+for (const [name, a, b] of VOCAB) {
+  const same = sameSet(a, b);
+  line(same ? "ok  " : "FAIL", name);
+  if (!same) fail++;
+}
 
 console.log("\nsabotage corpus — " + CORPUS.length + " mutations");
 const surprises = [];

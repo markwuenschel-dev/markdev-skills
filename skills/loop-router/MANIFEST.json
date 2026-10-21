@@ -1,0 +1,152 @@
+{
+  "name": "loop-router",
+  "version": "1.2.1",
+  "entrypoint": "SKILL.md",
+  "status": {
+    "classification": "experimental",
+    "production": false,
+    "active_operating_path": false
+  },
+  "invocation": {
+    "model_invocable": false,
+    "implicit_conversational_routing": false,
+    "expected_callers": ["user"]
+  },
+  "authority": {
+    "class": "experimental-lifecycle-router",
+    "owns": ["historical deterministic lifecycle simulation assets"],
+    "does_not_own": ["production lifecycle routing", "durable production state", "child artifact truth", "repository mutation", "human decision meaning", "verification or completion", "publish or merge"]
+  },
+  "purpose": "Dormant non-production prototype retained for explicit inspection and deterministic historical testing. It is not an active workflow dependency or authority surface.",
+  "assets": [
+    "assets/lifecycle-state.json",
+    "assets/evaluation-suite.json"
+  ],
+  "scripts": [
+    "scripts/router-scenarios.js",
+    "scripts/lifecycle-audit.js",
+    "scripts/wiring-audit.js",
+    "scripts/hygiene-check.js",
+    "scripts/loop-control.test.js"
+  ],
+  "control_surface": {
+    "audit_skill_wiring": "scripts/wiring-audit.js",
+    "loop_control": "scripts/loop-control.js",
+    "mode": "historical experimental simulation only",
+    "production_lifecycle_authority": null,
+    "runtime_state_authority": "shared/orchestration-runtime (experimental fixtures only)"
+  },
+  "depends_on": [
+    {
+      "skill": "shared/orchestration-runtime",
+      "required": true,
+      "public_modules": ["runtime-router.js", "runtime-store.js"],
+      "required_exports": [
+        "recoverRuntime",
+        "verifyRuntimeState",
+        "routeLifecycle",
+        "makeIdempotencyKey",
+        "projectionBindingsForStage",
+        "reserveDispatch",
+        "releaseDispatch",
+        "completeChildDispatch",
+        "recordRetry",
+        "resolveHeldDispatch",
+        "requestSoftStop",
+        "advanceSoftStop",
+        "clearSoftStop",
+        "admitGraphDecision",
+        "startMission",
+        "resolveDecision",
+        "transactRuntimeFile",
+        "completeChildDispatchFile"
+      ],
+      "required_exports_by_module": {
+        "runtime-router.js": [
+          "recoverRuntime",
+          "verifyRuntimeState",
+          "routeLifecycle",
+          "makeIdempotencyKey",
+          "projectionBindingsForStage",
+          "reserveDispatch",
+          "releaseDispatch",
+          "completeChildDispatch",
+          "recordRetry",
+          "resolveHeldDispatch",
+          "requestSoftStop",
+          "advanceSoftStop",
+          "clearSoftStop",
+          "admitGraphDecision",
+          "startMission",
+          "resolveDecision",
+          "transactRuntimeFile",
+          "completeChildDispatchFile"
+        ],
+        "runtime-store.js": [
+          "sha256",
+          "hashRecord",
+          "projectionHash",
+          "projectionId",
+          "atomicWriteJSON",
+          "readRuntimeState"
+        ]
+      },
+      "failure_mode": "Stop without dispatch when the runtime package or any required public export in required_exports_by_module is missing."
+    },
+    {
+      "skill": "shared/capability-registry",
+      "required": true,
+      "public_modules": ["registry.js"],
+      "required_exports": ["canonicalRoot", "discover", "snapshot", "snapshotRef", "packageTreeHash"],
+      "failure_mode": "Audit wiring reports unavailable or unknown provenance; it never fabricates a capability, routes a mission, or falls back to a mirror path."
+    }
+  ],
+  "canonical_handoffs": {
+    "ASSESS": {
+      "reservation_owner": "repository-improvement-assessment",
+      "sequence": [{ "owner": "repository-improvement-assessment", "action": "assessment-only with referenced evidence reuse" }]
+    },
+    "RECONCILE": {
+      "reservation_owner": "remediation-graph-optimizer",
+      "sequence": [{ "owner": "remediation-graph-optimizer", "action": "canonical hash-bound refs-only assessment references from repository-improvement-assessment into remediation-graph-optimizer graph-v2 cohort admission" }]
+    },
+    "EXECUTE": {
+      "reservation_owner": "production-flywheel",
+      "sequence": [
+        { "owner": "human-directed-swarm-planner", "action": "phase topology" },
+        { "owner": "production-flywheel", "action": "--action-graph reserved safe frontier" }
+      ]
+    },
+    "INTEGRATE": {
+      "reservation_owner": "production-flywheel",
+      "sequence": [
+        { "owner": "production-flywheel", "action": "Stage 15 complete eligible cohort" },
+        { "owner": "shared/action-integration-reassessment", "action": "combined state reassessment" }
+      ]
+    },
+    "CONTINUE": {
+      "reservation_owner": "independent-verification",
+      "sequence": [
+        { "owner": "canonical artifact owners", "action": "revalidate referenced artifacts" },
+        { "owner": "independent-verification", "action": "fresh verification return" },
+        { "owner": "loop-router", "action": "re-enter lifecycle routing" }
+      ]
+    }
+  },
+  "runtime": {
+    "engine": "node",
+    "dependencies": [],
+    "scenario_writes": "operating-system temporary directory only",
+    "production_enabled": false
+  },
+  "non_goals": [
+    "candidate, graph, action, verification-verdict, integration-finding, or human-decision ownership",
+    "repository mutation implementation",
+    "direct runtime-state edits outside shared/orchestration-runtime transactions",
+    "human decision meaning or policy choice",
+    "roadmap selection",
+    "merge, publish, release, or irreversible-action authority",
+    "copying owner artifact payloads into runtime state or route receipts",
+    "production workflow routing or dispatch"
+  ]
+}

@@ -165,6 +165,37 @@
         },
         "composite": {
           "type": "object"
+        },
+        "composite_v2": {
+          "description": "ria.composite@2 shadow (composite-scoring-v3 §10) plus headline selection and binder limitations; v1 composite remains the reported grade until promotion.",
+          "type": "object",
+          "required": [
+            "schema_version",
+            "reported",
+            "calibration_state",
+            "status",
+            "point",
+            "bounds",
+            "caps",
+            "confidence",
+            "dimensions",
+            "influence",
+            "headline"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "ria.composite@2"
+            },
+            "reported": {
+              "type": "boolean"
+            },
+            "headline": {
+              "enum": [
+                "v1",
+                "v2"
+              ]
+            }
+          }
         }
       }
     },
@@ -219,7 +250,8 @@
         "properties": {
           "kind": {
             "enum": [
-              "testing-fitness"
+              "testing-fitness",
+              "evidence-recon"
             ]
           },
           "path": {

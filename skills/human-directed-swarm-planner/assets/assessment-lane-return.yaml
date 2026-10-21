@@ -1,0 +1,62 @@
+# DEPRECATED (2026-10-01): no script produces or consumes this file. RIA owners now
+# return `ria.owner-return@1` (shared/ria-owner-return/owner-return.schema.json) to
+# repository-improvement-assessment/scripts/ria.js; the current topology is
+# SWARM-TYPES.md ## RIA Assessment Topology. Every "Phase 0", "RIA captain" and
+# "design-now" reference below describes that retired model; SWARM-TYPES.md no
+# longer has those sections. Kept in place for older runs that cite it.
+#
+# Completion handback from one Repository Improvement Assessment lane to the
+# RIA captain (retired model). The captain synthesizes; this is never shown raw to the human
+# — modeled on decision-terrain-mapper/assets/mapping-scout.yaml's same rule.
+
+assessment_lane_return:
+  run_id: ""
+  lane: ""                         # health | integrity | architecture
+
+  revision_confirmed: null         # boolean — lane re-checked HEAD against the
+                                    # baseline and it had not moved; false means
+                                    # the lane declined and recorded no commands
+
+  candidates: []                   # this lane's candidates, spine-v3 shape,
+                                    # ids drawn only from this lane's reserved
+                                    # namespace — validated by this lane through
+                                    # shared/candidate-ledger-spine/ledger-verify.js
+                                    # before it is returned, never after
+
+  claims: []                       # per repository-health-assessment/HEALTH-GRADING.md
+                                    # or codebase-integrity-audit-loop/REPORT-SCORING.md,
+                                    # whichever schema this lane's skill owns
+
+  evidence_refs: []                # facts/commands this lane cited instead of re-deriving;
+                                    # {kind: claim|command|path|inventory|rationale|blocker, ref}
+                                    # — same shape as repository-health-assessment/
+                                    # COVERAGE-MODEL.md's surface evidence_refs
+
+  reused_observations: []          # {surface_ref or candidate_id, fingerprint, reused_from_revision}
+                                    # — an observation carried forward unchanged from a prior run
+                                    # because its Phase 0 fingerprint was unchanged; never silent
+
+  coverage_observations: []        # this lane's own numerator against the
+                                    # Phase 0 surface inventory: which surfaces it
+                                    # actually reached, at what state, with what
+                                    # evidence quality
+
+  grade: null                      # only the health lane may populate this;
+                                    # every other lane leaves it null
+
+  triage_findings: []              # architecture lane only; empty for health and integrity.
+                                    # Sibling to candidates: [] above, never a substitute for it.
+                                    # Each entry: {candidate_id, seam_classification,
+                                    # structural_debt_classification, shared_root_cause_cluster: [],
+                                    # blast_radius_estimate, architecture_status}. candidate_id may
+                                    # reference another lane's candidate — read-only, never mutated.
+                                    # architecture_status: deferred_until_selected (default) |
+                                    # design_requested (design-now exception only; retired model)
+
+  declined_command_baseline: false # true if this lane could not adopt the
+                                    # Phase 0 command records (approval scope or
+                                    # isolation mode did not clearly cover it)
+  declined_reason: ""
+
+  uncertainty: []
+  rejected_broad_cleanup: []
