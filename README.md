@@ -253,7 +253,9 @@ Symlinks (or, with `--copy` / `-Copy`, copies) **every** skill under `skills/` t
 
 Default destination: `~/.agents/skills`.
 
-> **Runtime caveat.** Instructions-only use works with the default install. The bundled Node scripts are different: they load shared modules from `<skills-dir>/shared/` (for example `require("../shared/…")` from a skill folder). `--with-shared` / `-WithShared` puts `shared/` at `<dest>/../markdev-skills-shared` instead, and the scripts never look there. To run the scripts, install with `--copy` and copy `shared/` to `<dest>/shared`. Some scripts also load canon shared packages that are not vendored here (for example `orchestration-runtime` and `action-graph-execution`; see [`DEPENDENCIES.md`](DEPENDENCIES.md)).
+Add `--with-shared` / `-WithShared` when you want the bundled Node scripts to run: it installs `shared/` at `<dest>/shared`, which is where the scripts look (`require("../shared/…")`). For symlinked installs it also links `skills/shared → ../shared` inside the repo (gitignored), because Node resolves a symlinked skill from its real path.
+
+> Some scripts also load canon shared packages that are not vendored here (for example `orchestration-runtime` and `action-graph-execution`; see [`DEPENDENCIES.md`](DEPENDENCIES.md)). Those only run from the canon install.
 
 ---
 

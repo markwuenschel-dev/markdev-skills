@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Install every skill under skills/ that has a root SKILL.md into an agent skills directory.
-# Shared contracts stay in-repo unless --with-shared. True externals stay in DEPENDENCIES.md.
+# Shared contracts are installed only with --with-shared. True externals stay in DEPENDENCIES.md.
 set -euo pipefail
 
 DEST="${HOME}/.agents/skills"
 WITH_SHARED=0
 COPY=0
+LINKED=0
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 usage() {
@@ -13,8 +14,10 @@ usage() {
 Usage: install-skills.sh [--dest DIR] [--with-shared] [--copy]
 
   --dest DIR       Install location (default: ~/.agents/skills)
-  --with-shared    Also link/copy shared/ contracts next to skills as
-                   <dest>/../markdev-skills-shared or <dest>/_markdev_shared
+  --with-shared    Also link/copy shared/ to <dest>/shared, where bundled
+                   scripts resolve it (require("../shared/...")). Symlinked
+                   skills resolve from their real path, so this also links
+                   skills/shared -> ../shared inside the repo (gitignored).
   --copy           Copy instead of symlink (default on when symlink fails)
   -h, --help       Show this help
 
@@ -63,8 +66,12 @@ link_or_copy() {
     echo "copied: $dst"
     return 0
   fi
-  if ln -s "$src" "$dst" 2>/dev/null; then
+  if ln -s "$src" "$dst" 2>/dev/null && [[ -L "$dst" ]]; then
+    LINKED=1
     echo "linked: $dst -> $src"
+  elif [[ -e "$dst" ]]; then
+    # Git Bash's ln -s copies instead of linking unless native symlinks are enabled.
+    echo "copied (ln -s made a copy): $dst"
   else
     cp -R "$src" "$dst"
     echo "copied (symlink failed): $dst"
@@ -79,6 +86,7 @@ shopt -s nullglob
 found=0
 for src in "$SKILLS_DIR"/*/; do
   name="$(basename "$src")"
+  [[ "$name" == "shared" ]] && continue
   if [[ ! -f "$src/SKILL.md" ]]; then
     echo "skip (no SKILL.md): $src" >&2
     continue
@@ -94,11 +102,20 @@ if [[ "$found" -eq 0 ]]; then
 fi
 
 if [[ "$WITH_SHARED" -eq 1 ]]; then
-  shared_dest="$(dirname "$DEST")/markdev-skills-shared"
-  mkdir -p "$(dirname "$shared_dest")"
-  link_or_copy "$REPO_ROOT/shared" "$shared_dest"
-  echo "Note: skills reference shared/ via relative paths from the repo tree."
-  echo "      Prefer running from a git checkout, or adjust agent skill roots."
+  skills_linked="$LINKED"
+  link_or_copy "$REPO_ROOT/shared" "$DEST/shared"
+  if [[ "$skills_linked" -eq 1 ]]; then
+    repo_link="$SKILLS_DIR/shared"
+    if [[ -e "$repo_link" || -L "$repo_link" ]]; then
+      echo "skip (exists): $repo_link"
+    elif ln -s ../shared "$repo_link" 2>/dev/null && [[ -L "$repo_link" ]]; then
+      echo "linked: $repo_link -> ../shared (lets symlinked skills resolve shared/)"
+    else
+      rm -rf "$repo_link"
+      echo "warning: could not link $repo_link -> ../shared; symlinked skills' scripts" >&2
+      echo "         will not find shared/. Re-run with --copy." >&2
+    fi
+  fi
 fi
 
 echo "Done. Inventory: $REPO_ROOT/CAPABILITY-MAP.md"

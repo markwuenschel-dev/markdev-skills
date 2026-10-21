@@ -1,5 +1,5 @@
 # Install every skill under skills/ that has a root SKILL.md into an agent skills directory.
-# Shared contracts stay in-repo unless -WithShared. True externals stay in DEPENDENCIES.md.
+# Shared contracts are installed only with -WithShared. True externals stay in DEPENDENCIES.md.
 param(
   [string]$Dest = (Join-Path $HOME ".agents\skills"),
   [switch]$WithShared,
@@ -9,6 +9,7 @@ param(
 $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 $SkillsDir = Join-Path $RepoRoot "skills"
+$script:Linked = $false
 
 function Install-One {
   param([string]$Src, [string]$Dst)
@@ -23,6 +24,7 @@ function Install-One {
   }
   try {
     New-Item -ItemType SymbolicLink -Path $Dst -Target $Src | Out-Null
+    $script:Linked = $true
     Write-Host "linked: $Dst -> $Src"
   } catch {
     Copy-Item -Recurse $Src $Dst
@@ -35,7 +37,7 @@ Write-Host "Repo: $RepoRoot"
 Write-Host "Dest: $Dest"
 
 $skills = @(Get-ChildItem -Path $SkillsDir -Directory | Where-Object {
-  Test-Path (Join-Path $_.FullName "SKILL.md")
+  $_.Name -ne "shared" -and (Test-Path (Join-Path $_.FullName "SKILL.md"))
 })
 
 if ($skills.Count -eq 0) {
@@ -47,15 +49,26 @@ foreach ($skill in $skills) {
 }
 
 Get-ChildItem -Path $SkillsDir -Directory | Where-Object {
-  -not (Test-Path (Join-Path $_.FullName "SKILL.md"))
+  $_.Name -ne "shared" -and -not (Test-Path (Join-Path $_.FullName "SKILL.md"))
 } | ForEach-Object {
   Write-Host "skip (no SKILL.md): $($_.FullName)"
 }
 
 if ($WithShared) {
-  $sharedDest = Join-Path (Split-Path $Dest -Parent) "markdev-skills-shared"
-  Install-One -Src (Join-Path $RepoRoot "shared") -Dst $sharedDest
-  Write-Host "Note: skills reference shared/ via relative paths from the repo tree."
+  # Bundled scripts resolve shared/ as <skills-dir>/shared (require("../shared/...")).
+  $skillsLinked = $script:Linked
+  Install-One -Src (Join-Path $RepoRoot "shared") -Dst (Join-Path $Dest "shared")
+  if ($skillsLinked) {
+    # Node resolves a symlinked skill from its real path, so the repo needs skills/shared too (gitignored).
+    $repoLink = Join-Path $SkillsDir "shared"
+    if (Test-Path $repoLink) {
+      Write-Host "skip (exists): $repoLink"
+    } else {
+      $linkType = if ($IsWindows -or $env:OS -eq "Windows_NT") { "Junction" } else { "SymbolicLink" }
+      New-Item -ItemType $linkType -Path $repoLink -Target (Join-Path $RepoRoot "shared") | Out-Null
+      Write-Host "linked: $repoLink -> $(Join-Path $RepoRoot 'shared') (lets symlinked skills resolve shared/)"
+    }
+  }
 }
 
 Write-Host "Done. Inventory: $(Join-Path $RepoRoot 'CAPABILITY-MAP.md')"
