@@ -1,0 +1,40 @@
+"use strict";
+const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
+const childProcess = require("node:child_process");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const test = require("node:test");
+const { createOwnerReturn } = require("../../shared/ria-owner-return/owner-return.js");
+const { executeRia, OWNER_TASKS } = require("./ria.js");
+const { deriveCompatibilityBinding } = require("./compatibility-binding.js");
+function git(root, args) { return childProcess.execFileSync("git", ["-C", root, ...args], { encoding: "utf8" }).trim(); }
+function hash(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
+function fixture(context) { const root = fs.mkdtempSync(path.join(os.tmpdir(), "ria-public-")); context.after(() => fs.rmSync(root, { recursive: true, force: true })); git(root, ["init"]); git(root, ["config", "user.email", "test@example.invalid"]); git(root, ["config", "user.name", "RIA Test"]); fs.writeFileSync(path.join(root, "source.txt"), "source\n"); git(root, ["add", "."]); git(root, ["commit", "-m", "fixture"]); return root; }
+function compatibility() { return deriveCompatibilityBinding({ engine_version: "test@1", effective_configuration: {}, execution_contract: { version: 1 }, history_window: { kind: "full" }, assessment_schema_version: "sei.engineering-assessment@3", analyzer_capabilities: {} }); }
+function adapter() { return { createAdapter(context) { const ei = { artifact_id: `engineering-intelligence:${"b".repeat(64)}`, owner: "repository-improvement-assessment", kind: "engineering-intelligence", schema_version: "1.0.0", sha256: "b".repeat(64), repository_revision: context.baseline.repository.revision, mission_id: "ria-public-test", scope_hash: "c".repeat(64), baseline_binding: context.baseline_ref }; const handlers = { "sei-snapshot": async () => ({ engineering_intelligence_ref: ei, telemetry: { tool_calls: 1, tokens: 0 } }), "sei-assessment": async () => ({ assessment: { criteria: [{ criterion_id: "c1", applicability: "not_scored", maturity: "not_scored" }] }, telemetry: { tool_calls: 1, tokens: 0 } }), "verification-baseline": async () => ({ verification_baseline_ref: { artifact_id: "verification:test", sha256: "d".repeat(64), content_sha256: "e".repeat(64), file_sha256: "d".repeat(64), repository_revision: context.baseline.repository.revision }, telemetry: { tool_calls: 1, tokens: 0 } }), "report-data": async () => ({ skipped: true }), "report-render": async () => ({ skipped: true }) };
+      for (const [taskId, owner] of Object.entries(OWNER_TASKS)) handlers[taskId] = async ({ owner_envelope }) => { const envelope = owner_envelope(); const artifactPath = path.join(context.run_directory, `${owner}.json`); const bytes = `${JSON.stringify({ owner, repository_revision: context.baseline.repository.revision })}\n`; fs.writeFileSync(artifactPath, bytes); const sha256 = hash(Buffer.from(bytes)); return createOwnerReturn({ owner, repository_revision: context.baseline.repository.revision, artifact_path: artifactPath, canonical_artifact_ref: { owner, artifact_id: `${owner}:${sha256}`, sha256, repository_revision: context.baseline.repository.revision }, input_binding_echo: envelope }); };
+      return { handlers }; } }; }
+function request(root, extra = {}) { return { repository: { root }, durable_mode: "git", command_authorization: { state: "granted", authorization_ref: "test", inherited_from: null, commands: [] }, verification_contract: { commands: [] }, sei_compatibility_binding: compatibility(), runtime_root: path.join(root, ".project-intelligence", "assessments", "ria", "runtime"), presentation_policy: "skip", depth: "quick", ...extra }; }
+
+test("public runtime produces a strict three-owner ASSESS projection and scheduler terminal event for every node", async (context) => { const root = fixture(context); const result = await executeRia(request(root), adapter()); assert.equal(result.status, "complete", JSON.stringify({ failures: result.execution.failures, degraded: result.execution.degraded_failures, observations: result.execution.observational_failures }, null, 2)); assert.equal(result.assessment.stage, "ASSESS"); assert.equal(result.assessment.assessment_refs.length, 3); assert.deepEqual(result.assessment.assessment_refs.map((ref) => ref.owner).sort(), Object.values(OWNER_TASKS).sort()); const terminal = new Set(["reused", "completed", "failed", "blocked", "cancelled"]); assert.equal(new Set(result.execution.events.filter((event) => terminal.has(event.status)).map((event) => event.task_id)).size, result.plan.tasks.length); assert.equal(result.execution.task_results["cross-owner-synthesis"].judgment_translation, false); assert.equal(git(root, ["status", "--porcelain"]), ""); assert.equal(fs.existsSync(result.persistence.lineage_path), true); assert.equal(fs.existsSync(result.persistence.current_path), true); assert.equal(fs.existsSync(result.persistence.assess.path), true); });
+
+test("identical second run reuses SEI verification and owners while an Integrity rerun invalidates descendants only", async (context) => { const root = fixture(context); await executeRia(request(root), adapter()); const second = await executeRia(request(root), adapter()); const reused = new Set(second.execution.events.filter((event) => event.status === "reused").map((event) => event.task_id)); for (const id of ["sei-snapshot", "sei-assessment", "verification-baseline", "owner-health", "owner-integrity", "owner-architecture"]) assert.equal(reused.has(id), true, id); const selective = await executeRia(request(root, { reuse_controls: { Integrity: "rerun" } }), adapter()); assert.equal(selective.execution.invalidated_tasks.includes("owner-integrity"), true, JSON.stringify(selective.execution.invalidated_tasks)); assert.equal(selective.execution.events.some((event) => event.task_id === "owner-integrity" && event.status === "completed"), true, JSON.stringify(selective.execution.events.filter((event) => event.task_id === "owner-integrity"))); assert.equal(selective.execution.events.some((event) => event.task_id === "owner-health" && event.status === "reused"), true, JSON.stringify(selective.execution.events.filter((event) => event.task_id === "owner-health"))); });
+
+test("denied command authority blocks before tools run", async (context) => { const root = fixture(context); const result = await executeRia(request(root, { command_authorization: { state: "denied", authorization_ref: "denied", inherited_from: null, commands: ["test"] }, verification_contract: { commands: ["test"] } }), adapter()); assert.equal(result.status, "blocked"); assert.equal(result.execution.failures[0].code, "COMMAND_AUTHORIZATION_DENIED"); });
+
+test("verify-only cancels analytical nodes in-graph and continue reuses the persisted run identity", async (context) => {
+  const root = fixture(context);
+  const verify = await executeRia(request(root, { lifecycle: "verify-only" }), { handlers: { "verification-baseline": async () => ({ verification_baseline_ref: { artifact_id: "verification:only", sha256: "d".repeat(64), repository_revision: git(root, ["rev-parse", "HEAD"]) } }) } });
+  assert.equal(verify.status, "complete");
+  assert.equal(verify.assessment, null);
+  assert.equal(verify.execution.events.some((event) => event.task_id === "sei-snapshot" && event.status === "cancelled" && event.reason_code === "CONDITION_FALSE"), true);
+  const first = await executeRia(request(root), adapter());
+  const runs = path.join(request(root).runtime_root, "runs");
+  const statePath = fs.readdirSync(runs).map((name) => path.join(runs, name, "state.json")).filter(fs.existsSync).find((candidate) => JSON.parse(fs.readFileSync(candidate, "utf8")).run_id === first.execution.run_id);
+  const continued = await executeRia(request(root, { lifecycle: "continue", state_path: statePath }), adapter());
+  assert.equal(continued.status, "complete");
+  assert.equal(continued.execution.run_id, first.execution.run_id);
+  assert.equal(continued.execution.events.some((event) => event.status === "reused"), true);
+});

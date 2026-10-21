@@ -18,6 +18,14 @@ Pass/fail cases for **when** each top-level skill should auto-invoke or be recom
 | T5 | "Let's pin the domain language before coding" | expanded-grill-with-docs |
 | T6 | "Stress-test this plan and write ADRs as we go" | expanded-grill-with-docs |
 
+## repository-improvement-assessment
+
+| # | User utterance (gist) | Expect |
+| --- | --- | --- |
+| T26 | "Run a Repository Improvement Assessment" | `repository-improvement-assessment` |
+| T27 | "Run RIA on this repo" | `repository-improvement-assessment` |
+| T28 | "Give me a health baseline only" | `repository-health-assessment`, not RIA |
+
 ## codebase-integrity-audit-loop
 
 | # | User utterance (gist) | Expect |
@@ -80,6 +88,7 @@ Pass/fail cases for **when** each top-level skill should auto-invoke or be recom
 | N2 | "What does CAPABILITY-MAP say?" | any execute skill |
 | N3 | "Install all the skills on the internet" | nothing — refuse dumping unrelated skill universes |
 | N4 | "Author a new Claude Code SKILL.md package" | prompt-forge (belongs to skillwright-forge / outside inventory) |
+| N5 | "Grade this repo's health" | `repository-health-assessment`, not `repository-improvement-assessment` |
 
 ## How to run
 

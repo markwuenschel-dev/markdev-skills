@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "core": [
+    "PERFORMANCE.md",
+    "SKILL.md"
+  ],
+  "conditional": {
+    "baseline": {
+      "condition_ids": [
+        "context.repository-improvement-assessment.baseline"
+      ],
+      "refs": [
+        "references/baseline-and-reuse.md"
+      ]
+    },
+    "engineering_intelligence": {
+      "condition_ids": [
+        "context.repository-improvement-assessment.engineering_intelligence"
+      ],
+      "refs": [
+        "engineering-intelligence.schema.json",
+        "references/engineering-intelligence.md"
+      ]
+    },
+    "evaluation": {
+      "condition_ids": [
+        "context.repository-improvement-assessment.evaluation"
+      ],
+      "refs": [
+        "evals/evals.json"
+      ]
+    },
+    "report": {
+      "condition_ids": [
+        "context.repository-improvement-assessment.report"
+      ],
+      "refs": [
+        "assets/report-schema.json",
+        "assets/report-template.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.scripts.task3-contract-check.js": {
+        "path": "scripts/task3-contract-check.js",
+        "selector": "symbol"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

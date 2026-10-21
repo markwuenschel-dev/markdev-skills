@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/shared/ria-owner-return/owner-return.schema.json",
+  "title": "RIA owner runtime return envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "owner",
+    "canonical_artifact_ref",
+    "repository_revision",
+    "file_sha256",
+    "input_binding_echo",
+    "artifact_path",
+    "warnings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ria.owner-return@1"
+    },
+    "owner": {
+      "enum": [
+        "repository-health-assessment",
+        "codebase-integrity-audit-loop",
+        "architecture-improvement-intelligence"
+      ]
+    },
+    "canonical_artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner",
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "owner": {
+          "enum": [
+            "repository-health-assessment",
+            "codebase-integrity-audit-loop",
+            "architecture-improvement-intelligence"
+          ]
+        },
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "repository_revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "file_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "input_binding_echo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_ref",
+        "engineering_intelligence_ref"
+      ],
+      "properties": {
+        "baseline_ref": {
+          "$ref": "#/$defs/artifact_ref"
+        },
+        "engineering_intelligence_ref": {
+          "$ref": "#/$defs/engineering_intelligence_ref"
+        },
+        "sei_assessment_ref": {
+          "$ref": "#/$defs/sei_assessment_ref"
+        },
+        "verification_baseline_ref": {
+          "$ref": "#/$defs/verification_baseline_ref"
+        },
+        "presentation_policy": {
+          "const": "inherit"
+        }
+      }
+    },
+    "artifact_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "specialist_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "schema_version",
+          "artifact_id",
+          "sha256",
+          "repository_revision",
+          "path"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "testing-fitness"
+            ]
+          },
+          "schema_version": {
+            "const": "ria.testing-fitness@1"
+          },
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "repository_revision": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "artifact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "sha256",
+        "repository_revision"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "engineering_intelligence_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "owner",
+        "kind",
+        "schema_version",
+        "sha256",
+        "repository_revision",
+        "mission_id",
+        "scope_hash",
+        "baseline_binding"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "owner": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "schema_version": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string"
+        },
+        "mission_id": {
+          "type": "string"
+        },
+        "scope_hash": {
+          "type": "string"
+        },
+        "baseline_binding": {
+          "$ref": "#/$defs/artifact_ref"
+        }
+      }
+    },
+    "sei_assessment_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "assessment_id",
+        "snapshot_binding",
+        "evaluator",
+        "rubric",
+        "standard",
+        "config_digest",
+        "applicability_digest",
+        "artifact_path",
+        "artifact_sha256"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "sei.engineering-assessment@3"
+        },
+        "assessment_id": {
+          "type": "string"
+        },
+        "snapshot_binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "snapshot_id",
+            "revision",
+            "repository_id",
+            "digest"
+          ],
+          "properties": {
+            "snapshot_id": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            },
+            "repository_id": {
+              "type": "string"
+            },
+            "digest": {
+              "type": "string"
+            }
+          }
+        },
+        "evaluator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "version"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          }
+        },
+        "rubric": {
+          "$ref": "#/$defs/versioned_digest"
+        },
+        "standard": {
+          "$ref": "#/$defs/versioned_digest"
+        },
+        "config_digest": {
+          "type": "string"
+        },
+        "applicability_digest": {
+          "type": "string"
+        },
+        "artifact_path": {
+          "type": "string"
+        },
+        "artifact_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "verification_baseline_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "content_sha256",
+        "file_sha256",
+        "sha256",
+        "repository_revision",
+        "path"
+      ],
+      "properties": {
+        "artifact_id": {
+          "type": "string"
+        },
+        "content_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "file_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    },
+    "versioned_digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

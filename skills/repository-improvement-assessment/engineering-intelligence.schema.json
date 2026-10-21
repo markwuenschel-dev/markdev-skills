@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/repository-improvement-assessment/engineering-intelligence.schema.json",
+  "title": "RIA-owned engineering intelligence evidence",
+  "$defs": {
+    "stableId": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "baselineRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "sha256", "repository_revision"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/stableId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "repository_revision": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "engineeringIntelligenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "owner", "kind", "schema_version", "sha256", "repository_revision", "mission_id", "scope_hash", "baseline_binding"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/stableId" },
+        "owner": { "const": "repository-improvement-assessment" },
+        "kind": { "const": "engineering-intelligence" },
+        "schema_version": { "const": "1.0.0" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "mission_id": { "$ref": "#/$defs/stableId" },
+        "scope_hash": { "$ref": "#/$defs/sha256" },
+        "baseline_binding": { "$ref": "#/$defs/baselineRef" }
+      }
+    },
+    "seiAssessmentSnapshotBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["snapshot_id", "revision", "repository_id", "digest"],
+      "properties": {
+        "snapshot_id": { "$ref": "#/$defs/stableId" },
+        "revision": { "$ref": "#/$defs/stableId" },
+        "repository_id": { "$ref": "#/$defs/stableId" },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "seiAssessmentEvaluator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version"],
+      "properties": {
+        "id": { "const": "sei.engineering-assessment" },
+        "version": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "seiAssessmentComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "digest"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "$ref": "#/$defs/stableId" },
+        "digest": { "$ref": "#/$defs/seiAssessmentDigest" }
+      }
+    },
+    "seiAssessmentDigest": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "seiAssessmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "assessment_id", "snapshot_binding", "evaluator", "rubric", "standard", "config_digest", "applicability_digest", "artifact_path", "artifact_sha256"],
+      "properties": {
+        "schema_version": { "enum": ["sei.engineering-assessment@1", "sei.engineering-assessment@2", "sei.engineering-assessment@3"] },
+        "assessment_id": { "$ref": "#/$defs/stableId" },
+        "snapshot_binding": { "$ref": "#/$defs/seiAssessmentSnapshotBinding" },
+        "evaluator": { "$ref": "#/$defs/seiAssessmentEvaluator" },
+        "rubric": { "$ref": "#/$defs/seiAssessmentComponent" },
+        "standard": { "$ref": "#/$defs/seiAssessmentComponent" },
+        "config_digest": { "$ref": "#/$defs/sha256" },
+        "applicability_digest": { "$ref": "#/$defs/seiAssessmentDigest" },
+        "artifact_path": { "type": "string", "minLength": 1 },
+        "artifact_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "engineeringIntelligenceArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "owner", "kind", "repository_revision", "mission_id", "scope_hash", "baseline_binding", "engineering_intelligence"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "owner": { "const": "repository-improvement-assessment" },
+        "kind": { "const": "engineering-intelligence" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "mission_id": { "$ref": "#/$defs/stableId" },
+        "scope_hash": { "$ref": "#/$defs/sha256" },
+        "baseline_binding": { "$ref": "#/$defs/baselineRef" },
+        "engineering_intelligence": { "type": "object" }
+      }
+    },
+    "baselineIntelligenceIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "owner", "kind", "binding_hash", "repository_revision", "mission_id", "scope_hash", "baseline_binding", "first_minted_artifact_id", "first_minted_sha256", "engineering_intelligence_ref"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "owner": { "const": "repository-improvement-assessment" },
+        "kind": { "const": "engineering-intelligence-baseline-index" },
+        "binding_hash": { "$ref": "#/$defs/sha256" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "mission_id": { "$ref": "#/$defs/stableId" },
+        "scope_hash": { "$ref": "#/$defs/sha256" },
+        "baseline_binding": { "$ref": "#/$defs/baselineRef" },
+        "first_minted_artifact_id": { "$ref": "#/$defs/stableId" },
+        "first_minted_sha256": { "$ref": "#/$defs/sha256" },
+        "engineering_intelligence_ref": { "$ref": "#/$defs/engineeringIntelligenceRef" }
+      }
+    },
+    "baselineIntelligencePin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "owner", "kind", "binding_hash", "repository_revision", "mission_id", "scope_hash", "baseline_binding", "engineering_intelligence_ref"],
+      "properties": {
+        "schema_version": { "const": "1.0.0" },
+        "owner": { "const": "repository-improvement-assessment" },
+        "kind": { "const": "engineering-intelligence-baseline-pin" },
+        "binding_hash": { "$ref": "#/$defs/sha256" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "mission_id": { "$ref": "#/$defs/stableId" },
+        "scope_hash": { "$ref": "#/$defs/sha256" },
+        "baseline_binding": { "$ref": "#/$defs/baselineRef" },
+        "engineering_intelligence_ref": { "$ref": "#/$defs/engineeringIntelligenceRef" }
+      }
+    },
+    "ownerAssessmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "artifact_id", "sha256", "repository_revision"],
+      "properties": {
+        "owner": {
+          "enum": [
+            "repository-health-assessment",
+            "codebase-integrity-audit-loop",
+            "architecture-improvement-intelligence"
+          ]
+        },
+        "artifact_id": { "$ref": "#/$defs/stableId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "repository_revision": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "ownerAssessmentReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner_ref", "baseline_ref", "engineering_intelligence_ref"],
+      "properties": {
+        "owner_ref": { "$ref": "#/$defs/ownerAssessmentRef" },
+        "baseline_ref": { "$ref": "#/$defs/baselineRef" },
+        "engineering_intelligence_ref": { "$ref": "#/$defs/engineeringIntelligenceRef" },
+        "sei_assessment_ref": { "$ref": "#/$defs/seiAssessmentRef" }
+      }
+    },
+    "assessProjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stage", "owner", "baseline_ref", "engineering_intelligence_ref", "assessment_refs"],
+      "properties": {
+        "stage": { "const": "ASSESS" },
+        "owner": { "const": "repository-improvement-assessment" },
+        "baseline_ref": { "$ref": "#/$defs/baselineRef" },
+        "engineering_intelligence_ref": { "$ref": "#/$defs/engineeringIntelligenceRef" },
+        "sei_assessment_ref": { "$ref": "#/$defs/seiAssessmentRef" },
+        "assessment_refs": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/ownerAssessmentRef" }
+        }
+      }
+    }
+  }
+}

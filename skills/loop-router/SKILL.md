@@ -17,6 +17,7 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 | Chart a broad, foggy effort | `wayfinder-mwdev` (deprecated alias — forwards to `decision-terrain-mapper`, not yet vendored) |
 | Shape a selected design / approved design package | `expanded-grill-with-docs` |
 | Bind an approved plan into an execution contract | `implementation-plan-contract` |
+| Combined health + integrity + architecture assessment (RIA) | `repository-improvement-assessment` |
 | Grade repo health / find integrity candidates | `repository-health-assessment` / `codebase-integrity-audit-loop` |
 | Diagnose one hard bug / regression | `diagnosing-bugs-mwdev` (deprecated alias — forwards to `adaptive-causal-debugging`, not yet vendored) |
 | Edit, fix, refactor, or add across an existing multi-file system | `connected-impact-sweep` |
@@ -36,7 +37,7 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 3. **If the user asks to checkpoint before `/clear`** → `compact-session`; if they want a SKILL.md package designed or hardened → `skillwright-forge`.
 4. **If the user selected candidates/queue items and wants them delivered end-to-end** → `production-flywheel`.
 5. **If the user has a mission and wants parallel lanes** (not a multi-item queue) → `human-directed-swarm-planner`.
-6. **If the user wants to grade repo health** → `repository-health-assessment`; for a repair candidate/loop → `codebase-integrity-audit-loop`; for one hard bug → `diagnosing-bugs-mwdev` (deprecated alias — forwards to `adaptive-causal-debugging`, not yet vendored).
+6. **If the user asks for a Repository Improvement Assessment or RIA** → `repository-improvement-assessment`. **If the user wants to grade repo health only** → `repository-health-assessment`; for a repair candidate/loop → `codebase-integrity-audit-loop`; for one hard bug → `diagnosing-bugs-mwdev` (deprecated alias — forwards to `adaptive-causal-debugging`, not yet vendored).
 7. **If the user asks to edit, fix, refactor, or add across an existing multi-file system** → `connected-impact-sweep`.
 8. **If the user wants an architecture deepening / HTML deepening report** → `improve-codebase-architecture-mwdev` is deprecated (forwards to `architecture-improvement-intelligence`, not yet vendored) — there is no working entry point for this in the current inventory.
 9. **If the user wants a prompt, system prompt, or launch brief written/fixed/ported** → `prompt-forge`.
@@ -49,6 +50,7 @@ Read [CAPABILITY-MAP.md](../../CAPABILITY-MAP.md) if present in the skills repo 
 idea / ADR / glossary / "grill me"     → expanded-grill-with-docs
 big foggy effort / dependency map       → wayfinder-mwdev (deprecated, no working replacement in-repo)
 "make this plan executable"             → implementation-plan-contract
+"run a Repository Improvement Assessment" / "run RIA" → repository-improvement-assessment
 "grade this repo"                       → repository-health-assessment
 "what's wrong with this repo"          → codebase-integrity-audit-loop
 "diagnose this regression"              → diagnosing-bugs-mwdev (deprecated, no working replacement in-repo)

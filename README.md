@@ -12,8 +12,8 @@
 
 <p align="center">
   <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
-  <img src="https://img.shields.io/badge/skills-16-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="16 inventoried skills">
-  <img src="https://img.shields.io/badge/shared_contracts-9-64748b?style=for-the-badge&logo=json&logoColor=white" alt="9 shared contracts">
+  <img src="https://img.shields.io/badge/skills-17-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="17 inventoried skills">
+  <img src="https://img.shields.io/badge/shared_contracts-16-64748b?style=for-the-badge&logo=json&logoColor=white" alt="16 shared contracts">
   <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
 </p>
 
@@ -64,8 +64,11 @@ flowchart TD
 
     subgraph ASSESS["assess"]
         direction TB
+        RIA["repository-improvement-assessment"]
         RHA["repository-health-assessment"]
         CIAL["codebase-integrity-audit-loop"]
+        RIA --> RHA
+        RIA --> CIAL
         RHA -->|"integrity candidates"| CIAL
     end
 
@@ -104,7 +107,7 @@ flowchart TD
 
     class R router
     class EG,IPC decide
-    class RHA,CIAL assess
+    class RIA,RHA,CIAL assess
     class PF,HDSP,CIS build
     class LP land
     class PFG,SWF,CS craft
@@ -121,6 +124,7 @@ flowchart TD
 
 | Need | Skill |
 | :--- | :--- |
+| Combined health + integrity + architecture assessment (RIA) | [`repository-improvement-assessment`](skills/repository-improvement-assessment/) |
 | Grade repository health, establish a baseline | [`repository-health-assessment`](skills/repository-health-assessment/) |
 | Audit and repair codebase integrity, one loop per candidate | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
 
@@ -172,7 +176,8 @@ markdev-skills/
 │   ├── expanded-grill-with-docs/            ← decide
 │   ├── implementation-plan-contract/
 │   │
-│   ├── repository-health-assessment/       ← assess
+│   ├── repository-improvement-assessment/  ← assess (combined RIA)
+│   ├── repository-health-assessment/
 │   ├── codebase-integrity-audit-loop/
 │   │
 │   ├── production-flywheel/                ← build
@@ -192,6 +197,13 @@ markdev-skills/
 │   ├── candidate-ledger-spine/   ← family scoring spine (schema + verifiers)
 │   ├── evidence-recon/           ← generic evidence packet contract (inline/expedition modes)
 │   ├── assessment-acceleration/  ← scheduling, cache, performance receipts
+│   ├── ria-scoring/              ← RIA composite + ledger priority bands
+│   ├── ria-owner-return/         ← closed owner-return envelope
+│   ├── assessment-runtime-contract/
+│   ├── assessment-verification-baseline/
+│   ├── project-intelligence-workspace/
+│   ├── report-election/
+│   ├── report-presentation/
 │   ├── REPORT-SCORING.md
 │   ├── REQUIREMENTS-LEDGER.md
 │   ├── ROLLOUT-CONTRACT.md

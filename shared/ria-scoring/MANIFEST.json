@@ -1,0 +1,7 @@
+{
+  "name": "shared/ria-scoring",
+  "version": "1.0.0",
+  "module": "scoring.js",
+  "test": "scoring.test.js",
+  "purpose": "Deterministic RIA composite scoring, plus/minus grade mapping, count-based coverage normalization, and numeric priority presentation semantics."
+}

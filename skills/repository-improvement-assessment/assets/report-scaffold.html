@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en" data-report-responsive="1">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<title><!-- REPORT:TITLE --></title>
+<style>
+  :root {
+    --page:#08090b; --surface:#0b0c10; --surface2:#101218; --hover:#101218;
+    --ink:#f7f9fc; --ink2:#b6bdc9; --muted:#8f98a6; --faint:#5f6875; --fainter:#4f5866;
+    --line:rgba(255,255,255,.09); --hair:rgba(255,255,255,.055); --gap-line:rgba(255,255,255,.07);
+    --accent:#8b93ff; --accent2:#6b74d8; --link:#9aa2ff;
+    --good:#3ecf8e; --warn:#e5a13d; --bad:#f2606a; --info:#8b93ff;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --serif:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --rail-w:244px;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    margin:0; background:var(--page); color:var(--ink2); font-family:var(--sans);
+    background-image:radial-gradient(1100px 620px at 78% -8%,rgba(139,147,255,.13),transparent 62%),
+                     radial-gradient(760px 460px at 4% 4%,rgba(62,207,142,.055),transparent 60%);
+    background-attachment:fixed;
+  }
+  p { margin:0; }
+  code { font-family:var(--mono); }
+  a { color:var(--link); text-decoration:none; }
+  a:hover { color:#c3c8ff; }
+  .eyebrow,.label { font:10px/1.4 var(--mono); text-transform:uppercase; letter-spacing:.14em; color:var(--faint); }
+  h1 { margin:6px 0 14px; font:700 clamp(34px,5vw,76px)/.98 var(--sans); letter-spacing:-.035em; color:var(--ink); text-wrap:balance; }
+  h2 { margin:0; font:11px/1.4 var(--mono); text-transform:uppercase; letter-spacing:.12em; color:var(--muted); }
+  h3 { margin:0 0 7px; font:650 18px/1.25 var(--sans); color:var(--ink); }
+  ul { margin:0; padding-left:18px; }
+  li { margin:6px 0; font:14px/1.62 var(--sans); color:var(--ink2); }
+  pre { margin:0; max-height:420px; overflow:auto; white-space:pre-wrap; font:10.5px/1.6 var(--mono); color:var(--ink2); }
+  .quiet { color:var(--faint); font:14px/1.6 var(--sans); }
+  .meta { font:11px/1.6 var(--mono); color:var(--muted); overflow-wrap:anywhere; }
+  .not-scored { color:var(--fainter); }
+  /* REPORT:SHARED_PRESENTATION_CSS */
+
+  /* ---- RIA local presentation layer (cascades over the shared family CSS) ---- */
+  main.rp-shell.rp-grid { grid-template-columns:var(--rail-w) minmax(0,1fr); gap:0; align-items:start; padding-bottom:80px; }
+  .rail { position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto; padding:34px 26px 26px 0; }
+  .rail-brand { margin:12px 0 14px; font:650 24px/1.15 var(--sans); letter-spacing:-.015em; color:#eef1f5; overflow-wrap:anywhere; }
+  .grade-pill { display:inline-flex; align-items:center; gap:8px; padding:6px 12px 6px 10px; border-radius:999px;
+    border:1px solid rgba(229,161,61,.34); background:rgba(229,161,61,.07); font:11px/1 var(--mono); color:#f0cf9b; }
+  .grade-pill .dot { width:7px; height:7px; border-radius:50%; background:var(--warn); box-shadow:0 0 0 3px rgba(229,161,61,.18); }
+  .nav { display:flex; flex-direction:column; margin:22px 0 20px; }
+  .nav a { display:flex; align-items:baseline; gap:9px; padding:5px 0; font:12px/1.4 var(--sans); color:#7c8593; white-space:nowrap; }
+  .nav a i { font:9px/1 var(--mono); font-style:normal; color:#3f4653; letter-spacing:.06em; }
+  .nav a:hover { color:var(--ink); }
+  .nav a.on { color:var(--ink); } .nav a.on i { color:var(--accent); }
+  .rail-foot { font:10px/1.7 var(--mono); color:var(--faint); border-top:1px solid var(--hair); padding-top:14px; }
+  .col { min-width:0; padding:34px 0 0 clamp(20px,3.4vw,58px); border-left:1px solid var(--gap-line); }
+  .masthead .rule { display:inline-block; width:20px; height:1px; background:var(--accent); vertical-align:middle; margin-right:9px; }
+  .standfirst { max-width:70ch; font:300 21px/1.5 var(--sans); color:var(--ink2); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+  .chip { font:10.5px/1 var(--mono); padding:7px 10px; border-radius:6px; border:1px solid var(--line);
+    background:rgba(255,255,255,.02); color:var(--muted); overflow-wrap:anywhere; }
+  .status { display:inline-flex; padding:7px 10px; border-radius:6px; font:10.5px/1 var(--mono); border:1px solid currentColor; }
+  .status.complete { color:var(--good); background:rgba(62,207,142,.06); }
+  .status.blocked { color:var(--bad); background:rgba(242,96,106,.07); }
+  section[id] { scroll-margin-top:28px; margin-top:56px; padding-top:40px; border-top:1px solid var(--hair); }
+  .sec-head { display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+  .sec-head .aside { color:var(--fainter); font:11px/1.4 var(--mono); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:22px; min-width:0; }
+  .cards { display:grid; gap:15px; grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr)); }
+  .split { display:grid; gap:clamp(20px,2.4vw,40px); grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); align-items:start; }
+  .pull { max-width:58ch; font:650 clamp(25px,2.2vw,34px)/1.18 var(--sans); letter-spacing:-.02em; color:var(--ink); margin-bottom:16px; text-wrap:pretty; }
+  .lede { max-width:78ch; font:15.5px/1.68 var(--sans); color:var(--ink2); text-wrap:pretty; }
+  .hairgrid { display:grid; gap:1px; background:var(--gap-line); border:1px solid var(--gap-line); border-radius:14px; overflow:clip; }
+  .lane { display:grid; grid-template-columns:minmax(0,1.5fr) auto minmax(120px,.9fr); gap:14px; align-items:center;
+    background:var(--surface); padding:15px 18px; }
+  .lane:hover { background:var(--hover); }
+  .lane-name { font:13.5px/1.35 var(--sans); color:var(--ink); }
+  .lane-sub { font:10px/1.5 var(--mono); color:var(--faint); text-transform:uppercase; letter-spacing:.1em; }
+  .lane-score { font:700 21px/1 var(--sans); color:var(--ink); font-variant-numeric:tabular-nums; text-align:right; }
+  .bar { display:block; width:100%; height:6px; }
+  .meterlab { display:flex; justify-content:space-between; gap:10px; font:10px/1.5 var(--mono); color:var(--faint); margin-top:7px; }
+  .board { border:1px solid rgba(229,161,61,.22); border-radius:20px; padding:clamp(18px,2vw,26px); margin-top:30px;
+    background:linear-gradient(160deg,rgba(229,161,61,.07),rgba(255,255,255,.012) 58%); }
+  .board-top { display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(18px,2.4vw,34px); align-items:center; }
+  .board-cells { display:grid; gap:1px; background:var(--gap-line); border-radius:14px; overflow:clip;
+    grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .cell { background:var(--surface); padding:16px 17px; min-width:0; }
+  .cell:hover { background:rgba(16,18,24,.7); }
+  .cell-top { display:flex; align-items:center; gap:7px; margin-bottom:9px; }
+  .cell-dot { width:7px; height:7px; border-radius:50%; flex:none; }
+  .cell-owner { font:10px/1 var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--muted); }
+  .kind { margin-left:auto; font:8.5px/1 var(--mono); text-transform:uppercase; letter-spacing:.09em;
+    padding:4px 6px; border-radius:999px; border:1px solid var(--line); color:var(--faint); }
+  .kind.canonical { color:var(--good); border-color:rgba(62,207,142,.3); }
+  .cell-score { display:flex; align-items:baseline; gap:6px; font:700 clamp(24px,2vw,32px)/1 var(--sans);
+    color:var(--ink); font-variant-numeric:tabular-nums; }
+  .cell-score small { font:10px/1 var(--mono); color:var(--faint); }
+  .cell-score .g { margin-left:auto; font:11px/1 var(--mono); color:var(--muted); }
+  .cell-basis { font:10px/1.5 var(--mono); color:var(--faint); margin-top:9px; overflow-wrap:anywhere; }
+  .cell-detail { font:12px/1.5 var(--sans); color:var(--muted); margin-top:5px; }
+  .board-foot { margin-top:16px; padding-top:14px; border-top:1px solid var(--hair);
+    font:12px/1.6 var(--sans); color:var(--muted); max-width:88ch; }
+  .rubric-row { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:12px; align-items:baseline;
+    padding:9px 0; border-top:1px solid var(--hair); font:12px/1.5 var(--sans); color:var(--muted); }
+  .rubric-row:first-of-type { border-top:0; }
+  .rubric-row b { font:700 17px/1 var(--sans); color:var(--ink2); }
+  .rubric-row.on { color:var(--ink); } .rubric-row.on b { color:var(--warn); }
+  .rubric-row .rng { font:10.5px/1.4 var(--mono); color:var(--faint); }
+  .kv { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; font:11.5px/1.6 var(--mono); }
+  .kv dt { color:var(--muted); overflow-wrap:anywhere; } .kv dd { margin:0; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .owner { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:19px; min-width:0; }
+  .priority { display:grid; grid-template-columns:54px minmax(0,1fr); gap:14px; background:var(--surface);
+    border:1px solid color-mix(in srgb,var(--priority-color,var(--line)) 35%,var(--line)); border-radius:14px; padding:18px; min-width:0; }
+  .priority:hover { border-color:var(--priority-color,var(--accent)); }
+  .priority-score { width:44px; height:44px; border-radius:12px; display:grid; place-items:center;
+    font:800 13px/1 var(--mono); color:#071016; box-shadow:inset 0 0 0 1px rgba(255,255,255,.18); }
+  .priority-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .priority-head h3 { min-width:0; }
+  .priority-band { flex:none; border:1px solid currentColor; border-radius:999px; padding:4px 7px;
+    font:800 9px/1 var(--mono); letter-spacing:.08em; }
+  .priority-more { margin-top:14px; }
+  .priorities,.patterns,.routes,.uncertainties { display:grid; gap:14px; }
+  .patterns,.uncertainties { grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr)); }
+  .pattern,.route,.uncertainty { background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:17px; min-width:0; }
+  .pattern:hover { background:var(--hover); }
+  .pattern p,.priority p { font:14px/1.6 var(--sans); color:var(--ink2); margin-top:2px; }
+  .pill { display:inline-flex; padding:4px 8px; border-radius:999px; border:1px solid currentColor;
+    font:9.5px/1.35 var(--mono); text-transform:uppercase; letter-spacing:.07em; }
+  .pill.good { color:var(--good); } .pill.info { color:var(--accent); }
+  .pill.warn { color:var(--warn); } .pill.bad { color:var(--bad); } .pill.off { color:var(--faint); }
+  .gate-bar,.gate-bar-wrap { display:block; width:100%; margin-top:5px; }
+  .gate-bar-wrap .bar { height:5px; }
+  .next { border-left:3px solid var(--accent); }
+  footer { margin-top:56px; padding-top:20px; border-top:1px solid var(--hair); font:10px/1.8 var(--mono); color:var(--faint); }
+
+  .rp-metric { background:var(--surface); border-color:var(--line); }
+  .rp-metric:hover { background:var(--hover); }
+  .rp-metric-value { font-family:var(--sans); font-weight:700; color:var(--ink); }
+  .rp-chart-card { background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; }
+  .rp-table-wrap { border-color:var(--line); border-radius:14px; }
+  .rp-table th { background:var(--surface); color:var(--muted); border-color:var(--line); }
+  .rp-table td { border-color:var(--hair); font:13px/1.5 var(--sans); color:var(--ink2); }
+  .rp-table tbody tr:hover { background:rgba(255,255,255,.025); }
+  .rp-table .rp-number { font-variant-numeric:tabular-nums; text-align:right; }
+  .rp-details { border-color:var(--line); border-radius:14px; background:var(--surface); }
+  .rp-details summary { font:11px/1.5 var(--mono); text-transform:uppercase; letter-spacing:.1em; color:var(--muted); padding:14px 17px; cursor:pointer; }
+  .rp-details summary::-webkit-details-marker { display:none; }
+  .rp-details-body { padding:0 17px 17px; }
+
+
+  .report-controls { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .report-controls button { appearance:none; border:1px solid var(--line); background:var(--surface); color:var(--muted);
+    border-radius:8px; padding:7px 10px; font:10px/1 var(--mono); cursor:pointer; }
+  .report-controls button:hover { color:var(--ink); border-color:var(--accent); }
+  .section-details { border:0; background:transparent; }
+  .section-details > summary { list-style:none; cursor:pointer; }
+  .section-details > summary::-webkit-details-marker { display:none; }
+  .section-details > summary .sec-head { margin-bottom:0; padding:0; }
+  .section-details > summary .sec-head::after { content:"＋"; margin-left:auto; color:var(--faint); font:16px/1 var(--mono); }
+  .section-details[open] > summary .sec-head::after { content:"−"; }
+  .section-details > .section-body { margin-top:24px; }
+  .executive-detail { margin-top:16px; border-top:1px solid var(--hair); padding-top:12px; }
+  .executive-detail summary { cursor:pointer; color:var(--accent); font:11px/1.4 var(--mono); text-transform:uppercase; letter-spacing:.08em; }
+  .executive-detail .lede { margin-top:14px; }
+  .overall-score { display:flex; gap:16px; align-items:center; min-width:0; }
+  .overall-number { font:800 26px/1.1 var(--sans); color:var(--ink); margin-top:6px; }
+  .overall-number span { font:11px/1 var(--mono); color:var(--faint); margin-left:4px; }
+  .overall-grade { font:800 16px/1.2 var(--sans); color:var(--ink2); margin-top:5px; }
+  .overall-grade span { font:10px/1 var(--mono); color:var(--faint); font-weight:400; margin-left:5px; }
+  .fitness-big { font:800 27px/1.15 var(--sans); color:var(--ink); margin:10px 0 8px; }
+  .card,.owner,.priority,.pattern,.route,.uncertainty,.cell,.rp-chart-card { overflow:visible; overflow-wrap:anywhere; }
+  .rp-table-wrap { max-width:100%; overflow:auto; }
+  pre { max-height:none; overflow:auto; }
+  @media (max-width:1499px) { .board-cells { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:900px) { .split { grid-template-columns:1fr; } }
+  @media (max-width:779px) {
+    main.rp-shell.rp-grid { grid-template-columns:1fr; }
+    .rail { position:static; max-height:none; padding:16px 0; border-bottom:1px solid var(--hair); }
+    .rail-brand { margin:8px 0 10px; font-size:21px; }
+    .nav { flex-direction:row; overflow-x:auto; gap:14px; margin:16px 0 0; }
+    .nav a i { display:none; }
+    .rail-foot { display:none; }
+    .col { padding:20px 0 0; border-left:0; }
+    .board-cells { grid-template-columns:1fr; }
+    .board-top { grid-template-columns:1fr; }
+  }
+  @media (min-width:1900px) { :root { --rail-w:292px; } .rail-brand { font-size:30px; } }
+  @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } }
+  @media print {
+    body { background:#fff; color:#111; background-image:none; }
+    .rail,.nav { display:none; }
+    .col { border-left:0; padding-left:0; }
+    .card,.owner,.priority,.pattern,.route,.uncertainty,.cell { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<main class="rp-shell rp-grid">
+  <aside class="rail">
+    <div class="rail-eyebrow eyebrow">RIA · ASSESS</div>
+    <div class="rail-brand"><!-- REPORT:RAIL_BRAND --></div>
+    <!-- REPORT:GRADE_PILL -->
+    <nav class="nav" aria-label="Report sections">
+      <a href="#summary"><i>01</i>Assessment</a>
+      <a href="#signals"><i>02</i>Signals</a>
+      <a href="#testing"><i>03</i>Testing & coverage</a>
+      <a href="#quantitative"><i>04</i>Quantitative</a>
+      <a href="#owners"><i>05</i>Owners</a>
+      <a href="#candidates"><i>06</i>Candidates</a>
+      <a href="#priorities"><i>07</i>Priorities</a>
+      <a href="#synthesis"><i>08</i>Synthesis</a>
+      <a href="#routing"><i>09</i>Routing</a>
+      <a href="#evidence"><i>10</i>Evidence</a>
+      <a href="#verification"><i>11</i>Verification</a>
+      <a href="#runtime"><i>12</i>Runtime</a>
+      <a href="#appendix"><i>13</i>Appendix</a>
+    </nav>
+    <div class="rail-foot"><!-- REPORT:RAIL_FOOTER --></div>
+  </aside>
+
+  <div class="col">
+    <header class="masthead">
+      <div class="eyebrow"><span class="rule"></span>Repository Improvement Assessment · quantitative ASSESS projection</div>
+      <h1><!-- REPORT:REPOSITORY_NAME --></h1>
+      <p class="standfirst">Three independent owner assessments projected from one immutable revision, with specialist testing and architecture fitness evidence when available. Canonical artifacts remain authoritative; this page creates no lifecycle state.</p>
+      <div class="chips">
+        <span class="chip">revision <!-- REPORT:REVISION --></span>
+        <span class="chip">baseline <!-- REPORT:BASELINE_ID --></span>
+        <span class="chip">mode <!-- REPORT:MODE --></span>
+        <!-- REPORT:STATUS_CHIP -->
+      </div>
+      <div class="report-controls" aria-label="Report detail controls">
+        <button type="button" data-expand-all>Expand all</button>
+        <button type="button" data-collapse-all>Collapse details</button>
+      </div>
+    </header>
+
+    <!-- REPORT:SCOREBOARD -->
+
+    <section id="summary">
+      <div class="sec-head"><h2>01 — Executive assessment</h2><span class="aside">synthesized from bound owner artifacts</span></div>
+      <div class="split">
+        <div>
+          <p class="pull"><!-- REPORT:OVERALL_CONDITION --></p>
+          <details class="executive-detail"><summary>Read full executive assessment</summary><p class="lede"><!-- REPORT:EXECUTIVE_SUMMARY --></p></details>
+        </div>
+        <div class="card"><h3>Overall RIA score</h3><!-- REPORT:SCORE_GAUGE --></div>
+      </div>
+    </section>
+
+    <section id="signals">
+      <div class="sec-head"><h2>02 — Signals at a glance</h2><span class="aside">weighted RIA dimensions · canonical sources</span></div>
+      <div class="rp-metric-grid"><!-- REPORT:METRIC_CARDS --></div>
+    </section>
+
+    <section id="testing">
+      <div class="sec-head"><h2>03 — Test suite, coverage, and architecture fitness</h2><span class="aside">specialist evidence where available · canonical Health fallback otherwise</span></div>
+      <!-- REPORT:TESTING_PANEL -->
+    </section>
+
+    <section id="quantitative">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>04 — Quantitative assessment</h2><span class="aside">canonical child data · zero fabricated scores</span></div></summary>
+        <div class="section-body">
+      <div class="hairgrid"><!-- REPORT:LANE_ROWS --></div>
+      <div class="cards" style="margin-top:18px"><!-- REPORT:RUBRIC_CARDS --></div>
+      <div class="rp-chart-grid" style="margin-top:18px"><!-- REPORT:ANALYTICS_CHARTS --></div>
+        </div>
+      </details>
+    </section>
+
+    <section id="owners">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>05 — Health, integrity, and architecture</h2><span class="aside">every derived item attributed to its owner</span></div></summary>
+        <div class="section-body">
+      <div class="cards"><!-- REPORT:OWNER_SUMMARIES --></div>
+        </div>
+      </details>
+    </section>
+
+    <section id="candidates">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>06 — Ranked candidate portfolio</h2><span class="aside">Health, Integrity, and Architecture rows; caption states shown of total</span></div></summary>
+        <div class="section-body">
+      <!-- REPORT:CANDIDATE_TABLE -->
+        </div>
+      </details>
+    </section>
+
+    <section id="priorities">
+      <div class="sec-head"><h2>07 — Highest-leverage priorities</h2><span class="aside">canonical IDs preserved</span></div>
+      <!-- REPORT:TOP_PRIORITIES -->
+    </section>
+
+    <section id="synthesis">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>08 — Cross-cutting synthesis</h2><span class="aside">convergent findings, not duplicate ownership</span></div></summary>
+        <div class="section-body">
+      <div class="patterns"><!-- REPORT:CROSS_CUTTING --></div>
+        </div>
+      </details>
+    </section>
+
+    <section id="routing">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>09 — Downstream disposition</h2><span class="aside">routing only · no execution authorized</span></div></summary>
+        <div class="section-body">
+      <div class="routes"><!-- REPORT:ROUTING --></div>
+        </div>
+      </details>
+    </section>
+
+    <section id="evidence">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>10 — Evidence certainty and gaps</h2><span class="aside">confirmed · inferred · unknown · gaps</span></div></summary>
+        <div class="section-body">
+      <div class="uncertainties"><!-- REPORT:UNCERTAINTY --></div>
+        </div>
+      </details>
+    </section>
+
+    <section id="verification">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>11 — Verification baseline</h2><span class="aside">skipped commands render as an em dash, never zero work</span></div></summary>
+        <div class="section-body">
+      <!-- REPORT:VERIFICATION_TABLE -->
+        </div>
+      </details>
+    </section>
+
+    <section id="runtime">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>12 — Runtime and performance</h2><span class="aside">executor telemetry · recorded, not estimated</span></div></summary>
+        <div class="section-body">
+      <div class="rp-chart-grid"><!-- REPORT:PERFORMANCE_CHARTS --></div>
+        </div>
+      </details>
+    </section>
+
+    <section id="appendix">
+      <details class="section-details">
+        <summary><div class="sec-head"><h2>13 — Appendix and assessment status</h2><span class="aside">hash-verified bindings</span></div></summary>
+        <div class="section-body">
+      <div class="cards"><!-- REPORT:OWNER_CARDS --></div>
+      <div class="cards" style="margin-top:15px">
+        <div class="card"><h3>Assessment status</h3><ul><!-- REPORT:BLOCKERS --></ul></div>
+        <div class="card next"><h3>Next lifecycle</h3><ul>
+          <li>Return the immutable ASSESS projection to the invoking caller.</li>
+          <li>Only the router may reserve RECONCILE.</li>
+          <li>No graph, action, execution, verification, integration, publication, or merge state is created by this report.</li>
+        </ul></div>
+      </div>
+      <div style="display:grid;gap:12px;margin-top:15px">
+        <details class="rp-details"><summary>Coverage, provenance, and report model <span style="float:right">JSON</span></summary><div class="rp-details-body"><pre><!-- REPORT:PROVENANCE --></pre></div></details>
+        <details class="rp-details"><summary>Report election <span style="float:right">JSON</span></summary><div class="rp-details-body"><pre><!-- REPORT:ELECTION --></pre></div></details>
+        <details class="rp-details"><summary>Raw performance receipt <span style="float:right">JSON</span></summary><div class="rp-details-body"><pre><!-- REPORT:PERFORMANCE_RECEIPT --></pre></div></details>
+      </div>
+        </div>
+      </details>
+    </section>
+
+    <footer>RIA ASSESS analytics report · responsive zero-network HTML · canonical owner artifacts remain authoritative</footer>
+  </div>
+</main>
+<script>/* REPORT:SHARED_PRESENTATION_SCRIPT */</script>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
+  var sections = Array.prototype.slice.call(document.querySelectorAll("section[id]"));
+  if (!links.length || !sections.length || typeof IntersectionObserver !== "function") return;
+  var visible = Object.create(null);
+  function paint() {
+    var top = null;
+    for (var i = 0; i < sections.length; i += 1) {
+      if (visible[sections[i].id]) { top = sections[i].id; break; }
+    }
+    if (!top) return;
+    for (var j = 0; j < links.length; j += 1) {
+      var href = links[j].getAttribute("href");
+      if (href === "#" + top) links[j].classList.add("on");
+      else links[j].classList.remove("on");
+    }
+  }
+  var observer = new IntersectionObserver(function (entries) {
+    for (var k = 0; k < entries.length; k += 1) visible[entries[k].target.id] = entries[k].isIntersecting;
+    paint();
+  }, { rootMargin: "-12% 0px -70% 0px" });
+  for (var s = 0; s < sections.length; s += 1) observer.observe(sections[s]);
+  var expand = document.querySelector("[data-expand-all]");
+  var collapse = document.querySelector("[data-collapse-all]");
+  var details = Array.prototype.slice.call(document.querySelectorAll("details.section-details, details.executive-detail, details.priority-more"));
+  if (expand) expand.addEventListener("click", function(){ details.forEach(function(item){ item.open = true; }); });
+  if (collapse) collapse.addEventListener("click", function(){ details.forEach(function(item){ item.open = false; }); });
+})();
+</script>
+</body>
+</html>

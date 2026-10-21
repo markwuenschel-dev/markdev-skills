@@ -1,0 +1,14 @@
+interface:
+  display_name: Repository Improvement Assessment
+  short_description: Assess repository health, integrity, and architecture
+  default_prompt: Use @repository-improvement-assessment to coordinate a baseline-bound
+    repository assessment from real source-owner evidence.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

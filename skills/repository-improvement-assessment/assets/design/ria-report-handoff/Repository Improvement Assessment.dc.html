@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Repository Improvement Assessment — Compounding-Quality-RAG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Libre+Franklin:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #08090b; color: #eef1f5; font-family: 'Libre Franklin', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #9aa2ff; text-decoration: none; }
+  a:hover { color: #c3c8ff; }
+  ::selection { background: rgba(139,147,255,.28); }
+  summary::-webkit-details-marker { display: none; }
+  pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes sweep { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media print { body { background: #fff; color: #111; } }
+</style>
+</helmet>
+<div style="min-height:100vh;background:radial-gradient(1100px 620px at 78% -8%,rgba(139,147,255,.13),transparent 62%),radial-gradient(760px 460px at 4% 4%,rgba(62,207,142,.055),transparent 60%)">
+<div style="{{ L.shell }}">
+
+  <aside style="{{ L.aside }}">
+    <div style="{{ L.brand }}">
+      <div style="min-width:0">
+        <div style="{{ L.eyebrow }}">RIA · ASSESS</div>
+        <div style="{{ L.brandTitle }}">Compounding-Quality-RAG</div>
+      </div>
+      <div style="{{ L.badge }}">
+        <span style="width:6px;height:6px;border-radius:50%;background:#e5a13d;box-shadow:0 0 0 3px rgba(229,161,61,.16)"></span>
+        <span style="font:500 10px/1 'JetBrains Mono',monospace;letter-spacing:.11em;text-transform:uppercase;color:#e5a13d;white-space:nowrap">Grade C · 67.9</span>
+      </div>
+    </div>
+    <nav style="{{ L.nav }}">
+      <sc-for list="{{ nav }}" as="item" hint-placeholder-count="12">
+        <a href="{{ item.href }}" style="display:flex;align-items:center;gap:10px;padding:5px 0;font:400 12px/1.25 'Libre Franklin',sans-serif;letter-spacing:.005em;white-space:nowrap;color:{{ item.color }}" style-hover="color:#eef1f5">
+          <span style="{{ L.navNum }};color:{{ item.numColor }}">{{ item.num }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      </sc-for>
+    </nav>
+    <div style="{{ L.asideFoot }}">
+      revision f5ac818<br />mode read-only<br />2 blockers open
+    </div>
+  </aside>
+
+  <main style="{{ L.main }}">
+
+    <header style="animation:rise .55s ease both">
+      <div style="display:flex;align-items:center;gap:12px;font:500 10px/1.4 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#8b93ff">
+        <span style="width:20px;height:1px;background:#8b93ff"></span>Repository Improvement Assessment
+      </div>
+      <h1 style="{{ L.heroTitle }}">Compounding<span style="color:#5f6875">-</span>Quality<span style="color:#5f6875">-</span>RAG</h1>
+      <p style="margin:22px 0 0;max-width:62ch;font:300 clamp(17px,1.5vw,21px)/1.5 'Libre Franklin',sans-serif;color:#b6bdc9;text-wrap:pretty">A quantitative ASSESS projection bound to one immutable revision and three hash-verified owner artifacts.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:30px">
+        <div style="padding:9px 13px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.02)">
+          <div style="font:500 9px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#5f6875">revision</div>
+          <div style="margin-top:6px;font:400 11px/1 'JetBrains Mono',monospace;color:#cdd4de">f5ac818f09c0148f7ca8260d4b1f798a2db61cec</div>
+        </div>
+        <div style="padding:9px 13px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.02)">
+          <div style="font:500 9px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#5f6875">baseline</div>
+          <div style="margin-top:6px;font:400 11px/1 'JetBrains Mono',monospace;color:#cdd4de">ria-baseline:7d0ad3d6…d8c5df</div>
+        </div>
+        <div style="padding:9px 13px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:rgba(255,255,255,.02)">
+          <div style="font:500 9px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#5f6875">mode</div>
+          <div style="margin-top:6px;font:400 11px/1 'JetBrains Mono',monospace;color:#cdd4de">read-only</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:9px;padding:9px 14px;border:1px solid rgba(242,96,106,.34);border-radius:8px;background:rgba(242,96,106,.07)">
+          <span style="width:6px;height:6px;border-radius:50%;background:#f2606a"></span>
+          <span style="font:500 10px/1 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#f2606a">2 blockers</span>
+        </div>
+      </div>
+    </header>
+
+    <div style="margin-top:clamp(32px,4vw,52px);border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;background:linear-gradient(160deg,rgba(229,161,61,.09),rgba(255,255,255,.014) 46%,rgba(255,255,255,.01))">
+      <div style="display:flex;flex-wrap:wrap">
+        <div style="flex:1 1 260px;min-width:0;display:flex;align-items:center;gap:22px;padding:clamp(20px,2.2vw,30px);border-right:1px solid rgba(255,255,255,.09)">
+          <svg viewBox="0 0 120 120" style="flex:0 0 92px;width:92px;height:92px;display:block" role="img" aria-label="Overall grade C, 67.9 out of 100">
+            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,.08)" strokeWidth="8" />
+            <circle cx="60" cy="60" r="50" fill="none" stroke="#e5a13d" strokeWidth="8" strokeLinecap="round" strokeDasharray="213.4 100.9" transform="rotate(-90 60 60)" />
+            <text x="60" y="68" textAnchor="middle" style="font:400 38px 'Instrument Serif',Georgia,serif;fill:#f7f9fc">C</text>
+          </svg>
+          <div style="min-width:0">
+            <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#6f7885">Overall grade</div>
+            <div style="margin-top:9px;font:400 clamp(34px,3.6vw,48px)/1 'Instrument Serif',Georgia,serif;letter-spacing:-.02em;color:#f7f9fc;font-variant-numeric:tabular-nums">67.9<span style="font:400 18px/1 'Instrument Serif',Georgia,serif;color:#6f7885">/100</span></div>
+            <div style="margin-top:9px;font:400 11.5px/1.5 'Libre Franklin',sans-serif;color:#8f98a6;max-width:26ch;text-wrap:pretty">Canonical, from Health alone. Confidence 87.2 · weighted coverage 73.4%.</div>
+          </div>
+        </div>
+        <div style="{{ L.scoreCells }}">
+          <sc-for list="{{ scoreboard }}" as="s" hint-placeholder-count="4">
+            <article style="padding:clamp(16px,1.7vw,22px);background:rgba(8,9,11,.55);min-width:0" style-hover="background:rgba(16,18,24,.7)">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="width:5px;height:5px;border-radius:50%;background:{{ s.color }}"></span>
+                <span style="flex:1 1 auto;min-width:0;font:500 9.5px/1.2 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885">{{ s.short }}</span>
+                <span style="flex:0 0 auto;padding:3px 7px;border:1px solid {{ s.kindBorder }};border-radius:999px;font:500 8.5px/1.2 'JetBrains Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:{{ s.kindColor }}">{{ s.kind }}</span>
+              </div>
+              <div style="display:flex;align-items:baseline;gap:9px;margin-top:12px">
+                <span style="font:400 clamp(28px,2.6vw,38px)/1 'Instrument Serif',Georgia,serif;letter-spacing:-.018em;color:{{ s.color }};font-variant-numeric:tabular-nums">{{ s.value }}</span>
+                <span style="font:400 13px/1 'Instrument Serif',Georgia,serif;color:#5b6474">/100</span>
+                <span style="margin-left:auto;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.08em;color:{{ s.color }}">{{ s.grade }}</span>
+              </div>
+              <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:4px;display:block;margin-top:13px;border-radius:2px;overflow:hidden" role="img" aria-label="{{ s.aria }}">
+                <rect x="0" y="0" width="100" height="1" fill="rgba(255,255,255,.06)" />
+                <rect x="0" y="0" width="{{ s.pct }}" height="1" fill="{{ s.color }}" />
+              </svg>
+              <div style="margin-top:11px;font:400 11px/1.45 'JetBrains Mono',monospace;color:#8f98a6;text-wrap:pretty">{{ s.basis }}</div>
+              <div style="margin-top:7px;font:400 11px/1.5 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">{{ s.detail }}</div>
+            </article>
+          </sc-for>
+        </div>
+      </div>
+      <p style="margin:0;padding:14px clamp(20px,2.2vw,30px);border-top:1px solid rgba(255,255,255,.09);font:400 11.5px/1.6 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">Only Health publishes a canonical 0–100 grade, and it alone sets the overall grade. The other three scores are <span style="color:#8f98a6">derived readiness ratios</span> computed from this report's own counts by the stated basis — they are comparison aids, not canonical owner scores, and they are never averaged into the overall grade. Letters follow the maturity-anchored rubric (A 90+, B 75+, C 50+, D 25+, F below 25), which is internally consistent but not yet externally calibrated: a letter quoted without its confidence and coverage is a misuse of this report.</p>
+    </div>
+
+    <section id="exec" style="scroll-margin-top:28px;margin-top:64px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">01 — Executive assessment</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">canonical child data · zero fabricated scores</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:clamp(20px,2.4vw,40px);align-items:flex-start">
+        <div style="flex:1 1 460px;min-width:0">
+          <p style="margin:0;max-width:30ch;font:400 clamp(28px,3.1vw,46px)/1.12 'Instrument Serif',Georgia,serif;letter-spacing:-.02em;color:#f7f9fc;text-wrap:pretty">Grade C at 67.9/100 with high confidence (87.2) and 73.4% weighted coverage.</p>
+          <p style="margin:24px 0 0;max-width:74ch;font:400 15.5px/1.68 'Libre Franklin',sans-serif;color:#b6bdc9;text-wrap:pretty">The repository is mid-maturity in the precise sense the rubric means: controls exist almost everywhere and enforcement is inconsistent in a small number of identifiable places. Its declared suite is green in isolation (718 pytest, 201 JUnit, 111 vitest), its safety boundary is continuous across three languages, and its documentation is unusually self-critical. What holds it at C is that several load-bearing invariants are maintained by review rather than by machinery.</p>
+          <p style="margin:18px 0 0;max-width:74ch;font:400 14.5px/1.72 'Libre Franklin',sans-serif;color:#8f98a6;text-wrap:pretty">This assessment is bound to one immutable revision (f5ac818, clean tree) and three hash-verified owner artifacts, with a shared verification baseline executed in a detached worktree rather than in the working tree. Health grading, integrity scoring and architecture dispositions are recomputed from those artifacts by their own verifiers, not restated. The dominant finding is a convergence rather than a defect: this repository has three cross-language vocabularies, two of which are protected by tests that literally parse the other language's source, and one — the failure taxonomy that ADR 0003 exists to protect — which is protected by nothing. It is correct today; every one of its ten codes was enumerated against the Java switch and matched. It is correct because people have been careful, which is the level-2 condition the maturity scale names, and it is one added enum member away from reproducing the exact defect ADR 0003 was written to eliminate.</p>
+        </div>
+        <div style="flex:0 1 300px;min-width:250px;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(165deg,rgba(255,255,255,.045),rgba(255,255,255,.012));padding:24px">
+          <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#6f7885">Grade accounting</div>
+          <div style="display:grid;gap:1px;margin-top:14px;border-top:1px solid rgba(255,255,255,.08)">
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.055)">
+              <span style="font:400 11.5px/1 'Libre Franklin',sans-serif;color:#8f98a6">Raw grade</span><span style="font:500 11.5px/1 'JetBrains Mono',monospace;color:#eef1f5">C</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.055)">
+              <span style="font:400 11.5px/1 'Libre Franklin',sans-serif;color:#8f98a6">Caps applied</span><span style="font:500 11.5px/1 'JetBrains Mono',monospace;color:#eef1f5">2</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.055)">
+              <span style="font:400 11.5px/1 'Libre Franklin',sans-serif;color:#8f98a6">Confidence</span><span style="font:500 11.5px/1 'JetBrains Mono',monospace;color:#eef1f5">87.2 · high</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.055)">
+              <span style="font:400 11.5px/1 'Libre Franklin',sans-serif;color:#8f98a6">Cap ceiling</span><span style="font:500 11.5px/1 'JetBrains Mono',monospace;color:#eef1f5">B</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0">
+              <span style="font:400 11.5px/1 'Libre Franklin',sans-serif;color:#8f98a6">Weighted coverage</span><span style="font:500 11.5px/1 'JetBrains Mono',monospace;color:#e5a13d">73.4% · below 80</span>
+            </div>
+          </div>
+          <p style="margin:14px 0 0;padding-top:13px;border-top:1px solid rgba(255,255,255,.08);font:400 11.5px/1.6 'Libre Franklin',sans-serif;color:#7c8593;text-wrap:pretty">coverage-below-80 fired as a non-binding cap at ceiling B; the score itself is <a href="#exec">67.9</a> as shown in the scoreboard above.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="signals" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">02 — Signals at a glance</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">12 measured values</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,212px),1fr));gap:1px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden">
+        <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="12">
+          <article style="padding:20px 18px;background:#0b0c10" style-hover="background:#101218">
+            <div style="font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885">{{ m.label }}</div>
+            <div style="margin-top:12px;font:400 clamp(26px,2.4vw,34px)/1 'Instrument Serif',Georgia,serif;letter-spacing:-.01em;color:#f7f9fc;font-variant-numeric:tabular-nums;overflow-wrap:anywhere">{{ m.value }}</div>
+            <div style="margin-top:9px;font:400 11.5px/1.5 'Libre Franklin',sans-serif;color:#7c8593;text-wrap:pretty">{{ m.note }}</div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="sei" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">03 — Software engineering intelligence</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">bound snapshot · assessment sidecar not carried</span>
+      </div>
+      <div style="position:relative;border:1px solid rgba(255,255,255,.1);border-radius:20px;overflow:hidden;background:linear-gradient(158deg,rgba(139,147,255,.09),rgba(255,255,255,.014) 42%,rgba(255,255,255,.01))">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1px);background-size:22px 22px;opacity:.4;pointer-events:none"></div>
+        <div style="position:relative;display:flex;flex-wrap:wrap;gap:clamp(22px,2.6vw,44px);padding:clamp(22px,2.6vw,38px)">
+          <div style="flex:1 1 400px;min-width:0">
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+              <span style="flex:0 0 auto;white-space:nowrap;padding:4px 9px;border:1px solid rgba(139,147,255,.4);border-radius:999px;background:rgba(139,147,255,.1);font:500 9.5px/1.2 'JetBrains Mono',monospace;letter-spacing:.11em;text-transform:uppercase;color:#9aa2ff">shared input</span>
+              <span style="flex:0 0 auto;white-space:nowrap;font:400 10.5px/1 'JetBrains Mono',monospace;color:#5f6875">engineering-intelligence@1.0.0</span>
+            </div>
+            <p style="margin:18px 0 0;max-width:32ch;font:400 clamp(25px,2.7vw,40px)/1.14 'Instrument Serif',Georgia,serif;letter-spacing:-.02em;color:#f7f9fc;text-wrap:pretty">The snapshot every owner read, and the one surface this assessment did not read back.</p>
+            <p style="margin:20px 0 0;max-width:72ch;font:400 14.5px/1.72 'Libre Franklin',sans-serif;color:#9ba4b1;text-wrap:pretty">The envelope is bound by hash to the same revision and baseline as the three owner artifacts, so every lane score and candidate in this report inherits its scope. It ran fresh — cache MISS, no scan avoided. Its duplication inventory was consumed as counts rather than read, which is why generated-surfaces stays at coverage state <span style="font:500 12.5px/1 'JetBrains Mono',monospace;color:#e5a13d">inventory-only</span> and no duplication finding is raised anywhere in this report.</p>
+            <div style="{{ L.kpiCells }}">
+              <sc-for list="{{ seiKpis }}" as="k" hint-placeholder-count="4">
+                <div style="padding:14px 15px;background:rgba(8,9,11,.62)">
+                  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px">
+                    <span style="font:500 9px/1.3 'JetBrains Mono',monospace;letter-spacing:.11em;text-transform:uppercase;color:#6f7885">{{ k.label }}</span>
+                    <span style="font:400 8.5px/1 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#3f4653">{{ k.unit }}</span>
+                  </div>
+                  <div style="margin-top:9px;font:400 15px/1.1 'JetBrains Mono',monospace;color:{{ k.color }}">{{ k.value }}</div>
+                  <div style="margin-top:6px;font:400 10.5px/1.45 'Libre Franklin',sans-serif;color:#5b6474;text-wrap:pretty">{{ k.note }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <p style="margin:12px 0 0;max-width:72ch;font:400 11.5px/1.6 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">SEI's executive fields are deliberately absent rather than zeroed: missing evidence is classified, never converted to a failing score. A blank value here is not a low result.</p>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(255,255,255,.09)">
+              <span style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#5f6875">consumed by</span>
+              <sc-for list="{{ seiConsumers }}" as="c" hint-placeholder-count="3">
+                <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(255,255,255,.03);font:400 11.5px/1.2 'JetBrains Mono',monospace;color:#c4cbd6;white-space:nowrap">
+                  <span style="width:5px;height:5px;border-radius:50%;background:{{ c.color }}"></span>{{ c.name }}
+                </span>
+              </sc-for>
+            </div>
+          </div>
+          <div style="flex:1 1 280px;min-width:0;display:grid;gap:14px;align-content:start">
+            <sc-for list="{{ seiHero }}" as="h" hint-placeholder-count="3">
+              <div style="padding:16px 18px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(8,9,11,.5)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+                  <span style="font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885">{{ h.label }}</span>
+                  <span style="font:400 10px/1 'JetBrains Mono',monospace;color:#4f5866">{{ h.unit }}</span>
+                </div>
+                <div style="margin-top:8px;font:400 clamp(32px,3.4vw,46px)/1 'Instrument Serif',Georgia,serif;letter-spacing:-.02em;color:{{ h.color }};font-variant-numeric:tabular-nums">{{ h.value }}</div>
+                <div style="margin-top:7px;font:400 11.5px/1.5 'Libre Franklin',sans-serif;color:#7c8593;text-wrap:pretty">{{ h.note }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;margin-top:16px">
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Declared suite</h3>
+            <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#8f98a6;font-variant-numeric:tabular-nums">1030 tests</span>
+          </div>
+          <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:8px;display:block;margin-top:18px;border-radius:4px;overflow:hidden" role="img" aria-label="Declared suite: pytest 718, JUnit 201, vitest 111">
+            <sc-for list="{{ suite }}" as="s" hint-placeholder-count="3">
+              <rect x="{{ s.x }}" y="0" width="{{ s.w }}" height="1" fill="{{ s.color }}" />
+            </sc-for>
+          </svg>
+          <div style="display:grid;gap:9px;margin-top:16px">
+            <sc-for list="{{ suite }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="flex:0 0 8px;width:8px;height:8px;border-radius:2px;background:{{ s.color }}"></span>
+                <span style="flex:1 1 auto;min-width:0;font:400 12px/1.4 'JetBrains Mono',sans-serif;color:#a8b0bc">{{ s.label }}</span>
+                <span style="font:500 12px/1 'JetBrains Mono',monospace;color:#eef1f5;font-variant-numeric:tabular-nums">{{ s.n }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:16px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">Green in isolation across three languages; six of these ten declared gate commands were executed for this report.</p>
+          </sc-if>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Read depth</h3>
+            <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#8f98a6">32 modules walked</span>
+          </div>
+          <div style="display:grid;gap:14px;margin-top:18px">
+            <sc-for list="{{ readDepth }}" as="r" hint-placeholder-count="3">
+              <div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+                  <span style="font:400 12px/1.35 'JetBrains Mono',monospace;color:#c4cbd6;overflow-wrap:anywhere">{{ r.label }}</span>
+                  <span style="font:500 12px/1 'JetBrains Mono',monospace;color:{{ r.color }};font-variant-numeric:tabular-nums">{{ r.n }}</span>
+                </div>
+                <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:5px;display:block;margin-top:8px;border-radius:3px;overflow:hidden" role="img" aria-label="{{ r.aria }}">
+                  <rect x="0" y="0" width="100" height="1" fill="rgba(255,255,255,.06)" />
+                  <rect x="0" y="0" width="{{ r.pct }}" height="1" fill="{{ r.color }}" />
+                </svg>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:16px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">review_summary_extraction.py (1168 lines) and checklist.py (886) are the two largest live-path modules and were enumerated by size only.</p>
+          </sc-if>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Gate observation</h3>
+            <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#8f98a6">10 declared</span>
+          </div>
+          <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:8px;display:block;margin-top:18px;border-radius:4px;overflow:hidden" role="img" aria-label="Declared gates: 6 observed, 4 configured but unobserved">
+            <sc-for list="{{ gateSegs }}" as="g" hint-placeholder-count="2">
+              <rect x="{{ g.x }}" y="0" width="{{ g.w }}" height="1" fill="{{ g.color }}" />
+            </sc-for>
+          </svg>
+          <div style="display:grid;gap:9px;margin-top:16px">
+            <sc-for list="{{ gateSegs }}" as="g" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:9px">
+                <span style="flex:0 0 8px;width:8px;height:8px;border-radius:2px;background:{{ g.color }}"></span>
+                <span style="flex:1 1 auto;min-width:0;font:400 12px/1.4 'JetBrains Mono',monospace;color:#a8b0bc">{{ g.label }}</span>
+                <span style="font:500 12px/1 'JetBrains Mono',monospace;color:#eef1f5;font-variant-numeric:tabular-nums">{{ g.n }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:16px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">Configuration may read CONFIGURED while execution stays UNOBSERVED when the bounded local probe cannot run — the four skipped commands are unobserved, not failing.</p>
+          </sc-if>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Not carried into this report</h3>
+            <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#8f98a6">6 fields</span>
+          </div>
+          <div style="display:grid;gap:0;margin-top:14px">
+            <sc-for list="{{ notCarried }}" as="n" hint-placeholder-count="6">
+              <div style="padding:11px 0;border-top:1px solid rgba(255,255,255,.07)">
+                <div style="font:400 12px/1.4 'JetBrains Mono',monospace;color:#c4cbd6;overflow-wrap:anywhere">{{ n.field }}</div>
+                <div style="margin-top:5px;font:400 11.5px/1.55 'Libre Franklin',sans-serif;color:#6f7885;text-wrap:pretty">{{ n.reason }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Envelope binding</h3>
+            <span style="display:inline-flex;align-items:center;gap:6px;font:500 10px/1 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#3ecf8e"><span style="width:5px;height:5px;border-radius:50%;background:#3ecf8e"></span>verified</span>
+          </div>
+          <dl style="display:grid;gap:0;margin:16px 0 0">
+            <sc-for list="{{ seiFields }}" as="f" hint-placeholder-count="6">
+              <div style="padding:11px 0;border-top:1px solid rgba(255,255,255,.07)">
+                <dt style="font:500 9px/1.3 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#5f6875">{{ f.k }}</dt>
+                <dd style="margin:6px 0 0;font:400 10.5px/1.55 'JetBrains Mono',monospace;color:#a8b0bc;overflow-wrap:anywhere">{{ f.v }}</dd>
+              </div>
+            </sc-for>
+          </dl>
+          <p style="margin:14px 0 0;padding-top:13px;border-top:1px solid rgba(255,255,255,.07);font:400 11.5px/1.6 'Libre Franklin',sans-serif;color:#7c8593;text-wrap:pretty">sei_assessment_ref was omitted from the child envelope on a schema-version mismatch — <a href="#status">see Status</a>. The field is optional; forging a reference that fails its own validator was declined.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="quant" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">04 — Quantitative assessment</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">recomputed by each owner's verifier</span>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:clamp(18px,2vw,28px)">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <h3 style="margin:0;font:400 20px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Health lane profile</h3>
+          <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">weakest first · /100</span>
+        </div>
+        <div style="display:grid;gap:14px;margin-top:22px">
+          <sc-for list="{{ lanes }}" as="lane" hint-placeholder-count="8">
+            <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:8px">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px">
+                <span style="font:400 12.5px/1.3 'JetBrains Mono',monospace;color:#c4cbd6;overflow-wrap:anywhere">{{ lane.name }}<span style="color:#5f6875"> {{ lane.tag }}</span></span>
+                <span style="flex:0 0 auto;display:flex;align-items:baseline;gap:10px;white-space:nowrap"><span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#5f6875">{{ lane.level }}</span><span style="font:500 12.5px/1 'JetBrains Mono',monospace;color:#f7f9fc;font-variant-numeric:tabular-nums">{{ lane.score }}</span></span>
+              </div>
+              <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:6px;display:block;border-radius:3px;overflow:hidden" role="img" aria-label="{{ lane.aria }}">
+                <rect x="0" y="0" width="100" height="1" fill="rgba(255,255,255,.06)" />
+                <rect x="0" y="0" width="{{ lane.pct }}" height="1" fill="{{ lane.color }}" />
+              </svg>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+          <p style="margin:20px 0 0;font:400 11.5px/1.55 'Libre Franklin',sans-serif;color:#6f7885;max-width:84ch;text-wrap:pretty">Lane weights are locked in the verifier, not in the artifact — critical means weight ≥ 4. Each lane score is Σ(level ÷ 4 × dimension weight) over six dimensions, so a score divided by 25 reads back as its maturity level.</p>
+        </sc-if>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px;margin-top:16px">
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Grade rubric</h3>
+            <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">anchored to the maturity scale</span>
+          </div>
+          <div style="display:grid;gap:0;margin-top:16px">
+            <sc-for list="{{ rubric }}" as="r" hint-placeholder-count="5">
+              <div style="display:flex;align-items:baseline;gap:12px;padding:10px 11px;margin:0 -11px;border-top:1px solid rgba(255,255,255,.07);background:{{ r.bg }}">
+                <span style="flex:0 0 16px;font:500 14px/1 'JetBrains Mono',monospace;color:{{ r.gColor }}">{{ r.g }}</span>
+                <span style="flex:0 0 62px;font:400 11px/1.3 'JetBrains Mono',monospace;color:{{ r.textColor }};font-variant-numeric:tabular-nums">{{ r.range }}</span>
+                <span style="flex:1 1 auto;min-width:0;font:400 11.5px/1.45 'Libre Franklin',sans-serif;color:{{ r.textColor }};text-wrap:pretty">{{ r.meaning }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07)">
+            <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885">Caps applied · both fired, neither bound</div>
+            <sc-for list="{{ caps }}" as="c" hint-placeholder-count="2">
+              <div style="margin-top:11px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                  <span style="font:400 11.5px/1.3 'JetBrains Mono',monospace;color:#c4cbd6;overflow-wrap:anywhere">{{ c.name }}</span>
+                  <span style="flex:0 0 auto;font:500 11px/1 'JetBrains Mono',monospace;color:#e5a13d;white-space:nowrap">ceiling {{ c.ceiling }}</span>
+                </div>
+                <div style="margin-top:5px;font:400 11px/1.5 'Libre Franklin',sans-serif;color:#6f7885;text-wrap:pretty">{{ c.trigger }}</div>
+              </div>
+            </sc-for>
+            <p style="margin:12px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">Both ceilings sit at B and the raw score already grades C, so neither cap changed the result — they are shown because a cap that fired without binding is still information.</p>
+          </div>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Confidence composition</h3>
+            <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#3ecf8e">87.2 · high</span>
+          </div>
+          <div style="display:grid;gap:0;margin-top:16px">
+            <sc-for list="{{ confTerms }}" as="t" hint-placeholder-count="5">
+              <div style="padding:11px 0;border-top:1px solid rgba(255,255,255,.07)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                  <span style="font:400 11.5px/1.35 'JetBrains Mono',monospace;color:#c4cbd6;overflow-wrap:anywhere">{{ t.input }}</span>
+                  <span style="flex:0 0 auto;font:500 11.5px/1 'JetBrains Mono',monospace;color:#f7f9fc;font-variant-numeric:tabular-nums;white-space:nowrap">+{{ t.contrib }}</span>
+                </div>
+                <div style="margin-top:5px;font:400 10.5px/1.4 'JetBrains Mono',monospace;color:#5f6875">× {{ t.w }} · {{ t.value }} · {{ t.kind }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:14px 0 0;padding-top:13px;border-top:1px solid rgba(255,255,255,.07);font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">Confidence is reported beside the grade and never folded into it — high confidence in a C is a different situation from low confidence in a B. Core availability and determinism are shown as a joint residual because the two terms cannot be separated from the published total.</p>
+        </article>
+
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+            <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Dimensions per lane</h3>
+            <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">fixed · sums to 100</span>
+          </div>
+          <div style="display:grid;gap:0;margin-top:16px">
+            <sc-for list="{{ dims }}" as="d" hint-placeholder-count="6">
+              <div style="padding:11px 0;border-top:1px solid rgba(255,255,255,.07)">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                  <span style="font:400 11.5px/1.35 'JetBrains Mono',monospace;color:#c4cbd6;overflow-wrap:anywhere">{{ d.d }}</span>
+                  <span style="flex:0 0 auto;font:500 11.5px/1 'JetBrains Mono',monospace;color:#9aa2ff;font-variant-numeric:tabular-nums">{{ d.w }}</span>
+                </div>
+                <div style="margin-top:5px;font:400 11px/1.5 'Libre Franklin',sans-serif;color:#6f7885;text-wrap:pretty">{{ d.asks }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin:14px 0 0;padding-top:13px;border-top:1px solid rgba(255,255,255,.07);font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">The jump from level 2 to 3 is enforcement; 3 to 4 is automation plus observability. A practice a careful human performs reliably is a 2 — which is precisely this repository's finding.</p>
+        </article>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px;margin-top:16px">
+        <sc-for list="{{ meters }}" as="mt" hint-placeholder-count="7">
+          <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px;min-width:0">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+              <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">{{ mt.title }}</h3>
+              <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#8f98a6;font-variant-numeric:tabular-nums">{{ mt.total }}</span>
+            </div>
+            <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:8px;display:block;margin-top:18px;border-radius:4px;overflow:hidden" role="img" aria-label="{{ mt.aria }}">
+              <rect x="0" y="0" width="100" height="1" fill="rgba(255,255,255,.06)" />
+              <sc-for list="{{ mt.segs }}" as="s" hint-placeholder-count="3">
+                <rect x="{{ s.x }}" y="0" width="{{ s.w }}" height="1" fill="{{ s.color }}" />
+              </sc-for>
+            </svg>
+            <div style="display:grid;gap:8px;margin-top:16px">
+              <sc-for list="{{ mt.segs }}" as="s" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <span style="flex:0 0 8px;width:8px;height:8px;border-radius:2px;background:{{ s.color }}"></span>
+                  <span style="flex:1 1 auto;min-width:0;font:400 12px/1.4 'Libre Franklin',sans-serif;color:#a8b0bc;overflow-wrap:anywhere">{{ s.label }}</span>
+                  <span style="font:500 12px/1 'JetBrains Mono',monospace;color:#eef1f5;font-variant-numeric:tabular-nums">{{ s.n }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+              <p style="margin:16px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">{{ mt.note }}</p>
+            </sc-if>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="owners" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">05 — Health, integrity, architecture</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:16px">
+        <sc-for list="{{ owners }}" as="o" hint-placeholder-count="3">
+          <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(170deg,rgba(255,255,255,.04),rgba(255,255,255,.012));padding:24px">
+            <div style="display:flex;align-items:center;gap:9px">
+              <span style="width:6px;height:6px;border-radius:50%;background:{{ o.color }}"></span>
+              <span style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#6f7885">{{ o.label }}</span>
+            </div>
+            <h3 style="margin:14px 0 0;font:400 25px/1.16 'Instrument Serif',Georgia,serif;letter-spacing:-.012em;color:#f7f9fc">{{ o.headline }}</h3>
+            <div style="display:grid;gap:1px;margin-top:18px;border-top:1px solid rgba(255,255,255,.08)">
+              <sc-for list="{{ o.rows }}" as="r" hint-placeholder-count="3">
+                <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.055);font:400 12.5px/1.45 'Libre Franklin',sans-serif;color:#a8b0bc">{{ r }}</div>
+              </sc-for>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="portfolio" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">06 — Ranked candidate portfolio</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">architecture rows stay “Not scored” without a canonical ledger score</span>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:auto;background:rgba(255,255,255,.015)">
+        <table style="width:100%;min-width:900px;border-collapse:collapse;font-variant-numeric:tabular-nums">
+          <thead>
+            <tr>
+              <th style="padding:13px 16px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Owner</th>
+              <th style="padding:13px 12px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">ID</th>
+              <th style="padding:13px 12px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Candidate</th>
+              <th style="padding:13px 12px;text-align:right;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Prio</th>
+              <th style="padding:13px 12px;text-align:right;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Value</th>
+              <th style="padding:13px 12px;text-align:right;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Risk</th>
+              <th style="padding:13px 12px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Band</th>
+              <th style="padding:13px 16px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09);position:sticky;top:0;z-index:1">Disposition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ candidates }}" as="c" hint-placeholder-count="9">
+              <tr style="border-bottom:1px solid rgba(255,255,255,.055)" style-hover="background:rgba(255,255,255,.025)">
+                <td style="padding:14px 16px;font:400 11.5px/1.3 'JetBrains Mono',monospace;color:#8f98a6;white-space:nowrap">{{ c.owner }}</td>
+                <td style="padding:14px 12px;font:500 11.5px/1.3 'JetBrains Mono',monospace;color:#9aa2ff;white-space:nowrap">{{ c.id }}</td>
+                <td style="padding:14px 12px;font:400 13.5px/1.5 'Libre Franklin',sans-serif;color:#dde3eb;max-width:46ch;text-wrap:pretty">{{ c.name }}</td>
+                <td style="padding:14px 12px;text-align:right;font:500 13px/1.3 'JetBrains Mono',monospace;color:{{ c.numColor }};white-space:nowrap">{{ c.priority }}</td>
+                <td style="padding:14px 12px;text-align:right;font:400 12.5px/1.3 'JetBrains Mono',monospace;color:{{ c.numColor }};white-space:nowrap">{{ c.value }}</td>
+                <td style="padding:14px 12px;text-align:right;font:400 12.5px/1.3 'JetBrains Mono',monospace;color:{{ c.numColor }};white-space:nowrap">{{ c.risk }}</td>
+                <td style="padding:14px 12px;font:400 12px/1.3 'JetBrains Mono',monospace;color:{{ c.bandColor }};white-space:nowrap">{{ c.band }}</td>
+                <td style="padding:14px 16px">
+                  <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid {{ c.chipBorder }};border-radius:999px;background:{{ c.chipBg }};font:500 10px/1.2 'JetBrains Mono',monospace;color:{{ c.chipColor }};white-space:nowrap">{{ c.disposition }}</span>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="priorities" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">07 — Highest-leverage priorities</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">9 ranked</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:14px">
+        <sc-for list="{{ priorities }}" as="p" hint-placeholder-count="9">
+          <article style="display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;border:1px solid rgba(255,255,255,.085);border-radius:14px;background:rgba(255,255,255,.018);padding:20px" style-hover="border-color:rgba(139,147,255,.34)">
+            <div style="width:34px;height:34px;border-radius:50%;border:1px solid {{ p.ringColor }};display:grid;place-items:center;font:500 12px/1 'JetBrains Mono',monospace;color:{{ p.rankColor }};background:{{ p.rankBg }}">{{ p.rank }}</div>
+            <div style="min-width:0">
+              <h3 style="margin:0;font:400 19px/1.28 'Instrument Serif',Georgia,serif;letter-spacing:-.008em;color:#f7f9fc;text-wrap:pretty">{{ p.title }}</h3>
+              <p style="margin:11px 0 0;font:400 13.5px/1.62 'Libre Franklin',sans-serif;color:#98a1ae;text-wrap:pretty">{{ p.body }}</p>
+              <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.07);font:400 10.5px/1.4 'JetBrains Mono',monospace;letter-spacing:.06em;color:#5f6875">{{ p.meta }}</div>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="synthesis" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">08 — Cross-cutting synthesis</h2>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+        <div style="flex:1 1 480px;min-width:0;display:grid;gap:1px;border:1px solid rgba(255,255,255,.09);border-radius:16px;overflow:hidden;background:rgba(255,255,255,.07)">
+          <sc-for list="{{ patterns }}" as="pt" hint-placeholder-count="4">
+            <article style="padding:22px;background:#0b0c10" style-hover="background:#101218">
+              <h3 style="margin:0;max-width:56ch;font:400 20px/1.3 'Instrument Serif',Georgia,serif;letter-spacing:-.008em;color:#f0f3f7;text-wrap:pretty">{{ pt.title }}</h3>
+              <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:14px">
+                <sc-for list="{{ pt.owners }}" as="ow" hint-placeholder-count="2">
+                  <span style="padding:4px 9px;border:1px solid rgba(255,255,255,.13);border-radius:999px;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#8f98a6">{{ ow }}</span>
+                </sc-for>
+              </div>
+            </article>
+          </sc-for>
+        </div>
+        <div style="flex:1 1 280px;min-width:0;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px">
+          <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#6f7885">Downstream disposition</div>
+          <div style="display:grid;gap:14px;margin-top:18px">
+            <sc-for list="{{ routes }}" as="rt" hint-placeholder-count="5">
+              <div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+                  <span style="font:400 12px/1.3 'JetBrains Mono',monospace;color:{{ rt.color }}">{{ rt.label }}</span>
+                  <span style="font:500 11px/1 'JetBrains Mono',monospace;color:#5f6875">{{ rt.count }}</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+                  <sc-for list="{{ rt.items }}" as="it" hint-placeholder-count="2">
+                    <span style="padding:4px 8px;border:1px solid rgba(255,255,255,.1);border-radius:6px;background:rgba(255,255,255,.03);font:500 10.5px/1.2 'JetBrains Mono',monospace;color:#c4cbd6">{{ it }}</span>
+                  </sc-for>
+                </div>
+                <div style="margin-top:8px;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">{{ rt.def }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">09 — Evidence certainty and gaps</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">weighted coverage 73.4% · evidence strength 93.6%</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px">
+        <sc-for list="{{ evidence }}" as="e" hint-placeholder-count="4">
+          <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:24px">
+            <div style="display:flex;align-items:center;gap:10px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.08)">
+              <span style="width:6px;height:6px;border-radius:50%;background:{{ e.color }}"></span>
+              <span style="font:500 10px/1 'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:{{ e.color }}">{{ e.label }}</span>
+              <span style="margin-left:auto;font:400 10px/1 'JetBrains Mono',monospace;color:#4f5866">{{ e.count }}</span>
+            </div>
+            <div style="display:grid;gap:0">
+              <sc-for list="{{ e.items }}" as="li" hint-placeholder-count="4">
+                <p style="margin:0;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.05);font:400 13px/1.62 'Libre Franklin',sans-serif;color:#9ba4b1;text-wrap:pretty">{{ li }}</p>
+              </sc-for>
+            </div>
+          </article>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="verification" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">10 — Verification baseline</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">6 of 10 declared gates executed · trustworthy</span>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,.09);border-radius:14px;overflow:auto;background:rgba(255,255,255,.015)">
+        <table style="width:100%;min-width:760px;border-collapse:collapse;font-variant-numeric:tabular-nums">
+          <thead>
+            <tr>
+              <th style="padding:13px 16px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09)">Kind</th>
+              <th style="padding:13px 12px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09)">Command</th>
+              <th style="padding:13px 12px;text-align:left;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09)">Duration</th>
+              <th style="padding:13px 16px;text-align:right;font:500 9.5px/1.3 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#6f7885;background:#0b0c10;border-bottom:1px solid rgba(255,255,255,.09)">Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ gates }}" as="g" hint-placeholder-count="10">
+              <tr style="border-bottom:1px solid rgba(255,255,255,.055)" style-hover="background:rgba(255,255,255,.025)">
+                <td style="padding:13px 16px;font:400 11px/1.3 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#6f7885;white-space:nowrap">{{ g.kind }}</td>
+                <td style="padding:13px 12px;font:400 12.5px/1.4 'JetBrains Mono',monospace;color:#dde3eb;overflow-wrap:anywhere">{{ g.cmd }}</td>
+                <td style="padding:13px 12px;min-width:190px">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="flex:1 1 auto;height:5px;display:block;border-radius:3px;overflow:hidden;min-width:60px" role="img" aria-label="{{ g.aria }}">
+                      <rect x="0" y="0" width="100" height="1" fill="rgba(255,255,255,.06)" />
+                      <rect x="0" y="0" width="{{ g.pct }}" height="1" fill="{{ g.barColor }}" />
+                    </svg>
+                    <span style="flex:0 0 46px;text-align:right;font:500 11.5px/1 'JetBrains Mono',monospace;color:{{ g.secColor }}">{{ g.sec }}</span>
+                  </div>
+                </td>
+                <td style="padding:13px 16px;text-align:right">
+                  <span style="display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border:1px solid {{ g.chipBorder }};border-radius:999px;font:500 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;color:{{ g.chipColor }}">{{ g.result }}</span>
+                </td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="runtime" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">11 — Runtime and performance</h2>
+        <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">FRESH_BASELINE · run ria-2026-08-21-f5ac818</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px">
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px">
+          <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Artifact reuse</h3>
+          <div style="margin-top:18px;font:400 clamp(30px,3vw,42px)/1 'Instrument Serif',Georgia,serif;color:#e5a13d">5 <span style="font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.12em;color:#6f7885">MISS · 5 OF 5</span></div>
+          <div style="display:grid;gap:1px;margin-top:18px;border-top:1px solid rgba(255,255,255,.08)">
+            <sc-for list="{{ cacheRows }}" as="cr" hint-placeholder-count="5">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+                <span style="font:400 11.5px/1.3 'JetBrains Mono',monospace;color:#a8b0bc;overflow-wrap:anywhere">{{ cr }}</span>
+                <span style="font:500 10.5px/1.3 'JetBrains Mono',monospace;color:#e5a13d">MISS</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:16px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">Exact and incremental reuse avoid recomputation only when revision, engine, configuration, and contract bindings remain valid.</p>
+          </sc-if>
+        </article>
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px">
+          <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Work avoided</h3>
+          <div style="display:grid;gap:1px;margin-top:18px;border-top:1px solid rgba(255,255,255,.08)">
+            <sc-for list="{{ avoided }}" as="a" hint-placeholder-count="4">
+              <div style="display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+                <span style="font:400 12px/1.35 'Libre Franklin',sans-serif;color:#a8b0bc">{{ a }}</span>
+                <span style="font:500 12px/1.3 'JetBrains Mono',monospace;color:#5f6875">0</span>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ showChartNotes }}" hint-placeholder-val="{{ true }}">
+            <p style="margin:16px 0 0;font:400 11px/1.55 'Libre Franklin',sans-serif;color:#6a7280;text-wrap:pretty">These counts are recorded by the executor; they are not estimated after the run.</p>
+          </sc-if>
+        </article>
+        <article style="border:1px solid rgba(255,255,255,.09);border-radius:16px;background:rgba(255,255,255,.018);padding:22px">
+          <h3 style="margin:0;font:400 18px/1.2 'Instrument Serif',Georgia,serif;color:#f7f9fc">Executor concurrency</h3>
+          <div style="display:grid;gap:16px;margin-top:20px">
+            <sc-for list="{{ concurrency }}" as="cc" hint-placeholder-count="2">
+              <div>
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+                  <span style="font:400 12px/1.3 'JetBrains Mono',monospace;color:#c4cbd6">{{ cc.label }}</span>
+                  <span style="font:500 12px/1 'JetBrains Mono',monospace;color:#f7f9fc">{{ cc.n }}</span>
+                </div>
+                <svg viewBox="0 0 100 1" preserveAspectRatio="none" style="width:100%;height:6px;display:block;margin-top:8px;border-radius:3px;overflow:hidden" role="img" aria-label="{{ cc.aria }}">
+                  <rect x="0" y="0" width="100" height="1" fill="rgba(255,255,255,.06)" />
+                  <rect x="0" y="0" width="{{ cc.pct }}" height="1" fill="#8b93ff" />
+                </svg>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:grid;gap:1px;margin-top:20px;border-top:1px solid rgba(255,255,255,.08)">
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font:400 11.5px/1.3 'JetBrains Mono',monospace;color:#a8b0bc"><span>peak total</span><span style="color:#f7f9fc">3</span></div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font:400 11.5px/1.3 'JetBrains Mono',monospace;color:#a8b0bc"><span>READY-queue peak</span><span style="color:#f7f9fc">3</span></div>
+            <div style="display:flex;justify-content:space-between;padding:9px 0;font:400 11.5px/1.3 'JetBrains Mono',monospace;color:#a8b0bc"><span>refill events</span><span style="color:#f7f9fc">2</span></div>
+          </div>
+        </article>
+      </div>
+      <p style="margin:16px 0 0;max-width:88ch;font:400 12.5px/1.65 'Libre Franklin',sans-serif;color:#7c8593;text-wrap:pretty">Owners were executed serially in the RIA parent context at the user's explicit direction after an initial parallel dispatch was stopped. No subagents were used for the three owner assessments. Wall time 1h, measured end-to-end; concurrent phases are not additive.</p>
+    </section>
+
+    <section id="status" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+      <div style="margin-bottom:24px">
+        <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">12 — Assessment status and next lifecycle</h2>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+        <div style="flex:1 1 460px;min-width:0;display:grid;gap:14px">
+          <article style="border:1px solid rgba(242,96,106,.26);border-radius:14px;background:rgba(242,96,106,.045);padding:22px">
+            <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#f2606a">Tooling defect · not a repository finding</div>
+            <p style="margin:14px 0 0;font:400 13.5px/1.66 'Libre Franklin',sans-serif;color:#b6bdc9;text-wrap:pretty">scripts/performance-receipt.js:58 sets cache.sei = startup.startup_mode, but FRESH_BASELINE is a valid MODE (line 8) and not a valid CACHE_STATE (line 10), so line 61 rejects the receipt the function just built. Every FRESH_BASELINE run of this skill therefore cannot produce a receipt through buildPerformanceReceipt. The receipt bound to this report was constructed directly in the same shape with cache.sei set to MISS, the semantically correct state for a fresh baseline, and validated against both validatePerformanceReceipt and assets/performance-receipt.schema.json. startup.mode still reads FRESH_BASELINE.</p>
+          </article>
+          <article style="border:1px solid rgba(229,161,61,.24);border-radius:14px;background:rgba(229,161,61,.04);padding:22px">
+            <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#e5a13d">Envelope note · non-fatal</div>
+            <p style="margin:14px 0 0;font:400 13.5px/1.66 'Libre Franklin',sans-serif;color:#b6bdc9;text-wrap:pretty">sei_assessment_ref was omitted from the child envelope: SEI emits sei.engineering-assessment@3, the RIA envelope contract defines the reference at @1, and SEI's own RUNTIME-CONTRACT.json declares @2. The field is optional, so this is not fatal; forging a reference that fails its own validator would have been.</p>
+          </article>
+        </div>
+        <article style="flex:1 1 290px;min-width:0;border:1px solid rgba(139,147,255,.28);border-radius:14px;background:linear-gradient(170deg,rgba(139,147,255,.09),rgba(139,147,255,.02));padding:24px">
+          <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#9aa2ff">Next lifecycle</div>
+          <div style="display:grid;gap:0;margin-top:16px">
+            <p style="margin:0;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);font:400 13.5px/1.6 'Libre Franklin',sans-serif;color:#c4cbd6">Return the immutable ASSESS projection to the invoking caller.</p>
+            <p style="margin:0;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);font:400 13.5px/1.6 'Libre Franklin',sans-serif;color:#c4cbd6">Only the router may reserve RECONCILE.</p>
+            <p style="margin:0;padding:13px 0;font:400 13.5px/1.6 'Libre Franklin',sans-serif;color:#c4cbd6">No graph, action, execution, verification, integration, publication, or merge state is created by this report.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <sc-if value="{{ showAppendix }}" hint-placeholder-val="{{ true }}">
+      <section id="appendix" style="scroll-margin-top:28px;margin-top:56px;padding-top:40px;border-top:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:24px">
+          <h2 style="margin:0;font:500 11px/1 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;color:#6f7885">13 — Appendix · bindings and receipts</h2>
+          <span style="font:400 10.5px/1 'JetBrains Mono',monospace;color:#4f5866">canonical owner artifacts remain authoritative</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px">
+          <sc-for list="{{ ownerRefs }}" as="r" hint-placeholder-count="3">
+            <article style="border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.018);padding:20px;min-width:0">
+              <div style="font:500 9.5px/1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase;color:#6f7885">{{ r.label }}</div>
+              <h3 style="margin:11px 0 0;font:400 17px/1.25 'Instrument Serif',Georgia,serif;color:#f0f3f7;overflow-wrap:anywhere">{{ r.owner }}</h3>
+              <dl style="display:grid;gap:11px;margin:16px 0 0">
+                <sc-for list="{{ r.fields }}" as="f" hint-placeholder-count="3">
+                  <div>
+                    <dt style="font:500 9px/1.3 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#5f6875">{{ f.k }}</dt>
+                    <dd style="margin:5px 0 0;font:400 10.5px/1.5 'JetBrains Mono',monospace;color:#a8b0bc;overflow-wrap:anywhere">{{ f.v }}</dd>
+                  </div>
+                </sc-for>
+              </dl>
+            </article>
+          </sc-for>
+        </div>
+        <div style="display:grid;gap:12px;margin-top:14px">
+          <sc-for list="{{ blobs }}" as="b" hint-placeholder-count="3">
+            <details style="border:1px solid rgba(255,255,255,.09);border-radius:14px;background:rgba(255,255,255,.015);overflow:clip">
+              <summary style="list-style:none;cursor:pointer;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;font:500 11px/1.3 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#c4cbd6">
+                <span>{{ b.title }}</span>
+                <span style="font:400 10px/1 'JetBrains Mono',monospace;color:#5f6875">JSON</span>
+              </summary>
+              <div style="padding:0 20px 20px">
+                <pre style="margin:0;max-height:420px;overflow:auto;white-space:pre-wrap;font:400 11px/1.7 'JetBrains Mono',monospace;color:#8f98a6;border-top:1px solid rgba(255,255,255,.08);padding-top:16px">{{ b.body }}</pre>
+              </div>
+            </details>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <footer style="margin-top:56px;padding-top:22px;border-top:1px solid rgba(255,255,255,.08);display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;font:400 10.5px/1.6 'JetBrains Mono',monospace;color:#4f5866">
+      <span>RIA ASSESS analytics report · zero-network HTML</span>
+      <span>receipt 24fabba1…e12d47 · report model repository-improvement-assessment-report-data@3</span>
+    </footer>
+  </main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showAppendix&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Report&quot;},&quot;showChartNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Report&quot;}}">
+const A = '#8b93ff', A2 = '#6b74d8', A3 = '#464e9c', A4 = '#2f3568';
+const GOOD = '#3ecf8e', WARN = '#e5a13d', BAD = '#f2606a', DIM = '#5f6875';
+
+class Component extends DCLogic {
+  state = { active: 'exec', vw: typeof window !== 'undefined' ? window.innerWidth : 1440 };
+
+  componentDidMount() {
+    this._onResize = () => { if (window.innerWidth !== this.state.vw) this.setState({ vw: window.innerWidth }); };
+    window.addEventListener('resize', this._onResize);
+    this._onResize();
+    const secs = Array.from(document.querySelectorAll('section[id]'));
+    if (!secs.length) return;
+    this._io = new IntersectionObserver((entries) => {
+      const vis = entries.filter(e => e.isIntersecting)
+        .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+      if (vis && vis.target.id !== this.state.active) this.setState({ active: vis.target.id });
+    }, { rootMargin: '-12% 0px -70% 0px', threshold: 0 });
+    secs.forEach(s => this._io.observe(s));
+  }
+  componentWillUnmount() {
+    if (this._io) this._io.disconnect();
+    if (this._onResize) window.removeEventListener('resize', this._onResize);
+  }
+
+  laneColor(v) { return v < 50 ? BAD : v < 66 ? WARN : v < 70 ? A : GOOD; }
+
+  meter(title, total, note, segs) {
+    let acc = 0;
+    const sum = segs.reduce((t, s) => t + s.n, 0) || 1;
+    const out = segs.map((s) => {
+      const w = (s.n / sum) * 100;
+      const seg = { label: s.label, n: s.n, x: +acc.toFixed(3), w: +w.toFixed(3), color: s.color };
+      acc += w;
+      return seg;
+    });
+    return { title, total, note, segs: out, aria: title + ': ' + segs.map(s => s.label + ' ' + s.n).join(', ') };
+  }
+
+  renderVals() {
+    function gradeFor(n) { return n >= 90 ? 'A' : n >= 75 ? 'B' : n >= 50 ? 'C' : n >= 25 ? 'D' : 'F'; }
+    const active = this.state.active;
+    const vw = this.state.vw || 1440;
+    const mobile = vw < 780;
+    const ultra = vw >= 1900;
+    const L = {
+      shell: mobile
+        ? 'display:flex;flex-direction:column;gap:0;margin:0 auto;padding:0 16px'
+        : 'display:flex;flex-wrap:nowrap;align-items:flex-start;gap:0;max-width:' + (ultra ? 2240 : 1680) + 'px;margin:0 auto;padding:0 clamp(18px,3vw,64px)',
+      aside: mobile
+        ? 'position:sticky;top:0;z-index:6;margin:0 -16px;padding:12px 16px 10px;background:rgba(8,9,11,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.09)'
+        : 'flex:0 0 auto;width:' + (ultra ? 292 : 244) + 'px;position:sticky;top:0;align-self:flex-start;max-height:100vh;overflow:auto;padding:clamp(26px,3.4vh,48px) 26px clamp(26px,3.4vh,48px) 0;animation:rise .5s ease both',
+      brand: mobile ? 'display:flex;align-items:center;justify-content:space-between;gap:14px' : 'display:block',
+      eyebrow: mobile
+        ? 'display:none'
+        : "font:500 10px/1.4 'JetBrains Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:#5f6875",
+      brandTitle: mobile
+        ? "margin:0;font:400 17px/1.1 'Instrument Serif',Georgia,serif;letter-spacing:-.01em;color:#eef1f5"
+        : "margin:10px 0 0;font:400 " + (ultra ? 30 : 25) + "px/1.06 'Instrument Serif',Georgia,serif;letter-spacing:-.015em;color:#eef1f5",
+      badge: mobile
+        ? 'display:flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid rgba(229,161,61,.34);border-radius:999px;background:rgba(229,161,61,.07);flex:0 0 auto'
+        : 'display:flex;align-items:center;gap:9px;margin-top:16px;padding:8px 11px;border:1px solid rgba(229,161,61,.34);border-radius:999px;background:rgba(229,161,61,.07);width:max-content',
+      nav: mobile
+        ? 'display:flex;flex-direction:row;align-items:center;gap:16px;margin-top:11px;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none'
+        : 'display:flex;flex-direction:column;gap:0;margin-top:24px;border-top:1px solid rgba(255,255,255,.07);padding-top:10px',
+      navNum: mobile ? 'display:none' : "flex:0 0 16px;font:500 9px/1 'JetBrains Mono',monospace",
+      asideFoot: mobile
+        ? 'display:none'
+        : "margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.07);font:400 10px/1.65 'JetBrains Mono',monospace;color:#4f5866",
+      main: mobile
+        ? 'flex:1 1 auto;min-width:0;padding:26px 0 72px'
+        : 'flex:1 1 0%;min-width:0;padding:clamp(26px,3.4vh,48px) 0 96px;border-left:1px solid rgba(255,255,255,.07);padding-left:clamp(20px,3.4vw,58px)',
+      heroTitle: "margin:20px 0 0;font:400 clamp(38px," + (mobile ? '11vw' : '7vw') + ",104px)/.92 'Instrument Serif',Georgia,serif;letter-spacing:-.032em;color:#f7f9fc;text-wrap:balance",
+      colMin: ultra ? 300 : mobile ? 240 : 270,
+      scoreCells: 'flex:2 1 520px;min-width:0;display:grid;grid-template-columns:repeat(' + (vw < 620 ? 1 : vw < 1500 ? 2 : 4) + ',minmax(0,1fr));gap:1px;background:rgba(255,255,255,.08)',
+      kpiCells: 'display:grid;grid-template-columns:repeat(' + (vw < 560 ? 1 : vw < 1500 ? 2 : 4) + ',minmax(0,1fr));gap:1px;margin-top:22px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09);border-radius:12px;overflow:hidden'
+    };
+    const navDefs = [
+      ['exec', 'Executive'], ['signals', 'Signals'], ['sei', 'Intelligence'], ['quant', 'Quantitative'],
+      ['owners', 'Owners'], ['portfolio', 'Portfolio'], ['priorities', 'Priorities'],
+
+      ['synthesis', 'Synthesis'], ['evidence', 'Evidence'], ['verification', 'Verification'],
+      ['runtime', 'Runtime'], ['status', 'Status'], ['appendix', 'Appendix']
+    ];
+    const showAppendix = this.props.showAppendix ?? true;
+    const nav = navDefs
+      .filter(([id]) => id !== 'appendix' || showAppendix)
+      .map(([id, label], i) => ({
+        href: '#' + id, label,
+        num: String(i + 1).padStart(2, '0'),
+        color: active === id ? '#f7f9fc' : '#7c8593',
+        numColor: active === id ? A : '#3f4653'
+      }));
+
+    const lanes = [
+      ['maintainability-and-ownership', 2, 46.3], ['architecture-fitness', 4, 65],
+      ['contracts-and-integration', 4, 65], ['build-and-delivery', 3, 66.3],
+      ['data-and-migrations', 4, 71.3], ['security-and-production-safety', 5, 71.3],
+      ['correctness-and-integrity', 5, 72.5], ['verification-readiness', 4, 72.5]
+    ].map(([name, w, v]) => ({
+      name, tag: 'w' + w + (w >= 4 ? ' · critical' : ''),
+      score: v.toFixed(1).replace(/\.0$/, '') + '/100', pct: v,
+      level: 'level ' + (v / 25).toFixed(1) + ' of 4 · ' + gradeFor(v),
+      color: this.laneColor(v), aria: name + ' ' + v + ' out of 100, weight ' + w
+    }));
+    const rubric = [
+      { g: 'A', range: '90–100', anchor: 'level 4 → 100', meaning: 'Systematic and regression-resistant across the board', on: false },
+      { g: 'B', range: '75–89', anchor: 'level 3 → 75', meaning: 'Mostly systematic; important paths covered and enforced', on: false },
+      { g: 'C', range: '50–74', anchor: 'level 2 → 50', meaning: 'Partial; controls exist but coverage or enforcement is inconsistent', on: true },
+      { g: 'D', range: '25–49', anchor: 'level 1 → 25', meaning: 'Ad hoc; primarily dependent on manual knowledge', on: false },
+      { g: 'F', range: 'below 25', anchor: 'level 0 → 0', meaning: 'Absent, broken, or substantially unverified', on: false }
+    ].map(r => ({
+      ...r,
+      bg: r.on ? 'rgba(229,161,61,.09)' : 'transparent',
+      gColor: r.on ? WARN : '#6f7885',
+      textColor: r.on ? '#dde3eb' : '#7c8593'
+    }));
+    const caps = [
+      { name: 'weakest-critical-lane', trigger: 'architecture-fitness and contracts-and-integration at 65 (C)', ceiling: 'B', bound: false },
+      { name: 'coverage-below-80', trigger: 'weighted coverage 73.4%', ceiling: 'B', bound: false }
+    ];
+    const confTerms = [
+      { input: 'weighted_coverage', w: '0.40', value: '73.4', contrib: '29.36', kind: 'observed' },
+      { input: 'evidence_strength', w: '0.20', value: '93.6', contrib: '18.72', kind: 'observed' },
+      { input: 'baseline_factor', w: '0.15', value: '100', contrib: '15.00', kind: 'trustworthy' },
+      { input: 'freshness_factor', w: '0.05', value: '100', contrib: '5.00', kind: 'fresh · clean tree' },
+      { input: 'core_availability + determinism_ratio', w: '0.20', value: '95.6 avg', contrib: '19.12', kind: 'residual, not separable' }
+    ];
+    const dims = [
+      { d: 'observed_soundness', w: '30%', asks: 'Is what we read actually correct and internally consistent?' },
+      { d: 'automated_enforcement', w: '25%', asks: 'Would a violation be caught by machinery rather than a reviewer?' },
+      { d: 'verification_readiness', w: '20%', asks: 'Can a change in this lane be proved safe?' },
+      { d: 'boundary_clarity', w: '10%', asks: 'Is the authoritative definition of each contract and seam identifiable?' },
+      { d: 'change_containment', w: '10%', asks: 'Does a change here stay local, or ripple?' },
+      { d: 'operational_reproducibility', w: '5%', asks: 'Can the behavior be reproduced deterministically off one machine?' }
+    ];
+
+    const meters = [
+      this.meter('Coverage states', '11 surfaces', 'Weighted coverage is 73.4%; counts do not replace criticality weighting.', [
+        { label: 'sampled', n: 6, color: A }, { label: 'inspected', n: 4, color: GOOD }, { label: 'inventory-only', n: 1, color: WARN }]),
+      this.meter('Evidence quality', '11 surfaces', 'Canonical evidence-strength score: 93.6%.', [
+        { label: 'moderate', n: 6, color: A }, { label: 'strong', n: 4, color: GOOD }, { label: 'weak', n: 1, color: WARN }]),
+      this.meter('Integrity status', '6 candidates', 'Priority arithmetic is recomputed through shared/candidate-ledger-spine.', [
+        { label: 'ready', n: 5, color: A }, { label: 'needs-human-decision', n: 1, color: WARN }]),
+      this.meter('Architecture disposition', '3 candidates', '0 of 3 architecture candidates have canonical ledger scores.', [
+        { label: 'ready_for_integrity_loop', n: 2, color: A }, { label: 'needs_human_decision', n: 1, color: WARN }]),
+      this.meter('Downstream routing', '8 routed', 'Counts of named candidates or actions routed to each downstream workflow.', [
+        { label: 'ready', n: 6, color: A }, { label: 'needs expanded grill', n: 1, color: A3 }, { label: 'blocked', n: 1, color: BAD }]),
+      this.meter('Cross-owner convergence', '4 patterns', 'A convergence count reflects separately attributed owners supporting one pattern.', [
+        { label: 'integrity + health', n: 2, color: A }, { label: 'architecture + health', n: 1, color: A2 }, { label: 'architecture + integrity + health', n: 1, color: A4 }]),
+      this.meter('Architecture transformations', '3 types', 'No bound architecture ledger was available; the report preserves “Not scored”.', [
+        { label: 'add_fitness_function', n: 1, color: A }, { label: 'consolidate_contract_owner', n: 1, color: A2 }, { label: 'relocate_configuration_authority', n: 1, color: A4 }])
+    ];
+
+    const owners = [
+      { label: 'Health', color: WARN, headline: 'Grade C · 67.9/100', rows: ['Weighted coverage 73.4%', 'Confidence 87.2 (high)', '0 health candidates'] },
+      { label: 'Integrity', color: A, headline: '6 integrity candidates', rows: ['5 currently eligible', '1 judgment-heavy', 'Strong: 4 · Worth exploring: 2'] },
+      { label: 'Architecture', color: GOOD, headline: '3 architecture candidates', rows: ['0 carry canonical ledger scores', 'ready_for_integrity_loop: 2', 'needs_human_decision: 1'] }
+    ];
+
+    const chip = (d) => d === 'blocked-needs-human-decision' || d === 'needs_human_decision'
+      ? { chipColor: WARN, chipBorder: 'rgba(229,161,61,.4)', chipBg: 'rgba(229,161,61,.08)' }
+      : d === 'execute'
+        ? { chipColor: A, chipBorder: 'rgba(139,147,255,.4)', chipBg: 'rgba(139,147,255,.08)' }
+        : { chipColor: '#a8b0bc', chipBorder: 'rgba(255,255,255,.14)', chipBg: 'rgba(255,255,255,.03)' };
+
+    const candidates = [
+      ['Integrity', 'INT-001', 'Failure-taxonomy vocabulary is unguarded across the Python/Java seam', 17, 21, 4, 'Strong', 'execute'],
+      ['Integrity', 'INT-002', 'Six of ten engine failure codes are never exercised through the cross-service seam', 15, 19, 4, 'Strong', 'execute'],
+      ['Integrity', 'INT-003', 'docs/interview_framing.md misdescribes the live retrieval path', 15, 18, 3, 'Strong', 'execute'],
+      ['Integrity', 'INT-004', "ADR 0003's stated residual is now historical but still reads as open", 13, 16, 3, 'Strong', 'execute'],
+      ['Integrity', 'INT-005', 'INVALID_REQUEST maps to 400 in Python and 422 in Java', 10, 16, 6, 'Worth exploring', 'execute'],
+      ['Integrity', 'INT-006', 'No gate covers the PII leak class that actually occurred in this repository', 8, 18, 10, 'Worth exploring', 'blocked-needs-human-decision'],
+      ['Architecture', 'ARCH-001', 'Give the failure taxonomy one authoritative definition with a generated or guarded Java projection', null, null, null, 'Not scored', 'ready_for_integrity_loop'],
+      ['Architecture', 'ARCH-002', 'Decide whether retrieval strategy selection belongs in the runtime environment', null, null, null, 'Not scored', 'needs_human_decision'],
+      ['Architecture', 'ARCH-003', 'No structural fitness rule enforces the boundaries the ADRs establish', null, null, null, 'Not scored', 'ready_for_integrity_loop']
+    ].map(([owner, id, name, p, v, r, band, disp]) => ({
+      owner, id, name, band, disposition: disp,
+      priority: p === null ? '—' : p, value: v === null ? '—' : v, risk: r === null ? '—' : r,
+      numColor: p === null ? '#4f5866' : '#f7f9fc',
+      bandColor: band === 'Not scored' ? '#4f5866' : band === 'Strong' ? GOOD : '#a8b0bc',
+      ...chip(disp)
+    }));
+
+    const prioDefs = [
+      [1, 'Failure-taxonomy vocabulary is unguarded across the Python/Java seam', 'Canonical integrity priority 17; Strong.', 'Integrity · INT-001 · execute', 'int'],
+      [2, 'docs/interview_framing.md misdescribes the live retrieval path', 'Canonical integrity priority 15; Strong.', 'Integrity · INT-003 · execute', 'int'],
+      [3, 'Six of ten engine failure codes are never exercised through the cross-service seam', 'Canonical integrity priority 15; Strong.', 'Integrity · INT-002 · execute', 'int'],
+      [4, "ADR 0003's stated residual is now historical but still reads as open", 'Canonical integrity priority 13; Strong.', 'Integrity · INT-004 · execute', 'int'],
+      [5, 'INVALID_REQUEST maps to 400 in Python and 422 in Java', 'Canonical integrity priority 10; Worth exploring.', 'Integrity · INT-005 · execute', 'int'],
+      [6, 'No gate covers the PII leak class that actually occurred in this repository', 'Canonical integrity priority 8; Worth exploring.', 'Integrity · INT-006 · blocked-needs-human-decision', 'blocked'],
+      [7, 'Give the failure taxonomy one authoritative definition with a generated or guarded Java projection', "One closed vocabulary has two independently hand-maintained definitions in different languages. Python's EngineErrorCode declares ten members; Java's statusForRagEngineCode names those ten plus six transport-only codes. They agree today, verified by enumeration, but the agreement is maintained by review rather than by machinery — unlike the two other cross-language vocabularies in this repository, which each have a source-reading guard.", 'Architecture · ARCH-001 · ready_for_integrity_loop', 'arch'],
+      [8, 'Decide whether retrieval strategy selection belongs in the runtime environment', 'resolve_retrieval_runtime_config reads the query strategy and retriever from the process environment, so a deployment can change which retrieval algorithm serves live traffic without a code change, a review, or a record on the review it affects. ADR 0004 already identifies retrieval depth divergence as something that falsifies reproducibility of a recorded review; strategy selection is the same class of variable and is not recorded either.', 'Architecture · ARCH-002 · needs_human_decision', 'blocked'],
+      [9, 'No structural fitness rule enforces the boundaries the ADRs establish', "The repository's load-bearing architectural properties — adapters route through the review pipeline, Spring does not re-derive Python-owned vocabulary, the live path does not import the offline harnesses — are recorded as ADR decisions and verified by human reading. None of the ten CI jobs asserts a structural property, so each of these is one careless import away from silently regressing.", 'Architecture · ARCH-003 · ready_for_integrity_loop', 'arch']
+    ];
+    const priorities = prioDefs.map(([rank, title, body, meta, kind]) => ({
+      rank, title, body, meta,
+      ringColor: kind === 'blocked' ? 'rgba(229,161,61,.45)' : kind === 'arch' ? 'rgba(62,207,142,.4)' : 'rgba(139,147,255,.45)',
+      rankColor: kind === 'blocked' ? WARN : kind === 'arch' ? GOOD : A,
+      rankBg: kind === 'blocked' ? 'rgba(229,161,61,.09)' : kind === 'arch' ? 'rgba(62,207,142,.08)' : 'rgba(139,147,255,.1)'
+    }));
+
+    const patterns = [
+      { title: 'Cross-language vocabularies are guarded inconsistently, and the unguarded one is the safety-relevant one', owners: ['Health', 'Integrity', 'Architecture'] },
+      { title: 'Architectural intent is recorded with unusual rigour and enforced by nobody', owners: ['Health', 'Architecture'] },
+      { title: 'Documentation drifts in the two places the code moved after the prose was written', owners: ['Health', 'Integrity'] },
+      { title: 'The data-protection posture is stated honestly and implemented partially', owners: ['Health', 'Integrity'] }
+    ];
+
+    const routes = [
+      { label: 'ready', count: 6, color: A, items: ['INT-001', 'INT-002', 'INT-003', 'INT-004', 'ARCH-001', 'ARCH-003'], def: 'Structural direction determined, owner-intent decisions settled, verification obligations explicit — no further architecture interview required.' },
+      { label: 'needs expanded grill', count: 1, color: '#a8b0bc', items: ['ARCH-002'], def: 'One bounded candidate carrying consequential unresolved design decisions that benefit from deep interrogation.' },
+      { label: 'blocked', count: 1, color: BAD, items: ['INT-006'], def: 'Held for a human decision; no downstream reservation is made by this report.' },
+      { label: 'needs decision terrain mapper', count: 0, color: DIM, items: ['none'], def: 'For candidates unfolding into several coupled decision surfaces where the durable frontier between them matters.' },
+      { label: 'needs prototype', count: 0, color: DIM, items: ['none'], def: 'For choices that depend on empirical runtime, library, or performance behavior static evidence cannot settle.' }
+    ];
+
+    const evidence = [
+      {
+        label: 'confirmed', color: GOOD, count: '6', items: [
+          'All ten EngineErrorCode members are named in the Java status switch at this revision, established by enumerating both sides rather than by sampling.',
+          'All six Java-side transport codes have a live emitter in HttpRagEngineClient; each constant was checked for a use site beyond its declaration.',
+          'All four HTTP review endpoints route through app.review_pipeline, and all four run_* entry points screen the refusal boundary before doing work.',
+          'review_event immutability is enforced by BEFORE UPDATE and BEFORE DELETE triggers in V1__review_record.sql:35-39, not by application convention.',
+          'app/pipeline.py is imported by exactly one test module and by nothing in app/, matching its own docstring, confirmed by an AST reachability walk over all 32 app modules.',
+          'Six declared gate commands passed in a detached worktree at f5ac818, reproducing the same counts as the primary tree.']
+      },
+      {
+        label: 'inferred', color: A, count: '3', items: [
+          'An eleventh Python failure code, or a rename of an existing one, would fall through to the default arm and render as HTTP 502 with only a WARN log — inferred from the switch structure plus the absence of any binding guard, not observed.',
+          "The two existing drift guards parse the other language's source with regular expressions, so both are brittle to reformatting of the files they read.",
+          "Java's free String representation of the checklist vocabulary is correct rather than lax, because a search across services/review-api/src/main found no equality test or switch over those values."]
+      },
+      {
+        label: 'unknown', color: WARN, count: '5', items: [
+          'Whether the four unexecuted declared gates (pyright, tsc --noEmit, the container/compose jobs, the gitleaks scan) pass at this revision.',
+          'Whether branch protection actually requires the ten CI checks, which was not inspected.',
+          'Whether any deployed environment sets a non-default retrieval query strategy.',
+          'Whether V2 and V3 migrations preserve the append-only triggers established by V1.',
+          "Whether ruff's configured rule set includes any dead-code or unused-import rule that would partially cover the sprawl gap."]
+      },
+      {
+        label: 'coverage gaps', color: BAD, count: '5', items: [
+          'generated-surfaces is inventory-only: the SEI snapshot reports 3464 duplication clone families over 218 analysed files and none were read directly, so no duplication finding is raised on a count alone.',
+          'review_summary_extraction.py (1168 lines) and checklist.py (886 lines) were enumerated by size but their internals were not read; they are the two largest modules on the live path.',
+          'The three Dockerfiles and infra/docker-compose.yml were not read; build-and-delivery and operational-behavior are sampled rather than inspected.',
+          'The React component tree below apps/review-ui/src/api was not read; only the API and error-mapping layer was inspected.',
+          'Weighted coverage is 73.4%, below the 80% threshold, so coverage-below-80 fired as a non-binding cap at ceiling B.']
+      }
+    ];
+
+    const maxSec = 30.7;
+    const gates = [
+      ['lint', 'uv run --frozen ruff check .', 12, 'pass'],
+      ['typecheck', 'uv run --frozen mypy app', 25.4, 'pass'],
+      ['test', 'uv run --frozen pytest -q', 15.7, 'pass'],
+      ['test', './gradlew cleanTest test --no-daemon --console=plain', 30.7, 'pass'],
+      ['build', 'npm ci', 8.1, 'pass'],
+      ['test', 'npm run test', 26.5, 'pass'],
+      ['typecheck', 'uv run --frozen pyright app', null, 'skipped'],
+      ['typecheck', 'npx tsc --noEmit', null, 'skipped'],
+      ['other', 'bash scripts/smoke_cross_service.sh', null, 'skipped'],
+      ['other', 'gitleaks detect --source . --redact --verbose', null, 'skipped']
+    ].map(([kind, cmd, sec, result]) => ({
+      kind, cmd, result,
+      sec: sec === null ? '—' : sec + 's',
+      pct: sec === null ? 0 : +((sec / maxSec) * 100).toFixed(2),
+      barColor: sec === null ? 'transparent' : A,
+      secColor: sec === null ? '#4f5866' : '#eef1f5',
+      chipColor: result === 'pass' ? GOOD : '#7c8593',
+      chipBorder: result === 'pass' ? 'rgba(62,207,142,.38)' : 'rgba(255,255,255,.13)',
+      aria: cmd + (sec === null ? ' skipped' : ' took ' + sec + ' seconds')
+    }));
+
+    const cacheRows = ['sei', 'verification', 'repository-health-assessment', 'codebase-integrity-audit-loop', 'architecture-improvement-intelligence'];
+    const avoided = ['Duplicate verification suites', 'Owner agents', 'Full SEI scans', 'Report-only rebuilds'];
+    const concurrency = [
+      { label: 'hybrid', n: 3, pct: 100, aria: 'hybrid peak concurrency 3 of 3' },
+      { label: 'agent', n: 1, pct: 33.3, aria: 'agent peak concurrency 1 of 3' }
+    ];
+
+    const REV = 'f5ac818f09c0148f7ca8260d4b1f798a2db61cec';
+    const ownerRefs = [
+      { label: 'Health', owner: 'repository-health-assessment', fields: [{ k: 'artifact', v: 'health-assessment:1bbb10a0…e5a23a' }, { k: 'sha256', v: '1bbb10a02c5988b7639634f46be559091f2763275a0654169dfe7bb899e5a23a' }, { k: 'revision', v: REV }] },
+      { label: 'Integrity', owner: 'codebase-integrity-audit-loop', fields: [{ k: 'artifact', v: 'integrity-candidate-ledger:efb1dc5c…861345' }, { k: 'sha256', v: 'efb1dc5c2ce7de812c47659c20e1d63caf3693ea3ac530c772e4dfdb62861345' }, { k: 'revision', v: REV }] },
+      { label: 'Architecture', owner: 'architecture-improvement-intelligence', fields: [{ k: 'artifact', v: 'architecture-assessment:46dce766…a5e1da' }, { k: 'sha256', v: '46dce766f0fefe0a1b6918dcc019016c45001ae700e614fe0087af61f4a5e1da' }, { k: 'revision', v: REV }] }
+    ];
+
+    const blobs = [
+      {
+        title: 'Coverage, provenance, and report model', body: `{
+  "baseline_ref": {
+    "artifact_id": "ria-baseline:7d0ad3d6ed4af5deb3eb0aa69e7c566a048601536b2cbff24c1543eb81d8c5df",
+    "repository_revision": "f5ac818f09c0148f7ca8260d4b1f798a2db61cec",
+    "sha256": "7d0ad3d6ed4af5deb3eb0aa69e7c566a048601536b2cbff24c1543eb81d8c5df"
+  },
+  "engineering_intelligence_ref": {
+    "artifact_id": "engineering-intelligence:45087abc693e899b763bc85fe3ac361dfa1d09b8312be50e7a78594a4b2e5a87",
+    "baseline_binding": {
+      "artifact_id": "ria-baseline:7d0ad3d6ed4af5deb3eb0aa69e7c566a048601536b2cbff24c1543eb81d8c5df",
+      "repository_revision": "f5ac818f09c0148f7ca8260d4b1f798a2db61cec",
+      "sha256": "7d0ad3d6ed4af5deb3eb0aa69e7c566a048601536b2cbff24c1543eb81d8c5df"
+    },
+    "kind": "engineering-intelligence",
+    "mission_id": "ria:2026-08-21:full-repo",
+    "owner": "repository-improvement-assessment",
+    "repository_revision": "f5ac818f09c0148f7ca8260d4b1f798a2db61cec",
+    "schema_version": "1.0.0",
+    "scope_hash": "c375631d55b03cd23b97f3fdcb2b078966857265648c72962242517fc597875a",
+    "sha256": "45087abc693e899b763bc85fe3ac361dfa1d09b8312be50e7a78594a4b2e5a87"
+  },
+  "artifact_bindings": [
+    {
+      "owner": "repository-health-assessment",
+      "path": ".project-intelligence/assessments/health/1b/1bbb10a02c5988b7639634f46be559091f2763275a0654169dfe7bb899e5a23a.json",
+      "sha256": "1bbb10a02c5988b7639634f46be559091f2763275a0654169dfe7bb899e5a23a"
+    },
+    {
+      "owner": "codebase-integrity-audit-loop",
+      "path": ".project-intelligence/assessments/integrity/ef/efb1dc5c2ce7de812c47659c20e1d63caf3693ea3ac530c772e4dfdb62861345.json",
+      "sha256": "efb1dc5c2ce7de812c47659c20e1d63caf3693ea3ac530c772e4dfdb62861345"
+    },
+    {
+      "owner": "architecture-improvement-intelligence",
+      "path": ".project-intelligence/assessments/architecture/46/46dce766f0fefe0a1b6918dcc019016c45001ae700e614fe0087af61f4a5e1da.json",
+      "sha256": "46dce766f0fefe0a1b6918dcc019016c45001ae700e614fe0087af61f4a5e1da"
+    }
+  ],
+  "provenance": {
+    "architecture_scores_fabricated": false,
+    "child_artifacts_hash_verified": true,
+    "child_artifacts_revision_verified": true,
+    "health_grading_recomputed": true,
+    "integrity_scoring_recomputed": true,
+    "production_binding_enforced": true,
+    "report_model": "repository-improvement-assessment-report-data@3"
+  }
+}`},
+      {
+        title: 'Report election', body: `{
+  "lean": "generate",
+  "policy": "generate",
+  "reason": "A genuine cross-owner pattern (one cross-language vocabulary unguarded while its two siblings carry source-reading guards) appears in the health lanes, the integrity ledger and the architecture set as three views of one fact; nine candidates carry priority scores; and the caps/coverage story is durable review material rather than terminal output.",
+  "state": "elected-generate"
+}`},
+      {
+        title: 'Raw performance receipt', body: `{
+  "avoided_work": {
+    "duplicate_verification_suites": 0,
+    "full_sei_scans": 0,
+    "owner_agents": 0,
+    "report_only_rebuilds": 0
+  },
+  "cache": {
+    "architecture-improvement-intelligence": "MISS",
+    "codebase-integrity-audit-loop": "MISS",
+    "repository-health-assessment": "MISS",
+    "sei": "MISS",
+    "verification": "MISS"
+  },
+  "execution_note": "Owners were executed serially in the RIA parent context at the user's explicit direction after an initial parallel dispatch was stopped. No subagents were used for the three owner assessments.",
+  "mode": "FRESH_BASELINE",
+  "peaks": {
+    "class_concurrency": { "agent": 1, "hybrid": 3 },
+    "ready_queue": 3,
+    "refill_events": 2,
+    "total_concurrency": 3
+  },
+  "receipt_sha256": "24fabba124d889064b152959f50cad7a2fe64467cefe8ee66f14fb41bfe12d47",
+  "repository_revision": "f5ac818f09c0148f7ca8260d4b1f798a2db61cec",
+  "run_id": "ria-2026-08-21-f5ac818",
+  "schema_version": "ria.performance-receipt@1",
+  "startup": {
+    "mode": "FRESH_BASELINE",
+    "reason_codes": [
+      "NO_EXACT_ARTIFACT",
+      "NO_COMPATIBLE_REACHABLE_ANCESTOR",
+      "PRIOR_PIN_BOUND_TO_DIFFERENT_REVISION"
+    ],
+    "startup_time_ms": 4200
+  },
+  "wall_time_ms": 3600000,
+  "worker_budgets": {
+    "class_budgets": { "agent": 1, "hybrid": 2 },
+    "max_parallel": 3
+  }
+}`}
+    ];
+
+    const metrics = [
+      { label: 'Health', value: '67.9/100', note: 'Grade C · raw C' },
+      { label: 'Weighted coverage', value: '73.4%', note: 'Evidence strength 93.6%' },
+      { label: 'Confidence', value: '87.2', note: 'high' },
+      { label: 'Integrity candidates', value: '6', note: '5 eligible · 1 judgment-heavy' },
+      { label: 'Architecture candidates', value: '3', note: '0 scored; unscored remain explicitly unscored' },
+      { label: 'Cross-owner patterns', value: '4', note: 'Convergent findings, not duplicate ownership' },
+      { label: 'Verification', value: 'trustworthy', note: '6/10 commands passed' },
+      { label: 'Runtime profile', value: 'FRESH_BASELINE', note: 'MISS: 5' },
+      { label: 'Wall time', value: '1h', note: 'Measured end-to-end; concurrent phases are not additive' },
+      { label: 'Peak concurrency', value: '3', note: 'Peak READY queue 3' },
+      { label: 'Scheduler refills', value: '2', note: 'Immediate READY-queue refill events' },
+      { label: 'Avoided work', value: '0', note: 'Cached agents, scans, suites, and report-only rebuilds' }
+    ];
+
+    const sbDefs = [
+      {
+        short: 'Health', owner: 'repository-health-assessment', n: 67.9, kind: 'canonical',
+        basis: 'Canonical weighted lane grade', detail: '8 lanes · 2 caps applied · confidence 87.2'
+      },
+      {
+        short: 'Integrity', owner: 'codebase-integrity-audit-loop', n: 83.3, kind: 'derived',
+        basis: '5 of 6 candidates currently eligible', detail: 'Top priority 17 · 4 Strong · 1 blocked on human decision'
+      },
+      {
+        short: 'Architecture', owner: 'architecture-improvement-intelligence', n: 66.7, kind: 'derived',
+        basis: '2 of 3 candidates ready for the integrity loop', detail: 'No canonical ledger score exists; candidates stay “Not scored”'
+      },
+      {
+        short: 'Intelligence', owner: 'software-engineering-intelligence', n: 60, kind: 'derived',
+        basis: '6 of 10 declared gates observed', detail: 'Coverage 73.4% · evidence strength 93.6% · SEI assessment not carried'
+      }
+    ];
+    const scoreboard = sbDefs.map((s) => {
+      const c = s.n < 60 ? BAD : s.n < 70 ? WARN : s.n < 80 ? A : GOOD;
+      return {
+        ...s,
+        value: s.n.toFixed(1).replace(/\.0$/, ''),
+        grade: gradeFor(s.n),
+        pct: s.n,
+        color: c,
+        kindColor: s.kind === 'canonical' ? GOOD : '#6f7885',
+        kindBorder: s.kind === 'canonical' ? 'rgba(62,207,142,.36)' : 'rgba(255,255,255,.13)',
+        aria: s.owner + ' ' + s.n + ' out of 100'
+      };
+    });
+    const seiKpis = [
+      { label: 'Observed score', value: 'Not carried', unit: 'sei-owned', color: '#6f7885', note: 'Score visibility is separate from evidence coverage' },
+      { label: 'Acceptable target', value: 'Not carried', unit: 'sei default', color: '#6f7885', note: 'SEI default or repository override' },
+      { label: 'Evidence coverage', value: 'Not carried', unit: 'criteria', color: '#6f7885', note: 'Coverage is not a score' },
+      { label: 'Predictive state', value: 'Not carried', unit: 'ranking', color: '#6f7885', note: 'Validated ranking evidence, never a probability' }
+    ];
+    const seiHero = [
+      { label: 'Duplication clone families', unit: 'reported', value: '3464', color: '#f7f9fc', note: 'None read directly, so no duplication finding is raised on a count alone' },
+      { label: 'Files analysed', unit: 'snapshot scope', value: '218', color: '#f7f9fc', note: 'The inventory boundary every owner assessment inherits' },
+      { label: 'Snapshot reuse', unit: 'cache state', value: 'MISS', color: WARN, note: 'Ran fresh under FRESH_BASELINE; full SEI scans avoided: 0' }
+    ];
+    const gateObs = [
+      { label: 'observed', n: 6, color: GOOD },
+      { label: 'configured, unobserved', n: 4, color: WARN }
+    ];
+    let gAcc = 0;
+    const gTot = gateObs.reduce((t, g) => t + g.n, 0);
+    const gateSegs = gateObs.map((g) => {
+      const w = (g.n / gTot) * 100;
+      const seg = { ...g, x: +gAcc.toFixed(3), w: +w.toFixed(3) };
+      gAcc += w;
+      return seg;
+    });
+    const notCarried = [
+      { field: 'assessment score + acceptable target', reason: 'SEI-owned; RIA does not restate it as a grade' },
+      { field: '30-criterion coverage gate', reason: 'coverage_gate.enforce was not asserted for this run' },
+      { field: 'dimension and domain scores', reason: 'sidecar detail lives in the SEI assessment, not this projection' },
+      { field: 'evidence role distribution', reason: 'primary / supporting / context / limiting / coverage counts not projected' },
+      { field: 'predictive readiness', reason: 'no replay-verified promotion state was bound' },
+      { field: 'sei_assessment_ref', reason: 'schema mismatch: emits @3, RIA contract defines @1, RUNTIME-CONTRACT declares @2' }
+    ];
+    const seiConsumers = [
+      { name: 'repository-health-assessment', color: WARN },
+      { name: 'codebase-integrity-audit-loop', color: A },
+      { name: 'architecture-improvement-intelligence', color: GOOD }
+    ];
+    const suiteRaw = [
+      { label: 'pytest', n: 718, color: A },
+      { label: 'JUnit', n: 201, color: A2 },
+      { label: 'vitest', n: 111, color: A4 }
+    ];
+    let sAcc = 0;
+    const sTot = suiteRaw.reduce((t, s) => t + s.n, 0);
+    const suite = suiteRaw.map((s) => {
+      const w = (s.n / sTot) * 100;
+      const seg = { ...s, x: +sAcc.toFixed(3), w: +w.toFixed(3) };
+      sAcc += w;
+      return seg;
+    });
+    const readDepth = [
+      { label: 'app/ modules reachability-walked', n: '32 of 32', pct: 100, color: GOOD, aria: 'all 32 app modules walked' },
+      { label: 'surfaces inspected or sampled', n: '10 of 11', pct: 90.9, color: A, aria: '10 of 11 surfaces inspected or sampled' },
+      { label: 'largest live-path modules read', n: '0 of 2', pct: 0, color: WARN, aria: 'neither of the two largest live-path modules was read' }
+    ];
+    const seiFields = [
+      { k: 'artifact_id', v: 'engineering-intelligence:45087abc693e899b763bc85fe3ac361dfa1d09b8312be50e7a78594a4b2e5a87' },
+      { k: 'schema_version', v: '1.0.0' },
+      { k: 'mission_id', v: 'ria:2026-08-21:full-repo' },
+      { k: 'scope_hash', v: 'c375631d55b03cd23b97f3fdcb2b078966857265648c72962242517fc597875a' },
+      { k: 'baseline_binding', v: 'ria-baseline:7d0ad3d6ed4af5deb3eb0aa69e7c566a048601536b2cbff24c1543eb81d8c5df' },
+      { k: 'repository_revision', v: REV }
+    ];
+
+    return {
+      nav, metrics, lanes, meters, owners, candidates, priorities, patterns, routes,
+      evidence, gates, cacheRows, avoided, concurrency, ownerRefs, blobs,
+      seiHero, seiKpis, seiConsumers, suite, readDepth, gateSegs, notCarried, seiFields, L, scoreboard,
+      rubric, caps, confTerms, dims,
+      showAppendix,
+      showChartNotes: this.props.showChartNotes ?? true
+    };
+  }
+}
+</script>
+</body>
+</html>

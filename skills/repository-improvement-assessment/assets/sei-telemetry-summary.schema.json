@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/repository-improvement-assessment/sei-telemetry-summary.schema.json",
+  "title": "Bounded SEI monitoring summary",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "summary_id", "sei_binding", "cache_disposition", "collector_status", "observation_counts", "criterion_counts", "phase_timings_ms", "degraded_count", "unavailable_count", "gate_observation_ratio", "gate_observation_status", "failure_code"],
+  "properties": {
+    "schema_version": { "const": "sei.telemetry-summary@1" }, "summary_id": { "type": "string", "pattern": "^sei-telemetry:[0-9a-f]{64}$" },
+    "sei_binding": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["artifact_id", "owner", "kind", "schema_version", "sha256", "repository_revision", "mission_id", "scope_hash", "baseline_binding"], "properties": { "artifact_id": { "type": "string" }, "owner": { "type": "string" }, "kind": { "type": "string" }, "schema_version": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "repository_revision": { "type": "string" }, "mission_id": { "type": "string" }, "scope_hash": { "type": "string" }, "baseline_binding": { "$ref": "#/$defs/artifact_ref" } } }] },
+    "cache_disposition": { "type": ["string", "null"] }, "collector_status": { "type": "string" },
+    "observation_counts": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/count_map" }] },
+    "criterion_counts": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["established", "provisional", "not_scored", "not_applicable", "total", "applicable", "assessed"], "properties": { "established": { "$ref": "#/$defs/count" }, "provisional": { "$ref": "#/$defs/count" }, "not_scored": { "$ref": "#/$defs/count" }, "not_applicable": { "$ref": "#/$defs/count" }, "total": { "$ref": "#/$defs/count" }, "applicable": { "$ref": "#/$defs/count" }, "assessed": { "$ref": "#/$defs/count" } } }] },
+    "phase_timings_ms": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": { "type": "number", "minimum": 0 } }] },
+    "degraded_count": { "type": ["integer", "null"], "minimum": 0 }, "unavailable_count": { "type": ["integer", "null"], "minimum": 0 }, "gate_observation_ratio": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }, "gate_observation_status": { "enum": ["RECORDED", "UNAVAILABLE"] }, "failure_code": { "type": ["string", "null"] }
+  },
+  "$defs": {
+    "artifact_ref": { "type": "object", "additionalProperties": false, "required": ["artifact_id", "sha256", "repository_revision"], "properties": { "artifact_id": { "type": "string" }, "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "repository_revision": { "type": "string" } } },
+    "count": { "type": "integer", "minimum": 0 },
+    "count_map": { "type": "object", "additionalProperties": { "$ref": "#/$defs/count" } }
+  }
+}
