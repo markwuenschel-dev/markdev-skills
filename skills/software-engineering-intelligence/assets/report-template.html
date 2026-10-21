@@ -1,0 +1,1597 @@
+<!doctype html>
+<html lang="en" data-report-responsive="1">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="sei-island-sha256" content="{{SEI_ISLAND_SHA256}}">
+  <meta name="sei-snapshot-sha256" content="{{SEI_SNAPSHOT_SHA256}}">
+  <title>Software Engineering Intelligence</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+      background: #08111f;
+      color: #ecf3ff;
+      --panel: #111d30;
+      --line: #2b3d58;
+      --muted: #9fb0c9;
+      --cyan: #59d9dc;
+      --blue: #7aa7ff;
+      --violet: #aa8bff;
+      --amber: #ffc66d;
+      --rose: #ff839c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #08111f; }
+    main { width: min(3000px, calc(100% - 2 * clamp(12px, 2.2vw, 48px))); margin: auto; padding: 42px 0 64px; container-type:inline-size; container-name:report; }
+    header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    .compact-header { margin-bottom: 14px; align-items: center; }
+    .compact-header h1 { font-size: clamp(1.35rem, 2.5vw, 2rem); }
+    .compact-header .subtitle { display: none; }
+    .compact-header .revision { max-width: 320px; font-size: .68rem; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .eyebrow { margin: 0 0 8px; color: var(--cyan); font-size: .76rem; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 0; max-width: 760px; font-size: clamp(1.65rem, 3vw, 2.6rem); line-height: 1; letter-spacing: -.035em; }
+    .subtitle { max-width: 760px; margin: 14px 0 0; color: var(--muted); line-height: 1.55; }
+    .revision { flex: 0 1 360px; margin: 0; color: var(--muted); font: .78rem ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+    .revision p { margin: 0; }
+    .predictive-status { margin: 10px 0 0; color: var(--amber); font-size: .78rem; line-height: 1.45; }
+    .predictive-status strong { display: block; letter-spacing: .04em; }
+    .sticky-nav { position: sticky; top: 0; z-index: 4; display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: #0b1728; }
+    .sticky-nav a { color: var(--muted); padding: 7px 11px; border-radius: 7px; font-size: .74rem; font-weight: 750; text-decoration: none; }
+    .sticky-nav a:hover, .sticky-nav a:focus-visible { color: #08111f; background: var(--cyan); outline: none; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 0 0 16px; }
+    .kpi-card { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #0c1728; }
+    .kpi-card dt { color: var(--muted); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+    .kpi-card dd { margin: 7px 0 0; color: #ecf3ff; font-size: 1.35rem; font-weight: 780; font-variant-numeric: tabular-nums; }
+    .kpi-card small { display: block; margin-top: 5px; color: var(--muted); font-size: .7rem; line-height: 1.35; }
+    .target-line { stroke: var(--amber); stroke-width: 2; stroke-dasharray: 5 4; }
+    .target-label { fill: var(--amber) !important; font-size: 10px !important; }
+    .priority-gap-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+    .priority-gap-list li { display: grid; grid-template-columns: minmax(0, 1fr) 120px 72px; gap: 10px; align-items: center; }
+    .priority-gap-list .gap-track { display: block; height: 9px; overflow: hidden; border-radius: 5px; background: #1b2a40; }
+    .priority-gap-list .gap-fill { display: block; height: 100%; background: var(--cyan); }
+    .priority-gap-list .gap-fill.concern { background: var(--rose); }
+    .priority-gap-list li.visual-summary { display: block; }
+    .priority-gap-list .gap-value { color: var(--muted); font: .72rem ui-monospace, SFMono-Regular, Consolas, monospace; text-align: right; }
+    .assessment-score { margin: 6px 0; font-size: 2rem; font-weight: 700; color: var(--text); }
+    .assessment-summary { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(420px, 1.6fr); gap: 24px; align-items: center; }
+    .assessment-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+    .assessment-columns h3 { margin: 0 0 8px; font-size: .9rem; }
+    .assessment-columns ul { margin: 0; padding-left: 20px; }
+    .assessment-columns li { margin: 5px 0; line-height: 1.4; }
+    .assessment-detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+    .assessment-detail-grid h3 { margin: 0 0 8px; font-size: .9rem; }
+    .assessment-detail-grid ul { margin: 0; padding-left: 20px; }
+    .assessment-detail-grid li { margin: 6px 0; line-height: 1.45; }
+    .assessment-detail-grid .wide-detail { grid-column: 1 / -1; }
+    .assessment-visual-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+    .assessment-visual { min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #0c1728; }
+    .assessment-visual h3 { margin: 0 0 6px; font-size: .84rem; }
+    .assessment-visual .chart { min-height: 132px; }
+    .assessment-visual-note { margin: 5px 0 0; color: var(--muted); font-size: .72rem; line-height: 1.45; }
+    .assessment-drawer { margin-top: 12px; border: 1px solid var(--line); border-radius: 10px; background: #0b1728; box-shadow: none; }
+    .assessment-drawer summary { padding: 10px 12px; color: var(--muted); font-size: .74rem; }
+    .assessment-drawer[open] > .assessment-detail-grid { padding: 12px; border-top: 1px solid var(--line); }
+    @media (max-width: 850px) { .assessment-summary, .assessment-columns { grid-template-columns: 1fr; } .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 850px) { .assessment-visual-grid, .assessment-detail-grid { grid-template-columns: 1fr; } .assessment-detail-grid .wide-detail { grid-column: auto; } }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; margin-top: 12px; align-items: start; }
+    section, details, .subject-detail {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel) 94%, transparent);
+      box-shadow: 0 18px 50px rgb(0 0 0 / .16);
+    }
+    section { grid-column: span 6; min-width: 0; padding: 15px; }
+    section.wide { grid-column: 1 / -1; }
+    h2 { margin: 0; font-size: 1rem; letter-spacing: .01em; }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .state { color: var(--muted); font-size: .78rem; }
+    .empty { margin: 18px 0 4px; color: var(--amber); line-height: 1.5; }
+    .chart { display: block; width: 100%; min-height: 150px; overflow: visible; }
+    .chart text { fill: var(--muted); font: 11px ui-sans-serif, system-ui, sans-serif; }
+    .chart .axis { stroke: #53647d; stroke-width: 1; }
+    .chart .gridline { stroke: #263851; stroke-width: 1; }
+    .chart .chart-note { fill: var(--muted); font-size: 10px; }
+    .chart .chart-label { fill: #ecf3ff; font-size: 11px; }
+    .chart .chart-value { fill: #ecf3ff; font-size: 10px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .chart .chart-track { fill: #1b2a40; stroke: #2b3d58; stroke-width: 1; }
+    .visual-summary { margin: 8px 0 0; color: var(--muted); font-size: .76rem; line-height: 1.35; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    caption { padding-bottom: 9px; color: var(--muted); text-align: left; }
+    th, td { padding: 9px 8px; border-top: 1px solid #263851; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    th { color: var(--muted); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; }
+    td.number { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(160px, 1fr)); gap: 14px; align-items: end; }
+    .control { display: grid; gap: 7px; color: var(--muted); font-size: .76rem; }
+    .control input, .control select {
+      width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 8px;
+      background: #081424; color: #ecf3ff; padding: 8px 10px; font: inherit;
+    }
+    .control input:focus-visible, .control select:focus-visible, .subject-button:focus-visible {
+      outline: 3px solid var(--cyan); outline-offset: 2px;
+    }
+    .classification-controls { grid-column: span 2; display: flex; flex-wrap: wrap; gap: 12px 18px; margin: 0; padding: 0; border: 0; }
+    .classification-controls legend { width: 100%; margin-bottom: 3px; color: var(--muted); font-size: .76rem; }
+    .classification-controls label { color: var(--muted); font-size: .76rem; }
+    .classification-controls input { margin-right: 6px; }
+    .classification-note { grid-column: 1 / -1; margin: -4px 0 0; color: var(--muted); font-size: .72rem; }
+    .filter-status { align-self: center; margin: 0; color: var(--muted); font-size: .78rem; }
+    .collector-summary { margin: 12px 0 0; color: var(--muted); font-size: .78rem; }
+    .collector-summary.has-gaps { color: var(--amber); font-weight: 720; }
+    .investigations { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .investigations li { border-left: 3px solid var(--violet); border-radius: 6px; background: #0c1728; padding: 9px 11px; }
+    .subject-button { border: 0; background: transparent; color: inherit; padding: 0; font: inherit; font-weight: 720; text-align: left; cursor: pointer; }
+    .investigations .subject-button { display: block; margin-bottom: 5px; }
+    .investigations span { display: -webkit-box; color: var(--muted); line-height: 1.35; max-height: 1.35em; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 1; }
+    .is-related { background: color-mix(in srgb, var(--cyan) 13%, #0c1728) !important; box-shadow: inset 0 0 0 1px var(--cyan); }
+    .is-selected { box-shadow: inset 0 0 0 2px var(--amber) !important; }
+    circle[role="button"] { cursor: pointer; stroke: transparent; stroke-width: 3; }
+    circle[role="button"]:focus-visible, circle[aria-pressed="true"] { stroke: var(--amber); }
+    .subject-detail { margin-top: 16px; padding: 20px; }
+    .subject-detail[hidden] { display: none; }
+    .subject-detail h2 { overflow-wrap: anywhere; }
+    .detail-actions { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+    .close-detail { border: 1px solid var(--line); border-radius: 8px; background: #081424; color: inherit; padding: 8px 12px; cursor: pointer; }
+    .close-detail:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+    .detail-evidence { margin: 14px 0 0; padding-left: 20px; color: var(--muted); line-height: 1.5; }
+    .aggregate-linkage { display: none; }
+    .noscript-fallback { margin-bottom: 16px; }
+    .noscript-fallback > p { color: var(--muted); line-height: 1.5; }
+    .noscript-tables { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    details { margin-top: 16px; overflow: clip; }
+    .raw-disclosure { margin-top: 12px; border: 1px solid #263851; border-radius: 9px; background: #0b1728; }
+    .raw-disclosure summary { padding: 10px 12px; color: var(--muted); font-size: .74rem; }
+    .raw-disclosure table { padding: 0 8px 8px; }
+    summary { cursor: pointer; padding: 18px 20px; font-weight: 720; }
+    summary:focus-visible { outline: 3px solid var(--cyan); outline-offset: -4px; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: var(--line); border-top: 1px solid var(--line); }
+    .detail-grid article { min-width: 0; padding: 20px; background: var(--panel); }
+    .explorer-tabs { display: flex; flex-wrap: wrap; gap: 7px; padding: 12px 20px 0; }
+    .explorer-tabs button { border: 1px solid var(--line); border-radius: 7px; background: #081424; color: var(--muted); padding: 8px 11px; font: inherit; font-size: .74rem; cursor: pointer; }
+    .explorer-tabs button[aria-selected="true"] { border-color: var(--cyan); color: #08111f; background: var(--cyan); }
+    .explorer-tabs button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+    .predictive-horizons { display: flex; flex-wrap: wrap; gap: 7px; margin: 10px 0 0; }
+    .predictive-horizons button { border: 1px solid var(--line); border-radius: 7px; background: #081424; color: var(--muted); padding: 7px 10px; font: inherit; font-size: .72rem; cursor: pointer; }
+    .predictive-horizons button[aria-selected="true"] { border-color: var(--amber); color: #08111f; background: var(--amber); }
+    .predictive-horizons button:focus-visible { outline: 3px solid var(--cyan); outline-offset: 2px; }
+    .detail-grid h3 { margin: 0 0 12px; font-size: .92rem; }
+    .footnote { color: var(--muted); font-size: .68rem; line-height: 1.3; }
+    .assessment-summary .footnote,
+    .assessment-summary .visual-summary,
+    .assessment-visual-note,
+    #assessment-boundary,
+    #repository-overview-binding,
+    #authority-boundary,
+    #predictive-boundary,
+    .classification-note,
+    .collector-summary { display: none; }
+    .kpi-card small { display: none; }
+    .assessment-panel > .assessment-drawer { margin-bottom: 0; }
+    .detail-grid article { padding: 14px; }
+    .detail-grid article h3 { margin-bottom: 8px; font-size: .82rem; }
+    .raw-disclosure { margin-top: 8px; }
+    .raw-disclosure summary { padding: 8px 10px; font-size: .68rem; }
+    @media (min-width: 1500px) {
+      section { grid-column: span 4; }
+      section.wide { grid-column: 1 / -1; }
+      .assessment-visual-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .assessment-detail-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .assessment-detail-grid .wide-detail { grid-column: 1 / -1; }
+      .kpi-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 3000px); padding-top: 24px; }
+      header { display: block; }
+      .revision { margin-top: 18px; }
+      section { grid-column: 1 / -1; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .noscript-tables { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+      .priority-gap-list li { grid-template-columns: minmax(0, 1fr) 80px 60px; }
+      .controls { grid-template-columns: 1fr; }
+      .classification-controls { grid-column: 1 / -1; }
+    }
+    @media print {
+      :root { color-scheme: light; background: white; color: #111827; }
+      body { background: white; }
+      .sticky-nav { position: static; background: white; }
+      .sticky-nav a { color: #111827; border: 1px solid #d1d5db; }
+      .kpi-card, .assessment-visual, .priority-gap-list li { background: white; border-color: #d1d5db; }
+      main { width: 100%; padding: 0; }
+      section, details { break-inside: avoid; background: white; box-shadow: none; }
+      .chart text, .state, .subtitle, .revision, .footnote { color: #374151; fill: #374151; }
+      details > * { display: block; }
+      .kpi-card dd, .kpi-card dt, .kpi-card small, .assessment-score { color: #111827; }
+      .chart .chart-label, .chart .chart-value, .chart .chart-note, .chart text { fill: #111827; }
+      .chart .chart-track { fill: #e5e7eb; stroke: #d1d5db; }
+      .chart .gridline { stroke: #d1d5db; }
+      .chart .axis { stroke: #6b7280; }
+      .priority-gap-list .gap-track { background: #e5e7eb; }
+      .priority-gap-list .gap-value { color: #374151; }
+      .chart .series-legend-label { fill: #111827; }
+    }
+    {{REPORT_PRESENTATION_CSS}}
+  </style>
+</head>
+<body>
+  <script type="application/json" data-sei-island>{{SEI_REPORT_PROJECTION_JSON}}</script>
+  <main class="rp-shell">
+    <header class="compact-header">
+      <div>
+        <p class="eyebrow">Revision-bound evidence</p>
+        <h1>Software Engineering Intelligence</h1>
+        <p class="subtitle">Target-aware evidence dashboard.</p>
+      </div>
+      <div class="revision">
+        <p id="source-binding"></p>
+        <p class="predictive-status"><strong id="predictive-state"></strong><span id="predictive-reason"></span></p>
+      </div>
+    </header>
+
+    <nav class="sticky-nav" aria-label="Report sections">
+      <a href="#overview">Overview</a>
+      <a href="#forecast">Forecast</a>
+      <a href="#hotspots">Hotspots</a>
+      <a href="#trends">Trends</a>
+      <a href="#evidence">Evidence</a>
+    </nav>
+
+    <section class="wide" id="overview" aria-labelledby="executive-strip-title">
+      <div class="section-head"><h2 id="executive-strip-title">Executive view</h2><span class="state">Observed evidence · targets are explicit</span></div>
+      <dl class="kpi-grid">
+        <div class="kpi-card"><dt>Current score</dt><dd id="kpi-score">—</dd><small id="kpi-score-detail">Score visibility is separate from evidence coverage.</small></div>
+        <div class="kpi-card"><dt>Acceptable target</dt><dd id="kpi-target">—</dd><small id="kpi-target-detail">SEI default or repository override.</small></div>
+        <div class="kpi-card"><dt>Evidence coverage</dt><dd id="kpi-coverage">—</dd><small id="kpi-coverage-detail">Coverage is not a score.</small></div>
+        <div class="kpi-card"><dt>Predictive state</dt><dd id="kpi-predictive">—</dd><small id="kpi-predictive-detail">Validated ranking evidence, never a probability.</small></div>
+      </dl>
+    </section>
+
+    <noscript>
+      <section class="wide noscript-fallback" aria-labelledby="noscript-title">
+        <h2 id="noscript-title">Bounded evidence view index</h2>
+        <p>JavaScript is disabled. This offline report remains self-contained, but projected values cannot be expanded into HTML tables without the inline renderer. The canonical snapshot is not embedded.</p>
+        <div class="noscript-tables">
+          <table><caption>Investigation surfaces</caption><thead><tr><th scope="col">Bound</th><th scope="col">State</th></tr></thead><tbody><tr><td>15 rows</td><td>Inline rendering disabled</td></tr></tbody></table>
+          <table><caption>Dependency and coupling</caption><thead><tr><th scope="col">Bound</th><th scope="col">State</th></tr></thead><tbody><tr><td>20 rows per view</td><td>Inline rendering disabled</td></tr></tbody></table>
+          <table><caption>Duplication</caption><thead><tr><th scope="col">Bound</th><th scope="col">State</th></tr></thead><tbody><tr><td>12 rows</td><td>Inline rendering disabled</td></tr></tbody></table>
+          <table><caption>Trend</caption><thead><tr><th scope="col">Bound</th><th scope="col">State</th></tr></thead><tbody><tr><td>20 rows</td><td>Inline rendering disabled</td></tr></tbody></table>
+        </div>
+      </section>
+    </noscript>
+
+    <div class="grid">
+      <section class="wide assessment-panel" aria-labelledby="assessment-title">
+        <div class="section-head"><h2 id="assessment-title">SEI observed engineering assessment</h2><span class="state" id="assessment-state"></span></div>
+        <div class="assessment-summary">
+          <div>
+            <p class="eyebrow">Observed engineering practice</p>
+            <p class="assessment-score" id="assessment-score"></p>
+            <p class="footnote" id="assessment-coverage"></p>
+            <p class="visual-summary" id="assessment-summary"></p>
+          </div>
+          <div class="rp-chart-wrap" data-rp-chart="assessment-dimension-chart"><svg class="chart" id="assessment-dimension-chart" viewBox="0 0 760 260" role="img" aria-labelledby="assessment-dimension-chart-title assessment-dimension-chart-desc">
+            <title id="assessment-dimension-chart-title">Engineering dimension score and evidence coverage</title>
+            <desc id="assessment-dimension-chart-desc">Each row shows observed score as a bar and evidence coverage as a dot; not-scored dimensions remain visibly unfilled.</desc>
+          </svg></div>
+        </div>
+        <ul class="priority-gap-list" id="assessment-priority-gaps" aria-label="Top target gaps"></ul>
+        <div class="assessment-visual-grid" aria-label="Assessment evidence visual summaries">
+          <div class="assessment-visual">
+            <h3>Engineering domains</h3>
+            <div class="rp-chart-wrap" data-rp-chart="assessment-domain-chart"><svg class="chart" id="assessment-domain-chart" viewBox="0 0 760 260" role="img" aria-labelledby="assessment-domain-chart-title assessment-domain-chart-desc">
+              <title id="assessment-domain-chart-title">Engineering domain score and evidence coverage</title>
+              <desc id="assessment-domain-chart-desc">Each domain shows its defensible score, evidence coverage, and whether the result is complete, partial, or unavailable.</desc>
+            </svg></div>
+            <p class="assessment-visual-note">Bars are scores; amber dots are evidence coverage. A blank bar is not a zero.</p>
+          </div>
+          <div class="assessment-visual">
+            <h3>Evidence roles in the assessment</h3>
+            <div class="rp-chart-wrap" data-rp-chart="assessment-evidence-roles-chart"><svg class="chart" id="assessment-evidence-roles-chart" viewBox="0 0 760 220" role="img" aria-labelledby="assessment-evidence-roles-chart-title assessment-evidence-roles-chart-desc">
+              <title id="assessment-evidence-roles-chart-title">Evidence role distribution</title>
+              <desc id="assessment-evidence-roles-chart-desc">Observed evidence is grouped by why it contributes: primary, supporting, context, limiting, and coverage.</desc>
+            </svg></div>
+            <p class="assessment-visual-note">Role counts explain why a criterion is scored; they are not independent scores.</p>
+          </div>
+          <div class="assessment-visual">
+            <h3>Assessment coverage accounting</h3>
+            <div class="rp-chart-wrap" data-rp-chart="assessment-coverage-accounting-chart"><svg class="chart" id="assessment-coverage-accounting-chart" viewBox="0 0 760 220" role="img" aria-labelledby="assessment-coverage-accounting-chart-title assessment-coverage-accounting-chart-desc">
+              <title id="assessment-coverage-accounting-chart-title">Assessment coverage accounting</title>
+              <desc id="assessment-coverage-accounting-chart-desc">Criteria are partitioned into established, provisional, not scored, and not applicable states, with reasons for missing evidence.</desc>
+            </svg></div>
+            <p class="assessment-visual-note">Mapping failures must remain zero. Missing evidence is classified, never converted to a failing score.</p>
+          </div>
+          <div class="assessment-visual">
+            <h3>What changed since the compatible observation</h3>
+            <div class="rp-chart-wrap" data-rp-chart="assessment-trajectory-chart"><svg class="chart" id="assessment-trajectory-chart" viewBox="0 0 760 220" role="img" aria-labelledby="assessment-trajectory-chart-title assessment-trajectory-chart-desc">
+              <title id="assessment-trajectory-chart-title">Assessment trajectory movement</title>
+              <desc id="assessment-trajectory-chart-desc">The trajectory shows score and evidence-coverage movement, movement cause, and semantic compatibility.</desc>
+            </svg></div>
+            <p class="assessment-visual-note">Movement is descriptive. A changed semantic digest bounds comparison; it does not invent a trend.</p>
+          </div>
+        </div>
+        <details class="assessment-drawer">
+          <summary>Assessment detail · roles, coverage, trajectory, explanations</summary>
+          <div class="assessment-detail-grid">
+          <div><h3>Evidence roles</h3><ul id="assessment-evidence-roles"></ul></div>
+          <div><h3>Coverage accounting</h3><p class="footnote" id="assessment-coverage-accounting"></p></div>
+          <div><h3>Trajectory detail</h3><ul id="assessment-trajectory"></ul></div>
+          <div class="wide-detail"><h3>Criterion explanations</h3><ul id="assessment-criterion-explanations"></ul></div>
+          </div>
+        <p class="footnote" id="assessment-boundary">This is an evidence-backed SEI engineering assessment, not a Repository Health grade, integrity conclusion, architecture decision, or RIA priority.</p>
+        <p class="sr-only" id="assessment-authority-note">Repository condition: NOT GRADED — SEI supplies evidence; Repository Health retains grading authority. This is not a grade or prescribed action.</p>
+          <details class="assessment-explanations">
+            <summary>Open criterion explanations and next investigations</summary>
+            <div class="assessment-columns">
+              <div><h3>Strengths</h3><ul id="assessment-strengths"></ul></div>
+              <div><h3>Constraints</h3><ul id="assessment-deficiencies"></ul></div>
+              <div><h3>What to investigate next</h3><ul id="assessment-interventions"></ul></div>
+            </div>
+          </details>
+        </details>
+      </section>
+
+      <section class="wide" aria-labelledby="repository-overview-title">
+        <div class="section-head"><h2 id="repository-overview-title">Repository overview</h2></div>
+        <p class="subtitle" id="repository-overview-summary"></p>
+        <p class="footnote" id="repository-overview-binding"></p>
+      </section>
+
+      <section class="wide" aria-labelledby="investigations-title">
+        <div class="section-head"><h2 id="investigations-title">Where should I look first?</h2><span class="state" id="investigations-state"></span></div>
+        <ul class="investigations" id="investigations-list"></ul>
+        <p class="footnote" id="authority-boundary"></p>
+      </section>
+
+      <section class="wide" aria-labelledby="capability-coverage-title">
+        <div class="section-head"><h2 id="capability-coverage-title">Capability coverage</h2><span class="state" id="capability-coverage-state"></span></div>
+        <div class="rp-chart-wrap" data-rp-chart="capability-coverage-chart"><svg class="chart" id="capability-coverage-chart" viewBox="0 0 760 280" role="img" aria-labelledby="capability-coverage-chart-title capability-coverage-chart-desc">
+          <title id="capability-coverage-chart-title">Engineering capability evidence map</title>
+          <desc id="capability-coverage-chart-desc">Each tile is one engineering capability. Its direct label explains whether the repository contains complete, partial, configured-only, external, unsupported, or unresolved evidence.</desc>
+        </svg></div>
+        <p class="visual-summary" id="capability-coverage-summary"></p>
+        <p class="footnote">Each tile is evidence state, not a score. Open Advanced / Evidence Explorer for exact metric provenance.</p>
+      </section>
+
+      <section id="hotspots" aria-labelledby="scatter-title">
+        <div class="section-head"><h2 id="scatter-title">Structural × behavioral map</h2><span class="state" id="scatter-state"></span></div>
+        <div class="rp-chart-wrap" data-rp-chart="scatter-chart"><svg class="chart" id="scatter-chart" viewBox="0 0 520 300" role="img" aria-labelledby="scatter-chart-title scatter-chart-desc">
+          <title id="scatter-chart-title">Structural and behavioral evidence scatter</title>
+          <desc id="scatter-chart-desc">Each point is one human-maintained subject with structural and behavioral percentile evidence.</desc>
+        </svg></div>
+        <p class="empty" id="scatter-empty" hidden>No scatter points match the active path filter.</p>
+        <p class="footnote" id="scatter-unavailable" hidden></p>
+        <p class="footnote">Axes compare each subject with its observed peer group. Partial points retain their coverage detail. These are investigation leads, not defect probabilities.</p>
+      </section>
+
+      <section id="trends" aria-labelledby="recent-changes-title">
+        <div class="section-head"><h2 id="recent-changes-title">Recent meaningful changes</h2><span class="state" id="trend-primary-state"></span></div>
+        <p class="footnote" id="trend-primary-summary"></p>
+        <p class="visual-summary" id="trend-primary-context" hidden></p>
+        <div class="rp-chart-wrap" data-rp-chart="trend-primary-chart"><svg class="chart" id="trend-primary-chart" viewBox="0 0 720 220" role="img" aria-labelledby="trend-primary-chart-title trend-primary-chart-desc">
+          <title id="trend-primary-chart-title">Factual repository change comparisons</title>
+          <desc id="trend-primary-chart-desc">Each row compares an earlier and current repository measurement on that row's own scale. Exact values and units are labeled.</desc>
+        </svg></div>
+        <p class="empty" id="trend-primary-empty" hidden>No comparable repository trends are available.</p>
+        <p class="footnote">Why should I care? Factual changes become useful when they are bound to a compatible earlier observation. A delta does not establish whether a change is good or bad.</p>
+      </section>
+
+      <section aria-labelledby="complexity-title">
+        <div class="section-head"><h2 id="complexity-title">Complexity in plain language</h2><span class="state" id="complexity-state"></span></div>
+        <p class="footnote" id="complexity-summary"></p>
+        <div class="rp-chart-wrap" data-rp-chart="complexity-profile-chart"><svg class="chart" id="complexity-profile-chart" viewBox="0 0 720 220" role="img" aria-labelledby="complexity-profile-chart-title complexity-profile-chart-desc">
+          <title id="complexity-profile-chart-title">Callable complexity profiles</title>
+          <desc id="complexity-profile-chart-desc">Each row locates the typical, complex-tail, and maximum callable complexity for a supported language partition on one shared scale.</desc>
+        </svg></div>
+        <p class="empty" id="complexity-empty" hidden>No supported complexity profile is available.</p>
+      </section>
+
+      <section aria-labelledby="duplication-title">
+        <div class="section-head"><h2 id="duplication-title">Repeated structure</h2><span class="state" id="duplication-primary-state"></span></div>
+        <div class="rp-chart-wrap" data-rp-chart="duplication-chart"><svg class="chart" id="duplication-chart" viewBox="0 0 720 180" role="img" aria-labelledby="duplication-chart-title duplication-chart-desc">
+          <title id="duplication-chart-title">Observed repeated source structure</title>
+          <desc id="duplication-chart-desc">A horizontal bar shows the observed share of analyzed source lines that belong to a repeated structural clone family. This is evidence, not a remediation priority.</desc>
+        </svg></div>
+        <p class="empty" id="duplication-empty" hidden>No duplication evidence is available.</p>
+        <p class="visual-summary" id="duplication-summary"></p>
+      </section>
+
+      <section class="wide" id="forecast" aria-labelledby="predictive-intelligence-title">
+        <div class="section-head"><h2 id="predictive-intelligence-title">Predictive evaluation</h2><span class="state" id="predictive-evaluation-state"></span></div>
+        <p class="footnote" id="predictive-boundary"></p>
+        <div class="predictive-horizons" id="predictive-horizon-tabs" role="tablist" aria-label="Forward horizon"></div>
+        <div id="predictive-horizon-panel" role="tabpanel"><div class="rp-chart-wrap" data-rp-chart="predictive-forecast-chart"><svg class="chart" id="predictive-forecast-chart" viewBox="0 0 920 300" role="img" aria-labelledby="predictive-forecast-chart-title predictive-forecast-chart-desc">
+          <title id="predictive-forecast-chart-title">Predictive ranking state</title>
+          <desc id="predictive-forecast-chart-desc">Rank-only predictive validation state; no probability claim is made.</desc>
+        </svg></div></div>
+        <div class="scroll" id="predictive-evaluation-table"></div>
+      </section>
+
+      <section class="wide" aria-labelledby="controls-title">
+        <div class="section-head"><h2 id="controls-title">Explore evidence details</h2></div>
+        <div class="controls">
+          <label class="control" for="path-search">Subject or projected identifier
+            <input id="path-search" type="search" autocomplete="off" placeholder="Filter bounded evidence views">
+          </label>
+          <label class="control" for="language-filter">Language composition
+            <select id="language-filter" value="all"></select>
+          </label>
+          <label class="control" for="evidence-filter">Investigation evidence
+            <select id="evidence-filter" value="all"></select>
+          </label>
+          <fieldset class="classification-controls">
+            <legend>Subject classifications</legend>
+            <label><input id="test-visibility" type="checkbox" disabled aria-describedby="classification-availability">Test paths</label>
+            <label><input id="generated-visibility" type="checkbox" disabled aria-describedby="classification-availability">Generated paths</label>
+          </fieldset>
+          <p class="filter-status" id="filter-status" role="status" aria-live="polite"></p>
+          <p class="classification-note" id="classification-availability">Test and generated classifications are not represented in this bounded projection, so these visibility controls are unavailable.</p>
+        </div>
+      </section>
+    </div>
+
+    <aside class="subject-detail" id="subject-detail" hidden tabindex="-1" aria-labelledby="subject-detail-title">
+      <div class="detail-actions">
+        <div>
+          <p class="eyebrow">Selected subject</p>
+          <h2 id="subject-detail-title"></h2>
+        </div>
+        <button class="close-detail" id="subject-detail-close" type="button">Close detail</button>
+      </div>
+      <p id="subject-detail-summary" role="status" aria-live="polite"></p>
+      <ul class="detail-evidence" id="subject-detail-evidence"></ul>
+    </aside>
+
+    <details id="evidence">
+      <summary>Advanced / Evidence Explorer</summary>
+      <div class="explorer-tabs" role="tablist" aria-label="Evidence Explorer views">
+        <button type="button" role="tab" id="explorer-tab-coverage" aria-controls="evidence-explorer-panel" aria-selected="true" tabindex="0" data-explorer-tab="coverage">Coverage</button>
+        <button type="button" role="tab" id="explorer-tab-complexity" aria-controls="evidence-explorer-panel" aria-selected="false" tabindex="-1" data-explorer-tab="complexity">Complexity</button>
+        <button type="button" role="tab" id="explorer-tab-dependencies" aria-controls="evidence-explorer-panel" aria-selected="false" tabindex="-1" data-explorer-tab="dependencies">Dependencies</button>
+        <button type="button" role="tab" id="explorer-tab-change" aria-controls="evidence-explorer-panel" aria-selected="false" tabindex="-1" data-explorer-tab="change">Change</button>
+        <button type="button" role="tab" id="explorer-tab-duplication" aria-controls="evidence-explorer-panel" aria-selected="false" tabindex="-1" data-explorer-tab="duplication">Duplication</button>
+        <button type="button" role="tab" id="explorer-tab-trend" aria-controls="evidence-explorer-panel" aria-selected="false" tabindex="-1" data-explorer-tab="trend">Trends</button>
+        <button type="button" role="tab" id="explorer-tab-lineage" aria-controls="evidence-explorer-panel" aria-selected="false" tabindex="-1" data-explorer-tab="lineage">Raw lineage</button>
+      </div>
+      <div class="detail-grid" id="evidence-explorer-panel" role="tabpanel">
+        <article data-explorer-panel="coverage">
+          <h3>Composition</h3>
+          <span class="state" id="composition-state"></span>
+          <div class="rp-chart-wrap" data-rp-chart="composition-chart"><svg class="chart" id="composition-chart" viewBox="0 0 520 190" role="img" aria-labelledby="composition-chart-title composition-chart-desc">
+            <title id="composition-chart-title">Repository composition by language</title>
+            <desc id="composition-chart-desc">Horizontal bars compare observed source lines by language.</desc>
+          </svg></div>
+          <div class="scroll" id="composition-table"></div>
+        </article>
+        <article data-explorer-panel="coverage">
+          <h3>Raw evidence coverage</h3>
+          <span class="state" id="evidence-state"></span>
+          <div class="rp-chart-wrap" data-rp-chart="evidence-chart"><svg class="chart" id="evidence-chart" viewBox="0 0 520 190" role="img" aria-labelledby="evidence-chart-title evidence-chart-desc">
+            <title id="evidence-chart-title">Evidence states</title>
+            <desc id="evidence-chart-desc">Bars show counts for every canonical evidence state.</desc>
+          </svg></div>
+          <div class="scroll" id="evidence-table"></div>
+          <p class="collector-summary" id="collector-state-summary"></p>
+          <div class="scroll" id="collector-table"></div>
+        </article>
+        <article data-explorer-panel="complexity" data-raw-lineage="true">
+          <h3>Raw complexity metrics</h3>
+          <div class="rp-chart-wrap" data-rp-chart="complexity-chart"><svg class="chart" id="complexity-chart" viewBox="0 0 520 190" role="img" aria-labelledby="complexity-chart-title complexity-chart-desc">
+            <title id="complexity-chart-title">Observed complexity distribution metrics</title>
+            <desc id="complexity-chart-desc">Bars compare the bounded set of observed aggregate complexity values.</desc>
+          </svg></div>
+          <div class="scroll" id="complexity-subject-table"></div>
+          <div class="scroll" id="complexity-table"></div>
+        </article>
+        <article data-explorer-panel="dependencies" data-raw-lineage="true"><h3>Topology</h3><div class="scroll" id="topology-view"></div></article>
+        <article data-explorer-panel="change" data-raw-lineage="true"><h3>Coupling</h3><div class="scroll" id="coupling-view"></div></article>
+        <article data-explorer-panel="duplication" data-raw-lineage="true"><h3>Duplication</h3><span class="state" id="duplication-state"></span><p class="footnote" id="duplication-explanation"></p><div class="scroll" id="duplication-view"></div></article>
+        <article data-explorer-panel="trend" data-raw-lineage="true"><h3>Trend</h3><div class="scroll" id="trend-view"></div></article>
+      </div>
+      <p class="aggregate-linkage">Dependency, duplication, and trend rows are selectable by their projected metric identifiers. They carry no file-subject binding unless the bounded projection explicitly supplies one.</p>
+    </details>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+      const projection = JSON.parse(document.querySelector("[data-sei-island]").textContent);
+      const svgNamespace = "http://www.w3.org/2000/svg";
+      const colors = ["#59d9dc", "#7aa7ff", "#aa8bff", "#ffc66d", "#ff839c"];
+      const text = (value) => value === null || value === undefined ? "unavailable" : String(value);
+      const percentage = (value) => value === null ? "unavailable" : String(Math.round(value * 10000) / 100) + "%";
+      const emptyText = (value) => {
+        if (typeof value === "string") return "Unavailable — " + value;
+        if (!value || typeof value !== "object") return "Unavailable — no bounded evidence is available.";
+        return value.headline + ". " + value.explanation + " Next evidence: " + value.availability_path;
+      };
+      const empty = (target, reason) => {
+        const message = document.createElement("p");
+        message.className = "empty";
+        message.textContent = emptyText(reason);
+        target.replaceChildren(message);
+      };
+      const state = (id, view) => {
+        const omitted = Number(view.omitted_count || view.distribution_omitted_count || 0);
+        const semanticState = view.evidence_state || view.state;
+        document.getElementById(id).textContent = String(semanticState).replaceAll("-", " ") + (omitted > 0 ? " · " + omitted + " omitted by bound" : "");
+      };
+      const explorer = projection.evidence_explorer;
+      const rawViews = explorer.raw_views;
+      // The browser report has querySelectorAll; the tiny no-DOM verifier uses
+      // only getElementById, so keep the tab enhancement optional there.
+      const explorerPanels = typeof document.querySelectorAll === "function"
+        ? Array.from(document.querySelectorAll("[data-explorer-panel]")) : [];
+      // One WAI-ARIA tabs helper for both tab sets: aria-controls, a single
+      // role=tabpanel labelled by the active tab, roving tabindex, and
+      // Arrow/Home/End keys with automatic activation.
+      const bindTablist = (tabs, panel, onSelect) => {
+        const select = (index, focus) => {
+          tabs.forEach((tab, position) => {
+            const active = position === index;
+            tab.setAttribute("aria-selected", active ? "true" : "false");
+            tab.setAttribute("tabindex", active ? "0" : "-1");
+          });
+          if (panel && tabs[index]?.id) panel.setAttribute("aria-labelledby", tabs[index].id);
+          if (focus && typeof tabs[index]?.focus === "function") tabs[index].focus();
+          onSelect(tabs[index], index);
+        };
+        tabs.forEach((tab, index) => {
+          tab.setAttribute("role", "tab");
+          if (panel?.id) tab.setAttribute("aria-controls", panel.id);
+          tab.addEventListener("click", () => select(index, false));
+          tab.addEventListener("keydown", (event) => {
+            const last = tabs.length - 1;
+            const next = { ArrowRight: index === last ? 0 : index + 1, ArrowDown: index === last ? 0 : index + 1,
+              ArrowLeft: index === 0 ? last : index - 1, ArrowUp: index === 0 ? last : index - 1, Home: 0, End: last }[event.key];
+            if (next === undefined) return;
+            if (typeof event.preventDefault === "function") event.preventDefault();
+            select(next, true);
+          });
+        });
+        return select;
+      };
+      const explorerTabs = ["coverage", "complexity", "dependencies", "change", "duplication", "trend", "lineage"]
+        .map((tab) => document.getElementById("explorer-tab-" + tab)).filter(Boolean);
+      const selectExplorerTab = bindTablist(explorerTabs, document.getElementById("evidence-explorer-panel"), (button) => {
+        const tab = button.getAttribute("data-explorer-tab");
+        explorerPanels.forEach((panel) => {
+          const visible = tab === "lineage" ? panel.getAttribute("data-raw-lineage") === "true" : panel.getAttribute("data-explorer-panel") === tab;
+          panel.hidden = !visible;
+        });
+      });
+      if (explorerTabs.length > 0) selectExplorerTab(0, false);
+      const trendStatus = projection.trend_status;
+      const linked = { scatter: [], investigations: [], complexity: [], topology: [], coupling: [], duplication: [], trend: [] };
+      let selectedSubject = null;
+      let selectionActivator = null;
+      const normalizeSubject = (value) => String(value ?? "").replace(/^file:/, "").toLowerCase();
+      const isSubject = (candidate, selected) => normalizeSubject(candidate) === normalizeSubject(selected);
+      const subjectsForInvestigation = (item) => item.kind === "temporal-coupling"
+        ? item.subject.split(" ↔ ")
+        : [item.subject];
+      const clearLinkedSurface = (surface) => { linked[surface] = []; };
+      const registerLinked = (surface, element, subjects, primary = subjects[0]) => {
+        const entry = { element, subjects: subjects.filter(Boolean), primary };
+        linked[surface].push(entry);
+        if (primary) element.setAttribute("data-subject", primary);
+        return entry;
+      };
+      const relatedToSelection = (subjects) => selectedSubject !== null
+        && subjects.some((subject) => isSubject(subject, selectedSubject));
+      const updateHighlights = () => {
+        let currentActivator = null;
+        Object.values(linked).flat().forEach((entry) => {
+          const related = relatedToSelection(entry.subjects);
+          const selected = selectedSubject !== null && isSubject(entry.primary, selectedSubject);
+          entry.element.classList.toggle("is-related", related);
+          entry.element.classList.toggle("is-selected", selected);
+          if (entry.element.getAttribute("aria-pressed") !== null) {
+            entry.element.setAttribute("aria-pressed", selected ? "true" : "false");
+            if (selected && currentActivator === null) currentActivator = entry.element;
+          }
+        });
+        if (selectedSubject !== null && selectionActivator === null) selectionActivator = currentActivator;
+      };
+      const relatedItems = (items, subjectsOf) => selectedSubject === null
+        ? []
+        : items.filter((item) => subjectsOf(item).some((subject) => isSubject(subject, selectedSubject)));
+      const quantity = (count, singular) => String(count) + " " + singular + (count === 1 ? "" : "s");
+      const semanticMetricLabel = (item, fallback) => {
+        if (typeof item?.label === "string" && item.label.trim().length > 0) return item.label;
+        const words = String(item?.metric_id ?? "")
+          .replace(/^[^.]+\./, "")
+          .replace(/[.:]/g, " ")
+          .replaceAll("_", " ")
+          .split(/\s+/)
+          .filter(Boolean);
+        return words.length === 0 ? fallback + " observation" : fallback + " · " + words.join(" ");
+      };
+      const updateDetail = () => {
+        const detail = document.getElementById("subject-detail");
+        if (selectedSubject === null) {
+          detail.hidden = true;
+          document.getElementById("subject-detail-title").textContent = "";
+          document.getElementById("subject-detail-summary").textContent = "";
+          document.getElementById("subject-detail-evidence").replaceChildren();
+          return;
+        }
+        const scatterItems = relatedItems(projection.scatter.points, (item) => [item.subject]);
+        const investigationItems = relatedItems(projection.investigations.items, subjectsForInvestigation);
+        const couplingItems = relatedItems(rawViews.coupling.relationships, (item) => [item.source, item.target]);
+        const complexityItems = relatedItems(rawViews.complexity.top_items, (item) => [item.subject]);
+        const metricViews = [
+          ["dependency metric", rawViews.topology.items],
+          ["duplication metric", rawViews.duplication.items],
+          ["trend metric", rawViews.trend.items],
+        ];
+        document.getElementById("subject-detail-title").textContent = selectedSubject;
+        document.getElementById("subject-detail-summary").textContent = [
+          quantity(scatterItems.length, "scatter point"),
+          quantity(investigationItems.length, "investigation"),
+          quantity(couplingItems.length, "coupling relationship"),
+          quantity(complexityItems.length, "complexity subject"),
+          ...metricViews.map(([label, items]) => quantity(relatedItems(items, (item) => [item.metric_id]).length, label)),
+        ].join(" · ");
+        const evidence = document.getElementById("subject-detail-evidence");
+        evidence.replaceChildren();
+        const descriptions = [
+          ...scatterItems.map((item) => "Scatter — structural " + percentage(item.structural) + ", behavioral " + percentage(item.behavioral)),
+          ...investigationItems.map((item) => "Investigation — " + item.kind + " · " + item.signal),
+          ...couplingItems.map((item) => "Coupling — " + item.source + " ↔ " + item.target + " · " + text(item.co_change_count) + " co-changes"),
+          ...complexityItems.map((item) => "Complexity — " + semanticMetricLabel(item, "Complexity") + " · " + text(item.value) + " " + item.unit),
+          ...metricViews.flatMap(([label, items]) => relatedItems(items, (item) => [item.metric_id])
+            .map((item) => semanticMetricLabel(item, label) + " · " + text(item.value) + " " + (item.unit ?? ""))),
+        ];
+        if (descriptions.length === 0) descriptions.push("No related bounded evidence is present for this selection.");
+        descriptions.forEach((description) => {
+          const row = document.createElement("li");
+          row.textContent = description;
+          evidence.append(row);
+        });
+        detail.hidden = false;
+      };
+      const selectSubject = (subject, activator) => {
+        selectedSubject = subject;
+        selectionActivator = activator;
+        updateHighlights();
+        updateDetail();
+        const detail = document.getElementById("subject-detail");
+        detail.focus();
+        detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      };
+      const clearSelection = () => {
+        selectedSubject = null;
+        updateHighlights();
+        updateDetail();
+        if (selectionActivator) selectionActivator.focus();
+        selectionActivator = null;
+      };
+      const subjectButton = (subject, label = subject, accessibleLabel = "Select " + subject) => {
+        const button = document.createElement("button");
+        button.className = "subject-button";
+        button.type = "button";
+        button.textContent = label;
+        button.setAttribute("aria-label", accessibleLabel);
+        button.setAttribute("aria-pressed", "false");
+        button.addEventListener("click", () => selectSubject(subject, button));
+        return button;
+      };
+      const svgNode = (name, attributes) => {
+        const node = document.createElementNS(svgNamespace, name);
+        Object.entries(attributes).forEach((entry) => node.setAttribute(entry[0], String(entry[1])));
+        return node;
+      };
+      const drawBars = (id, items, valueOf, labelOf) => {
+        const svg = document.getElementById(id);
+        const titles = Array.from(svg.children).filter((node) => ["title", "desc"].includes(String(node.localName ?? node.tagName).toLowerCase()));
+        svg.replaceChildren(...titles);
+        if (items.length === 0) return;
+        const maximum = Math.max(1, ...items.map(valueOf).filter(Number.isFinite));
+        const visible = items.slice(0, 8);
+        visible.forEach((item, index) => {
+          const value = Number(valueOf(item)) || 0;
+          const y = 22 + index * 20;
+          const width = Math.max(2, Math.round(value / maximum * 300));
+          const label = svgNode("text", { x: 4, y: y + 11 });
+          label.textContent = String(labelOf(item)).slice(0, 24);
+          const bar = svgNode("rect", { x: 170, y, width, height: 13, rx: 3, fill: colors[index % colors.length] });
+          const barTitle = svgNode("title", {});
+          barTitle.textContent = String(labelOf(item)) + ": " + text(valueOf(item));
+          bar.append(barTitle);
+          const number = svgNode("text", { x: 178 + width, y: y + 11 });
+          number.textContent = text(valueOf(item));
+          svg.append(label, bar, number);
+        });
+      };
+      const resetChart = (id) => {
+        const svg = document.getElementById(id);
+        const labels = Array.from(svg.children)
+          .filter((node) => ["title", "desc"].includes(String(node.localName ?? node.tagName).toLowerCase()));
+        svg.replaceChildren(...labels);
+        return svg;
+      };
+      const chartText = (svg, value, x, y, className = "chart-note", anchor = null) => {
+        const node = svgNode("text", { x, y, class: className });
+        if (anchor !== null) node.setAttribute("text-anchor", anchor);
+        node.textContent = value;
+        svg.append(node);
+        return node;
+      };
+      const capabilityStateStyle = (state) => ({
+        complete: { fill: "#1a766f", label: "complete" },
+        "strong-partial": { fill: "#4185cb", label: "strong partial" },
+        partial: { fill: "#b7812f", label: "partial" },
+        "configured-not-observed": { fill: "#5f6f88", label: "configured only" },
+        "external-required": { fill: "#8062b7", label: "external required" },
+        "not-detected": { fill: "#7d5963", label: "not detected" },
+        unsupported: { fill: "#6b6478", label: "unsupported" },
+        unresolved: { fill: "#53647d", label: "unresolved" },
+        "not-applicable": { fill: "#36475f", label: "not applicable" },
+      }[state] ?? { fill: "#53647d", label: String(state).replaceAll("-", " ") });
+      const shortCapabilityLabel = (value) => String(value)
+        .replace(/\s+and\s+/i, " & ")
+        .replace(/ structure$/i, "")
+        .replace(/\/$/, "")
+        .slice(0, 24);
+      const renderCapabilityCoverage = () => {
+        const chart = resetChart("capability-coverage-chart");
+        const items = projection.capability_coverage.capabilities;
+        const columns = 4;
+        const tileWidth = 172;
+        const tileHeight = 54;
+        items.forEach((item, index) => {
+          const column = index % columns;
+          const row = Math.floor(index / columns);
+          const x = 18 + column * 184;
+          const y = 14 + row * 66;
+          const style = capabilityStateStyle(item.evidence_state);
+          const tile = svgNode("rect", { x, y, width: tileWidth, height: tileHeight, rx: 8, fill: style.fill });
+          const title = svgNode("title", {});
+          title.textContent = item.title + ": " + style.label + ". " + item.summary;
+          tile.append(title);
+          chart.append(tile);
+          chartText(chart, shortCapabilityLabel(item.title), x + 10, y + 21, "chart-label");
+          chartText(chart, style.label, x + 10, y + 40, "chart-note");
+          if (item.coverage !== null && item.coverage !== undefined && item.coverage < 1) {
+            chartText(chart, percentage(item.coverage), x + tileWidth - 10, y + 40, "chart-value", "end");
+          }
+        });
+        document.getElementById("capability-coverage-summary").textContent = items.length === 0
+          ? emptyText(projection.capability_coverage.empty_state)
+          : projection.capability_coverage.usable_count + " usable of " + projection.capability_coverage.applicable_count +
+            " applicable capabilities. States are not weighted into a score.";
+      };
+      const renderAssessment = () => {
+        const assessment = projection.assessment;
+        const humanLabel = (value) => String(value ?? "")
+          .replace(/([a-z])([A-Z])/g, "$1 $2")
+          .replaceAll("_", " ")
+          .replaceAll("-", " ")
+          .replace(/\s+/g, " ")
+          .trim()
+          .replace(/\b\w/g, (character) => character.toUpperCase());
+        const criterionLabel = (value) => humanLabel(value).replace(/\bP90\b/g, "P90");
+        const stateLabel = assessment.state === "not-assessed" ? "not assessed" : String(assessment.maturity).replaceAll("_", " ");
+        document.getElementById("assessment-state").textContent = stateLabel;
+        const score = assessment.score_visibility === "hidden" || assessment.score === null
+          ? "NOT SCORED"
+          : (assessment.score_visibility === "provisional" ? "Provisional " : "") + String(assessment.score) + " / 100 · " + assessment.score_band;
+        document.getElementById("assessment-score").textContent = score;
+        document.getElementById("kpi-score").textContent = assessment.score === null ? "NOT SCORED" : String(assessment.score) + " / 100";
+        document.getElementById("kpi-score-detail").textContent = (assessment.score_visibility || assessment.maturity || "unknown").replaceAll("_", " ") + " · " + (assessment.confidence || "confidence unavailable");
+        const targetScore = Number.isFinite(assessment.acceptable_score) ? assessment.acceptable_score : 70;
+        const targetSource = assessment.target_policy?.source === "repository-override" || assessment.target_policy?.target_source === "repository-override" ? "Repository override" : "SEI default";
+        document.getElementById("kpi-target").textContent = "≥ " + String(targetScore);
+        document.getElementById("kpi-target-detail").textContent = targetSource + (assessment.target_policy?.digest ? " · policy bound" : "");
+        document.getElementById("kpi-coverage").textContent = percentage(assessment.coverage);
+        const kpiCriterionTotal = Number(assessment.coverage_accounting?.criterion_total ?? 0);
+        const kpiAssessed = Number(assessment.coverage_accounting?.established_count ?? 0) + Number(assessment.coverage_accounting?.provisional_count ?? 0);
+        document.getElementById("kpi-coverage-detail").textContent = kpiCriterionTotal > 0 ? String(kpiAssessed) + " of " + String(kpiCriterionTotal) + " criteria established or provisional" : "Criterion coverage not established";
+        document.getElementById("kpi-predictive").textContent = "READINESS";
+        document.getElementById("kpi-predictive-detail").textContent = "Historical validation is attempted automatically when enough bound snapshots exist.";
+        const headlineAccounting = assessment.coverage_accounting ?? null;
+        const headlineEstablished = Number(headlineAccounting?.established_count ?? 0);
+        const headlineProvisional = Number(headlineAccounting?.provisional_count ?? 0);
+        const headlineCriterionTotal = Number(headlineAccounting?.criterion_total ?? 0);
+        const headlineCriterionRate = Number.isFinite(headlineAccounting?.assessed_criterion_rate)
+          ? percentage(headlineAccounting.assessed_criterion_rate)
+          : headlineCriterionTotal > 0 ? percentage((headlineEstablished + headlineProvisional) / headlineCriterionTotal) : "not established";
+        const criterionCoverageSummary = headlineCriterionTotal > 0
+          ? `Criterion coverage ${headlineEstablished + headlineProvisional}/${headlineCriterionTotal} (${headlineCriterionRate})`
+          : "Criterion coverage not established";
+        document.getElementById("assessment-coverage").textContent = `${criterionCoverageSummary} · Evidence completeness ${percentage(assessment.coverage)} · Confidence ${assessment.confidence} · Trajectory ${String(assessment.trajectory?.state ?? "first-observation").replaceAll("-", " ")}`;
+        document.getElementById("assessment-summary").textContent = assessment.state === "not-assessed"
+          ? "Assessment was intentionally omitted. The Evidence Explorer below remains available."
+          : assessment.maturity === "not_scored"
+            ? "SEI cannot establish an overall engineering condition from the currently observable evidence."
+            : "SEI has derived a deterministic engineering-practice assessment from the bound evidence; score, coverage, confidence, and maturity are shown separately.";
+        const chart = resetChart("assessment-dimension-chart");
+        const dimensions = assessment.domain_summary ?? assessment.dimensions ?? [];
+        dimensions.slice(0, 9).forEach((dimension, index) => {
+          const y = 22 + index * 26;
+          const label = svgNode("text", { x: 8, y: y + 11, class: "chart-label" });
+          label.textContent = String(dimension.label ?? dimension.dimension_id).slice(0, 30);
+          const track = svgNode("rect", { x: 220, y, width: 430, height: 14, rx: 5, class: "chart-track" });
+          chart.append(label, track);
+          if (Number.isFinite(dimension.score)) chart.append(svgNode("rect", { x: 220, y, width: Math.max(2, 430 * dimension.score / 100), height: 14, rx: 5, fill: "#59d9dc" }));
+          if (Number.isFinite(dimension.coverage)) chart.append(svgNode("circle", { cx: 220 + 430 * dimension.coverage, cy: y + 7, r: 5, fill: "#ffc66d" }));
+          chartText(chart, Number.isFinite(dimension.score) ? String(dimension.score) : "not scored", 666, y + 11, "chart-value");
+        });
+        const criteria = assessment.criteria ?? [];
+        const gapTarget = (criterion) => Number.isFinite(criterion.target?.acceptable_score)
+          ? criterion.target.acceptable_score
+          : Number.isFinite(criterion.acceptable_score) ? criterion.acceptable_score : targetScore;
+        const gaps = criteria.filter((criterion) => Number.isFinite(criterion.score))
+          .map((criterion) => ({ criterion, target: gapTarget(criterion), gap: Math.max(0, gapTarget(criterion) - criterion.score) }))
+          .filter((item) => item.gap > 0)
+          .sort((left, right) => right.gap - left.gap || String(left.criterion.criterion_id).localeCompare(String(right.criterion.criterion_id)))
+          .slice(0, 5);
+        const gapList = document.getElementById("assessment-priority-gaps");
+        gapList.replaceChildren();
+        if (gaps.length === 0) {
+          const item = document.createElement("li"); item.className = "visual-summary"; item.textContent = "No scored criterion is below its visible acceptable target."; gapList.append(item);
+        } else gaps.forEach(({ criterion, target, gap }) => {
+          const item = document.createElement("li");
+          const label = document.createElement("span"); label.textContent = criterionLabel(criterion.criterion_id);
+          const track = document.createElement("span"); track.className = "gap-track";
+          const fill = document.createElement("span"); fill.className = "gap-fill concern";
+          if (fill.style) fill.style.width = Math.min(100, gap) + "%";
+          else fill.setAttribute("data-width", Math.min(100, gap) + "%");
+          track.append(fill);
+          const value = document.createElement("span"); value.className = "gap-value"; value.textContent = String(Math.round(criterion.score * 10) / 10) + " / " + String(target);
+          item.append(label, track, value); gapList.append(item);
+        });
+        const renderDomainChart = () => {
+          const chart = resetChart("assessment-domain-chart");
+          dimensions.slice(0, 9).forEach((dimension, index) => {
+            const y = 18 + index * 27;
+            const hasCoverage = Number.isFinite(dimension.coverage);
+            const coverage = hasCoverage ? dimension.coverage : null;
+            const state = dimension.evidence_state || (Number.isFinite(dimension.score) ? (coverage === null ? "partial" : coverage >= 1 ? "complete" : coverage <= 0 ? "unavailable" : "partial") : coverage === null || coverage <= 0 ? "unavailable" : "not scored");
+            const label = String(dimension.label ?? criterionLabel(dimension.dimension_id)).slice(0, 28);
+            chartText(chart, label, 8, y + 11, "chart-label");
+            chart.append(svgNode("rect", { x: 190, y, width: 360, height: 14, rx: 5, class: "chart-track" }));
+            const target = Number.isFinite(dimension.acceptable_score) ? dimension.acceptable_score : targetScore;
+            chart.append(svgNode("line", { x1: 190 + 360 * target / 100, x2: 190 + 360 * target / 100, y1: y - 4, y2: y + 18, class: "target-line" }));
+            if (Number.isFinite(dimension.score)) chart.append(svgNode("rect", { x: 190, y, width: Math.max(2, 360 * dimension.score / 100), height: 14, rx: 5, fill: "#59d9dc" }));
+            if (hasCoverage) chart.append(svgNode("circle", { cx: 190 + 360 * coverage, cy: y + 7, r: 5, fill: "#ffc66d" }));
+            chartText(chart, Number.isFinite(dimension.score) ? String(dimension.score) : "—", 568, y + 11, "chart-value");
+            chartText(chart, humanLabel(state), 610, y + 11, "chart-note");
+            chartText(chart, hasCoverage ? percentage(coverage) : "unavailable", 734, y + 11, "chart-value", "end");
+          });
+          if (dimensions.length === 0) chartText(chart, "No assessable engineering domains", 8, 24, "chart-note");
+        };
+        const renderEvidenceRoleChart = () => {
+          const chart = resetChart("assessment-evidence-roles-chart");
+          const roleNames = ["primary", "supporting", "context", "limiting", "coverage"];
+          const observations = criteria.flatMap((criterion) => criterion.evidence?.observations ?? []);
+          const counts = Object.fromEntries(roleNames.map((role) => [role, 0]));
+          observations.forEach((observation) => { if (Object.hasOwn(counts, observation.role)) counts[observation.role] += 1; });
+          const maximum = Math.max(1, ...Object.values(counts));
+          roleNames.forEach((role, index) => {
+            const y = 18 + index * 30;
+            const count = counts[role];
+            chartText(chart, humanLabel(role), 8, y + 11, "chart-label");
+            chart.append(svgNode("rect", { x: 150, y, width: 440, height: 14, rx: 5, class: "chart-track" }));
+            if (count > 0) chart.append(svgNode("rect", { x: 150, y, width: Math.max(2, 440 * count / maximum), height: 14, rx: 5, fill: ["#59d9dc", "#7aa7ff", "#aa8bff", "#ff839c", "#ffc66d"][index] }));
+            chartText(chart, String(count), 610, y + 11, "chart-value");
+            chartText(chart, count === 0 ? "not observed" : count === 1 ? "one observation" : "observations", 640, y + 11, "chart-note");
+          });
+          if (observations.length === 0) chartText(chart, "No structured evidence roles are available", 8, 24, "chart-note");
+        };
+        const renderCoverageAccountingChart = () => {
+          const chart = resetChart("assessment-coverage-accounting-chart");
+          const accounting = assessment.coverage_accounting;
+          if (!accounting) { chartText(chart, "Coverage accounting was not published", 8, 24, "chart-note"); return; }
+          const parts = [
+            ["established", accounting.established_count, "#59d9dc"],
+            ["provisional", accounting.provisional_count, "#7aa7ff"],
+            ["not_scored", accounting.not_scored_count, "#ffc66d"],
+            ["not_applicable", accounting.not_applicable_count, "#53647d"],
+          ];
+          const total = Math.max(1, Number(accounting.criterion_total) || 0);
+          let x = 150;
+          parts.forEach(([name, count, fill]) => {
+            const width = 440 * Math.max(0, Number(count) || 0) / total;
+            if (width > 0) chart.append(svgNode("rect", { x, y: 18, width: Math.max(2, width), height: 22, fill }));
+            x += width;
+          });
+          chart.append(svgNode("rect", { x: 150, y: 18, width: 440, height: 22, rx: 5, fill: "none", stroke: "#2b3d58" }));
+          parts.forEach(([name, count], index) => chartText(chart, humanLabel(name) + " · " + String(count), 8, 67 + index * 27, "chart-label"));
+          const reasons = (accounting.not_scored_reasons ?? []).slice(0, 4);
+          reasons.forEach((reason, index) => chartText(chart, humanLabel(reason.category || reason.reason) + " · " + String(reason.criterion_count), 360, 67 + index * 27, "chart-note"));
+          chartText(chart, "Mapping failures · " + String(accounting.mapping_failure_count), 360, 67 + Math.max(parts.length, reasons.length) * 27, "chart-value");
+          const gate = accounting.coverage_gate;
+          if (gate) chartText(chart, "90% gate · " + String(gate.assessed_criterion_rate * 100).replace(/(\.\d{1,2})\d+$/, "$1") + "% · " + humanLabel(gate.status), 8, 67 + Math.max(parts.length, reasons.length) * 27, "chart-value");
+        };
+        const renderTrajectoryChart = () => {
+          const chart = resetChart("assessment-trajectory-chart");
+          const trajectory = assessment.trajectory ?? {};
+          const delta = (value) => Number.isFinite(value) ? (value > 0 ? "+" : "") + String(value) : "not comparable";
+          chartText(chart, "Classification", 8, 24, "chart-label");
+          chartText(chart, humanLabel(trajectory.classification || trajectory.state || "first observation"), 160, 24, "chart-value");
+          chartText(chart, "Movement cause", 8, 54, "chart-label");
+          chartText(chart, humanLabel(trajectory.movement_cause || "not established"), 160, 54, "chart-value");
+          chartText(chart, "Score movement", 8, 92, "chart-label");
+          chartText(chart, delta(trajectory.score_delta), 160, 92, "chart-value");
+          chartText(chart, "Coverage movement", 330, 92, "chart-label");
+          chartText(chart, delta(trajectory.coverage_delta), 500, 92, "chart-value");
+          const semantic = trajectory.semantic_digest_changed === true ? "methodology changed · bounded comparison" : trajectory.semantic_digest_changed === false ? "semantics compatible · comparable" : "semantic compatibility unknown";
+          chartText(chart, semantic, 8, 132, "chart-note");
+          const movement = [...(trajectory.dimension_deltas ?? [])].slice(0, 4);
+          movement.forEach((item, index) => {
+            const y = 158 + index * 22;
+            chartText(chart, criterionLabel(item.dimension_id).slice(0, 24), 8, y, "chart-label");
+            chartText(chart, "score " + delta(item.score_delta) + " · coverage " + delta(item.coverage_delta), 230, y, "chart-value");
+          });
+          if (movement.length === 0 && !trajectory.classification) chartText(chart, "No compatible prior assessment", 8, 158, "chart-note");
+        };
+        renderDomainChart();
+        renderEvidenceRoleChart();
+        renderCoverageAccountingChart();
+        renderTrajectoryChart();
+        const renderList = (id, rows, formatter) => {
+          const target = document.getElementById(id);
+          target.replaceChildren();
+          if (!rows || rows.length === 0) { const item = document.createElement("li"); item.textContent = "None established from the current evidence."; target.append(item); return; }
+          rows.slice(0, 5).forEach((row) => { const item = document.createElement("li"); item.textContent = formatter(row); target.append(item); });
+        };
+        renderList("assessment-strengths", assessment.strengths, (row) => criterionLabel(row.criterion_id) + " · observed " + text(row.score) + "/100");
+        renderList("assessment-deficiencies", assessment.deficiencies, (row) => criterionLabel(row.criterion_id) + " · observed " + text(row.score) + "/100");
+        renderList("assessment-interventions", assessment.interventions, (row) => {
+          const targets = Array.isArray(row.targets) && row.targets.length > 0 ? " Target: " + row.targets.join(", ") + "." : "";
+          const why = row.why ? " Why: " + row.why : "";
+          const next = row.next_investigation ? " Next: " + row.next_investigation : "";
+          return humanLabel(row.family) + " for " + criterionLabel(row.criterion_id) + "." + targets + why + next;
+        });
+        const evidenceRoles = (assessment.criteria ?? []).flatMap((criterion) => (criterion.evidence?.observations ?? []).map((observation) => ({ criterion_id: criterion.criterion_id, ...observation })));
+        renderList("assessment-evidence-roles", evidenceRoles, (observation) => humanLabel(observation.role) + " evidence for " + criterionLabel(observation.criterion_id) + " · " + humanLabel(observation.state) + " · coverage " + percentage(observation.coverage));
+        const explanations = (assessment.criteria ?? []).filter((criterion) => criterion.explanation && Object.values(criterion.explanation).some((value) => value));
+        renderList("assessment-criterion-explanations", explanations, (criterion) => {
+          const explanation = criterion.explanation;
+          return criterionLabel(criterion.criterion_id) + ". What SEI observed: " + explanation.observed + " What that means: " + explanation.means + " Why it matters: " + explanation.why_it_matters + " What limited the assessment: " + explanation.limitations + " What prevented a stronger result: " + explanation.blocked_stronger_result + " What to investigate: " + explanation.next_investigation;
+        });
+        const trajectory = assessment.trajectory ?? {};
+        const delta = (value) => Number.isFinite(value) ? (value > 0 ? "+" : "") + String(value) : "not comparable";
+        const trajectoryRows = [
+          trajectory.classification ? "Classification · " + humanLabel(trajectory.classification) : null,
+          trajectory.movement_cause ? "Movement cause · " + humanLabel(trajectory.movement_cause) : null,
+          trajectory.semantic_digest_changed === true ? "Evidence vocabulary changed · methodology comparison is bounded" : trajectory.semantic_digest_changed === false ? "Evidence vocabulary unchanged · comparison is semantically compatible" : null,
+          ...(trajectory.dimension_deltas ?? []).map((item) => "Domain " + criterionLabel(item.dimension_id) + " · score " + delta(item.score_delta) + " · coverage " + delta(item.coverage_delta)),
+          ...(trajectory.criterion_deltas ?? []).map((item) => "Criterion " + criterionLabel(item.criterion_id) + " · score " + delta(item.score_delta) + " · coverage " + delta(item.coverage_delta)),
+        ];
+        renderList("assessment-trajectory", trajectoryRows, (row) => row);
+        const accounting = assessment.coverage_accounting;
+        document.getElementById("assessment-coverage-accounting").textContent = accounting === null || accounting === undefined
+          ? "Coverage accounting was not published by this assessment version."
+          : "Established " + accounting.established_count + " · Provisional " + accounting.provisional_count + " · Not scored " + accounting.not_scored_count + " · Not applicable " + accounting.not_applicable_count + " · Mapping failures " + accounting.mapping_failure_count
+            + (accounting.coverage_gate ? " · 90% gate " + humanLabel(accounting.coverage_gate.status) + " (" + Math.round(accounting.coverage_gate.assessed_criterion_rate * 100) + "%)" : "")
+            + ((accounting.not_scored_reasons ?? []).length > 0 ? " · " + accounting.not_scored_reasons.map((reason) => humanLabel(reason.category || reason.reason) + " " + reason.criterion_count).join(" · ") : "");
+      };
+      const complexityProfiles = () => projection.complexity.partitions.flatMap((partition) => partition.measures.flatMap((measure) => {
+        if (measure.measure !== "cyclomatic") return [];
+        const groups = Object.fromEntries(measure.groups.map((group) => [group.kind, group]));
+        const point = (kind) => groups[kind]?.values?.[0]?.value;
+        const typical = point("typical");
+        const tail = point("complex_tail");
+        const maximum = point("maximum");
+        if (![typical, tail, maximum].some(Number.isFinite)) return [];
+        return [{
+          label: partition.label,
+          typical,
+          tail,
+          maximum,
+          coverage: groups.typical?.coverage ?? groups.complex_tail?.coverage ?? groups.maximum?.coverage ?? null,
+        }];
+      })).slice(0, 6);
+      const renderComplexityProfiles = () => {
+        const chart = resetChart("complexity-profile-chart");
+        const profiles = complexityProfiles();
+        const empty = document.getElementById("complexity-empty");
+        if (profiles.length === 0) {
+          empty.textContent = emptyText(projection.complexity.empty_state);
+          empty.hidden = false;
+          return;
+        }
+        empty.hidden = true;
+        const maximum = Math.max(1, ...profiles.flatMap((item) => [item.typical, item.tail, item.maximum]).filter(Number.isFinite));
+        const start = 198;
+        const width = 474;
+        // Each series has its own shape and size (not colour alone), with a visible legend.
+        const seriesMarker = (kind, cx, cy, fill) => kind === "typical"
+          ? svgNode("circle", { cx, cy, r: 5, fill, "data-series": kind })
+          : kind === "tail"
+            ? svgNode("rect", { x: cx - 5, y: cy - 5, width: 10, height: 10, fill, "data-series": kind })
+            : svgNode("polygon", { points: [[cx, cy - 8], [cx + 8, cy], [cx, cy + 8], [cx - 8, cy]].map((pair) => pair.join(",")).join(" "), fill, "data-series": kind });
+        [["typical", "#59d9dc", "Typical (median)"], ["tail", "#ffc66d", "Complex tail (P90)"], ["maximum", "#ff839c", "Maximum"]]
+          .forEach(([kind, fill, label], index) => {
+            const x = start + index * 160;
+            chart.append(seriesMarker(kind, x + 6, 12, fill));
+            chartText(chart, label, x + 18, 16, "chart-note series-legend-label");
+          });
+        profiles.forEach((profile, index) => {
+          const y = 42 + index * 30;
+          const point = (value) => start + (Number.isFinite(value) ? value / maximum * width : 0);
+          chartText(chart, profile.label.slice(0, 28), 8, y + 4, "chart-label");
+          chart.append(svgNode("line", { x1: start, x2: start + width, y1: y, y2: y, class: "axis" }));
+          if (Number.isFinite(profile.typical) && Number.isFinite(profile.maximum)) {
+            chart.append(svgNode("line", { x1: point(profile.typical), x2: point(profile.maximum), y1: y, y2: y, stroke: "#4185cb", "stroke-width": 5, "stroke-linecap": "round" }));
+          }
+          [[profile.typical, "typical", "#59d9dc", "Typical"], [profile.tail, "tail", "#ffc66d", "P90"], [profile.maximum, "maximum", "#ff839c", "Maximum"]]
+            .filter(([value]) => Number.isFinite(value))
+            .forEach(([value, kind, fill, label]) => {
+              const dot = seriesMarker(kind, point(value), y, fill);
+              const title = svgNode("title", {});
+              title.textContent = profile.label + " " + label + ": " + value + " cyclomatic complexity points";
+              dot.append(title);
+              chart.append(dot);
+            });
+          chartText(chart, [profile.typical, profile.tail, profile.maximum].filter(Number.isFinite).join(" / "), 706, y + 4, "chart-value", "end");
+        });
+      };
+      const duplicationValue = (suffix) => rawViews.duplication.items
+        .find((item) => item.metric_id.endsWith(suffix))?.value ?? null;
+      const renderDuplicationPrimary = () => {
+        const chart = resetChart("duplication-chart");
+        const empty = document.getElementById("duplication-empty");
+        const summary = document.getElementById("duplication-summary");
+        const view = rawViews.duplication;
+        state("duplication-primary-state", view);
+        const observedPercentage = duplicationValue("observed_percentage") ?? duplicationValue("percentage");
+        const duplicatedLines = duplicationValue("duplicated_source_lines");
+        const analyzedLines = duplicationValue("analyzed_source_lines");
+        const families = duplicationValue("clone_family_count");
+        if (!Number.isFinite(observedPercentage)) {
+          empty.textContent = emptyText(view.empty_state);
+          empty.hidden = false;
+          summary.textContent = "No conclusion about repeated structure is implied by missing evidence.";
+          return;
+        }
+        empty.hidden = true;
+        const percent = observedPercentage <= 1 ? observedPercentage * 100 : observedPercentage;
+        const x = 42;
+        const y = 48;
+        const width = 610;
+        chart.append(svgNode("rect", { x, y, width, height: 34, rx: 8, class: "chart-track" }));
+        const bar = svgNode("rect", { x, y, width: Math.max(2, width * Math.min(100, percent) / 100), height: 34, rx: 8, fill: "#aa8bff" });
+        const title = svgNode("title", {});
+        title.textContent = percent + "% of analyzed source lines were observed in clone families";
+        bar.append(title);
+        chart.append(bar);
+        chartText(chart, "Observed repeated source lines", x, 32, "chart-label");
+        chartText(chart, percentage(observedPercentage <= 1 ? observedPercentage : observedPercentage / 100), x + width, 70, "chart-value", "end");
+        summary.textContent = (Number.isFinite(duplicatedLines) && Number.isFinite(analyzedLines)
+          ? String(Math.round(duplicatedLines)) + " of " + String(Math.round(analyzedLines)) + " analyzed source lines"
+          : "Observed structural duplication") + (Number.isFinite(families) ? " across " + String(Math.round(families)) + " clone families." : ".") +
+          (view.lower_bound ? " This is a lower bound." : "");
+      };
+      const renderTable = (targetId, caption, columns, rows, reason, linkage = null) => {
+        const target = document.getElementById(targetId);
+        if (linkage) clearLinkedSurface(linkage.surface);
+        if (rows.length === 0) return empty(target, reason);
+        const table = document.createElement("table");
+        const tableCaption = document.createElement("caption");
+        tableCaption.textContent = caption;
+        const head = document.createElement("thead");
+        const headRow = document.createElement("tr");
+        columns.forEach((column) => {
+          const cell = document.createElement("th");
+          cell.scope = "col";
+          cell.textContent = column.label;
+          headRow.append(cell);
+        });
+        head.append(headRow);
+        const body = document.createElement("tbody");
+        rows.forEach((row) => {
+          const tableRow = document.createElement("tr");
+          const rowSubjects = linkage ? linkage.subjects(row) : [];
+          columns.forEach((column) => {
+            const cell = document.createElement("td");
+            if (column.number) cell.className = "number";
+            const value = column.value(row);
+            if (column.subject) {
+              const button = subjectButton(value, value, column.ariaLabel?.(row, value));
+              cell.append(button);
+              if (linkage) registerLinked(linkage.surface, button, [value], value);
+            } else cell.textContent = text(value);
+            tableRow.append(cell);
+          });
+          if (linkage && rowSubjects.length > 0) registerLinked(linkage.surface, tableRow, rowSubjects, linkage.primary?.(row) ?? rowSubjects[0]);
+          body.append(tableRow);
+        });
+        table.append(tableCaption, head, body);
+        const disclosure = document.createElement("details");
+        disclosure.className = "raw-disclosure";
+        const disclosureSummary = document.createElement("summary");
+        disclosureSummary.textContent = "Show exact values · " + String(rows.length) + " bounded rows";
+        disclosure.append(disclosureSummary, table);
+        target.replaceChildren(disclosure);
+        updateHighlights();
+      };
+
+      document.getElementById("source-binding").textContent =
+        projection.source.repository_id + " · " + projection.source.revision + " · snapshot " + projection.source.snapshot_id;
+      document.getElementById("repository-overview-summary").textContent = projection.repository_overview.summary;
+      document.getElementById("repository-overview-binding").textContent = "Evidence is bound to " + projection.repository_overview.repository_id + " at " + projection.repository_overview.revision + ".";
+      renderAssessment();
+
+      state("capability-coverage-state", projection.capability_coverage);
+      document.getElementById("capability-coverage-state").textContent =
+        projection.capability_coverage.usable_count + " usable of " + projection.capability_coverage.applicable_count + " applicable capabilities";
+      renderCapabilityCoverage();
+
+      const predictive = projection.predictive_intelligence;
+      const predictiveStatus = projection.predictive_status;
+      const predictiveState = predictive.state;
+      const predictiveSummary = predictive.reason;
+      document.getElementById("predictive-state").textContent = "Predictive intelligence — " + predictiveState.toUpperCase().replaceAll("-", " ");
+      document.getElementById("predictive-reason").textContent = predictiveSummary;
+      document.getElementById("predictive-evaluation-state").textContent = predictiveState.replaceAll("-", " ");
+      const v9StateSummary = {
+        NOT_READY: "Cutoff history is not ready for terminal evaluation.",
+        READY_NOT_EVALUATED: "Development evidence is ready; terminal selection was not established.",
+        VALIDATED_BASELINE: "A simple baseline won the terminal validation; this is not a composite-model result.",
+        VALIDATED_MODEL: "The nominated composite passed terminal validation against the declared baseline.",
+        NO_USEFUL_SIGNAL: "Terminal validation found no useful signal; no current ranking is shown.",
+        STALE: "The evidence is compatible history, but it is not current for this snapshot.",
+        INCOMPATIBLE: "The evidence belongs to a different repository identity or configuration.",
+      };
+      document.getElementById("predictive-boundary").textContent = [
+        v9StateSummary[predictiveState] ?? predictive.reason,
+        predictive.interpretation_boundary,
+        predictive.default_horizon_commits + "-commit view",
+      ].filter(Boolean).join(" · ");
+      const methodLabel = (method) => method?.method_id === "baseline-change-frequency-v1"
+        ? "change-frequency baseline"
+        : method?.method_kind === "simple-baseline" ? "simple baseline" : "SEI composite";
+      const validationRows = [];
+      for (const method of predictive.validation?.candidate_methods ?? []) validationRows.push({
+        role: "candidate",
+        method: methodLabel(method),
+        average_precision: method.average_precision,
+        lift_at_k: method.lift_at_k,
+        result: method.qualifies ? "passes terminal gate" : "does not pass terminal gate",
+      });
+      for (const method of predictive.validation?.fallback_methods ?? []) validationRows.push({
+        role: "fallback",
+        method: methodLabel(method),
+        average_precision: method.average_precision,
+        lift_at_k: method.lift_at_k,
+        result: method.qualifies ? "passes terminal gate" : "does not pass terminal gate",
+      });
+      // Preserve the bounded @2 evidence table for historical receipts. It is
+      // read-only compatibility, not a V9 promotion claim.
+      if (validationRows.length === 0 && Array.isArray(predictive.outcomes)) {
+        predictive.outcomes.forEach((outcome) => (outcome.methods ?? []).forEach((method) => validationRows.push({
+          role: "historical @2",
+          method: method.method_id,
+          average_precision: method.mean_average_precision,
+          lift_at_k: method.mean_lift_at_k,
+          result: method.comparison_to_composite?.result ?? "unavailable",
+        })));
+      }
+      renderTable("predictive-evaluation-table", "Terminal validation facts", [
+        { label: "Role", value: (item) => item.role },
+        { label: "Method", value: (item) => item.method },
+        { label: "Average precision", value: (item) => item.average_precision, number: true },
+        { label: "Lift @ K", value: (item) => item.lift_at_k, number: true },
+        { label: "Result", value: (item) => item.result },
+      ], validationRows, predictiveSummary);
+      let selectedPredictiveHorizon = 25;
+      const predictiveHorizonTabs = document.getElementById("predictive-horizon-tabs");
+      const predictiveHorizonChoices = [...new Set([25, ...(predictive.available_horizons ?? [])])]
+        .filter((horizon) => [10, 25, 50].includes(horizon)).sort((left, right) => left - right);
+      let predictiveForecastRendered = false;
+      const renderPredictiveHorizonTabs = () => {
+        predictiveHorizonTabs.replaceChildren();
+        const buttons = predictiveHorizonChoices.map((horizon) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.setAttribute("id", "predictive-horizon-tab-" + horizon);
+          button.setAttribute("data-horizon", String(horizon));
+          button.textContent = "Next " + horizon + " commits";
+          predictiveHorizonTabs.append(button);
+          return button;
+        });
+        const select = bindTablist(buttons, document.getElementById("predictive-horizon-panel"), (button) => {
+          const horizon = Number(button.getAttribute("data-horizon"));
+          if (horizon === selectedPredictiveHorizon && predictiveForecastRendered) return;
+          selectedPredictiveHorizon = horizon;
+          renderPredictiveForecast();
+        });
+        const initial = predictiveHorizonChoices.indexOf(selectedPredictiveHorizon);
+        if (buttons.length > 0) select(initial < 0 ? 0 : initial, false);
+      };
+      const renderPredictiveForecast = () => {
+        const chart = resetChart("predictive-forecast-chart");
+        predictiveForecastRendered = true;
+        chart.setAttribute("viewBox", "0 0 920 300");
+        const horizon = (predictive.horizons ?? []).find((item) => item.horizon_commits === selectedPredictiveHorizon);
+        const rankings = selectedPredictiveHorizon === 25
+          ? (Array.isArray(predictive.current_rankings) ? predictive.current_rankings : [])
+          : (Array.isArray(horizon?.current_rankings) ? horizon.current_rankings : []);
+        const useful = horizon?.forecast_available === true && rankings.length > 0
+          && ["VALIDATED_MODEL", "VALIDATED_BASELINE"].includes(horizon.state ?? predictiveState);
+        document.getElementById("predictive-forecast-chart-title").textContent = useful
+          ? "Current forward-looking ranking forecast"
+          : "Predictive ranking state";
+        document.getElementById("predictive-forecast-chart-desc").textContent = useful
+          ? "Top-ranked files for mechanically observed future modification outcomes, shown as ranks or percentiles rather than probabilities."
+          : "Rank-only predictive validation state; no current forecast is authorized for this evidence state.";
+        document.getElementById("kpi-predictive").textContent = useful ? "VALIDATED RANKING" : predictiveState.replaceAll("-", " ").toUpperCase();
+        document.getElementById("kpi-predictive-detail").textContent = useful
+          ? "Selected method produces ranked investigation targets; ranks are not probabilities."
+          : v9StateSummary[predictiveState] ?? predictive.reason;
+        if (!useful) {
+          chartText(chart, v9StateSummary[predictiveState] ?? "No current ranked result is available.", 12, 36, "chart-note");
+          return;
+        }
+        const rows = rankings.flatMap((ranking) => ranking.items.slice(0, 10).map((item) => ({ ...item, outcome_id: ranking.outcome_id, method_id: ranking.method_id })));
+        const ranked = (row) => Number.isFinite(row.rank) && row.rank > 0;
+        const maxRank = Math.max(1, ...rows.filter(ranked).map((row) => row.rank));
+        // The viewBox grows with the row count so no row is drawn outside the chart.
+        chart.setAttribute("viewBox", "0 0 920 " + String(Math.max(300, 28 + rows.length * 22 + 24)));
+        rows.forEach((row, index) => {
+          const y = 28 + index * 22;
+          const x = 260;
+          const width = 500;
+          const rankLabel = ranked(row) ? "rank " + row.rank : "unranked";
+          chartText(chart, (row.outcome_id + " · " + row.subject).slice(0, 42), 8, y + 4, "chart-label");
+          const axis = svgNode("line", { x1: x, x2: x + width, y1: y, y2: y, class: "axis" });
+          chart.append(axis);
+          let described = axis;
+          if (ranked(row)) {
+            const point = x + width * (1 - ((row.rank - 1) / Math.max(1, maxRank - 1)));
+            described = svgNode("line", { x1: point, x2: point, y1: y - 6, y2: y + 6, stroke: "#59d9dc", "stroke-width": 4 });
+            chart.append(described);
+          }
+          chartText(chart, rankLabel, 780, y + 4, "chart-value");
+          const title = svgNode("title", {}); title.textContent = row.outcome_id + " " + row.subject + ": " + rankLabel + ", percentile " + percentage(row.percentile ?? null); described.append(title);
+        });
+        if (rows.length === 0) chartText(chart, "No current forecast rows passed the usefulness gate.", 12, 36, "chart-note");
+      };
+      renderPredictiveHorizonTabs();
+      renderPredictiveForecast();
+
+      const primaryTrend = projection.trend_primary;
+      const primaryTrendState = trendStatus?.state ?? primaryTrend.evidence_state ?? primaryTrend.state;
+      document.getElementById("trend-primary-state").textContent = String(primaryTrendState).replaceAll("-", " ");
+      document.getElementById("trend-primary-summary").textContent = trendStatus?.summary
+        ?? primaryTrend.empty_state?.explanation
+        ?? "No structured trend status is available for this projection.";
+      const trendContext = trendStatus?.historical_context ?? primaryTrend.historical_context ?? null;
+      const trendContextElement = document.getElementById("trend-primary-context");
+      if (trendContext !== null && trendContext !== undefined) {
+        const eventLabel = trendContext.event_kind === "merge-commit" ? "significant merge commit" : "significant prior commit";
+        trendContextElement.textContent = `${eventLabel} ${trendContext.short_revision}: ${trendContext.subject} · ${trendContext.changed_file_count} files · ${trendContext.text_churn} lines changed. Git-history context only; no prior full SEI assessment was available.`;
+        trendContextElement.hidden = false;
+      } else {
+        trendContextElement.hidden = true;
+      }
+      const renderPrimaryTrend = () => {
+        const chart = resetChart("trend-primary-chart");
+        const empty = document.getElementById("trend-primary-empty");
+        if (primaryTrend.items.length === 0) {
+          empty.textContent = emptyText(primaryTrend.empty_state);
+          empty.hidden = false;
+          return;
+        }
+        empty.hidden = true;
+        const visible = primaryTrend.items.slice(0, 5);
+        visible.forEach((item, index) => {
+          const y = 30 + index * 34;
+          const values = [item.earlier_value, item.current_value].filter(Number.isFinite);
+          const ceiling = Math.max(1, ...values);
+          const x = 246;
+          const width = 360;
+          chartText(chart, item.label.slice(0, 31), 8, y + 4, "chart-label");
+          chart.append(svgNode("line", { x1: x, x2: x + width, y1: y, y2: y, class: "axis" }));
+          const earlierX = x + (Number(item.earlier_value) / ceiling * width);
+          const currentX = x + (Number(item.current_value) / ceiling * width);
+          chart.append(svgNode("line", { x1: earlierX, x2: currentX, y1: y, y2: y, stroke: "#7aa7ff", "stroke-width": 4, "stroke-linecap": "round" }));
+          [[earlierX, "#53647d", "Earlier", item.earlier_value], [currentX, "#59d9dc", "Current", item.current_value]].forEach(([cx, fill, label, value]) => {
+            const dot = svgNode("circle", { cx, cy: y, r: 5, fill });
+            const title = svgNode("title", {});
+            title.textContent = item.label + " " + label + ": " + value + " " + item.unit;
+            dot.append(title);
+            chart.append(dot);
+          });
+          chartText(chart, text(item.change) + " " + item.unit, 708, y + 4, "chart-value", "end");
+        });
+      };
+      renderPrimaryTrend();
+
+      const pathSearch = document.getElementById("path-search");
+      const languageFilter = document.getElementById("language-filter");
+      const evidenceFilter = document.getElementById("evidence-filter");
+      const matchesPath = (value) => String(value).toLowerCase().includes(pathSearch.value.trim().toLowerCase());
+      const visibleInvestigations = () => projection.investigations.items.filter((item) => matchesPath(item.subject)
+        && (evidenceFilter.value === "all" || item.kind === evidenceFilter.value));
+      const visibleScatter = () => projection.scatter.points.filter((item) => matchesPath(item.subject));
+      const visibleComplexity = () => rawViews.complexity.top_items.filter((item) => matchesPath(item.subject) || matchesPath(item.metric_id));
+      const visibleTopology = () => rawViews.topology.items.filter((item) => matchesPath(item.metric_id));
+      const visibleCoupling = () => rawViews.coupling.relationships.filter((item) => matchesPath(item.source) || matchesPath(item.target));
+      const visibleDuplication = () => rawViews.duplication.items.filter((item) => matchesPath(item.metric_id));
+      const visibleTrend = () => rawViews.trend.items.filter((item) => matchesPath(item.metric_id));
+      const updateFilterStatus = () => {
+        document.getElementById("filter-status").textContent = [
+          quantity(visibleInvestigations().length, "investigation"),
+          quantity(visibleScatter().length, "scatter point"),
+          quantity(visibleComplexity().length, "complex subject"),
+          quantity(visibleTopology().length, "topology row"),
+          quantity(visibleCoupling().length, "coupling relationship"),
+          quantity(visibleDuplication().length, "duplication row"),
+          quantity(visibleTrend().length, "trend row"),
+        ].join(" · ") + " shown.";
+      };
+      const populateFilter = (select, values, allLabel) => {
+        select.replaceChildren();
+        const all = document.createElement("option");
+        all.value = "all";
+        all.textContent = allLabel;
+        select.append(all);
+        values.forEach((value) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = value;
+          select.append(option);
+        });
+        select.value = "all";
+      };
+      populateFilter(languageFilter, projection.composition.items.map((item) => item.language), "All languages");
+      populateFilter(evidenceFilter, [...new Set(projection.investigations.items.map((item) => item.kind))], "All evidence kinds");
+      languageFilter.disabled = projection.composition.items.length === 0;
+      evidenceFilter.disabled = projection.investigations.items.length === 0;
+
+      state("composition-state", projection.composition);
+      const renderComposition = () => {
+        const visible = projection.composition.items.filter((item) => languageFilter.value === "all" || item.language === languageFilter.value);
+        drawBars("composition-chart", visible, (item) => item.source_lines || item.file_count, (item) => item.language);
+        renderTable("composition-table", "Bounded language composition", [
+          { label: "Language", value: (item) => item.language },
+          { label: "Files", value: (item) => item.file_count, number: true },
+          { label: "Source lines", value: (item) => item.source_lines, number: true },
+        ], visible, "no language composition matches the active filter");
+      };
+      renderComposition();
+      languageFilter.addEventListener("change", renderComposition);
+
+      const measurementSummary = explorer.measurement_summary;
+      document.getElementById("evidence-state").textContent =
+        percentage(measurementSummary.coverage_ratio) + " observed";
+      drawBars("evidence-chart", measurementSummary.statuses, (item) => item.count, (item) => item.status);
+      renderTable("evidence-table", "Canonical evidence-state counts", [
+        { label: "State", value: (item) => item.status },
+        { label: "Count", value: (item) => item.count, number: true },
+      ], measurementSummary.statuses, "no evidence-state summary");
+      const collectorCounts = Object.fromEntries(measurementSummary.collectors.map((item) => [item.status, item.count]));
+      const collectorSummary = document.getElementById("collector-state-summary");
+      collectorSummary.textContent = "Collector availability · " + [
+        String(collectorCounts.available ?? 0) + " available",
+        String(collectorCounts.degraded ?? 0) + " degraded",
+        String(collectorCounts.unavailable ?? 0) + " unavailable",
+      ].join(" · ");
+      collectorSummary.classList.toggle("has-gaps", (collectorCounts.degraded ?? 0) > 0 || (collectorCounts.unavailable ?? 0) > 0);
+      renderTable("collector-table", "Collector availability states (separate from measurement coverage)", [
+        { label: "State", value: (item) => item.status },
+        { label: "Collectors", value: (item) => item.count, number: true },
+      ], measurementSummary.collectors, "no collector availability summary");
+
+      state("complexity-state", projection.complexity);
+      const complexityGroups = projection.complexity.partitions.flatMap((partition) => partition.measures.flatMap((measure) => measure.groups.map((group) => ({
+        context: partition.label,
+        dimension: measure.label + " · " + group.label,
+        summary: group.summary,
+        evidence_state: group.state,
+        coverage: group.coverage,
+      }))));
+      document.getElementById("complexity-summary").textContent = complexityGroups.length > 0
+        ? "Separate workload, typical, complex-tail, maximum, concentration, and density only when the source evidence supports that quantity."
+        : emptyText(projection.complexity.empty_state);
+      renderComplexityProfiles();
+      drawBars("complexity-chart", rawViews.complexity.distributions, (item) => item.value, (item) => item.label);
+      renderTable("complexity-table", "Bounded aggregate complexity metrics", [
+        { label: "Metric", value: (item) => item.metric_id },
+        { label: "Value", value: (item) => item.value, number: true },
+        { label: "Unit", value: (item) => item.unit },
+      ], rawViews.complexity.distributions, rawViews.complexity.empty_state);
+
+      state("scatter-state", projection.scatter);
+      const scatter = document.getElementById("scatter-chart");
+      const scatterLabels = [document.getElementById("scatter-chart-title"), document.getElementById("scatter-chart-desc")].filter(Boolean);
+      const renderScatter = () => {
+        const visible = visibleScatter();
+        clearLinkedSurface("scatter");
+        scatter.replaceChildren(...scatterLabels);
+        [0, .25, .5, .75, 1].forEach((tick) => {
+          const x = 48 + tick * 430;
+          const y = 258 - tick * 220;
+          scatter.append(svgNode("line", { x1: x, x2: x, y1: 38, y2: 258, class: "gridline" }));
+          scatter.append(svgNode("line", { x1: 48, x2: 478, y1: y, y2: y, class: "gridline" }));
+        });
+        scatter.append(
+          svgNode("line", { x1: 48, x2: 478, y1: 258, y2: 258, class: "axis" }),
+          svgNode("line", { x1: 48, x2: 48, y1: 38, y2: 258, class: "axis" }),
+        );
+        // A point without both percentiles has no position; list it instead of
+        // drawing it at a fabricated coordinate.
+        const plotted = visible.filter((point) => Number.isFinite(point.structural) && Number.isFinite(point.behavioral));
+        const unplotted = visible.filter((point) => !plotted.includes(point));
+        const scatterUnavailable = document.getElementById("scatter-unavailable");
+        if (scatterUnavailable) {
+          scatterUnavailable.textContent = unplotted.length === 0 ? ""
+            : "Not plotted (percentile unavailable): " + unplotted.map((point) => point.subject).join(", ");
+          scatterUnavailable.hidden = unplotted.length === 0;
+        }
+        plotted.forEach((point) => {
+          const circle = svgNode("circle", {
+            cx: 48 + point.structural * 430,
+            cy: 258 - point.behavioral * 220,
+            r: point.signal_count > 0 ? 6 : 4,
+            fill: point.signal_count > 0 ? "#ff839c" : "#59d9dc",
+            tabindex: 0,
+            role: "button",
+            "aria-label": "Select " + point.subject + "; structural " + percentage(point.structural) + " (" + percentage(point.structural_evidence.coverage) + " coverage); behavioral " + percentage(point.behavioral) + " (" + percentage(point.behavioral_evidence.coverage) + " coverage)",
+            "aria-pressed": "false",
+            "data-subject": point.subject,
+          });
+          const title = svgNode("title", {});
+          title.textContent = point.subject + " · structural " + percentage(point.structural) +
+            " (" + percentage(point.structural_evidence.coverage) + " coverage) · behavioral " + percentage(point.behavioral) +
+            " (" + percentage(point.behavioral_evidence.coverage) + " coverage)";
+          circle.append(title);
+          circle.addEventListener("click", () => selectSubject(point.subject, circle));
+          circle.addEventListener("keydown", (event) => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            selectSubject(point.subject, circle);
+          });
+          registerLinked("scatter", circle, [point.subject], point.subject);
+          scatter.append(circle);
+        });
+        const scatterEmpty = document.getElementById("scatter-empty");
+        if (projection.scatter.points.length === 0) {
+          scatterEmpty.textContent = emptyText(projection.scatter.empty_state);
+          scatterEmpty.hidden = false;
+        } else {
+          scatterEmpty.textContent = "No scatter points match the active path filter.";
+          scatterEmpty.hidden = visible.length !== 0;
+        }
+        updateHighlights();
+        updateFilterStatus();
+      };
+      renderScatter();
+
+      const investigations = document.getElementById("investigations-list");
+      const renderInvestigations = () => {
+        const visible = visibleInvestigations();
+        clearLinkedSurface("investigations");
+        investigations.replaceChildren();
+        if (projection.investigations.items.length === 0) {
+          empty(investigations, projection.investigations.empty_state);
+        } else if (visible.length === 0) {
+          const message = document.createElement("p");
+          message.className = "empty";
+          message.textContent = "No investigation surfaces match the active filters.";
+          investigations.append(message);
+        } else {
+          visible.forEach((item) => {
+          const row = document.createElement("li");
+          row.setAttribute("data-evidence-kind", item.kind);
+          const itemSubjects = subjectsForInvestigation(item);
+          const heading = subjectButton(itemSubjects[0], item.subject);
+          const detail = document.createElement("span");
+          detail.textContent = item.kind + " · " + item.confidence + " · " + item.evidence_state + (item.coverage === null ? "" : " · " + percentage(item.coverage) + " coverage") + " · " + item.detail;
+          const signal = document.createElement("span");
+          signal.textContent = item.signal;
+          row.append(heading, signal, detail);
+          registerLinked("investigations", heading, itemSubjects, itemSubjects[0]);
+          registerLinked("investigations", row, itemSubjects, itemSubjects[0]);
+          investigations.append(row);
+        });
+        }
+        updateHighlights();
+        updateFilterStatus();
+      };
+      state("investigations-state", projection.investigations);
+      renderInvestigations();
+      evidenceFilter.addEventListener("change", () => {
+        selectionActivator = null;
+        renderInvestigations();
+      });
+      document.getElementById("authority-boundary").textContent = projection.investigations.authority_boundary;
+
+      const renderTopology = () => renderTable("topology-view", "Bounded topology evidence", [
+          { label: "Metric", value: (item) => item.metric_id, subject: true },
+          { label: "Value", value: (item) => item.value, number: true },
+          { label: "Unit", value: (item) => item.unit },
+        ], visibleTopology(), rawViews.topology.items.length === 0
+          ? rawViews.topology.empty_state
+          : "No matches under the active search", {
+          surface: "topology",
+          subjects: (item) => [item.metric_id],
+        });
+      renderTopology();
+      const renderCoupling = () => {
+        const visible = visibleCoupling();
+        renderTable("coupling-view", "Bounded source relationships", [
+          { label: "Source", value: (item) => item.source, subject: true, ariaLabel: (item) => "Select coupling relationship " + item.source + " ↔ " + item.target + "; source " + item.source },
+          { label: "Target", value: (item) => item.target, subject: true, ariaLabel: (item) => "Select coupling relationship " + item.source + " ↔ " + item.target + "; target " + item.target },
+          { label: "Co-changes", value: (item) => item.co_change_count, number: true },
+          { label: "Ratio", value: (item) => item.coupling_ratio, number: true },
+        ], visible, rawViews.coupling.relationships.length === 0
+          ? rawViews.coupling.empty_state
+          : "No matches under the active search", {
+          surface: "coupling",
+          subjects: (item) => [item.source, item.target],
+        });
+        updateFilterStatus();
+      };
+      renderCoupling();
+      state("duplication-state", rawViews.duplication);
+      renderDuplicationPrimary();
+      document.getElementById("duplication-explanation").textContent = rawViews.duplication.empty_state?.cause_kind === "resource-limited"
+        ? emptyText(rawViews.duplication.empty_state)
+        : rawViews.duplication.empty_state?.cause_kind === "complete-zero"
+          ? emptyText(rawViews.duplication.empty_state)
+          : rawViews.duplication.lower_bound
+            ? "Available duplication observations are lower bounds; they do not describe every eligible source region."
+            : "This advanced view retains bounded raw duplication metrics; use capability coverage for the human evidence state and next evidence.";
+      const renderDuplication = () => renderTable("duplication-view", "Bounded duplication evidence", [
+        { label: "Metric", value: (item) => item.metric_id, subject: true },
+        { label: "Value", value: (item) => item.value, number: true },
+        { label: "Unit", value: (item) => item.unit },
+      ], visibleDuplication(), rawViews.duplication.items.length === 0
+        ? rawViews.duplication.empty_state
+        : "No matches under the active search", {
+        surface: "duplication",
+        subjects: (item) => [item.metric_id],
+      });
+      renderDuplication();
+      const renderTrend = () => renderTable("trend-view", "Bounded comparable repository trends", [
+        { label: "Metric", value: (item) => item.metric_id, subject: true },
+        { label: "Baseline", value: (item) => item.baseline_value, number: true },
+        { label: "Current", value: (item) => item.value, number: true },
+        { label: "Delta", value: (item) => item.delta, number: true },
+      ], visibleTrend(), rawViews.trend.items.length === 0
+        ? rawViews.trend.empty_state
+        : "No matches under the active search", {
+        surface: "trend",
+        subjects: (item) => [item.metric_id],
+      });
+      renderTrend();
+      const renderComplexitySubjects = () => renderTable("complexity-subject-table", "Bounded complex subjects", [
+        { label: "Subject", value: (item) => item.subject, subject: true },
+        { label: "Metric", value: (item) => item.metric_id },
+        { label: "Value", value: (item) => item.value, number: true },
+        { label: "Unit", value: (item) => item.unit },
+      ], visibleComplexity(), rawViews.complexity.top_items.length === 0
+        ? rawViews.complexity.empty_state
+        : "No matches under the active search", {
+        surface: "complexity",
+        subjects: (item) => [item.subject],
+      });
+      renderComplexitySubjects();
+      pathSearch.addEventListener("input", () => {
+        selectionActivator = null;
+        renderScatter();
+        renderInvestigations();
+        renderComplexitySubjects();
+        renderTopology();
+        renderCoupling();
+        renderDuplication();
+        renderTrend();
+      });
+      document.getElementById("subject-detail-close").addEventListener("click", clearSelection);
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || selectedSubject === null) return;
+        event.preventDefault();
+        clearSelection();
+      });
+    })();
+  </script>
+<script>{{REPORT_PRESENTATION_SCRIPT}}</script>
+</body>
+</html>

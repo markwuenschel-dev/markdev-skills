@@ -1,0 +1,205 @@
+{
+  "name": "software-engineering-intelligence",
+  "version": "1.3.0",
+  "entrypoint": "SKILL.md",
+  "direct_request": "Run Software Engineering Intelligence",
+  "runtime": "node-builtins-plus-optional-cpython-min-3.13-typescript-compiler-api-jdk-compiler-min-25-stdlib",
+  "java_lanes": {"portable": "always", "hermetic_jdk25": "conditional-unavailable-below-25"},
+  "java_toolchain": {"platform": "win32", "vendor": "Oracle Corporation", "runtime_version": "25.0.3+9-LTS-195", "java_sha256": "173806fbfaf125493d69ecca62ef57a8d975e4cd9f0d489f1496be7be4548941", "javac_sha256": "98b1e2c19ba021660d6be117040be977e898cb0204d9b01f11f2fa3ec6b03f7c"},
+  "context_policy": "context-policy.json",
+  "inventory": {
+    "entrypoint": [
+      "SKILL.md"
+    ],
+    "references": [
+      "references/collection-adapters.md",
+      "references/comparison-calibration.md",
+      "references/evidence-contract.md",
+      "references/maturity-scoring.md",
+      "references/policy-profile.md",
+      "references/profile-applicability.md",
+      "references/ria-handoff.md"
+    ],
+    "assets": [
+      "assets/canonical-input.json",
+      "assets/report-template.html"
+    ],
+    "scripts": [
+      "scripts/package-check.js",
+      "scripts/run-java-lane.js",
+      "scripts/score-sei-maturity.js",
+      "scripts/run-sei.js"
+    ],
+    "internal": [
+      "internal/java-lane-core.js"
+    ],
+    "test_support": [
+      "test-support/java-lane-harness.js"
+    ],
+    "tests": [
+      "scripts/package-check.test.js",
+      "scripts/run-java-lane.test.js"
+    ],
+    "evaluation": [
+      "evals/evals.json"
+    ],
+    "metadata": [
+      "MANIFEST.json",
+      "context-policy.json",
+      "openai.yaml",
+      "RUNTIME-CONTRACT.json"
+    ]
+  },
+  "owned_files": [
+    "MANIFEST.json",
+    "RUNTIME-CONTRACT.json",
+    "SKILL.md",
+    "assets/canonical-input.json",
+    "assets/report-template.html",
+    "context-policy.json",
+    "evals/evals.json",
+    "openai.yaml",
+    "internal/java-lane-core.js",
+    "references/collection-adapters.md",
+    "references/comparison-calibration.md",
+    "references/evidence-contract.md",
+    "references/maturity-scoring.md",
+    "references/policy-profile.md",
+    "references/profile-applicability.md",
+    "references/ria-handoff.md",
+    "scripts/package-check.js",
+    "scripts/package-check.test.js",
+    "scripts/run-java-lane.js",
+    "scripts/run-java-lane.test.js",
+    "scripts/run-sei.js",
+    "scripts/score-sei-maturity.js",
+    "test-support/java-lane-harness.js"
+  ],
+  "references": [
+    "references/collection-adapters.md",
+    "references/comparison-calibration.md",
+    "references/evidence-contract.md",
+    "references/maturity-scoring.md",
+    "references/profile-applicability.md",
+    "references/policy-profile.md",
+    "references/ria-handoff.md"
+  ],
+  "assets": [
+    "assets/canonical-input.json",
+    "assets/report-template.html"
+  ],
+  "scripts": [
+    "scripts/run-sei.js",
+    "scripts/run-java-lane.js",
+    "scripts/run-java-lane.test.js",
+    "scripts/score-sei-maturity.js",
+    "scripts/package-check.js",
+    "scripts/package-check.test.js"
+  ],
+  "evals": "evals/evals.json",
+  "shared_engine": {
+    "path": "../shared/software-engineering-intelligence/cli.js",
+    "layout_module": "../shared/software-engineering-intelligence/layout.js",
+    "required_exports": [
+      "execute",
+      "parseArguments"
+    ],
+    "resolver_capability": "shared/capability-registry",
+    "resolver_exports": [
+      "canonicalRoot",
+      "discover",
+      "resolveInstallation"
+    ],
+    "context_classification": "model-opaque"
+  },
+  "authority": {
+    "class": "evidence-producer-and-assessment",
+    "owns": [
+      "provenance-bound engineering evidence snapshots",
+      "read-only evidence reports",
+      "explicit SEI product maturity scorecards",
+      "evidence-backed engineering assessment sidecars"
+    ],
+    "does_not_own": [
+      "repository health grading",
+      "candidate scoring or ranking",
+      "architecture judgment",
+      "lifecycle routing or state",
+      "remediation ordering or graph mutation",
+      "execution, merge, release, or publication",
+      "independent verification or completion verdicts"
+    ]
+  },
+  "baseline_integration": {
+    "status": "integrated-additive-assessment-ref-v1",
+    "owner": "repository-improvement-assessment",
+    "reference_contract": "additive-sei-assessment-ref-v1",
+    "m1_outputs": [
+      "standalone-snapshot",
+      "offline-report",
+      "engineering-assessment-sidecar"
+    ],
+    "forbidden_outputs": [
+      "engineering_intelligence_ref",
+      "baseline_ref",
+      "assessment_refs",
+      "health_grade",
+      "candidate",
+      "lifecycle_state",
+      "verification_verdict"
+    ]
+  },
+  "permission_boundary": {
+    "source_repository_mutation": false,
+    "artifact_writes": "caller-selected --out snapshot/assessment/cache artifacts, optional elected report, optional caller-selected --performance-json, and explicit maturity-scorecard output only",
+    "network": false,
+    "dependency_installation": false
+  },
+  "non_goals": [
+    "repository health grading",
+    "candidate scoring or ranking",
+    "architecture judgment",
+    "lifecycle ownership",
+    "completion verdicts"
+  ],
+  "determinism": {
+    "snapshot_identity_bound": true,
+    "cache_requires_exact_identity": true,
+    "missing_measurements_are_zero": false,
+    "automatic_baseline_inventory_bounded": true,
+    "explicit_baseline_precedence": true,
+    "directional_interpretation_assigned": false
+  },
+  "consumes": [
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract"
+  ],
+  "depends_on": [
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract",
+    "shared/project-intelligence-workspace"
+  ],
+  "presentation": {
+    "canonical_machine_artifacts": [
+      "snapshot",
+      "engineering-assessment-sidecar"
+    ],
+    "interactive_report_default": "ask-before-atomic-run",
+    "nested_policy": "inherit -> --report-mode skip",
+    "report_optional": true,
+    "cli_flag": "--report-mode generate|skip"
+  },
+  "incremental_reuse": {
+    "manifest_version": "sei.incremental-run-manifest@2",
+    "report_optional_for_exact_reuse": true,
+    "legacy_manifest_supported": "@1",
+    "windows_bounded_stage_root": true
+  },
+  "reporting": {
+    "responsive_canvas": "shared/report-presentation",
+    "zero_network": true,
+    "report_mode_skip_reusable": true
+  }
+}

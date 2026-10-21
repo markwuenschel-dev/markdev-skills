@@ -1,0 +1,57 @@
+{
+  "schema_version": "assessment-runtime-contract@1",
+  "owner": "architecture-improvement-intelligence",
+  "version": "2.5.0",
+  "entrypoint": "SKILL.md",
+  "input": {
+    "required": [
+      "baseline_ref",
+      "engineering_intelligence_ref"
+    ],
+    "optional": [
+      "sei_assessment_ref",
+      "verification_baseline_ref",
+      "presentation_policy",
+      "candidate_namespace",
+      "health_context"
+    ]
+  },
+  "output": {
+    "kind": "architecture-candidate-set",
+    "schema": "architecture-candidate-set@2",
+    "immutable": true,
+    "reference_fields": [
+      "owner",
+      "artifact_id",
+      "sha256",
+      "repository_revision"
+    ]
+  },
+  "authority": {
+    "owns": [
+      "architecture judgment",
+      "architecture candidates",
+      "candidate critique"
+    ],
+    "does_not_own": [
+      "repository health grade",
+      "integrity candidate ownership",
+      "decision graph ownership"
+    ],
+    "source_repository_mutation": false
+  },
+  "presentation": {
+    "supports_report": true,
+    "accepts_inherit": true,
+    "canonical_independent_of_report": true
+  },
+  "verification": {
+    "consumes_shared_baseline": false,
+    "targeted_reverification_allowed": true
+  },
+  "execution": {
+    "executor_class": "agent",
+    "flatten_under_ria": true,
+    "full_skill_read_by_parent": false
+  }
+}

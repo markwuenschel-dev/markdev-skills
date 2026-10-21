@@ -1,0 +1,132 @@
+{
+  "schema_version": 2,
+  "run_id": "ica-ria-example",
+  "repository_revision": "__RIA_REVISION__",
+  "scope": {
+    "objective": "Reduce duplicate repository-construction authority",
+    "included": [
+      "."
+    ],
+    "excluded": [],
+    "mutation_posture": "read-only"
+  },
+  "evidence_packet_refs": [
+    "__ARCH_PACKET_REF__"
+  ],
+  "coverage_receipt": {
+    "architecture_sweep_complete": true,
+    "final_adversarial_sweep_complete": true,
+    "lens_dispositions": {
+      "authority": "candidate ICA-001",
+      "locality": "candidate ICA-001",
+      "migration": "not-applicable: internal seam only"
+    }
+  },
+  "candidates": [
+    {
+      "candidate_id": "ICA-001",
+      "title": "Consolidate repository construction behind the state owner",
+      "transformation_kind": "consolidate_state_owner",
+      "structural_problem": "Two route paths construct repository state directly while the rest delegate to the canonical owner.",
+      "evidence_refs": [
+        "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-002",
+        "evidence-recon:__ARCH_PACKET_SHA256__#ICA-N-001"
+      ],
+      "current_state": "Repository construction authority is split between route and state layers.",
+      "proposed_state": "State owner becomes the sole construction authority and routes delegate through its interface.",
+      "authority_before": "route + state",
+      "authority_after": "state",
+      "interface_change": "Routes lose constructor knowledge.",
+      "locality_gain": "Construction policy changes become state-local.",
+      "leverage_gain": "One owner enforces lifecycle and test seams.",
+      "complexity_destination": "Construction policy moves behind the existing state-owner interface.",
+      "deletion_test": "Removing direct route construction concentrates policy rather than merely moving code.",
+      "simpler_alternative": "Patch only the two current routes; rejected because it leaves construction authority structurally unenforced.",
+      "risks": [
+        "State owner could become too broad if unrelated repositories are added indiscriminately."
+      ],
+      "compatibility": [],
+      "migration": [],
+      "verification_obligations": [
+        "AST/reference regression proving no route constructs the repository directly."
+      ],
+      "critic": {
+        "outcome": "eligible",
+        "hard_failures": [],
+        "unresolved_questions": []
+      },
+      "ledger_candidate_ref": "ICA-001",
+      "unresolved_decisions": [],
+      "disposition": "ready_for_integrity_loop"
+    }
+  ],
+  "performance_receipt": {
+    "profile": "aggressive-threadpool-v2",
+    "planned_tasks": 8,
+    "peak_concurrency": 6
+  },
+  "proposed_domain_updates": [],
+  "proposed_adr_updates": [],
+  "architecture_fitness": {
+    "confidence": 0.9,
+    "dimensions": {
+      "boundary_integrity": {
+        "score": 72,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-001"
+        ]
+      },
+      "dependency_direction_cycle_control": {
+        "score": 78,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-001"
+        ]
+      },
+      "cohesion_locality": {
+        "score": 76,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-001"
+        ]
+      },
+      "interface_contract_clarity": {
+        "score": 74,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-002"
+        ]
+      },
+      "state_data_ownership": {
+        "score": 80,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-002"
+        ]
+      },
+      "change_containment_evolvability": {
+        "score": 70,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-003"
+        ]
+      },
+      "duplication_competing_implementations": {
+        "score": 68,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-003"
+        ]
+      },
+      "architectural_testability_observability": {
+        "score": 75,
+        "state": "scored",
+        "evidence_refs": [
+          "evidence-recon:__ARCH_PACKET_SHA256__#ICA-C-003"
+        ]
+      }
+    },
+    "schema_version": "architecture.fitness@2"
+  }
+}

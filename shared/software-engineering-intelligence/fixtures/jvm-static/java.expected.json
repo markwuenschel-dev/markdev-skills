@@ -1,0 +1,77 @@
+{
+  "package_name": "example.jvm",
+  "imports": [
+    {
+      "qualified_name": "java.util.List",
+      "static": false,
+      "wildcard": false,
+      "start_line": 3,
+      "end_line": 3
+    },
+    {
+      "qualified_name": "java.util.Collections.emptyList",
+      "static": true,
+      "wildcard": false,
+      "start_line": 4,
+      "end_line": 4
+    }
+  ],
+  "callables": [
+    {
+      "kind": "static-initializer",
+      "qualified_name": "example.jvm.ComplexityFixture.$clinit@7:5",
+      "complexity": 2,
+      "start_line": 7,
+      "end_line": 9
+    },
+    {
+      "kind": "instance-initializer",
+      "qualified_name": "example.jvm.ComplexityFixture.$init@11:5",
+      "complexity": 2,
+      "start_line": 11,
+      "end_line": 13
+    },
+    {
+      "kind": "constructor",
+      "qualified_name": "example.jvm.ComplexityFixture.<init>(int)",
+      "complexity": 2,
+      "start_line": 15,
+      "end_line": 17
+    },
+    {
+      "kind": "method",
+      "qualified_name": "example.jvm.ComplexityFixture.score(List<String>)",
+      "complexity": 9,
+      "start_line": 19,
+      "end_line": 35
+    },
+    {
+      "kind": "method",
+      "qualified_name": "example.jvm.ComplexityFixture.worker()",
+      "complexity": 1,
+      "start_line": 37,
+      "end_line": 41
+    },
+    {
+      "kind": "lambda",
+      "qualified_name": "example.jvm.ComplexityFixture.worker()#lambda@38:16",
+      "complexity": 2,
+      "start_line": 38,
+      "end_line": 40
+    },
+    {
+      "kind": "method",
+      "qualified_name": "example.jvm.ComplexityFixture.enabled()",
+      "complexity": 1,
+      "start_line": 43,
+      "end_line": 45
+    },
+    {
+      "kind": "method",
+      "qualified_name": "example.jvm.ComplexityFixture.boot()",
+      "complexity": 1,
+      "start_line": 47,
+      "end_line": 47
+    }
+  ]
+}

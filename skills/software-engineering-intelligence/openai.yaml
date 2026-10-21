@@ -1,0 +1,5 @@
+interface:
+  display_name: "Software Engineering Intelligence"
+  short_description: "Produce provenance-bound engineering evidence snapshots and reports"
+policy:
+  allow_implicit_invocation: false

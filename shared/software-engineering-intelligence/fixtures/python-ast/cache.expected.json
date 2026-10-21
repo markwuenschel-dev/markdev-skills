@@ -1,0 +1,36 @@
+{
+  "parse_cache_schema": "sei.python-parse-cache@1",
+  "graph_cache_schema": "sei.python-graph-cache@2",
+  "cold": {
+    "parse_hits": 0,
+    "parse_misses": 8,
+    "parse_writes": 7,
+    "graph_hits": 0,
+    "graph_misses": 1,
+    "graph_writes": 1
+  },
+  "warm": {
+    "parse_hits": 7,
+    "parse_misses": 1,
+    "parse_writes": 0,
+    "graph_hits": 1,
+    "graph_misses": 0,
+    "graph_writes": 0
+  },
+  "rename": {
+    "parse_hits": 7,
+    "parse_misses": 1,
+    "parse_writes": 0,
+    "graph_hits": 0,
+    "graph_misses": 1,
+    "graph_writes": 1
+  },
+  "add_module": {
+    "parse_hits": 7,
+    "parse_misses": 2,
+    "parse_writes": 1,
+    "graph_hits": 0,
+    "graph_misses": 1,
+    "graph_writes": 1
+  }
+}

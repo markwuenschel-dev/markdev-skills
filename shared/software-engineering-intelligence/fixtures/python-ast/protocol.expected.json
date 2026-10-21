@@ -1,0 +1,13 @@
+{
+  "analyzer_version": "sei.python-ast@1",
+  "grammar_target": [3, 13],
+  "parser_runtime": "cpython-3.13",
+  "protocol": "sei.python-ast@1",
+  "request_magic_hex": "5345495059413100",
+  "response_magic_hex": "5345495059523100",
+  "typed_parse_errors": [
+    "FAIL-PYTHON-AST-PARSE-SYNTAX",
+    "FAIL-PYTHON-AST-PARSE-ENCODING",
+    "FAIL-PYTHON-AST-PARSE-NULL-BYTE"
+  ]
+}

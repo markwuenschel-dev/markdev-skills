@@ -1,18 +1,11 @@
 # Capability map
 
-Canonical inventory for this skills repo. **Start here** when you are unsure which skill to run, or when agent memory is fragmented across pastes and local copies.
+Canonical inventory for this skills repo. **Start here** when you are unsure which skill to run (invoke it directly; `loop-router` is a dormant experimental prototype, not a router), or when agent memory is fragmented across pastes and local copies.
 
 Inventory = every folder under `skills/` with a root `SKILL.md`.
 
 ```mermaid
 flowchart TD
-    R(["loop-router — unsure which?"])
-    R --> DECIDE
-    R --> ASSESS
-    R --> BUILD
-    R --> LAND
-    R --> CRAFT
-
     subgraph DECIDE["decide"]
         direction TB
         EG["expanded-grill-with-docs"]
@@ -25,8 +18,12 @@ flowchart TD
         RIA["repository-improvement-assessment"]
         RHA["repository-health-assessment"]
         CIAL["codebase-integrity-audit-loop"]
+        AII["architecture-improvement-intelligence"]
+        SEI["software-engineering-intelligence"]
         RIA --> RHA
         RIA --> CIAL
+        RIA --> AII
+        RIA -.->|"evidence ref"| SEI
         RHA -->|"integrity candidates"| CIAL
     end
 
@@ -70,7 +67,9 @@ flowchart TD
 | Turn selected work into a binding execution contract | `implementation-plan-contract` | Select what to work on; write the code |
 | Combined health + integrity + architecture assessment from one baseline | `repository-improvement-assessment` | Graph reconciliation, execution, or publication; a health-only grade |
 | Grade repository health / establish a baseline | `repository-health-assessment` | Implement fixes; propose architecture direction; review one diff |
-| Audit and repair codebase integrity | `codebase-integrity-audit-loop` | Deliver a multi-item queue end-to-end |
+| Read-only integrity audit: verified candidate ledger + one selected handoff | `codebase-integrity-audit-loop` | Edit tracked source, commit, or claim completion (`production-flywheel` implements) |
+| Read-only structural architecture analysis / one-candidate design handoff | `architecture-improvement-intelligence` | Health grading, generic code review, implementation |
+| Software Engineering Intelligence snapshot + assessment (explicit request) | `software-engineering-intelligence` | Health grade, integrity candidates, architecture conclusions, an RIA lifecycle |
 | Deliver approved work | `production-flywheel` | Start a new repo-wide report without user queue selection |
 | Parallelize a known mission | `human-directed-swarm-planner` | Autonomously pick the mission |
 | Change code without breaking neighbours | `connected-impact-sweep` | Decide what the change should be |
@@ -81,13 +80,11 @@ flowchart TD
 | Write or rewrite a PR body (visual summary, evidence, merge danger) | `pr-mwdev` | Push, open, or merge a PR |
 | Generate an interactive wizard for steps only a human can perform | `wizard-mwdev` | Steps the agent can perform itself |
 | Retrospect a session to find environment fixes | `retro-mwdev` | Apply the fixes itself (read-only; routes each to its owner) |
-| Unsure which applies | `loop-router` | Execute work itself beyond routing |
 
 ## When to hand off
 
 | From | To | Trigger |
 | --- | --- | --- |
-| `loop-router` | any inventoried skill | Need matches a single row above |
 | `expanded-grill-with-docs` | `implementation-plan-contract` | Design approved; needs a binding execution contract |
 | `expanded-grill-with-docs` | `production-flywheel` | Approved design package reached; user wants delivery |
 | `repository-improvement-assessment` | `repository-health-assessment` / `codebase-integrity-audit-loop` / `architecture-improvement-intelligence` | Combined ASSESS projection; children inherit report policy |
@@ -125,10 +122,11 @@ Every top-level skill may reference these without redefining them:
 | Project intelligence workspace | [`shared/project-intelligence-workspace/`](shared/project-intelligence-workspace/) | `.project-intelligence/` durable root |
 | Report election | [`shared/report-election/`](shared/report-election/) | Generate/skip/inherit presentation policy |
 | Report presentation | [`shared/report-presentation/`](shared/report-presentation/) | Shared HTML report canvas |
+| SEI engine | [`shared/software-engineering-intelligence/`](shared/software-engineering-intelligence/) | Snapshot collectors, analyzers, schema validator, report; used by `software-engineering-intelligence` and RIA |
 
 ## Known, not yet vendored
 
-`software-engineering-intelligence` and `architecture-improvement-intelligence` remain local/family skills used by RIA but are not yet promoted into `skills/`. Pin them in [`DEPENDENCIES.md`](DEPENDENCIES.md); do not treat them as missing inventory rows.
+Some `shared/` runtime modules that synced skills load (e.g. `orchestration-runtime`, `action-graph-execution`) and the successor skills `decision-terrain-mapper` / `adaptive-causal-debugging` are not yet promoted here. They are listed in [`DEPENDENCIES.md`](DEPENDENCIES.md); do not treat them as missing inventory rows.
 
 ## Boundaries (do not blur)
 

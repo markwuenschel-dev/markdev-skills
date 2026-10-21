@@ -1,0 +1,22 @@
+{
+  "callables": [
+    {"complexity": 5, "kind": "function", "lineno": 9, "qualified_name": "outer"},
+    {"complexity": 2, "kind": "nested-function", "lineno": 19, "qualified_name": "outer.<locals>.nested"},
+    {"complexity": 3, "kind": "method", "lineno": 24, "qualified_name": "outer.<locals>.Local.local_method"},
+    {"complexity": 20, "kind": "method", "lineno": 32, "qualified_name": "Example.method"},
+    {"complexity": 2, "kind": "nested-function", "lineno": 65, "qualified_name": "Example.method.<locals>.inner"},
+    {"complexity": 3, "kind": "async-method", "lineno": 72, "qualified_name": "Example.async_method"},
+    {"complexity": 4, "kind": "async-function", "lineno": 79, "qualified_name": "top_async"},
+    {"complexity": 3, "kind": "function", "lineno": 87, "qualified_name": "set_builder"},
+    {"complexity": 1, "kind": "function", "lineno": 91, "qualified_name": "generator"}
+  ],
+  "imports": [
+    {"kind": "import", "level": 0, "lineno": 1, "module": null, "names": [{"asname": null, "name": "importlib"}]},
+    {"kind": "import", "level": 0, "lineno": 2, "module": null, "names": [{"asname": null, "name": "os"}, {"asname": "system", "name": "sys"}]},
+    {"kind": "from", "level": 1, "lineno": 3, "module": "pkg", "names": [{"asname": "renamed", "name": "alpha"}, {"asname": null, "name": "beta"}]},
+    {"kind": "dynamic-builtin", "level": 0, "lineno": 5, "module": null, "names": []},
+    {"kind": "dynamic-importlib", "level": 0, "lineno": 6, "module": null, "names": []},
+    {"kind": "dynamic-builtin", "level": 0, "lineno": 8, "module": null, "names": []},
+    {"kind": "import", "level": 0, "lineno": 20, "module": null, "names": [{"asname": null, "name": "collections"}]}
+  ]
+}
