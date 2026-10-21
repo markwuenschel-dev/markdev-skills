@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "profile": "aggressive-threadpool-v2",
+  "requirements": {
+    "adaptive_lane_cardinality": true,
+    "arbitrary_small_fixed_worker_cap_forbidden": true,
+    "submit_all_ready_before_wait": true,
+    "as_completed_consumption": true,
+    "immediate_refill": true,
+    "work_stealing": true,
+    "critical_path_splitting": true,
+    "incremental_synthesis": true,
+    "pipeline_overlap": true,
+    "separate_command_and_agent_budgets": true,
+    "single_flight_deduplication": true,
+    "content_addressed_cache": true,
+    "structured_cancellation": true,
+    "ria_nested_swarm_forbidden": true,
+    "performance_receipt_required": true,
+    "spare_capacity_does_not_expand_scope": true
+  },
+  "queue": {
+    "target": "queue_multiplier x active agent workers when genuine independent READY work exists",
+    "fake_work_for_saturation_forbidden": true
+  },
+  "agent_pool": {
+    "posture": "aggressive",
+    "remote_io_oversubscription_allowed": true,
+    "runtime_cap_wins": true
+  },
+  "command_pool": {
+    "posture": "conservative-resource-aware",
+    "resource_keys_required_for_conflicting_commands": true
+  },
+  "authority": {
+    "parallelism_changes_latency_only": true,
+    "worker_outputs_are_not_final_architecture_authority": true
+  }
+}

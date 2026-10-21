@@ -1,0 +1,59 @@
+question_quality_gate:
+  scale: "0-3 per positive dimension"
+  positive_dimensions:
+    decision_leverage:
+      0: "No material design consequence"
+      1: "Minor preference or local implementation detail"
+      2: "Changes a meaningful requirement or boundary"
+      3: "Changes multiple downstream requirements, architecture, rollout, or risk"
+    specificity:
+      0: "Broad topic rather than a decision"
+      1: "Decision is implied but ambiguous"
+      2: "Concrete decision boundary is named"
+      3: "Precise ambiguity and affected state/contract are explicit"
+    discriminative_power:
+      0: "Plausible answers are effectively equivalent"
+      1: "Options differ weakly"
+      2: "Options lead to meaningfully different behavior"
+      3: "Options clearly separate distinct mechanisms or contracts"
+    evidence_grounding:
+      0: "Ignores available evidence or asks for a discoverable fact"
+      1: "Uses generic assumptions"
+      2: "Uses relevant known facts/assumptions"
+      3: "Evidence is concise, authoritative, and directly shapes the question"
+    downstream_unlock:
+      0: "No named consequence or dependent decision"
+      1: "Vague downstream relevance"
+      2: "Names concrete requirements or decisions unlocked"
+      3: "Closes or unlocks several consequential decisions, requirements, or branches"
+    recommendation_quality:
+      0: "No recommendation or pure 'it depends'"
+      1: "Weak/default recommendation without commitment"
+      2: "Concrete expert default"
+      3: "Concrete default tied to evidence and falsification conditions"
+    rationale_quality:
+      0: "Generic slogan such as reliability/scalability/best practice"
+      1: "Names a benefit without mechanism"
+      2: "Explains mechanism and at least one concrete consequence"
+      3: "Explains mechanism, consequence, tradeoff, and why alternatives lose"
+    answerability:
+      0: "Requires hidden context or a research task by the user"
+      1: "Can be answered only with substantial reconstruction"
+      2: "Directly answerable with supplied context"
+      3: "Easy to answer or bulk-accept with clear options"
+  hard_failures:
+    - discoverable_fact_asked_of_user
+    - no_materially_distinct_answers
+    - missing_recommendation
+    - generic_or_empty_rationale
+    - unrelated_compound_decisions
+    - invalidated_or_ineligible_branch
+  pass_rule:
+    minimum_total: 18
+    required_minimums:
+      specificity: 2
+      discriminative_power: 2
+      recommendation_quality: 2
+      rationale_quality: 2
+      answerability: 2
+    action_on_failure: "rewrite, merge, split, research, or discard before user presentation"

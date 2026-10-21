@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "integrity-candidate-handoff-v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "owner", "mutation_owner", "completion_authority", "handoff_id", "handoff_sha256", "candidate_id", "candidate", "candidate_hash", "repository", "scope", "evidence", "authorization", "acceptance_criteria", "verification_strategy"],
+  "properties": {
+    "schema_version": { "const": "integrity-candidate-handoff@1" },
+    "owner": { "const": "codebase-integrity-audit-loop" },
+    "mutation_owner": { "const": "production-flywheel" },
+    "completion_authority": { "const": "independent-verification" },
+    "handoff_id": { "type": "string", "pattern": "^integrity-handoff-[a-f0-9]{24}$" },
+    "handoff_sha256": { "$ref": "#/$defs/hash" },
+    "candidate_id": { "$ref": "#/$defs/id" },
+    "candidate": { "type": "object" },
+    "candidate_hash": { "$ref": "#/$defs/hash" },
+    "repository": {
+      "type": "object", "additionalProperties": false, "required": ["identity", "base_revision"],
+      "properties": { "identity": { "$ref": "#/$defs/id" }, "base_revision": { "$ref": "#/$defs/id" } }
+    },
+    "scope": {
+      "type": "object", "additionalProperties": false, "required": ["paths", "scope_hash"],
+      "properties": { "paths": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/id" } }, "scope_hash": { "$ref": "#/$defs/hash" } }
+    },
+    "evidence": {
+      "type": "object", "additionalProperties": false, "required": ["refs", "evidence_hash"],
+      "properties": { "refs": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/ref" } }, "evidence_hash": { "$ref": "#/$defs/hash" } }
+    },
+    "authorization": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authorization_id", "issuer", "repository_identity", "base_revision", "candidate_id", "candidate_hash", "scope_hash", "evidence_hash", "authority_key_id", "authority_mac", "permitted_mutation", "authorization_hash"],
+      "properties": {
+        "authorization_id": { "$ref": "#/$defs/id" }, "issuer": { "$ref": "#/$defs/id" }, "repository_identity": { "$ref": "#/$defs/id" }, "base_revision": { "$ref": "#/$defs/id" }, "candidate_id": { "$ref": "#/$defs/id" },
+        "candidate_hash": { "$ref": "#/$defs/hash" }, "scope_hash": { "$ref": "#/$defs/hash" }, "evidence_hash": { "$ref": "#/$defs/hash" }, "authority_key_id": { "$ref": "#/$defs/id" }, "authority_mac": { "$ref": "#/$defs/hash" }, "permitted_mutation": { "const": true }, "authorization_hash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "acceptance_criteria": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["criterion_id", "command", "expected"], "properties": { "criterion_id": { "$ref": "#/$defs/id" }, "command": { "$ref": "#/$defs/id" }, "expected": { "$ref": "#/$defs/id" } } } },
+    "verification_strategy": { "type": "object", "additionalProperties": false, "required": ["owner", "commands", "completion_requires_fresh_evidence"], "properties": { "owner": { "const": "independent-verification" }, "commands": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/id" } }, "completion_requires_fresh_evidence": { "const": true } } }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1 },
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "ref": { "type": "object", "additionalProperties": false, "required": ["artifact_id", "sha256"], "properties": { "artifact_id": { "$ref": "#/$defs/id" }, "sha256": { "$ref": "#/$defs/hash" } } }
+  }
+}

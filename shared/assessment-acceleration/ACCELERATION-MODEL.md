@@ -116,6 +116,12 @@ Warm-only content never supports a current claim, score, grade, rank, or recomme
 
 `cache-store.js` provides content-hash verification and single-flight locking so concurrent workers do not duplicate identical deterministic work.
 
+### Production command evidence adapter
+
+`command-evidence-cache.js` is a narrow adapter over this same `CacheStore`, not a second cache. It reuses command evidence only when repository key, tree hash, exact command, environment fingerprint, and configuration hash match. Every miss requires a rerun reason. A tree, command, environment, or configuration change executes again.
+
+Its payload declares `authority: producer-command-evidence` and `independent_verification: false`. An exact cached PASS can avoid an identical producer command, but it cannot satisfy or suppress a fresh Independent Verification gate.
+
 ## Runner safety
 
 `scheduler.js` passes an `AbortSignal` to each runner.

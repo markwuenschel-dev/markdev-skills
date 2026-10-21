@@ -86,6 +86,14 @@
         },
         "presentation_policy": {
           "const": "inherit"
+        },
+        "candidate_namespace": {
+          "description": "Per-owner candidate id namespace assigned by RIA. Owners prefix every candidate_id they mint with '<candidate_namespace>:'; must equal the namespace mapped to the returning owner.",
+          "enum": [
+            "health",
+            "integrity",
+            "architecture"
+          ]
         }
       }
     },
@@ -105,46 +113,102 @@
       "type": "array",
       "uniqueItems": true,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "kind",
-          "schema_version",
-          "artifact_id",
-          "sha256",
-          "repository_revision",
-          "path"
-        ],
-        "properties": {
-          "kind": {
-            "enum": [
-              "testing-fitness"
-            ]
+        "oneOf": [
+          {
+            "$ref": "#/$defs/testing_fitness_ref"
           },
-          "schema_version": {
-            "const": "ria.testing-fitness@1"
-          },
-          "artifact_id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "sha256": {
-            "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
-          },
-          "repository_revision": {
-            "type": "string",
-            "minLength": 1
-          },
-          "path": {
-            "type": "string",
-            "minLength": 1
+          {
+            "$ref": "#/$defs/evidence_recon_ref"
           }
-        }
+        ]
       }
     }
   },
   "$defs": {
+    "testing_fitness_ref": {
+      "description": "Legacy review-testing sidecar. Informational only in RIA: it is displayed beside the Health verification-readiness lane and never substitutes for it.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "artifact_id",
+        "sha256",
+        "repository_revision",
+        "path"
+      ],
+      "properties": {
+        "kind": {
+          "const": "testing-fitness"
+        },
+        "schema_version": {
+          "const": "ria.testing-fitness@1"
+        },
+        "artifact_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "evidence_recon_ref": {
+      "description": "Repository Health's validated Evidence Recon sidecar (shared/evidence-recon packet). path and artifact_path name the same file; sha256 is its byte hash.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "schema_version",
+        "artifact_id",
+        "sha256",
+        "repository_revision",
+        "path",
+        "artifact_path",
+        "packet_id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "evidence-recon"
+        },
+        "schema_version": {
+          "const": "evidence-recon.packet@1"
+        },
+        "artifact_id": {
+          "type": "string",
+          "pattern": "^evidence-recon:[0-9a-f]{64}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "repository_revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "artifact_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "packet_id": {
+          "type": "string",
+          "pattern": "^RHA-ER:sha256:[0-9a-f]{64}$"
+        }
+      }
+    },
     "artifact_ref": {
       "type": "object",
       "additionalProperties": false,

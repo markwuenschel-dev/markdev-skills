@@ -1,7 +1,35 @@
 {
   "name": "shared/ria-scoring",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "module": "scoring.js",
   "test": "scoring.test.js",
-  "purpose": "Deterministic RIA composite scoring, plus/minus grade mapping, count-based coverage normalization, and numeric priority presentation semantics."
+  "purpose": "Deterministic RIA composite scoring, plus/minus grade mapping, count-based coverage normalization, and numeric priority presentation semantics. Hosts the v2 composite scoring config, its loader and the separate presentation policy (composite-scoring-v3).",
+  "files": [
+    "MANIFEST.json",
+    "MIGRATIONS.md",
+    "context-policy.json",
+    "scoring.js",
+    "scoring.test.js",
+    "composite-v2.config.json",
+    "composite-v2.config.schema.json",
+    "composite-v2.policy.json",
+    "composite-v2.policy.schema.json",
+    "composite-v2-config.js",
+    "composite-v2-config.test.js",
+    "print-influence.js",
+    "evidence-model.js",
+    "evidence-model.test.js",
+    "integrity-scoring.js",
+    "integrity-scoring.test.js",
+    "composite-v2.js",
+    "composite-v2.test.js",
+    "composite-v2.input.schema.json"
+  ],
+  "tests": [
+    "scoring.test.js",
+    "composite-v2-config.test.js",
+    "evidence-model.test.js",
+    "integrity-scoring.test.js",
+    "composite-v2.test.js"
+  ]
 }

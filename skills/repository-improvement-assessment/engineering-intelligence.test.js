@@ -502,3 +502,59 @@ test("RIA writer fails closed if the indexed content-addressed artifact has diff
     /FAIL-ENGINEERING-INTELLIGENCE-HASH-MISMATCH/,
   );
 });
+
+// --- Stale index lock recovery -------------------------------------------------------------
+// The lock used to record a pid that was never read back, so one killed run left a lock that
+// failed every later run on that repository forever. These plant a lock at the exact path the
+// writer computes (by intercepting its first exclusive open) so the real recovery path runs
+// against a real file.
+function withPlantedLock(holder, fn) {
+  const realOpen = fs.openSync;
+  let planted = null;
+  fs.openSync = function patchedOpen(target, flags, ...rest) {
+    if (!planted && String(target).endsWith(".lock") && flags === "wx") {
+      planted = String(target);
+      fs.writeFileSync(planted, holder === null ? "" : typeof holder === "string" ? holder : JSON.stringify(holder));
+    }
+    return realOpen.call(fs, target, flags, ...rest);
+  };
+  try { return { result: fn(), planted }; }
+  finally { fs.openSync = realOpen; }
+}
+function deadPid() {
+  const child = childProcess.spawnSync(process.execPath, ["-e", ""]);
+  return child.pid;
+}
+
+test("a lock left by a dead process on this host is reclaimed instead of failing forever", (context) => {
+  const repositoryRoot = temporaryRepository(context);
+  const pid = deadPid();
+  const { result: ref, planted } = withPlantedLock({ pid, hostname: os.hostname(), acquired_at: "2026-01-01T00:00:00.000Z" }, () =>
+    writer().writeEngineeringIntelligenceArtifact({ repository_root: repositoryRoot, baseline_ref: baselineRef(), mission_id: "mission-m7-test", scope_hash: SCOPE_HASH, compute_snapshot: () => snapshotFor() }));
+  assert.ok(planted, "the writer never tried to take the index lock");
+  assert.match(ref.artifact_id, /^engineering-intelligence:[0-9a-f]{64}$/);
+  assert.equal(fs.existsSync(planted), false, "the reclaimed lock must be released afterwards");
+});
+
+test("a legacy bare-pid lock from a dead process is reclaimed too", (context) => {
+  const repositoryRoot = temporaryRepository(context);
+  const { result: ref } = withPlantedLock(`${deadPid()}\n`, () =>
+    writer().writeEngineeringIntelligenceArtifact({ repository_root: repositoryRoot, baseline_ref: baselineRef(), mission_id: "mission-m7-test", scope_hash: SCOPE_HASH, compute_snapshot: () => snapshotFor() }));
+  assert.match(ref.artifact_id, /^engineering-intelligence:/);
+});
+
+test("a lock held by a live process fails fast and names the lock, pid and host", (context) => {
+  const repositoryRoot = temporaryRepository(context);
+  const live = childProcess.spawn(process.execPath, ["-e", "setTimeout(()=>{},60000)"], { stdio: "ignore" });
+  context.after(() => { try { live.kill(); } catch {} });
+  let planted = null;
+  assert.throws(() => {
+    ({ planted } = withPlantedLock({ pid: live.pid, hostname: os.hostname(), acquired_at: "2026-09-21T00:00:00.000Z" }, () =>
+      writer().writeEngineeringIntelligenceArtifact({ repository_root: repositoryRoot, baseline_ref: baselineRef(), mission_id: "mission-m7-test", scope_hash: SCOPE_HASH, compute_snapshot: () => snapshotFor() })));
+  }, (error) => {
+    assert.match(error.message, /FAIL-ENGINEERING-INTELLIGENCE-INDEX-LOCKED/);
+    assert.match(error.message, new RegExp(`held by pid ${live.pid} on `));
+    assert.match(error.message, /\.lock is held by/);
+    return true;
+  });
+});

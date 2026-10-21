@@ -1,0 +1,121 @@
+{
+  "name": "architecture-improvement-intelligence",
+  "version": "2.5.0",
+  "entrypoint": "SKILL.md",
+  "contracts": [
+    "PERFORMANCE.md",
+    "ARCHITECTURE-COVERAGE.md",
+    "CANDIDATE-MODEL.md",
+    "CANDIDATE-CRITIC.md",
+    "ROUTING.md",
+    "HTML-REPORT.md",
+    "PARALLEL-LANE-PROTOCOL.md",
+    "EVALUATIONS.yaml",
+    "RELEASE-NOTES-V2.md",
+    "VALIDATION.md"
+  ],
+  "depends_on": [
+    "shared/evidence-recon",
+    "shared/candidate-ledger-spine",
+    "shared/assessment-acceleration",
+    "agent-executor-pool",
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract",
+    "shared/project-intelligence-workspace",
+    "shared/ria-scoring",
+    "shared/ria-owner-return"
+  ],
+  "consumes": [
+    "shared/evidence-recon",
+    "shared/candidate-ledger-spine",
+    "shared/assessment-acceleration",
+    "agent-executor-pool",
+    "codebase-design",
+    "expanded-grill-with-docs",
+    "decision-terrain-mapper",
+    "prototype",
+    "shared/report-election",
+    "shared/report-presentation",
+    "shared/assessment-runtime-contract",
+    "shared/project-intelligence-workspace",
+    "shared/ria-scoring",
+    "shared/ria-owner-return"
+  ],
+  "files": {
+    "candidate_set_schema": "assets/architecture-candidate-set.schema.json",
+    "candidate_set_example": "assets/architecture-candidate-set.example.json",
+    "report_builder": "assets/build-report.js",
+    "report_schema": "assets/report-input.schema.json",
+    "report_scaffold": "assets/report-scaffold.html",
+    "legacy_optional_graph_sanitizer": "assets/mermaid-safe.js",
+    "package_check": "assets/package-check.js",
+    "performance_contract": "assets/performance-contract.json",
+    "evaluations": "EVALUATIONS.yaml",
+    "runtime_contract": "RUNTIME-CONTRACT.json",
+    "report_presentation": "shared/report-presentation",
+    "architecture_fitness_runtime": "assets/architecture-fitness.js",
+    "architecture_fitness_schema": "assets/architecture-fitness.schema.json",
+    "architecture_fitness_test": "assets/architecture-fitness.test.js",
+    "architecture_fitness_v2_schema": "assets/architecture-fitness-v2.schema.json",
+    "architecture_fitness_v2_test": "assets/architecture-fitness-v2.test.js",
+    "architecture_owner_return": "assets/architecture-owner-return.js",
+    "architecture_evidence_binding": "assets/architecture-evidence-binding.js",
+    "ria_evidence_packet_fixture": "assets/canonical-ria-evidence-packet.json",
+    "candidate_set_ria_example": "assets/architecture-candidate-set.ria.example.json"
+  },
+  "runtime": {
+    "engine": "node",
+    "dependencies": [],
+    "shared_acceleration": "shared/assessment-acceleration",
+    "shared_evidence": "shared/evidence-recon",
+    "executor": "agent-executor-pool"
+  },
+  "performance": {
+    "profile": "aggressive-threadpool-v2",
+    "cardinality": "adaptive topology-derived; no arbitrary small fixed worker count",
+    "agent_workers": "auto aggressive, runtime-bounded",
+    "command_workers": "separate conservative resource-aware budget",
+    "deterministic_workers": "parallel where independent",
+    "synthesis_workers": "bounded incremental per-surface",
+    "queue_target": "queue_multiplier x active agent workers when genuine READY work exists",
+    "work_conserving_refill": true,
+    "as_completed_consumption": true,
+    "work_stealing": true,
+    "critical_path_splitting": true,
+    "single_flight": true,
+    "warm_starts": true,
+    "pipeline_overlap": true,
+    "nested_under_ria": "flatten into RIA global pool",
+    "report_runtime_network": false,
+    "view_time_graph_renderer": false,
+    "report_layout": "responsive widescreen/ultrawide analytics"
+  },
+  "authority": {
+    "repository_mutation": false,
+    "decision_graph_owner": "decision-terrain-mapper",
+    "architecture_judgment_owner": "architecture-improvement-intelligence",
+    "evidence_contract_owner": "shared/evidence-recon",
+    "score_contract_owner": "shared/candidate-ledger-spine"
+  },
+  "presentation": {
+    "canonical_machine_artifact": "architecture_candidate_set",
+    "interactive_report_default": "ask",
+    "assessment_under_ria": "inherit",
+    "report_optional": true
+  },
+  "storage": {
+    "workspace": "shared/project-intelligence-workspace@1",
+    "durable_root": ".project-intelligence",
+    "reports": "reports/architecture",
+    "external_durable_state": false,
+    "candidate_sets": "assessments/architecture"
+  },
+  "candidate_set_writer": "assets/write-candidate-set.js",
+  "architecture_fitness": {
+    "schema": "architecture.fitness@2",
+    "runtime": "assets/architecture-fitness.js",
+    "candidate_priority_separate": true,
+    "legacy_read_schema": "architecture.fitness@1"
+  }
+}

@@ -29,7 +29,7 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | --- | --- | --- | --- |
 | [`wayfinder-mwdev`](skills/wayfinder-mwdev/) | `wayfinder` — `mattpocock/skills` | v2.1.2 | **Deprecated** — legacy compatibility alias forwarding to `decision-terrain-mapper` (see *Known, not yet vendored* below) |
 | [`diagnosing-bugs-mwdev`](skills/diagnosing-bugs-mwdev/) | `diagnosing-bugs` — `mattpocock/skills` | local-unpinned | **Deprecated** — legacy compatibility alias forwarding to `adaptive-causal-debugging` (see *Known, not yet vendored* below) |
-| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | **Deprecated** — legacy compatibility alias forwarding to `architecture-improvement-intelligence` (see *Known, not yet vendored* below) |
+| [`improve-codebase-architecture-mwdev`](skills/improve-codebase-architecture-mwdev/) | `improve-codebase-architecture` — `mattpocock/skills` | local-unpinned | **Deprecated** — legacy compatibility alias forwarding to [`architecture-improvement-intelligence`](skills/architecture-improvement-intelligence/) (now in-repo) |
 
 **Fork naming rule.** A fork must set its frontmatter `name` to the **suffixed** directory name. The `name` field is the invocation name (the directory basename is only a fallback), so a fork that keeps the upstream `name` collides with the skill it forked and neither resolves reliably.
 
@@ -43,10 +43,15 @@ Three inventoried skills are **forks of Matt Pocock's originals**, not original 
 | `expanded-grill-with-docs` | flywheel design-lane gate A (default); wayfinder design tickets | [`skills/expanded-grill-with-docs`](skills/expanded-grill-with-docs/) | Original; may invoke Matt's `grilling` / `domain-modeling` as child procedures |
 | `connected-impact-sweep` | audit execute calibration; swarm blast-radius; migration missions | [`skills/connected-impact-sweep`](skills/connected-impact-sweep/) | Original |
 | `implementation-plan-contract` | audit plan gate; planning swarm | [`skills/implementation-plan-contract`](skills/implementation-plan-contract/) | Original |
-| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.2 (schema v5 + code-sprawl-pressure evidence + Evidence Recon sidecar); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
+| `repository-health-assessment` | graded baseline feeding audit + architecture | [`skills/repository-health-assessment`](skills/repository-health-assessment/) | v5.7.0 (synced from canon 2026-10-21); consumes `shared/candidate-ledger-spine`, `shared/evidence-recon`, `shared/assessment-acceleration`, `agent-executor-pool` |
 | `agent-executor-pool` | bounded read-only worker scheduling for `repository-health-assessment` (and future consumers) | [`skills/agent-executor-pool`](skills/agent-executor-pool/) | Original; generic executor semantics — worker leases, generation/fence tokens, work-conserving refill |
 | `land-pr` | `production-flywheel` Stage 13 publish | [`skills/land-pr`](skills/land-pr/) | Original; single skill covers local-change, PR-queue, and EC2 (`-ec2`) modes — `land-prs`/`land-pr-ec2`/`land-prs-ec2` were removed as redundant |
-| `repository-improvement-assessment` | Combined ASSESS owner: health + integrity + architecture from one baseline | [`skills/repository-improvement-assessment`](skills/repository-improvement-assessment/) | v0.8.4; executeRia + agent-rendezvous adapter. Consumes Health, Integrity, and still-external Architecture/SEI. Shared contracts vendored under `shared/ria-*`, `assessment-runtime-contract`, `assessment-verification-baseline`, `project-intelligence-workspace`, `report-election`, `report-presentation` |
+| `pr-mwdev` | `land-pr` and `production-flywheel` PR creation | [`skills/pr-mwdev`](skills/pr-mwdev/) | PR-body writer. Visuals menu adapted from [Dex Horthy](https://github.com/dexhorthy)'s `show-me` ([`humanlayer/skills`](https://github.com/humanlayer/skills)) — content copied, not a dependency; see the package's `CREDITS.md` |
+| `wizard-mwdev` | `land-pr` (human-only setup steps) | [`skills/wizard-mwdev`](skills/wizard-mwdev/) | Interactive bash wizard generator; package records no upstream credit |
+| `retro-mwdev` | user-invoked only (`disable-model-invocation`) | [`skills/retro-mwdev`](skills/retro-mwdev/) | Session retrospective; invokes Matt-lineage `writing-for-agents` (local-unpinned); package records no upstream credit |
+| `architecture-improvement-intelligence` | RIA architecture owner (`--assessment`); successor to the deprecated `improve-codebase-architecture-mwdev` fork | [`skills/architecture-improvement-intelligence`](skills/architecture-improvement-intelligence/) | v2.5.0 (vendored from canon 2026-10-21); consumes `shared/ria-owner-return`, `shared/ria-scoring`, and RIA's evidence binding |
+| `software-engineering-intelligence` | RIA engineering-intelligence evidence; standalone SEI on explicit request | [`skills/software-engineering-intelligence`](skills/software-engineering-intelligence/) | v1.3.0 (vendored from canon 2026-10-21); engine lives in `shared/software-engineering-intelligence/`, which ships prebuilt `win32-x64` native addons alongside their C++ source and `build.ps1` (the loader rejects a binary whose embedded source hash does not match) |
+| `repository-improvement-assessment` | Combined ASSESS owner: health + integrity + architecture from one baseline | [`skills/repository-improvement-assessment`](skills/repository-improvement-assessment/) | v0.10.0 (synced from canon 2026-10-21; adds composite-v2 scoring); executeRia + agent-rendezvous adapter. Consumes Health, Integrity, Architecture, and SEI — all in-repo. Shared contracts vendored under `shared/ria-*`, `assessment-runtime-contract`, `assessment-verification-baseline`, `project-intelligence-workspace`, `report-election`, `report-presentation` |
 
 ### Known, not yet vendored
 
@@ -54,10 +59,14 @@ Local/family skills confirmed to exist in the working copy this inventory tracks
 
 | Skill | Role | Local path | Version / commit |
 | --- | --- | --- | --- |
-| `architecture-improvement-intelligence` | Successor to the deprecated `improve-codebase-architecture-mwdev` fork — structural architecture analysis, candidate ranking, design handoff | `~/.agents/skills/architecture-improvement-intelligence` | local-unpinned |
 | `decision-terrain-mapper` | Successor to the deprecated `wayfinder-mwdev` fork — durable decision-map orchestrator for big, foggy efforts | `~/.agents/skills/decision-terrain-mapper` | local-unpinned |
 | `adaptive-causal-debugging` | Successor to the deprecated `diagnosing-bugs-mwdev` fork — adaptive causal investigation for one concrete defect or regression | `~/.agents/skills/adaptive-causal-debugging` | local-unpinned |
-| `software-engineering-intelligence` | Provenance-bound Software Engineering Intelligence snapshot + evidence-backed engineering assessment sidecar, optional offline report | `~/.agents/skills/software-engineering-intelligence` | local-unpinned |
+
+### Shared modules referenced but not vendored
+
+Synced skills reference these canon `shared/` modules by relative path; they are not yet copied into `shared/` here, so those code paths only resolve in the canon layout (`~/.agents/skills/shared/`):
+
+`action-graph-execution`, `action-integration-reassessment`, `orchestration-runtime`, `remediation-graph`, `capability-registry`, `review-fitness-runtime`, `skill-context-profiler`, `repository-scope.js`, `git-diff-scope.js` — all local-unpinned.
 
 Install examples:
 
@@ -87,7 +96,7 @@ Still-external companions. Note the routing rule: where this repo owns a capabil
 | `triage` | flywheel triage sub-lane | `mattpocock/skills` | `~/.agents/skills/triage` | local-unpinned |
 | `setup-matt-pocock-skills` | repo setup for tracker / domain docs | `mattpocock/skills` | `~/.agents/skills/setup-matt-pocock-skills` | local-unpinned |
 
-**All three in-repo forks are now deprecated.** `wayfinder` is superseded by `decision-terrain-mapper`; `diagnosing-bugs` is superseded by `adaptive-causal-debugging`; `improve-codebase-architecture` is superseded by `architecture-improvement-intelligence`. None of the three successors are yet vendored in this repo (see *Known, not yet vendored* above) — their former in-repo forks (`wayfinder-mwdev`, `diagnosing-bugs-mwdev`, `improve-codebase-architecture-mwdev`) are legacy compatibility aliases only, not live route targets.
+**All three in-repo forks are now deprecated.** `wayfinder` is superseded by `decision-terrain-mapper`; `diagnosing-bugs` is superseded by `adaptive-causal-debugging`; `improve-codebase-architecture` is superseded by `architecture-improvement-intelligence`. `architecture-improvement-intelligence` is now vendored in-repo; `decision-terrain-mapper` and `adaptive-causal-debugging` are not yet (see *Known, not yet vendored* above) — their former in-repo forks (`wayfinder-mwdev`, `diagnosing-bugs-mwdev`, `improve-codebase-architecture-mwdev`) are legacy compatibility aliases only, not live route targets.
 
 ---
 

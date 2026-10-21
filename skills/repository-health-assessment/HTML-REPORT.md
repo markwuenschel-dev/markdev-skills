@@ -3,7 +3,7 @@
 This HTML is an **optional user-elected projection**. The validated health island, candidate ledger, and Evidence Recon sidecar remain canonical when HTML is skipped.
 
 
-One **genuinely self-contained** HTML file in the OS temp directory: embedded CSS, no CDN, no external font, no network at view time. The report is opened from a `file://` path on a machine that may be offline or behind a proxy, so a Tailwind `<script src>` there produces an unstyled page. Start from [`assets/report-scaffold.html`](assets/report-scaffold.html) rather than building the shell each run — it carries the section order, the design system, and every required placeholder, which is also what keeps generated reports from drifting apart.
+One **genuinely self-contained** HTML file under `.project-intelligence/reports/health/` by default: embedded CSS, no CDN, no external font, no network at view time. The report is opened from a `file://` path on a machine that may be offline or behind a proxy, so a Tailwind `<script src>` there produces an unstyled page. Start from [`assets/report-scaffold.html`](assets/report-scaffold.html) rather than building the shell each run — it carries the section order, the design system, and every required placeholder, which is also what keeps generated reports from drifting apart.
 
 No Mermaid either. This report has no graph-shaped content, and a forced diagram is worse than none.
 
@@ -11,19 +11,21 @@ The health report and the architecture report are deliberately **not** the same 
 
 ## The island is the report
 
-One JSON island — `<script type="application/json" id="health">` — holding `repository`, `verification`, `coverage`, `lanes`, `claims`, `sprawl_pressure`, `grade`, `candidates`, and optionally `previous`. Shape is defined in [`assets/health.schema.json`](assets/health.schema.json) (schema v5).
+One JSON island — `<script type="application/json" id="health">` — holding the health artifact. Its keys and shape are defined only in [`assets/health.schema.json`](assets/health.schema.json) (schema v5); read the schema rather than a list here.
 
-Paste the body of [`assets/health-verify.js`](assets/health-verify.js) into the scaffold verbatim (export-free classic script) and call `HealthVerify.runHealth({})` once the DOM is ready. When the island carries candidates, paste the body of `shared/candidate-ledger-spine/ledger-verify.js` **first** — candidate scoring is verified by the shared spine module and must never be re-implemented here. `health-verify.js` reports `ledger-module-missing` if you forget, which is the intended behavior.
+The normal path is `node <skill>/assets/build-report.js --input <report-input.json> --repo <repository-root> [--output <report.html>]`, with input per [`assets/report-input.schema.json`](assets/report-input.schema.json). It assembles the scaffold, the island, and both verifier modules for you.
+
+**Fallback — only when `build-report.js` cannot run.** Paste the body of [`assets/health-verify.js`](assets/health-verify.js) into the scaffold verbatim (export-free classic script) and call `HealthVerify.runHealth({})` once the DOM is ready. When the island carries candidates, paste the body of `shared/candidate-ledger-spine/ledger-verify.js` **first** — candidate scoring is verified by the shared spine module and must never be re-implemented here. `health-verify.js` reports `ledger-module-missing` if you forget, which is the intended behavior.
 
 The schema file is the specification; the verifier compiles its load-bearing rules so a self-contained report can enforce them offline without bundling a validator. That duplication is deliberate and tested. [`assets/parity-check.js`](assets/parity-check.js) runs a 75-mutation sabotage corpus through **both** layers and records which owns each rejection — the verifier must reject all of them, and the handful that JSON Schema structurally cannot express (cross-references, locked weights, derived baseline, delta continuity) are listed as verifier-owned on purpose rather than left as silent gaps. It needs `ajv` and is a development tool; nothing in a generated report loads it.
 
 ```bash
 # Fast dependency-free boundary check
-node assets/package-check.js ../shared/candidate-ledger-spine/ledger-verify.js
+node <skill>/assets/package-check.js <skills-root>/shared/candidate-ledger-spine/ledger-verify.js
 
 # Full schema/runtime parity corpus
 npm install ajv
-LEDGER_VERIFY_PATH=../shared/candidate-ledger-spine/ledger-verify.js node assets/parity-check.js
+LEDGER_VERIFY_PATH=<skills-root>/shared/candidate-ledger-spine/ledger-verify.js node <skill>/assets/parity-check.js
 ```
 
 **Do not re-derive the renderer, and never hand-write a number.** Every displayed figure — the grade letter, weighted coverage, lane scores, dimension contributions and their claim references, cap triggers, confidence inputs, run-to-run deltas — renders from the island through the module.
@@ -108,3 +110,12 @@ No hedging and no throat-clearing. A health report that reads as reassuring when
 ## Required authored prose
 
 Elements marked `data-prose-required` must be replaced with repository-specific prose before shipping. Empty elements, `TODO`, and scaffold sentinels produce `binding-unresolved-placeholder`. Repository name, revision, generation time, baseline commands, blockers, roadmap, and handoff counts are rendered from the island rather than authored by hand.
+
+## Shared responsive analytics requirement
+
+This report consumes `shared/report-presentation`. It must use the available viewport rather than a fixed narrow desktop column: single-column on phones, progressively denser analytical grids on tablets/desktops, and a wide/ultrawide dashboard canvas on large displays. Narrative prose remains line-length bounded; extra width is used for scorecards, charts, ranked tables, evidence panels, and side-by-side comparisons.
+
+When canonical quantitative data exists and visualization improves comparison, render it through the shared zero-network SVG primitives. Do not invent scores to fill a chart. Missing values are displayed as unavailable or `Not scored`. The report must carry `data-report-responsive="1"` and pass the shared responsive-presentation gate before shipping.
+
+
+When `--output` is omitted, the renderer writes to `.project-intelligence/reports/health/` via `shared/project-intelligence-workspace`. Pass `--repo` when the current working directory is not the assessed repository.

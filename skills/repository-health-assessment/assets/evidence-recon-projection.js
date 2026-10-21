@@ -1,15 +1,37 @@
 "use strict";
 
 const path = require("node:path");
+const crypto = require("node:crypto");
 
 function resolveEvidenceRecon(explicitPath) {
-  const candidate = explicitPath || process.env.EVIDENCE_RECON_PATH || path.resolve(__dirname, "../../../shared/evidence-recon/evidence-recon.js");
+  const candidate = explicitPath || process.env.EVIDENCE_RECON_PATH || path.resolve(__dirname, "../../shared/evidence-recon/evidence-recon.js");
   return require(candidate);
 }
 
-const NEGATIVE_RE = /\b(no|none|without|absent|missing|unused|never)\b|\bdoes not exist\b|\bdo not exist\b|\bno recorded\b|\bno automated\b/i;
+// Conservative on purpose: any negation-shaped wording routes the statement to
+// negative_claims, where it cannot reach safe_to_assume without an explicit
+// coverage receipt. A false positive costs a receipt; a false negative promotes
+// "nothing tests this" to an assumed fact.
+const NEGATIVE_RE = /\b(no|none|nothing|nobody|nowhere|not|without|absent|missing|unused|never|neither|nor|lacks?|lacking|zero|cannot|unreachable|untested|unenforced|unvalidated|unverified)\b|n['\u2019]t\b|\bdoes not exist\b|\bdo not exist\b|\bno recorded\b|\bno automated\b/i;
 const slug = value => String(value || "unknown").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "unknown";
 const clone = value => JSON.parse(JSON.stringify(value));
+const canonical = value => Array.isArray(value) ? value.map(canonical) : (value && typeof value === "object" ? Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])])) : value);
+
+// Lane receipt status vocabulary is the shared expedition-lane enum
+// (shared/evidence-recon/expedition-lane.schema.json): complete|partial|failed|blocked.
+// "timeout" is not in that enum, so it maps to failed and is recorded as a limitation.
+const WORKER_STATUS_RANK = { complete: 0, partial: 1, blocked: 2, failed: 3 };
+function workerStatus(status) {
+  if (status === "timeout") return "failed";
+  return Object.prototype.hasOwnProperty.call(WORKER_STATUS_RANK, status) ? status : "failed";
+}
+function healthArtifactRefNote(ref) { return `health_artifact_ref artifact_id=${ref.artifact_id} sha256=${ref.sha256}`; }
+function healthArtifactStructuredRef(ref) { return { kind: "health-artifact", artifact_id: String(ref.artifact_id), sha256: String(ref.sha256) }; }
+// packet_id is content-derived: sha256 over the canonical (key-sorted) packet without packet_id.
+function contentPacketId(packet) {
+  const body = { ...packet }; delete body.packet_id;
+  return `RHA-ER:sha256:${crypto.createHash("sha256").update(JSON.stringify(canonical(body))).digest("hex")}`;
+}
 
 function evidenceSources(evidence) {
   const out = [];
@@ -97,16 +119,22 @@ function mergeReceipt(base, receipt) {
 function projectHealthIslandToEvidencePacket(island, options = {}) {
   if (!island || typeof island !== "object") throw new Error("health island is required");
   const ER = resolveEvidenceRecon(options.evidenceReconPath);
-  const packetId = options.packetId || `RHA-ER:${island.repository && island.repository.revision ? island.repository.revision : "unknown"}`;
   const runId = options.runId || `rha:${island.repository && island.repository.name ? slug(island.repository.name) : "repository"}:${island.generated || "run"}`;
   const generated = island.generated || (island.repository && island.repository.freshness_evidence && island.repository.freshness_evidence.observed_at) || new Date(0).toISOString();
   const laneIds = new Map();
   for (const claim of island.claims || []) laneIds.set(claim.lane, `RHA-LANE:${slug(claim.lane)}`);
+  const workers = Array.isArray(island.evidence_workers) ? island.evidence_workers.filter(w => w && typeof w === "object" && typeof w.lane === "string" && w.lane) : [];
+  for (const worker of workers) if (!laneIds.has(worker.lane)) laneIds.set(worker.lane, `RHA-LANE:${slug(worker.lane)}`);
 
   const packet = {
     evidence_packet_version: ER.EVIDENCE_PACKET_VERSION,
-    packet_id: packetId,
-    producer: { skill: "repository-health-assessment", run_id: runId, mode: "expedition", created_at: generated },
+    packet_id: "RHA-ER:pending",
+    producer: {
+      skill: "repository-health-assessment", run_id: runId, mode: "expedition", created_at: generated,
+      // Structured binding (evidence-recon 1.1.0). The legacy consumer note below is
+      // still emitted for one release so pre-1.1.0 consumers keep resolving the binding.
+      ...(options.healthArtifactRef ? { artifact_refs: [healthArtifactStructuredRef(options.healthArtifactRef)] } : {})
+    },
     scope: {
       claim_or_question: `What does the repository-health assessment establish about ${island.repository && island.repository.name ? island.repository.name : "the assessed repository"}?`,
       objective: "Expose the health run's generic evidence claims, coverage limits, negative-claim gaps, and decision surfaces without changing health-grade authority.",
@@ -127,12 +155,12 @@ function projectHealthIslandToEvidencePacket(island, options = {}) {
     claims: [],
     negative_claims: [],
     contradictions: [],
-    handoff: { safe_to_assume: [], unresolved_facts: [], owner_intent_required: [], possible_decision_surfaces: [], consumer_notes: ["RHA remains authoritative for health grading; this sidecar is generic evidence only."] },
+    handoff: { safe_to_assume: [], unresolved_facts: [], owner_intent_required: [], possible_decision_surfaces: [], consumer_notes: ["RHA remains authoritative for health grading; this sidecar is generic evidence only."].concat(options.healthArtifactRef ? [healthArtifactRefNote(options.healthArtifactRef)] : []) },
     lane_receipts: []
   };
 
   const projectedByOriginal = new Map();
-  const laneRecords = new Map(Array.from(laneIds.entries()).map(([lane, id]) => [lane, { lane_id: id, surface: `RHA lane ${lane}`, status: "complete", claim_refs: [], negative_claim_refs: [], contradiction_refs: [], limitations: [] }]));
+  const laneRecords = new Map(Array.from(laneIds.entries()).map(([lane, id]) => [lane, { lane_id: id, surface: `RHA lane ${lane}`, status: null, claim_refs: [], negative_claim_refs: [], contradiction_refs: [], limitations: [] }]));
   const receiptOverrides = options.negative_claim_receipts || {};
 
   for (const claim of island.claims || []) {
@@ -213,10 +241,33 @@ function projectHealthIslandToEvidencePacket(island, options = {}) {
     }
   }
 
+  // Lane status comes from the island's evidence_workers record when one exists;
+  // the worst worker status wins. Without a worker record a lane is "complete" only
+  // when it actually produced claims.
+  for (const [lane, record] of laneRecords) {
+    const laneWorkers = workers.filter(w => w.lane === lane);
+    const produced = record.claim_refs.length + record.negative_claim_refs.length;
+    if (laneWorkers.length) {
+      let status = "complete";
+      for (const worker of laneWorkers) {
+        const mapped = workerStatus(worker.status);
+        if (WORKER_STATUS_RANK[mapped] > WORKER_STATUS_RANK[status]) status = mapped;
+        const id = worker.worker_id ? String(worker.worker_id) : "unnamed";
+        if (worker.status === "timeout") record.limitations.push(`timeout: evidence worker ${id} timed out`);
+        else if (mapped !== worker.status) record.limitations.push(`evidence worker ${id} reported unrecognized status ${JSON.stringify(worker.status)}; treated as failed`);
+        for (const limitation of Array.isArray(worker.limitations) ? worker.limitations : []) if (typeof limitation === "string" && limitation.trim()) record.limitations.push(`${id}: ${limitation.trim()}`);
+      }
+      if (status === "complete" && !produced) { status = "partial"; record.limitations.push("Evidence workers reported complete but the lane produced no claims."); }
+      record.status = status;
+    } else if (produced) record.status = "complete";
+    else { record.status = "partial"; record.limitations.push("No evidence worker record and no claims for this lane."); }
+    record.limitations = [...new Set(record.limitations)];
+  }
   packet.lane_receipts = Array.from(laneRecords.values());
   packet.handoff.safe_to_assume = [...new Set(packet.handoff.safe_to_assume)];
   packet.handoff.unresolved_facts = [...new Set(packet.handoff.unresolved_facts)].filter(id => !packet.handoff.safe_to_assume.includes(id));
 
+  packet.packet_id = options.packetId || contentPacketId(packet);
   const validation = ER.validateEvidencePacket(packet);
   if (!validation.ok) {
     const error = new Error("RHA evidence-recon projection failed validation");
@@ -226,4 +277,4 @@ function projectHealthIslandToEvidencePacket(island, options = {}) {
   return packet;
 }
 
-module.exports = { projectHealthIslandToEvidencePacket, resolveEvidenceRecon, NEGATIVE_RE };
+module.exports = { projectHealthIslandToEvidencePacket, resolveEvidenceRecon, NEGATIVE_RE, healthArtifactRefNote, healthArtifactStructuredRef, contentPacketId };

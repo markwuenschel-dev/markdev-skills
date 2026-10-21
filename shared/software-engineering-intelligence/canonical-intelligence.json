@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0.0",
+  "snapshot_id": "sei-v1-304e32bc17fd0079fd814d29e639063685e551e9962c1e44652752db9d38f3f6",
+  "repository": {
+    "repository_id": "canonical-repository",
+    "revision": "0123456789abcdef0123456789abcdef01234567",
+    "configuration_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "history_boundary": {
+      "kind": "revision-range",
+      "start": "fedcba9876543210fedcba9876543210fedcba98",
+      "end": "0123456789abcdef0123456789abcdef01234567"
+    },
+    "generated_path_patterns": ["dist/**"]
+  },
+  "collectors": [
+    {
+      "collector_id": "static-source",
+      "collector_version": "1.0.0",
+      "status": "available",
+      "analyzer_identity": "sei.lexical-js@1",
+      "analyzer_version": "1.0.0",
+      "reason": null
+    }
+  ],
+  "measurements": [
+    {
+      "metric_id": "static.source_lines",
+      "definition_id": "sei.static.source_lines@1",
+      "family": "structural_complexity",
+      "subject": "repository:canonical-repository",
+      "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+      "value": 42,
+      "unit": "lines",
+      "measurement": {
+        "status": "measured",
+        "completeness": 1,
+        "confidence": 1,
+        "reason": null
+      },
+      "source": {
+        "kind": "local-source",
+        "collector_id": "static-source",
+        "collector_version": "1.0.0",
+        "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+        "command": "node static-collector.js --revision 0123456789abcdef0123456789abcdef01234567",
+        "artifact_refs": ["src/index.js"],
+        "evidence_refs": ["src/index.js"]
+      },
+      "scope": {
+        "kind": "repository",
+        "path": ".",
+        "language": "javascript",
+        "generated_code": false,
+        "included_in_human_maintainability": true
+      },
+      "window": {
+        "kind": "revision",
+        "start": null,
+        "end": "0123456789abcdef0123456789abcdef01234567"
+      },
+      "analyzer_identity": "sei.lexical-js@1",
+      "analyzer_version": "1.0.0",
+      "comparability": {
+        "analyzer_identity": "sei.lexical-js@1",
+        "analyzer_version": "1.0.0",
+        "configuration_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "compatible_with_prior": false,
+        "reason": "canonical first snapshot"
+      }
+    }
+  ],
+  "risk_models": [],
+  "profiles": [],
+  "evidence_summary": {
+    "measurement_count": 1,
+    "status_counts": {
+      "measured": 1,
+      "inferred": 0,
+      "unavailable": 0,
+      "not-applicable": 0,
+      "unverifiable": 0
+    }
+  },
+  "run_metadata": {
+    "generated_at": "2026-08-10T00:00:00.000Z",
+    "cache": {
+      "cache_key": "sei-cache-v1-4d854805617b32b0280c88ae9fca1d851722a95448ec5d700171424806af2cf2",
+      "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+      "configuration_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "schema_version": "1.0.0",
+      "collector_versions": ["static-source@1.0.0"],
+      "collector_fingerprints": [
+        "{\"analyzer_identity\":\"sei.lexical-js@1\",\"analyzer_version\":\"1.0.0\",\"collector_id\":\"static-source\",\"collector_version\":\"1.0.0\"}"
+      ],
+      "history_boundary": {
+        "kind": "revision-range",
+        "start": "fedcba9876543210fedcba9876543210fedcba98",
+        "end": "0123456789abcdef0123456789abcdef01234567"
+      }
+    }
+  }
+}

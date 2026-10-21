@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://markdev-skills.local/architecture-improvement-intelligence/architecture-fitness-v2.schema.json",
+  "title": "Repository architecture fitness v2 input or normalized artifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "dimensions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "architecture.fitness@2"
+    },
+    "score": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "grade": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "A+",
+        "A",
+        "A-",
+        "B+",
+        "B",
+        "B-",
+        "C+",
+        "C",
+        "C-",
+        "D+",
+        "D",
+        "D-",
+        "F",
+        null
+      ]
+    },
+    "coverage": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "confidence": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 1
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "boundary_integrity",
+        "dependency_direction_cycle_control",
+        "cohesion_locality",
+        "interface_contract_clarity",
+        "state_data_ownership",
+        "change_containment_evolvability",
+        "duplication_competing_implementations",
+        "architectural_testability_observability"
+      ],
+      "properties": {
+        "boundary_integrity": {
+          "$ref": "#/$defs/dimension"
+        },
+        "dependency_direction_cycle_control": {
+          "$ref": "#/$defs/dimension"
+        },
+        "cohesion_locality": {
+          "$ref": "#/$defs/dimension"
+        },
+        "interface_contract_clarity": {
+          "$ref": "#/$defs/dimension"
+        },
+        "state_data_ownership": {
+          "$ref": "#/$defs/dimension"
+        },
+        "change_containment_evolvability": {
+          "$ref": "#/$defs/dimension"
+        },
+        "duplication_competing_implementations": {
+          "$ref": "#/$defs/dimension"
+        },
+        "architectural_testability_observability": {
+          "$ref": "#/$defs/dimension"
+        }
+      }
+    },
+    "weights": {
+      "type": "object"
+    }
+  },
+  "$defs": {
+    "dimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "score",
+        "state"
+      ],
+      "properties": {
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "state": {
+          "enum": [
+            "scored",
+            "unavailable",
+            "not_applicable"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "detail": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "\\S"
+          }
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "state": {
+              "const": "scored"
+            },
+            "score": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        {
+          "required": [
+            "reason_code",
+            "detail"
+          ],
+          "properties": {
+            "state": {
+              "const": "unavailable"
+            },
+            "score": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "required": [
+            "reason_code",
+            "detail",
+            "evidence_refs"
+          ],
+          "properties": {
+            "state": {
+              "const": "not_applicable"
+            },
+            "score": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

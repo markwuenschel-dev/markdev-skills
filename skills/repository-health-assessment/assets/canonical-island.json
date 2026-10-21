@@ -538,6 +538,10 @@
             {
               "claim_id": "VERIF-02",
               "support": "Evidences where the authoritative definition lives for this lane."
+            },
+            {
+              "claim_id": "VERIF-04",
+              "support": "Informs, as a model judgment, whether tests name the boundary behaviour they protect for this lane."
             }
           ],
           "rationale": "Level 2 for boundary clarity: present but inconsistently applied."
@@ -940,6 +944,13 @@
       ],
       "observation": {
         "confirmed": "Controls observed directly on the primary path."
+      },
+      "review_source": {
+        "domain": "testing",
+        "report_sha256": "3f1c9a7e2b4d6f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708",
+        "rule_id": "testing.ci-integration.suite-gates-merge",
+        "dimension": "ci_integration",
+        "proof_basis": "mechanical"
       }
     },
     {
@@ -972,6 +983,29 @@
       ],
       "observation": {
         "confirmed": "No enforcing configuration found."
+      }
+    },
+    {
+      "claim_id": "VERIF-04",
+      "lane": "verification-readiness",
+      "statement": "verification-readiness: review-testing judged that test names state the behaviour they protect on the primary paths.",
+      "result": "pass",
+      "evidence": [
+        {
+          "path": "src/verif/main.test.ts",
+          "lines": "1-80",
+          "note": "review-proof-bundle/v1 model-judgment claim testing.test-quality.baseline"
+        }
+      ],
+      "observation": {
+        "inferred": "Test names state the protected behaviour on the primary paths [model judgment, signature- and binding-checked only]."
+      },
+      "review_source": {
+        "domain": "testing",
+        "report_sha256": "3f1c9a7e2b4d6f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708",
+        "rule_id": "testing.test-quality.baseline",
+        "dimension": "test_quality",
+        "proof_basis": "judgment"
       }
     },
     {
@@ -1175,6 +1209,22 @@
     "automated_sprawl_checks": "none",
     "assessment": "moderate"
   },
+  "evidence_workers": [
+    {
+      "worker_id": "worker-contracts-1",
+      "lane": "contracts-and-integration",
+      "status": "complete",
+      "limitations": []
+    },
+    {
+      "worker_id": "worker-maintainability-1",
+      "lane": "maintainability-and-ownership",
+      "status": "partial",
+      "limitations": [
+        "Ownership metadata sampled for top-level packages only; nested packages were not inspected."
+      ]
+    }
+  ],
   "candidates": [
     {
       "candidate_id": "CONTRACT-007",
@@ -1221,6 +1271,30 @@
       "dedup": {
         "duplicate_group": "api-schema-ownership",
         "merged_from": []
+      },
+      "candidate_lifecycle": {
+        "candidate_id": "CONTRACT-007",
+        "discovered_by": "repository-health-assessment",
+        "current_owner": {
+          "skill": "repository-health-assessment",
+          "stage": "awaiting-human-decision"
+        },
+        "lifecycle_status": "awaiting-selection",
+        "history": [
+          {
+            "event": "discovered",
+            "timestamp": "2026-07-25T12:00:00Z",
+            "artifact": "health-assessment:fixture"
+          }
+        ],
+        "completion": {
+          "completed_at": null,
+          "verification_refs": []
+        },
+        "resolution": {
+          "superseded_by": null,
+          "reason": null
+        }
       }
     }
   ],
@@ -1259,6 +1333,36 @@
             "PR-412"
           ],
           "reason": "schema generation added to release CI"
+        }
+      },
+      {
+        "candidate_id": "OLD-002",
+        "status": "ready",
+        "candidate_lifecycle": {
+          "candidate_id": "OLD-002",
+          "discovered_by": "repository-health-assessment",
+          "current_owner": {
+            "skill": "codebase-integrity-audit-loop",
+            "stage": "verified"
+          },
+          "lifecycle_status": "completed",
+          "history": [
+            {
+              "event": "completed",
+              "timestamp": "2026-07-19T09:00:00Z",
+              "artifact": "PR-418"
+            }
+          ],
+          "completion": {
+            "completed_at": "2026-07-19",
+            "verification_refs": [
+              "PR-418"
+            ]
+          },
+          "resolution": {
+            "superseded_by": null,
+            "reason": null
+          }
         }
       }
     ],

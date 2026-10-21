@@ -1,0 +1,60 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {
+    "evaluation": {
+      "condition_ids": [
+        "context.loop-router.evaluation"
+      ],
+      "refs": [
+        "assets/evaluation-suite.json"
+      ]
+    },
+    "fixture": {
+      "condition_ids": [
+        "context.loop-router.fixture"
+      ],
+      "refs": [
+        "assets/lifecycle-state.json"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.references.loop-registry.md": {
+        "path": "references/loop-registry.md",
+        "selector": "heading"
+      },
+      "source.scripts.hygiene-check.js": {
+        "path": "scripts/hygiene-check.js",
+        "selector": "symbol"
+      },
+      "source.scripts.lifecycle-audit.js": {
+        "path": "scripts/lifecycle-audit.js",
+        "selector": "symbol"
+      },
+      "source.scripts.loop-control.test.js": {
+        "path": "scripts/loop-control.test.js",
+        "selector": "symbol"
+      },
+      "source.scripts.router-scenarios.js": {
+        "path": "scripts/router-scenarios.js",
+        "selector": "symbol"
+      },
+      "source.scripts.wiring-audit.js": {
+        "path": "scripts/wiring-audit.js",
+        "selector": "symbol"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

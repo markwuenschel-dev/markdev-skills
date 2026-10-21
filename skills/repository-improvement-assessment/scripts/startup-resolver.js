@@ -22,7 +22,12 @@ function nodeCacheState(startupMode) {
   if (startupMode === "FRESH_BASELINE") return "MISS";
   fail(`unknown startup mode ${startupMode}`);
 }
-function repositoryIdentity(repoRoot, durableMode = "git") {
+// Must match baseline.js CLEAN_WORKING_TREE. Under `head` scope the assessed tree is the
+// committed revision, so reuse identity has to ignore the working tree too — otherwise the
+// baseline stays stable while the RESOLVER's fingerprint moves with every scratch file and
+// every run misses its own prior artifacts.
+const CLEAN_WORKING_TREE = crypto.createHash("sha256").update(Buffer.alloc(0)).digest("hex");
+function repositoryIdentity(repoRoot, durableMode = "git", scope = "head") {
   if (durableMode === "content-addressed-degraded") {
     const identity = nonGitIdentity(repoRoot);
     if (gitPreflight(identity.root).ok) fail("content-addressed-degraded cannot be used on a Git root");
@@ -32,7 +37,7 @@ function repositoryIdentity(repoRoot, durableMode = "git") {
   const root = fs.realpathSync.native(repoRoot);
   const revision = git(root,["rev-parse","HEAD"]);
   const status = childProcess.execFileSync("git",["-C",root,"status","--porcelain=v1","-z","--untracked-files=all"],{encoding:"buffer",stdio:["ignore","pipe","pipe"]});
-  return Object.freeze({ root, repository_key: sha256(process.platform === "win32" ? root.toLowerCase() : root), revision, clean: status.length === 0, working_tree_fingerprint: sha256(status) });
+  return Object.freeze({ root, repository_key: sha256(process.platform === "win32" ? root.toLowerCase() : root), revision, clean: status.length === 0, working_tree_fingerprint: scope === "head" ? CLEAN_WORKING_TREE : sha256(status) });
 }
 function compatible(candidate, request) {
   const binding = request.compatibility_binding ?? request;
@@ -61,7 +66,7 @@ function ancestorDistance(repo, revision, head) {
 function resolveStartup(request) {
   if (!request || typeof request !== "object") fail("request is invalid");
   const durableMode = request.durable_mode ?? "git";
-  const repository = request.repository?.root ? repositoryIdentity(request.repository.root, durableMode) : request.repository;
+  const repository = request.repository?.root ? repositoryIdentity(request.repository.root, durableMode, request.scope ?? "head") : request.repository;
   if (!repository || !repository.repository_key || !REV.test(repository.revision)) fail("repository identity is invalid");
   const binding = request.compatibility_binding ?? request;
   if (!binding.engine_version || !SHA.test(binding.config_hash) || !SHA.test(binding.execution_contract_hash)) fail("SEI compatibility binding is invalid");

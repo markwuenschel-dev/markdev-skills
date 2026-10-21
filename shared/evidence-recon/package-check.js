@@ -23,7 +23,10 @@ const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, "MANIFEST.json"
 for (const rel of manifest.owned_files || []) {
   if (!fs.existsSync(path.join(__dirname, rel))) { console.error(`MISSING owned file ${rel}`); failed++; }
 }
-if (manifest.version !== "1.0.0" || manifest.protocol_versions.evidence_packet_version !== ER.EVIDENCE_PACKET_VERSION) {
+if (typeof ER.validateNegativeClaim !== "function" || !ER.validateNegativeClaim(JSON.parse(fs.readFileSync(path.join(__dirname, "canonical-evidence-packet.json"), "utf8")).negative_claims[0]).ok) {
+  console.error("FAIL validateNegativeClaim export"); failed++;
+}
+if (manifest.version !== "1.2.0" || manifest.protocol_versions.evidence_packet_version !== ER.EVIDENCE_PACKET_VERSION) {
   console.error("FAIL manifest/protocol version mismatch"); failed++;
 } else console.log("ok manifest/protocol version");
 if (!failed) failed += run();

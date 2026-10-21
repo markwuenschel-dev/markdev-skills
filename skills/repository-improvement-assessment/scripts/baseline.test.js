@@ -44,14 +44,33 @@ test("normal durable mode rejects non-Git and degraded mode is fresh-only", () =
   } finally { fs.rmSync(root, { recursive: true, force: true }); }
 });
 
-test("scope is identity-bearing and dirty head scope fails closed", () => {
+test("scope is identity-bearing and head scope is stable under a dirty tree", () => {
   const parent = fs.mkdtempSync(path.join(os.tmpdir(), "ria-scope-"));
   try {
     const root = makeGit(parent, "repo");
     const head = buildBaseline(request([root], { scope: "head" }));
     assert.equal(head.repository.scope, "head");
     fs.writeFileSync(path.join(root, "src", "index.js"), "module.exports = 2;\n");
-    assert.throws(() => buildBaseline(request([root], { scope: "head" })), /head scope requires a clean checkout/);
+
+    // A dirty tree no longer refuses to start: `head` assesses HEAD, so the edit is
+    // simply out of scope. Critically the baseline must be byte-identical to the clean
+    // run, or an untracked scratch file would silently defeat exact reuse downstream.
+    const dirtyHead = buildBaseline(request([root], { scope: "head" }));
+    assert.equal(dirtyHead.content_sha256, head.content_sha256);
+    assert.equal(dirtyHead.repository.revision, head.repository.revision);
+    assert.equal(dirtyHead.repository.roots[0].working_tree.clean, true);
+
+    // An untracked file is equally out of scope and equally must not move identity.
+    fs.writeFileSync(path.join(root, "scratch.tmp"), "scratch\n");
+    assert.equal(buildBaseline(request([root], { scope: "head" })).content_sha256, head.content_sha256);
+    fs.rmSync(path.join(root, "scratch.tmp"));
+
+    // The hard stop remains available, opt-in, and names what is in the way.
+    assert.throws(() => buildBaseline(request([root], { scope: "head", require_clean: true })), /require_clean:true requires a clean checkout/);
+    assert.throws(() => buildBaseline(request([root], { scope: "head", require_clean: true })), /1 uncommitted entry/);
+    assert.throws(() => buildBaseline(request([root], { scope: "head", require_clean: "yes" })), /require_clean must be a boolean/);
+    assert.equal(buildBaseline(request([root], { scope: "head", require_clean: false })).content_sha256, head.content_sha256);
+
     const first = buildBaseline(request([root], { scope: "worktree" }));
     fs.writeFileSync(path.join(root, "src", "index.js"), "module.exports = 3;\n");
     const second = buildBaseline(request([root], { scope: "worktree" }));

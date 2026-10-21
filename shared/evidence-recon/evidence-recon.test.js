@@ -186,6 +186,60 @@ test("expedition merge fails closed on identifier collision", () => {
   );
 });
 
+const HEX = "a".repeat(64);
+function withRefs(refs) {
+  const packet = clone(canonical);
+  packet.producer.artifact_refs = refs;
+  return ER.validateEvidencePacket(packet);
+}
+
+test("artifact_refs: absent field remains valid (1.0.0 packets)", () => {
+  assert.equal(Object.prototype.hasOwnProperty.call(canonical.producer, "artifact_refs"), false);
+  assert.equal(Object.prototype.hasOwnProperty.call(expedition.producer, "artifact_refs"), false);
+  assert.equal(ER.validateEvidencePacket(canonical).ok, true);
+  assert.equal(ER.validateEvidencePacket(expedition).ok, true);
+});
+
+test("artifact_refs: valid health-artifact ref accepted", () => {
+  const result = withRefs([{ kind: "health-artifact", artifact_id: `health-assessment:${HEX}`, sha256: HEX }]);
+  assert.equal(result.ok, true, JSON.stringify(result.problems, null, 2));
+  assert.equal(withRefs([]).ok, true);
+});
+
+test("artifact_refs: bad sha256 rejected", () => {
+  for (const sha of ["A".repeat(64), "a".repeat(63), "g".repeat(64), 7, undefined]) {
+    const result = withRefs([{ kind: "health-artifact", artifact_id: "health-assessment:x", sha256: sha }]);
+    assert.equal(result.ok, false, String(sha));
+    assert(codes(result).has("artifact-ref-sha256-invalid"));
+  }
+});
+
+test("artifact_refs: extra key, unknown kind, bad id, non-array, duplicate rejected", () => {
+  let result = withRefs([{ kind: "health-artifact", artifact_id: "h:1", sha256: HEX, path: "/tmp/x" }]);
+  assert(codes(result).has("artifact-ref-key-unknown"));
+  result = withRefs([{ kind: "testing-fitness", artifact_id: "h:1", sha256: HEX }]);
+  assert(codes(result).has("artifact-ref-kind-invalid"));
+  result = withRefs([{ kind: "health-artifact", artifact_id: " bad id", sha256: HEX }]);
+  assert(codes(result).has("id-invalid"));
+  result = withRefs({ kind: "health-artifact", artifact_id: "h:1", sha256: HEX });
+  assert(codes(result).has("artifact-refs-invalid"));
+  result = withRefs(["h:1"]);
+  assert(codes(result).has("artifact-ref-invalid"));
+  result = withRefs([{ kind: "health-artifact", artifact_id: "h:1", sha256: HEX }, { kind: "health-artifact", artifact_id: "h:1", sha256: HEX }]);
+  assert(codes(result).has("artifact-ref-duplicate"));
+});
+
+test("artifact_refs: schema declares the closed item shape the validator enforces", () => {
+  const schema = read("evidence-packet.schema.json");
+  assert.deepEqual(schema.properties.producer.required, ["skill", "run_id", "mode", "created_at"]);
+  assert.deepEqual(schema.properties.producer.properties.artifact_refs.items, { $ref: "#/$defs/artifactRef" });
+  const def = schema.$defs.artifactRef;
+  assert.equal(def.additionalProperties, false);
+  assert.deepEqual(def.required, ["kind", "artifact_id", "sha256"]);
+  assert.deepEqual(def.properties.kind.enum, [...ER.ARTIFACT_REF_KINDS]);
+  assert.equal(def.properties.sha256.pattern, "^[0-9a-f]{64}$");
+});
+
 function run() {
   let failed = 0;
   for (const [name, fn] of tests) {

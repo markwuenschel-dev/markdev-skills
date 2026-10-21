@@ -25,10 +25,21 @@ const PRIORITY_STOPS = Object.freeze([
   [100, [239, 68, 68]],
 ]);
 
-function finite(value) {
-  const number = Number(value);
+/** P1 (composite-scoring-v3 §3): the only number-coercion path for RIA scoring.
+ * Missing, null, empty or whitespace-only strings, booleans, arrays, objects and
+ * non-finite values are absent evidence, never 0. Finite numbers and non-empty
+ * decimal numeric strings are accepted. Range validation is the caller's job;
+ * nothing here clamps. */
+const DECIMAL_NUMERIC = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+function finiteOrNull(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  if (!DECIMAL_NUMERIC.test(text)) return null;
+  const number = Number(text);
   return Number.isFinite(number) ? number : null;
 }
+const finite = finiteOrNull;
 function clamp(value, min = 0, max = 100) {
   return Math.max(min, Math.min(max, value));
 }
@@ -43,13 +54,22 @@ function gradeCeilingScore(grade) {
   const ceilings = { "A+":100, A:96.999, "A-":92.999, "B+":89.999, B:86.999, "B-":82.999, "C+":79.999, C:76.999, "C-":72.999, "D+":69.999, D:66.999, "D-":62.999, F:59.999 };
   return Object.prototype.hasOwnProperty.call(ceilings, grade) ? ceilings[grade] : null;
 }
+/** A cap authored by another owner carries a letter on THAT owner's rubric. Resolving it
+ * through the RIA band table silently reinterprets it: Health's five-band "B" means
+ * below 90, but the RIA table reads "B" as 86.999. An owner that knows its own rubric
+ * supplies ceiling_score and the letter is used only as a label. */
+function capCeilingScore(cap) {
+  const explicit = finite(cap?.ceiling_score);
+  if (explicit !== null) return clamp(explicit);
+  return gradeCeilingScore(cap?.ceiling);
+}
 function applyGradeCaps(rawScore, caps = []) {
   const value = finite(rawScore);
   if (value === null) return { raw_score:null, raw_grade:null, final_score:null, final_grade:null, binding_cap:null };
   let finalScore = clamp(value);
   let bindingCap = null;
   for (const cap of Array.isArray(caps) ? caps : []) {
-    const ceiling = gradeCeilingScore(cap?.ceiling);
+    const ceiling = capCeilingScore(cap);
     if (ceiling !== null && ceiling < finalScore) {
       finalScore = ceiling;
       bindingCap = cap;
@@ -155,6 +175,7 @@ module.exports = {
   LEDGER_RANGE,
   RIA_WEIGHTS,
   applyGradeCaps,
+  finiteOrNull,
   gradeForScore,
   ledgerFillPercent,
   ledgerPriorityBand,

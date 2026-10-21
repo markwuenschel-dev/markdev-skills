@@ -6,6 +6,7 @@ const os = require("node:os");
 const path = require("node:path");
 const workspace = require("../../shared/project-intelligence-workspace/project-intelligence-workspace.js");
 const { gradeForScore, ledgerPriorityColor, ledgerPriorityBand } = require("./scoring.js");
+const { renderCompositeV2Section, selectHeadline } = require("./composite-v2-section.js");
 
 function parseArgs(argv) {
   const out = {};
@@ -23,6 +24,17 @@ function requireString(value, label) { if (typeof value !== "string" || !value.t
 function array(value) { return Array.isArray(value) ? value : []; }
 function escapeList(values, escapeHtml, empty = "none") { return (array(values).length ? values : [empty]).map(value => `<li>${escapeHtml(String(value))}</li>`).join(""); }
 function numberOrText(value, formatNumber) { return value === null || value === undefined ? "Not scored" : formatNumber(value); }
+/** Anything short of a trustworthy verification baseline is stated above the grade, where a
+ * reader looks first. A grade on an unverified run otherwise reads exactly like a verified one. */
+function verificationBanner(trust, escapeHtml) {
+  if (!trust || trust.state === "trustworthy") return "";
+  const text = trust.state === "not-run"
+    ? "No verification commands ran for this assessment, so it carries no passing test evidence. The Health grade is capped at C."
+    : trust.state === "untrustworthy"
+      ? `Verification did not pass (${trust.reason}). This report was produced under allow_degraded; treat every grade as provisional.`
+      : `Verification was partial (${trust.reason}). Some declared commands did not execute.`;
+  return `<aside class="card" role="note" style="border-left:4px solid #d97706;margin:0 0 20px;padding:12px 16px"><strong>Verification ${escapeHtml(trust.state)}.</strong> ${escapeHtml(text)}</aside>`;
+}
 function formatDuration(value) {
   const milliseconds = Number(value);
   if (!Number.isFinite(milliseconds)) return "Not recorded";
@@ -86,9 +98,15 @@ function main() {
   const composite = analytics.composite || null;
   const synthesis = input.synthesis || {};
   if (typeof health.score !== "number" || !Number.isFinite(health.score)) throw new Error("REPORT_SUFFICIENCY_FAILED:HEALTH_SCORE_REQUIRED");
-  if (!composite || typeof composite.final_score !== "number" || !Number.isFinite(composite.final_score)) throw new Error("REPORT_SUFFICIENCY_FAILED:COMPOSITE_SCORE_REQUIRED");
+  // A Not gradable composite is a valid, explicit outcome (Health refused to grade); render it, never a letter.
+  const compositeNotGradable = composite?.not_gradable === true;
+  if (!composite || (!compositeNotGradable && (typeof composite.final_score !== "number" || !Number.isFinite(composite.final_score)))) throw new Error("REPORT_SUFFICIENCY_FAILED:COMPOSITE_SCORE_REQUIRED");
   if (!Array.isArray(integrity.candidates) || !Array.isArray(architecture.candidates)) throw new Error("REPORT_SUFFICIENCY_FAILED:CANDIDATE_ANALYTICS_REQUIRED");
   if (input.provenance?.child_artifacts_hash_verified !== true || input.provenance?.health_grading_recomputed !== true || input.provenance?.integrity_scoring_recomputed !== true) throw new Error("REPORT_PROVENANCE_GATE_FAILED");
+  // D6: the headline is v1 unless the presentation policy selects a calibrated v2 (composite-v2-section.js).
+  const headlineSelection = selectHeadline(analytics);
+  const headline = headlineSelection.composite;
+  const headlineNotGradable = headline?.not_gradable === true;
 
   const statusChip = array(input.blockers).length
     ? `<span class="status blocked">✗ ${input.blockers.length} blocker${input.blockers.length === 1 ? "" : "s"}</span>`
@@ -97,19 +115,19 @@ function main() {
   const scoreGauge = presentation.scoreGauge({
     id: "ria-overall-score",
     title: "Overall RIA score",
-    description: `Weighted RIA composite ${composite.final_grade}, ${composite.final_score} out of 100 across six assessment dimensions.`,
-    score: composite.final_score,
-    grade: composite.final_grade,
-    note: `Raw ${composite.raw_score}/100 (${composite.raw_grade})${composite.binding_cap ? ` · capped at ${composite.binding_cap.ceiling} by ${composite.binding_cap.cap}` : ""} · ${Math.round(composite.assessment_coverage)}% dimension coverage.`,
-    color: scoreColor(composite.final_score),
+    description: headlineNotGradable ? `RIA composite Not gradable: ${headline.reason}` : `${headlineSelection.source === "v2" ? "RIA composite v2" : "Weighted RIA composite"} ${headline.final_grade}, ${headline.final_score} out of 100 across six assessment dimensions.`,
+    score: headline.final_score,
+    grade: headline.final_grade,
+    note: headlineNotGradable ? `Not gradable — ${headline.reason}. No letter is computed.` : `Raw ${headline.raw_score}/100 (${headline.raw_grade})${headline.binding_cap ? ` · capped at ${headline.binding_cap.ceiling} by ${headline.binding_cap.cap}` : ""} · ${Math.round(headline.assessment_coverage)}% dimension coverage.`,
+    color: scoreColor(headline.final_score),
   });
 
   const performance = analytics.performance || {};
   const seiTelemetry = analytics.sei_telemetry || { gate_observation_ratio:null, gate_observation_status:"UNAVAILABLE", criterion_counts:null };
   const metricCards = [
-    presentation.metricCard({ label: "Overall RIA", value: `${presentation.formatNumber(composite.final_score)}/100`, note: `Grade ${composite.final_grade} · raw ${composite.raw_grade}` }),
+    presentation.metricCard({ label: "Overall RIA", value: `${presentation.formatNumber(headline.final_score)}/100`, note: `Grade ${headline.final_grade} · raw ${headline.raw_grade}${headlineSelection.source === "v2" ? " · composite v2" : ""}` }),
     presentation.metricCard({ label: "Architecture fitness", value: architecture.fitness ? `${presentation.formatNumber(architecture.fitness.score)}/100` : "Health lane", note: architecture.fitness ? `Grade ${architecture.fitness.grade} · ${presentation.formatPercent(architecture.fitness.coverage * 100)} rubric coverage` : "Dedicated architecture fitness not recorded; composite uses canonical Health architecture lane." }),
-    presentation.metricCard({ label: "Test-suite fitness", value: testing ? `${presentation.formatNumber(testing.score)}/100` : "Health lane", note: testing ? `Grade ${testing.grade} · review-testing sidecar` : "review-testing sidecar not recorded; composite uses Health verification lane." }),
+    presentation.metricCard({ label: "Test-suite fitness", value: "Health lane", note: testing && testing.score !== null && testing.score !== undefined ? `Composite uses the Health verification-readiness lane. Legacy review-testing sidecar shown for information only: ${presentation.formatNumber(testing.score)}/100 (${testing.grade}); never substituted.` : testing ? `Composite uses the Health verification-readiness lane. Legacy review-testing sidecar recorded but unscored (${testing.status ?? "insufficient-evidence"}); informational only.` : "Composite uses the Health verification-readiness lane; review-testing contributes claims inside that lane." }),
     presentation.metricCard({ label: "Line coverage", value: coverage.line?.percent == null ? "Not measured" : `${presentation.formatNumber(coverage.line.percent)}%`, note: coverage.line ? `${coverage.line.covered}/${coverage.line.total} lines` : "Never inferred from test count." }),
     presentation.metricCard({ label: "Branch coverage", value: coverage.branch?.percent == null ? "Not measured" : `${presentation.formatNumber(coverage.branch.percent)}%`, note: coverage.branch ? `${coverage.branch.covered}/${coverage.branch.total} branches` : "Never inferred from test count." }),
     presentation.metricCard({ label: "Changed-line coverage", value: coverage.changed_line?.percent == null ? "Not measured" : `${presentation.formatNumber(coverage.changed_line.percent)}%`, note: coverage.changed_line ? `${coverage.changed_line.covered}/${coverage.changed_line.total} changed lines` : "Shown only when measured." }),
@@ -139,7 +157,13 @@ function main() {
   if (array(health.commands).length) chart("Verification duration", presentation.horizontalBarChart({ id: "verification-duration", title: "Verification command duration", description: "Elapsed duration for each recorded verification command.", items: health.commands.map(command => ({ label: `${command.kind} · ${command.command}`, value: command.elapsed_seconds })), unit: "s", note: "Skipped commands show as not scored/unavailable rather than zero work." }), "rp-half");
 
   const ownerSummaries = array(synthesis.owner_summaries).map(summary => `<article class="owner"><div class="label">${compiler.escapeHtml(shortOwner(summary.owner))}</div><h3>${compiler.escapeHtml(summary.headline || summary.owner)}</h3><ul>${escapeList(summary.details, compiler.escapeHtml)}</ul></article>`).join("");
-  const patterns = array(synthesis.cross_cutting_patterns).length ? synthesis.cross_cutting_patterns.map(pattern => `<article class="pattern"><h3>${compiler.escapeHtml(pattern.title)}</h3><p>${compiler.escapeHtml(pattern.detail)}</p><div class="meta">${compiler.escapeHtml(array(pattern.owners).map(shortOwner).join(" · "))}</div></article>`).join("") : `<p class="quiet">No material cross-owner pattern was established.</p>`;
+  // A blank section reads as "checked, nothing found". Say which one it actually is.
+  const patternProvenance = synthesis.synthesis_provenance?.cross_cutting_patterns ?? null;
+  const patterns = array(synthesis.cross_cutting_patterns).length
+    ? synthesis.cross_cutting_patterns.map(pattern => `<article class="pattern"><h3>${compiler.escapeHtml(pattern.title)}</h3><p>${compiler.escapeHtml(pattern.detail)}</p><div class="meta">${compiler.escapeHtml(array(pattern.owners).map(shortOwner).join(" · "))}</div></article>`).join("")
+    : patternProvenance
+      ? `<p class="quiet">None found. Cross-owner joins were computed over the bound owner artifacts (shared identifiers and shared evidence paths) and no token was referenced by two or more owners.</p>`
+      : `<p class="quiet">Not computed. This report was built without cross-owner synthesis, so absence here is not evidence that no pattern exists.</p>`;
   const priorityItems = array(synthesis.top_priorities).length ? [...synthesis.top_priorities].sort((a,b) => (Number(b.priority_score) || -Infinity) - (Number(a.priority_score) || -Infinity) || Number(a.rank)-Number(b.rank)).map(item => {
     const score = typeof item.priority_score === "number" && Number.isFinite(item.priority_score) ? item.priority_score : null;
     const color = ledgerPriorityColor(score);
@@ -150,7 +174,9 @@ function main() {
     ? `<div class="priorities">${priorityItems.slice(0,5).join("")}</div>` + (priorityItems.length > 5 ? `<details class="rp-details priority-more"><summary>All ${priorityItems.length} priorities</summary><div class="rp-details-body"><div class="priorities">${priorityItems.join("")}</div></div></details>` : "")
     : `<p class="quiet">No priority was promoted.</p>`;
 
-  const uncertainty = ["confirmed","inferred","unknown","coverage_gaps"].map(key => `<div class="uncertainty"><div class="label">${compiler.escapeHtml(key.replaceAll("_"," "))}</div><ul>${escapeList(synthesis.uncertainty?.[key], compiler.escapeHtml)}</ul></div>`).join("");
+  const uncertaintyProvenance = synthesis.synthesis_provenance?.uncertainty ?? null;
+  const uncertaintyEmpty = uncertaintyProvenance ? "none found" : "not computed";
+  const uncertainty = ["confirmed","inferred","unknown","coverage_gaps"].map(key => `<div class="uncertainty"><div class="label">${compiler.escapeHtml(key.replaceAll("_"," "))}</div><ul>${escapeList(synthesis.uncertainty?.[key], compiler.escapeHtml, uncertaintyEmpty)}</ul></div>`).join("");
   const routing = Object.entries(synthesis.downstream_routing || {}).map(([key, values]) => `<div class="route"><div class="label">${compiler.escapeHtml(key.replaceAll("_"," "))}</div><ul>${escapeList(values, compiler.escapeHtml)}</ul></div>`).join("");
 
   const candidateRows = [
@@ -229,14 +255,15 @@ function main() {
     + `<text x="60" y="68" text-anchor="middle" font-family="ui-sans-serif,system-ui,sans-serif" font-weight="700" font-size="28" fill="#f7f9fc">${escape(String(composite.final_grade || "—"))}</text>`
     + `<text x="60" y="84" text-anchor="middle" font-family="ui-monospace,monospace" font-size="9" fill="#8f98a6">${escape(presentation.formatNumber(composite.final_score))}/100</text></svg>`;
 
-  const capNote = composite.binding_cap ? ` Binding cap: ${escape(composite.binding_cap.ceiling)} (${escape(composite.binding_cap.cap || "critical condition")}).` : "";
+  const capNote = (compositeNotGradable ? ` Not gradable: ${escape(composite.reason)}.` : composite.binding_cap ? ` Binding cap: ${escape(composite.binding_cap.ceiling)} (${escape(composite.binding_cap.cap || "critical condition")}).` : "")
+    + (array(composite.optional_critical_lanes).length ? ` Critical optional Health lanes (cap-only, no RIA weight): ${array(composite.optional_critical_lanes).map(lane => `${escape(lane.id)} ${escape(presentation.formatNumber(lane.score))} (Health ${escape(String(lane.health_grade ?? "—"))})`).join("; ")}.` : "");
   const scoreboard = `<div class="board"><div class="board-top">`
     + `<div class="overall-score">${dial}<div><div class="label">Overall RIA score</div>`
     + `<div class="overall-number">${escape(presentation.formatNumber(composite.final_score))}<span>/100</span></div>`
     + `<div class="overall-grade">${escape(composite.final_grade)} <span>raw ${escape(composite.raw_grade)} · ${escape(presentation.formatNumber(composite.raw_score))}</span></div>`
     + `<div class="cell-detail" style="max-width:42ch">Weighted across six assessment dimensions: Correctness 25%, Architecture 20%, Contracts 15%, Test Suite 20%, Build 10%, Maintainability 10%.${capNote}</div></div></div>`
     + `<div class="board-cells">${boardCells}</div></div>`
-    + `<p class="board-foot">Overall RIA is a deterministic weighted average over the six dimensions above. Dedicated Architecture Fitness and review-testing evidence replace their matching Health lanes when present; they are never added as extra weights, so the same concern is not double-counted. Letter grades use one A+ through F scale everywhere.</p></div>`;
+    + `<p class="board-foot">Overall RIA is a deterministic weighted average over the six dimensions above. Dedicated Architecture Fitness replaces the Health architecture lane when present and is never added as extra weight. The verification dimension is always the Health verification-readiness lane: review-testing contributes claims inside that lane, and a legacy review-testing sidecar is shown for information only, so the same evidence is never counted twice. Critical optional Health lanes (security, data) bind only through Health caps. If Health is Not gradable, so is this composite. Every letter on this board uses the RIA thirteen-band scale; Health publishes its own five-band letter on a different rubric — see “Health evidence context”.</p></div>`;
 
   const laneRows = array(health.lanes).length ? health.lanes.map(lane => {
     const color = scoreColor(lane.score);
@@ -264,7 +291,7 @@ function main() {
 
   const rubricCards = [
     `<article class="card"><h3>RIA grade rubric</h3><div style="margin-top:12px">${rubricBands}</div>`
-      + `<p class="cell-detail" style="margin-top:12px">One canonical A+ through F mapping is used for the weighted RIA score and specialist fitness scores.</p></article>`,
+      + `<p class="cell-detail" style="margin-top:12px">This mapping governs the weighted RIA score and specialist fitness scores. It does not govern Health’s canonical letter, which is anchored to a different rubric.</p></article>`,
     `<article class="card"><h3>Composite accounting</h3><dl class="kv" style="margin-top:12px">`
       + `<dt>raw weighted score</dt><dd>${escape(presentation.formatNumber(composite.raw_score))}</dd>`
       + `<dt>raw grade</dt><dd>${escape(String(composite.raw_grade ?? "—"))}</dd>`
@@ -275,6 +302,7 @@ function main() {
     `<article class="card"><h3>Health evidence context</h3><dl class="kv" style="margin-top:12px">`
       + `<dt>Health canonical grade</dt><dd>${escape(String(health.final_grade ?? "—"))}</dd>`
       + `<dt>Health raw score</dt><dd>${escape(presentation.formatNumber(health.score))}</dd>`
+      + `<dt>rubric</dt><dd>five-band, anchored to the 0–4 maturity scale (level N scores 25N, so C = 50 = “partial”). The RIA composite uses a thirteen-band academic scale where C = 73. The same number is a different letter on each; both are correct on their own rubric, and neither is a miscalculation of the other.</dd>`
       + `<dt>confidence index</dt><dd>${escape(presentation.formatNumber(health.confidence_index))}</dd>`
       + `<dt>weighted evidence coverage</dt><dd>${escape(presentation.formatPercent(health.weighted_coverage))}</dd>`
       + `<dt>evidence strength</dt><dd>${escape(presentation.formatPercent(health.evidence_strength))}</dd>`
@@ -282,8 +310,8 @@ function main() {
   ].join("");
 
   const testingPanel = `<div class="cards">`
-    + `<article class="card"><h3>Test Suite Fitness</h3><div class="fitness-big">${escape(testing ? `${presentation.formatNumber(testing.score)} · ${testing.grade}` : "Specialist sidecar not recorded")}</div>`
-    + `<p class="cell-detail">${testing ? `review-testing · rubric coverage ${escape(presentation.formatPercent((testing.rubric_coverage ?? 0)*100))} · evidence confidence ${escape(presentation.formatPercent((testing.evidence_confidence ?? 0)*100))}` : "The weighted composite falls back to the canonical Health verification-readiness lane. Run review-testing to replace that lane with specialist evidence."}</p></article>`
+    + `<article class="card"><h3>Test Suite Fitness</h3><div class="fitness-big">${escape(testing ? `${presentation.formatNumber(testing.score)} · ${testing.grade} (informational)` : "Health verification-readiness lane")}</div>`
+    + `<p class="cell-detail">${testing ? `review-testing · rubric coverage ${escape(presentation.formatPercent((testing.rubric_coverage ?? 0)*100))} · evidence confidence ${escape(presentation.formatPercent((testing.evidence_confidence ?? 0)*100))}` : "The weighted composite uses the canonical Health verification-readiness lane. Repository Health dispatches review-testing itself and folds its findings into that lane as claims."}</p>${health.review_proof_basis ? `<p class="cell-detail">review-sourced Health claims: ${escape(String(health.review_proof_basis.mechanical))} mechanical · ${escape(String(health.review_proof_basis.judgment))} judged (display only; judged claims never confirm a fact or carry a level-4 pass)</p>` : ""}</article>`
     + `<article class="card"><h3>Coverage</h3><dl class="kv">`
     + `<dt>line</dt><dd>${coverage.line?.percent == null ? "Not measured" : `${escape(presentation.formatNumber(coverage.line.percent))}% · ${escape(String(coverage.line.covered))}/${escape(String(coverage.line.total))}`}</dd>`
     + `<dt>branch</dt><dd>${coverage.branch?.percent == null ? "Not measured" : `${escape(presentation.formatNumber(coverage.branch.percent))}% · ${escape(String(coverage.branch.covered))}/${escape(String(coverage.branch.total))}`}</dd>`
@@ -293,8 +321,8 @@ function main() {
     + `<p class="cell-detail">${architecture.fitness ? `Architecture Improvement Intelligence · coverage ${escape(presentation.formatPercent(architecture.fitness.coverage*100))} · confidence ${architecture.fitness.confidence == null ? "not recorded" : escape(presentation.formatPercent(architecture.fitness.confidence*100))}` : "The weighted composite falls back to the canonical Health architecture-fitness lane. Candidate priority scores remain separate from repository architecture fitness."}</p></article>`
     + `</div>`;
 
-  const gradePill = `<span class="grade-pill"><span class="dot" style="background:${scoreColor(composite.final_score)}"></span>`
-    + `RIA ${escape(String(composite.final_grade || gradeFor(composite.final_score) || "—"))} · ${escape(presentation.formatNumber(composite.final_score))}</span>`;
+  const gradePill = `<span class="grade-pill"><span class="dot" style="background:${scoreColor(headline.final_score)}"></span>`
+    + `RIA ${escape(String(headline.final_grade || gradeFor(headline.final_score) || "—"))} · ${escape(presentation.formatNumber(headline.final_score))}</span>`;
   const blockerCount = array(input.blockers).length;
   const railFooter = `revision ${escape(revision.slice(0, 7))}<br />mode ${escape(input.mode || "read-only")}<br />`
     + `${blockerCount} blocker${blockerCount === 1 ? "" : "s"} open`;
@@ -309,15 +337,16 @@ function main() {
       "<!-- REPORT:RAIL_BRAND -->": compiler.escapeHtml(name),
       "<!-- REPORT:GRADE_PILL -->": gradePill,
       "<!-- REPORT:RAIL_FOOTER -->": railFooter,
-      "<!-- REPORT:SCOREBOARD -->": scoreboard,
+      "<!-- REPORT:SCOREBOARD -->": verificationBanner(analytics.verification_trust, compiler.escapeHtml) + scoreboard,
       "<!-- REPORT:LANE_ROWS -->": laneRows,
       "<!-- REPORT:RUBRIC_CARDS -->": rubricCards,
       "<!-- REPORT:TESTING_PANEL -->": testingPanel,
+      "<!-- REPORT:COMPOSITE_V2 -->": renderCompositeV2Section(analytics.composite_v2 || null, { escape: compiler.escapeHtml, presentation, unavailable: input.provenance?.composite_v2_unavailable ?? null }),
       "<!-- REPORT:REVISION -->": compiler.escapeHtml(revision),
       "<!-- REPORT:BASELINE_ID -->": compiler.escapeHtml(input.baseline_ref?.artifact_id || "unknown"),
       "<!-- REPORT:MODE -->": compiler.escapeHtml(input.mode || "read-only"),
       "<!-- REPORT:STATUS_CHIP -->": statusChip,
-      "<!-- REPORT:OVERALL_CONDITION -->": compiler.escapeHtml(synthesis.overall_condition || `Overall RIA grade ${composite.final_grade} (${composite.final_score}/100)`),
+      "<!-- REPORT:OVERALL_CONDITION -->": compiler.escapeHtml(synthesis.overall_condition || `Overall RIA grade ${headline.final_grade} (${headline.final_score}/100)`),
       "<!-- REPORT:EXECUTIVE_SUMMARY -->": compiler.escapeHtml(synthesis.executive_summary || "No executive summary provided."),
       "<!-- REPORT:SCORE_GAUGE -->": scoreGauge,
       "<!-- REPORT:METRIC_CARDS -->": metricCards,

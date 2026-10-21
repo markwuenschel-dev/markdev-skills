@@ -12,9 +12,16 @@ function escapeHtml(value) {
   })[character]);
 }
 
+// P1 (composite-scoring-v3 §3): same semantics as shared/ria-scoring finiteOrNull.
+// Kept local because this module sits in SEI's declared dependency closure, which
+// does not include shared/ria-scoring; report-presentation.test.js pins parity.
+const DECIMAL_NUMERIC = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 function finite(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const number = Number(value);
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  if (!DECIMAL_NUMERIC.test(text)) return null;
+  const number = Number(text);
   return Number.isFinite(number) ? number : null;
 }
 

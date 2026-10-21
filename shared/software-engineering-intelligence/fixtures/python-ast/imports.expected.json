@@ -1,0 +1,82 @@
+{
+  "module_roots": ["src"],
+  "module_ids": [
+    "acme",
+    "acme.broken",
+    "acme.core",
+    "acme.empty",
+    "acme.helpers",
+    "acme.namespace.tool",
+    "acme.sub.leaf",
+    "tests.test_core"
+  ],
+  "completeness": 0.875,
+  "complexity": {
+    "parsed_file_count": 7,
+    "supported_file_count": 8,
+    "callable_count": 7,
+    "complexity_sum": 18,
+    "complexity_p50": 2,
+    "complexity_p90": 6,
+    "complexity_max": 6
+  },
+  "import_counts": {
+    "local": 11,
+    "external": 3,
+    "unresolved_local_candidate": 1,
+    "unsupported_dynamic": 2
+  },
+  "edge_occurrences": [
+    { "source": "acme", "target": "acme.core", "occurrences": 1 },
+    { "source": "acme.core", "target": "acme", "occurrences": 1 },
+    { "source": "acme.core", "target": "acme.helpers", "occurrences": 4 },
+    { "source": "acme.core", "target": "acme.namespace.tool", "occurrences": 1 },
+    { "source": "acme.core", "target": "acme.sub.leaf", "occurrences": 2 },
+    { "source": "acme.helpers", "target": "acme.core", "occurrences": 1 },
+    { "source": "tests.test_core", "target": "acme.core", "occurrences": 1 }
+  ],
+  "production_aggregates": {
+    "node_count": 7,
+    "edge_count": 6,
+    "non_self_edge_count": 6,
+    "scc_count": 5,
+    "cyclic_scc_count": 1,
+    "cyclic_node_count": 3,
+    "max_fan_in": 2,
+    "max_fan_out": 4,
+    "density": {
+      "status": "measured",
+      "numerator": 6,
+      "denominator": 42,
+      "value": 0.14285714,
+      "reason": null
+    },
+    "centrality": {
+      "status": "unavailable",
+      "value": null,
+      "reason": "FAIL-DEPENDENCY-TOPOLOGY-UNSUPPORTED-METRIC: no named centrality algorithm is defined"
+    }
+  },
+  "all_python_aggregates": {
+    "node_count": 8,
+    "edge_count": 7,
+    "non_self_edge_count": 7,
+    "scc_count": 6,
+    "cyclic_scc_count": 1,
+    "cyclic_node_count": 3,
+    "max_fan_in": 3,
+    "max_fan_out": 4,
+    "density": {
+      "status": "measured",
+      "numerator": 7,
+      "denominator": 56,
+      "value": 0.125,
+      "reason": null
+    },
+    "centrality": {
+      "status": "unavailable",
+      "value": null,
+      "reason": "FAIL-DEPENDENCY-TOPOLOGY-UNSUPPORTED-METRIC: no named centrality algorithm is defined"
+    }
+  }
+}

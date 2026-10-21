@@ -1,0 +1,79 @@
+decision_set:
+  set_id: ""
+  selected_direction: ""
+  version: 1
+  representation: flat
+  materialized_after_mandatory_sweep: true
+  topology_evaluation:
+    meaningful_topology_found: false
+    checked_relationships:
+      - prerequisite
+      - conditional_branch
+      - fact_gating
+      - mutual_exclusion
+      - invalidation
+      - unlock
+      - multi_round_eligibility
+    rationale_for_flat_mode: ""
+    promotion_allowed: true
+  evidence_recon:
+    evidence_packet_version: 1
+    packet_ref: ""
+    validation_status: pending
+    safe_to_assume_refs: []
+    unresolved_fact_refs: []
+    owner_intent_required_refs: []
+    possible_decision_surface_refs: []
+  coverage:
+    lenses_considered: []
+    lenses_not_applicable:
+      - lens: ""
+        reason: ""
+    last_sweep_at: ""
+    consequential_gaps_found: []
+  records:
+    - id: D-001
+      type: human_decision
+      category: architecture
+      title: ""
+      question_or_proposition: ""
+      why_it_matters: ""
+      owner: ""
+      authoritative_evidence_route: []
+      permitted_research_surfaces: []
+      state: open
+      resolution: ""
+      recommended_answer: ""
+      recommendation_rationale: ""
+      alternatives: []
+      meaningful_tradeoff: ""
+      recommendation_confidence: medium
+      candidate_question_formulations: []
+      selected_question_formulation: ""
+      question_quality:
+        decision_leverage: null
+        specificity: null
+        discriminative_power: null
+        evidence_grounding: null
+        downstream_unlock: null
+        recommendation_quality: null
+        rationale_quality: null
+        answerability: null
+        hard_failures: []
+        passed: false
+      proof_surface: ""
+      consequence_if_deferred: ""
+      revisit_trigger: ""
+  active_set:
+    open_decision_ids: []
+    packet_decision_ids: []
+    open_but_deferred:
+      - decision_id: ""
+        reason: ""
+    last_computed_at: ""
+  closure:
+    all_consequential_records_accounted_for: false
+    final_coverage_sweep_complete: false
+    adversarial_review_complete: false
+    shared_understanding_confirmed: false
+    confirmed_by: ""

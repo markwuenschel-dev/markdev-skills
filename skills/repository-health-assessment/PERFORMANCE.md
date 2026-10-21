@@ -1,6 +1,6 @@
 # Accelerated health assessment
 
-Every repository-wide health assessment uses the aggressive assessment executor. Resolve `shared/assessment-acceleration/ACCELERATION-MODEL.md` and `THREADPOOL-EXECUTION.md` before dispatch.
+Every repository-wide health assessment uses the aggressive assessment executor. Resolve `<skills-root>/shared/assessment-acceleration/ACCELERATION-MODEL.md` and `THREADPOOL-EXECUTION.md` before dispatch.
 
 The six health lanes are grading categories, not worker assignments. Worker count and packet count come from repository topology and the concurrency profile.
 
@@ -38,7 +38,8 @@ Typical packets include:
 - generated/cross-language seams;
 - numerical/GPU/performance surfaces;
 - ownership/churn/history;
-- focused hotspots identified by engineering intelligence.
+- focused hotspots identified by engineering intelligence;
+- lane-mapped `review-*` workers ([REVIEW-LANES.md](REVIEW-LANES.md)).
 
 On broad repositories, maintain a READY backlog large enough to keep the read-only agent pool saturated. Split a broad lane before dispatch when its independent subsystems would otherwise produce a critical-path straggler.
 
@@ -90,10 +91,12 @@ Only `exact` and validated `content-stable` shards may support current evidence.
 
 ## Deterministic report (only when elected)
 
-Compile the model's small structured input with:
+Compile the model's small structured input (shape: `<skill>/assets/report-input.schema.json`) with:
 
 ```bash
-node assets/build-report.js --input <health-report-input.json> --output <repository-health.html>
+node <skill>/assets/build-report.js --input <report-input.json> --repo <repository-root> [--output <report.html>]
 ```
+
+The default output is `.project-intelligence/reports/health/`. In RIA mode no report is built here; RIA owns the election.
 
 Record global/class budgets, queue target, packet count, peak concurrency, cache classifications, invalidations, stage timings, elected report bytes (or zero/skipped), and wall time. Operational performance never changes the health grade.

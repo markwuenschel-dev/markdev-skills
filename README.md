@@ -12,8 +12,8 @@
 
 <p align="center">
   <a href="https://github.com/markwuenschel-dev/markdev-skills"><img src="https://img.shields.io/badge/catalog-public-0f766e?style=for-the-badge&logo=github&logoColor=white" alt="Public catalog"></a>
-  <img src="https://img.shields.io/badge/skills-17-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="17 inventoried skills">
-  <img src="https://img.shields.io/badge/shared_contracts-16-64748b?style=for-the-badge&logo=json&logoColor=white" alt="16 shared contracts">
+  <img src="https://img.shields.io/badge/skills-22-2563eb?style=for-the-badge&logo=markdown&logoColor=white" alt="22 inventoried skills">
+  <img src="https://img.shields.io/badge/shared_contracts-17-64748b?style=for-the-badge&logo=json&logoColor=white" alt="17 shared contracts">
   <img src="https://img.shields.io/badge/status-active-16a34a?style=for-the-badge" alt="Actively maintained">
 </p>
 
@@ -30,14 +30,14 @@
 
 ---
 
-`markdev-skills` is the canonical inventory for a focused set of agent skills: each package owns one clear job, shared contracts stay centralized, and `loop-router` helps choose the right entry point when the work is ambiguous.
+`markdev-skills` is the canonical inventory for a focused set of agent skills: each package owns one clear job, shared contracts stay centralized, and every entry point is invoked directly — pick the skill from the map below.
 
 Every in-repo skill lives under `skills/` with a root `SKILL.md`. External companions are recorded in [`DEPENDENCIES.md`](DEPENDENCIES.md), not copied in wholesale.
 
 ## Get started
 
-1. **Unsure where to begin?** Start with [`loop-router`](skills/loop-router/), then follow its single recommended path.
-2. **Know the work?** Use the map below to jump directly to the right skill.
+1. **Find the work in the map below** and invoke that skill directly. The usual flow runs decide → assess → build → land; craft skills apply any time.
+2. **Unsure between two neighbours?** Each row in [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md) says what the skill does **not** do, and which skill it hands off to.
 3. **Want the catalog locally?** Follow the [installation instructions](#install) to link or copy every package into your agent skill directory.
 
 > The repository favors explicit boundaries: design before delivery, proof before landing, and shared contracts over duplicated rules.
@@ -48,13 +48,6 @@ Every in-repo skill lives under `skills/` with a root `SKILL.md`. External compa
 
 ```mermaid
 flowchart TD
-    R(["loop-router — unsure which?"])
-    R --> DECIDE
-    R --> ASSESS
-    R --> BUILD
-    R --> LAND
-    R --> CRAFT
-
     subgraph DECIDE["decide"]
         direction TB
         EG["expanded-grill-with-docs"]
@@ -67,9 +60,14 @@ flowchart TD
         RIA["repository-improvement-assessment"]
         RHA["repository-health-assessment"]
         CIAL["codebase-integrity-audit-loop"]
+        AII["architecture-improvement-intelligence"]
+        SEI["software-engineering-intelligence"]
         RIA --> RHA
         RIA --> CIAL
+        RIA --> AII
+        RIA -.->|"evidence ref"| SEI
         RHA -->|"integrity candidates"| CIAL
+        RHA -->|"architecture candidates"| AII
     end
 
     subgraph BUILD["build"]
@@ -84,6 +82,8 @@ flowchart TD
     subgraph LAND["land — one PR, a queue, or + EC2 (-ec2)"]
         direction TB
         LP["land-pr"]
+        PRB["pr-mwdev"]
+        LP -->|"PR body"| PRB
     end
 
     subgraph CRAFT["craft — any time"]
@@ -91,26 +91,27 @@ flowchart TD
         PFG["prompt-forge"]
         SWF["skillwright-forge"]
         CS["compact-session"]
+        WIZ["wizard-mwdev"]
+        RETRO["retro-mwdev"]
         PFG -.->|"artifact is a SKILL.md"| SWF
+        RETRO -.->|"skill fixes"| SWF
     end
 
     IPC --> PF
-    CIAL -->|"selected candidates"| PF
+    CIAL -->|"selected candidate handoff"| PF
     PF -->|"Stage 13 publish"| LP
 
-    classDef router fill:#111827,stroke:#111827,color:#ffffff,stroke-width:2px
     classDef decide fill:#f3e8ff,stroke:#7c3aed,color:#4c1d95,stroke-width:1.5px
     classDef assess fill:#ccfbf1,stroke:#0f766e,color:#134e4a,stroke-width:1.5px
     classDef build fill:#dbeafe,stroke:#2563eb,color:#1e3a8a,stroke-width:1.5px
     classDef land fill:#dcfce7,stroke:#16a34a,color:#14532d,stroke-width:1.5px
     classDef craft fill:#f1f5f9,stroke:#64748b,color:#334155,stroke-width:1.5px
 
-    class R router
     class EG,IPC decide
-    class RIA,RHA,CIAL assess
+    class RIA,RHA,CIAL,AII,SEI assess
     class PF,HDSP,CIS build
-    class LP land
-    class PFG,SWF,CS craft
+    class LP,PRB land
+    class PFG,SWF,CS,WIZ,RETRO craft
 ```
 ### Decide
 
@@ -118,7 +119,6 @@ flowchart TD
 | :--- | :--- |
 | Shape one design / approved design package | [`expanded-grill-with-docs`](skills/expanded-grill-with-docs/) |
 | Turn selected work into a binding execution contract | [`implementation-plan-contract`](skills/implementation-plan-contract/) |
-| Unsure which applies | [`loop-router`](skills/loop-router/) |
 
 ### Assess
 
@@ -126,13 +126,15 @@ flowchart TD
 | :--- | :--- |
 | Combined health + integrity + architecture assessment (RIA) | [`repository-improvement-assessment`](skills/repository-improvement-assessment/) |
 | Grade repository health, establish a baseline | [`repository-health-assessment`](skills/repository-health-assessment/) |
-| Audit and repair codebase integrity, one loop per candidate | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
+| Audit integrity read-only: verified candidate ledger, one selected handoff | [`codebase-integrity-audit-loop`](skills/codebase-integrity-audit-loop/) |
+| Structural architecture analysis / one-candidate design handoff (RIA architecture owner) | [`architecture-improvement-intelligence`](skills/architecture-improvement-intelligence/) |
+| Software Engineering Intelligence snapshot + assessment (explicit request only) | [`software-engineering-intelligence`](skills/software-engineering-intelligence/) |
 
 ### Build
 
 | Need | Skill |
 | :--- | :--- |
-| Deliver an approved queue end-to-end | [`production-flywheel`](skills/production-flywheel/) |
+| Deliver authorized work (one item or an action graph) end-to-end | [`production-flywheel`](skills/production-flywheel/) |
 | Parallelize a known mission into agent lanes | [`human-directed-swarm-planner`](skills/human-directed-swarm-planner/) |
 | Change code without leaving the system incoherent | [`connected-impact-sweep`](skills/connected-impact-sweep/) |
 
@@ -142,6 +144,7 @@ flowchart TD
 | :--- | :--- |
 | Land one change, or an explicit PR queue | [`land-pr`](skills/land-pr/) |
 | Same, plus release the affected service(s) to EC2 | [`land-pr`](skills/land-pr/) with `-ec2` |
+| Write or rewrite the PR body a reviewer judges | [`pr-mwdev`](skills/pr-mwdev/) |
 
 ### Craft
 
@@ -150,8 +153,10 @@ flowchart TD
 | Write / repair / optimize a prompt | [`prompt-forge`](skills/prompt-forge/) |
 | Design, audit, or harden a SKILL.md package | [`skillwright-forge`](skills/skillwright-forge/) |
 | Checkpoint a long session before `/clear` | [`compact-session`](skills/compact-session/) |
+| Script a wizard for steps only a human can perform | [`wizard-mwdev`](skills/wizard-mwdev/) |
+| Retrospect a session to fix the agent's environment | [`retro-mwdev`](skills/retro-mwdev/) |
 
-**Start here for routing and handoffs:** [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md)  
+**Boundaries and handoffs:** [`CAPABILITY-MAP.md`](CAPABILITY-MAP.md)  
 **External dependencies and lineage:** [`DEPENDENCIES.md`](DEPENDENCIES.md)
 
 ---
@@ -162,36 +167,43 @@ flowchart TD
 | :--- | :--- |
 | **`skills/`** | One folder per skill — composable, invokable; inventory = every folder with a root `SKILL.md` |
 | **`shared/`** | Contracts used across skills — scoring, ledgers, decisions, loop state |
-| **`tests/`** | Trigger, boundary, and functional checks |
+| **`tests/`** | Manual trigger / boundary / functional checklists (Markdown, partially stale). Executable tests live inside each package as `*.test.js` |
 | **`scripts/`** | Install helpers |
 
 ```
 markdev-skills/
-├── CAPABILITY-MAP.md          ← memory / routing
+├── CAPABILITY-MAP.md          ← boundaries + handoffs
 ├── DEPENDENCIES.md            ← externals + fork lineage, pinned by source
 │
 ├── skills/
-│   ├── loop-router/
-│   │
 │   ├── expanded-grill-with-docs/            ← decide
 │   ├── implementation-plan-contract/
 │   │
 │   ├── repository-improvement-assessment/  ← assess (combined RIA)
 │   ├── repository-health-assessment/
 │   ├── codebase-integrity-audit-loop/
+│   ├── architecture-improvement-intelligence/
+│   ├── software-engineering-intelligence/
 │   │
 │   ├── production-flywheel/                ← build
 │   ├── human-directed-swarm-planner/
 │   ├── connected-impact-sweep/
 │   │
 │   ├── land-pr/                            ← land (queue + EC2 via flags)
+│   ├── pr-mwdev/                           ← PR body for land-pr / flywheel
 │   │
 │   ├── prompt-forge/                       ← craft
 │   ├── skillwright-forge/
 │   ├── compact-session/
+│   ├── wizard-mwdev/
+│   ├── retro-mwdev/
 │   │
-│   └── agent-executor-pool/                ← mechanism (not directly invocable)
-│       used by repository-health-assessment for bounded worker scheduling
+│   ├── agent-executor-pool/                ← mechanism (not directly invocable): bounded worker
+│   │   scheduling for health, RIA, integrity, architecture, and production-flywheel
+│   ├── loop-router/                        ← dormant experimental prototype; not an entry point
+│   │
+│   └── wayfinder-mwdev/, diagnosing-bugs-mwdev/, improve-codebase-architecture-mwdev/
+│       ← deprecated aliases kept for old invocations (see DEPENDENCIES.md)
 │
 ├── shared/
 │   ├── candidate-ledger-spine/   ← family scoring spine (schema + verifiers)
@@ -204,7 +216,8 @@ markdev-skills/
 │   ├── project-intelligence-workspace/
 │   ├── report-election/
 │   ├── report-presentation/
-│   ├── REPORT-SCORING.md
+│   ├── software-engineering-intelligence/  ← SEI engine (collectors, analyzers, schema validator)
+│   ├── REPORT-SCORING.md         ← legacy copy; canonical is candidate-ledger-spine/REPORT-SCORING.md
 │   ├── REQUIREMENTS-LEDGER.md
 │   ├── ROLLOUT-CONTRACT.md
 │   ├── SWARM-LANES.md
@@ -215,13 +228,13 @@ markdev-skills/
 └── scripts/
 ```
 
-Skills own their procedure. Shared contracts own rubrics once — skills link in; they don’t fork copies.
+Skills own their procedure. Shared contracts own rubrics once — skills link in rather than restating them. (One known exception: `shared/REPORT-SCORING.md` is an older copy of `shared/candidate-ledger-spine/REPORT-SCORING.md`.)
 
 ---
 
 ## Install
 
-Symlinks (or copies) **every** skill under `skills/` that has a root `SKILL.md` into your agent skills directory.
+Symlinks (or, with `--copy` / `-Copy`, copies) **every** skill under `skills/` that has a root `SKILL.md` into your agent skills directory.
 
 **Bash / macOS / Linux / Git Bash**
 
@@ -238,7 +251,11 @@ Symlinks (or copies) **every** skill under `skills/` that has a root `SKILL.md` 
 .\scripts\install-skills.ps1 -Dest "$HOME\.agents\skills" -WithShared
 ```
 
-Default destination: `~/.agents/skills`. Use `--with-shared` / `-WithShared` when contracts need to sit next to the install root.
+Default destination: `~/.agents/skills`.
+
+Add `--with-shared` / `-WithShared` when you want the bundled Node scripts to run: it installs `shared/` at `<dest>/shared`, which is where the scripts look (`require("../shared/…")`). For symlinked installs it also links `skills/shared → ../shared` inside the repo (gitignored), because Node resolves a symlinked skill from its real path.
+
+> Some scripts also load canon shared packages that are not vendored here (for example `orchestration-runtime` and `action-graph-execution`; see [`DEPENDENCIES.md`](DEPENDENCIES.md)). Those only run from the canon install.
 
 ---
 
@@ -249,7 +266,7 @@ Default destination: `~/.agents/skills`. Use `--with-shared` / `-WithShared` whe
 | **1** | Living inventory — every `skills/*/SKILL.md` is first-class; keep packages flat (no `name/name/` nesting) |
 | **2** | Pin true externals in `DEPENDENCIES.md` (source · path · version/commit); do not dump unrelated skill universes here |
 | **3** | Change shared rubrics under `shared/`, not per skill |
-| **4** | A `-mwdev` fork renames its frontmatter `name` to match its directory, and its upstream parent is credited in `DEPENDENCIES.md` |
+| **4** | A `-mwdev` package sets its frontmatter `name` to its suffixed directory name; a fork also credits its upstream parent in `DEPENDENCIES.md` |
 | **5** | Keep the public catalog focused, attributable, and coherent as the inventory evolves |
 
 ---

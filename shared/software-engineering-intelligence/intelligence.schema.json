@@ -1,0 +1,784 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:openai:software-engineering-intelligence:snapshot:v1",
+  "title": "Software Engineering Intelligence evidence snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "repository",
+    "collectors",
+    "measurements",
+    "risk_models",
+    "profiles",
+    "evidence_summary",
+    "run_metadata"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "snapshot_id": { "$ref": "#/$defs/stableId" },
+    "repository": { "$ref": "#/$defs/repository" },
+    "collectors": { "type": "array", "items": { "$ref": "#/$defs/collector" } },
+    "measurements": { "type": "array", "items": { "$ref": "#/$defs/metric" } },
+    "risk_models": { "type": "array", "items": { "$ref": "#/$defs/riskModel" } },
+    "profiles": { "type": "array", "items": { "$ref": "#/$defs/profile" } },
+    "evidence_summary": { "$ref": "#/$defs/evidenceSummary" },
+    "run_metadata": { "$ref": "#/$defs/runMetadata" }
+  },
+  "$defs": {
+    "stableId": { "type": "string", "minLength": 1 },
+    "nullableStableId": {
+      "anyOf": [
+        { "$ref": "#/$defs/stableId" },
+        { "type": "null" }
+      ]
+    },
+    "historyBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "start", "end"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/stableId" },
+        "start": { "$ref": "#/$defs/nullableStableId" },
+        "end": { "$ref": "#/$defs/nullableStableId" }
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository_id", "revision", "configuration_hash", "history_boundary", "generated_path_patterns"],
+      "properties": {
+        "repository_id": { "$ref": "#/$defs/stableId" },
+        "revision": { "$ref": "#/$defs/stableId" },
+        "configuration_hash": { "$ref": "#/$defs/stableId" },
+        "history_boundary": { "$ref": "#/$defs/historyBoundary" },
+        "generated_path_patterns": { "type": "array", "items": { "$ref": "#/$defs/stableId" } }
+      }
+    },
+    "collector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collector_id", "collector_version", "status", "analyzer_identity", "analyzer_version", "reason"],
+      "properties": {
+        "collector_id": { "$ref": "#/$defs/stableId" },
+        "collector_version": { "$ref": "#/$defs/stableId" },
+        "status": { "enum": ["available", "degraded", "unavailable"] },
+        "analyzer_identity": { "$ref": "#/$defs/stableId" },
+        "analyzer_version": { "$ref": "#/$defs/stableId" },
+        "reason": { "$ref": "#/$defs/nullableStableId" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "enum": ["degraded", "unavailable"] } } },
+          "then": { "properties": { "reason": { "$ref": "#/$defs/stableId" } } }
+        }
+      ]
+    },
+    "measurementState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "completeness", "confidence", "reason"],
+      "properties": {
+        "status": { "enum": ["measured", "inferred", "unavailable", "not-applicable", "unverifiable"] },
+        "completeness": { "type": "number", "minimum": 0, "maximum": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "reason": { "$ref": "#/$defs/nullableStableId" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "collector_id", "collector_version", "repository_revision", "command", "artifact_refs"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/stableId" },
+        "collector_id": { "$ref": "#/$defs/stableId" },
+        "collector_version": { "$ref": "#/$defs/stableId" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "command": { "$ref": "#/$defs/nullableStableId" },
+        "artifact_refs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "evidence_refs": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      },
+      "anyOf": [
+        { "properties": { "command": { "type": "string", "minLength": 1 } } },
+        { "properties": { "artifact_refs": { "minItems": 1 } } }
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "language", "generated_code", "included_in_human_maintainability"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/stableId" },
+        "path": { "type": "string" },
+        "language": { "type": ["string", "null"] },
+        "generated_code": { "type": "boolean" },
+        "included_in_human_maintainability": { "type": "boolean" },
+        "generated_code_inclusion_reason": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "generated_code": { "const": true },
+              "included_in_human_maintainability": { "const": true }
+            }
+          },
+          "then": { "required": ["generated_code_inclusion_reason"] }
+        }
+      ]
+    },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "start", "end"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/stableId" },
+        "start": { "$ref": "#/$defs/nullableStableId" },
+        "end": { "$ref": "#/$defs/nullableStableId" }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline_snapshot_id", "baseline_metric_id", "analyzer_identity", "analyzer_version", "configuration_hash"],
+      "properties": {
+        "baseline_snapshot_id": { "$ref": "#/$defs/stableId" },
+        "baseline_metric_id": { "$ref": "#/$defs/stableId" },
+        "analyzer_identity": { "$ref": "#/$defs/stableId" },
+        "analyzer_version": { "$ref": "#/$defs/stableId" },
+        "configuration_hash": { "$ref": "#/$defs/stableId" },
+        "binding_kind": { "enum": ["explicit", "automatic"] },
+        "baseline_repository_revision": { "$ref": "#/$defs/stableId" },
+        "baseline_value": { "type": "number" },
+        "delta": { "type": "number" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+      },
+      "oneOf": [
+        {
+          "not": {
+            "anyOf": [
+              { "required": ["binding_kind"] },
+              { "required": ["baseline_repository_revision"] },
+              { "required": ["baseline_value"] },
+              { "required": ["delta"] },
+              { "required": ["confidence"] }
+            ]
+          }
+        },
+        { "required": ["binding_kind", "baseline_repository_revision", "baseline_value", "delta", "confidence"] }
+      ]
+    },
+    "comparability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analyzer_identity", "analyzer_version", "configuration_hash", "compatible_with_prior", "reason"],
+      "properties": {
+        "analyzer_identity": { "$ref": "#/$defs/stableId" },
+        "analyzer_version": { "$ref": "#/$defs/stableId" },
+        "configuration_hash": { "$ref": "#/$defs/stableId" },
+        "compatible_with_prior": { "type": "boolean" },
+        "reason": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_id", "definition_id", "family", "subject", "repository_revision", "value", "unit", "measurement", "source", "scope", "window", "analyzer_identity", "analyzer_version", "comparability"],
+      "properties": {
+        "metric_id": { "$ref": "#/$defs/stableId" },
+        "definition_id": { "$ref": "#/$defs/stableId" },
+        "family": { "$ref": "#/$defs/stableId" },
+        "subject": { "$ref": "#/$defs/stableId" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "value": { "type": ["number", "null"] },
+        "unit": { "$ref": "#/$defs/stableId" },
+        "measurement": { "$ref": "#/$defs/measurementState" },
+        "source": { "$ref": "#/$defs/source" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "window": { "$ref": "#/$defs/window" },
+        "analyzer_identity": { "$ref": "#/$defs/stableId" },
+        "analyzer_version": { "$ref": "#/$defs/stableId" },
+        "comparability": { "$ref": "#/$defs/comparability" },
+        "comparison": { "$ref": "#/$defs/comparison" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "measurement": { "properties": { "status": { "enum": ["measured", "inferred"] } } } } },
+          "then": { "properties": { "value": { "not": { "type": "null" } } } },
+          "else": {
+            "properties": {
+              "value": { "type": "null" },
+              "measurement": { "properties": { "reason": { "$ref": "#/$defs/stableId" } } }
+            }
+          }
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "stableIdArray": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/stableId" }
+    },
+    "calibration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["calibration_id", "calibration_hash", "method", "training_ids", "holdout_ids", "evidence_refs"],
+      "properties": {
+        "calibration_id": { "$ref": "#/$defs/stableId" },
+        "calibration_hash": { "$ref": "#/$defs/sha256" },
+        "method": { "$ref": "#/$defs/stableId" },
+        "training_ids": { "$ref": "#/$defs/stableIdArray", "minItems": 1 },
+        "holdout_ids": { "$ref": "#/$defs/stableIdArray", "minItems": 1 },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray", "minItems": 1 }
+      }
+    },
+    "riskFeature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_id", "definition_id", "value", "unit", "measurement_status", "percentile", "cohort_size", "analyzer_identity", "analyzer_version", "evidence_refs", "interpretation"],
+      "properties": {
+        "metric_id": { "$ref": "#/$defs/stableId" },
+        "definition_id": { "$ref": "#/$defs/stableId" },
+        "value": { "type": "number" },
+        "unit": { "$ref": "#/$defs/stableId" },
+        "measurement_status": { "enum": ["measured", "inferred"] },
+        "percentile": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "cohort_size": { "type": "integer", "minimum": 0 },
+        "analyzer_identity": { "$ref": "#/$defs/nullableStableId" },
+        "analyzer_version": { "$ref": "#/$defs/nullableStableId" },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray" },
+        "interpretation": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "hotspotSignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal_id", "basis_metric_ids", "interpretation"],
+      "properties": {
+        "signal_id": { "$ref": "#/$defs/stableId" },
+        "basis_metric_ids": { "$ref": "#/$defs/stableIdArray" },
+        "interpretation": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "hotspotRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "features", "hotspot_signals"],
+      "properties": {
+        "subject": { "$ref": "#/$defs/stableId" },
+        "features": { "type": "array", "items": { "$ref": "#/$defs/riskFeature" } },
+        "hotspot_signals": { "type": "array", "items": { "$ref": "#/$defs/hotspotSignal" } }
+      }
+    },
+    "temporalCouplingRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source", "target", "co_change_count", "coupling_ratio"],
+      "properties": {
+        "kind": { "const": "temporal_coupling" },
+        "source": { "$ref": "#/$defs/stableId" },
+        "target": { "$ref": "#/$defs/stableId" },
+        "co_change_count": { "type": "integer", "minimum": 0 },
+        "coupling_ratio": { "type": "number", "minimum": 0, "maximum": 1 },
+        "policy_status": { "enum": ["included", "excluded", "down_weighted"] },
+        "policy_reason": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "probabilityRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "probability", "evidence_metric_ids", "evidence_refs"],
+      "properties": {
+        "subject": { "$ref": "#/$defs/stableId" },
+        "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+        "evidence_metric_ids": { "$ref": "#/$defs/stableIdArray", "minItems": 1 },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray", "minItems": 1 }
+      }
+    },
+    "investigationObservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "status", "value", "evidence_refs"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/stableId" },
+        "status": { "enum": ["measured", "degraded", "unavailable", "unverifiable"] },
+        "value": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "coverage": { "type": "number", "minimum": 0.9, "maximum": 1 },
+        "confidence": { "type": "number", "minimum": 0.9, "maximum": 1 },
+        "semantic_state": { "const": "strong-partial" },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray", "minItems": 1, "maxItems": 16 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "measured" } }, "required": ["status"] },
+          "then": {
+            "properties": { "value": { "type": "number", "minimum": 0, "maximum": 1 } },
+            "not": { "anyOf": [{ "required": ["coverage"] }, { "required": ["confidence"] }, { "required": ["semantic_state"] }] }
+          },
+          "else": {
+            "if": { "properties": { "status": { "const": "degraded" } }, "required": ["status"] },
+            "then": {
+              "oneOf": [
+                {
+                  "properties": { "value": { "type": "null" } },
+                  "not": { "anyOf": [{ "required": ["coverage"] }, { "required": ["confidence"] }, { "required": ["semantic_state"] }] }
+                },
+                {
+                  "required": ["coverage", "confidence", "semantic_state"],
+                  "properties": { "value": { "type": "number", "minimum": 0, "maximum": 1 } },
+                  "not": {
+                    "allOf": [
+                      { "properties": { "coverage": { "const": 1 } }, "required": ["coverage"] },
+                      { "properties": { "confidence": { "const": 1 } }, "required": ["confidence"] }
+                    ]
+                  }
+                }
+              ]
+            },
+            "else": {
+              "properties": { "value": { "type": "null" } },
+              "not": { "anyOf": [{ "required": ["coverage"] }, { "required": ["confidence"] }, { "required": ["semantic_state"] }] }
+            }
+          }
+        }
+      ]
+    },
+    "investigationCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["observed", "required", "ratio"],
+      "properties": {
+        "observed": { "type": "integer", "minimum": 1 },
+        "required": { "type": "integer", "minimum": 1 },
+        "ratio": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "investigationSignalRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signal_id", "signal_type", "subject", "observations", "coverage", "confidence", "evidence_refs", "interpretation", "suggested_investigation"],
+      "properties": {
+        "signal_id": { "$ref": "#/$defs/sha256" },
+        "signal_type": { "$ref": "#/$defs/stableId" },
+        "subject": { "$ref": "#/$defs/stableId" },
+        "observations": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/investigationObservation" } },
+        "coverage": { "$ref": "#/$defs/investigationCoverage" },
+        "confidence": { "enum": ["high", "medium"] },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray", "minItems": 1 },
+        "interpretation": { "$ref": "#/$defs/stableId" },
+        "suggested_investigation": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "massChangePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_id", "policy_version", "policy_hash", "threshold", "action", "total_commit_count", "eligible_commit_count", "mass_commit_count", "excluded_pairwise_count", "down_weighted_pairwise_count", "reason"],
+      "properties": {
+        "policy_id": { "$ref": "#/$defs/stableId" },
+        "policy_version": { "$ref": "#/$defs/stableId" },
+        "policy_hash": { "$ref": "#/$defs/sha256" },
+        "threshold": { "type": "integer", "minimum": 1 },
+        "action": { "enum": ["exclude", "down_weight", "retain"] },
+        "total_commit_count": { "type": "integer", "minimum": 0 },
+        "eligible_commit_count": { "type": "integer", "minimum": 0 },
+        "mass_commit_count": { "type": "integer", "minimum": 0 },
+        "excluded_pairwise_count": { "type": "integer", "minimum": 0 },
+        "down_weighted_pairwise_count": { "type": "integer", "minimum": 0 },
+        "reason": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "riskResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result_id", "kind", "status", "repository_revision", "evidence_metric_ids", "evidence_refs", "interpretation_boundary", "records"],
+      "properties": {
+        "result_id": { "$ref": "#/$defs/stableId" },
+        "kind": { "enum": ["heuristic_hotspot_vectors", "temporal_coupling_pressure", "engineering_investigation_signals", "probability"] },
+        "status": { "enum": ["available", "unavailable", "unverifiable"] },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "evidence_metric_ids": { "$ref": "#/$defs/stableIdArray" },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray" },
+        "interpretation_boundary": { "$ref": "#/$defs/stableId" },
+        "records": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              { "$ref": "#/$defs/hotspotRecord" },
+              { "$ref": "#/$defs/temporalCouplingRecord" },
+              { "$ref": "#/$defs/investigationSignalRecord" },
+              { "$ref": "#/$defs/probabilityRecord" }
+            ]
+          }
+        },
+        "mass_change_policy": { "$ref": "#/$defs/massChangePolicy" }
+      }
+    },
+    "riskModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["risk_model_id", "model_version", "model_contract_hash", "model_status", "calibration", "result"],
+      "properties": {
+        "risk_model_id": { "$ref": "#/$defs/stableId" },
+        "model_version": { "$ref": "#/$defs/stableId" },
+        "model_contract_hash": { "$ref": "#/$defs/sha256" },
+        "model_status": { "enum": ["heuristic", "calibrated", "validated", "unavailable", "unverifiable"] },
+        "calibration": { "anyOf": [{ "type": "null" }, { "$ref": "#/$defs/calibration" }] },
+        "result": { "$ref": "#/$defs/riskResult" }
+      }
+    },
+    "profileApplicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "evidence_refs"],
+      "properties": {
+        "status": { "enum": ["applicable", "not_applicable", "insufficient_evidence", "unobservable"] },
+        "reason": { "$ref": "#/$defs/stableId" },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray" }
+      }
+    },
+    "profileDimension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence", "evidence_refs"],
+      "properties": {
+        "status": { "enum": ["measured", "inferred", "not_applicable", "insufficient_evidence", "unobservable"] },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/profileEvidence" } },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray" }
+      }
+    },
+    "profileEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "dimension", "status", "evidence_refs", "metric_id"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/stableId" },
+        "dimension": { "$ref": "#/$defs/stableId" },
+        "status": { "enum": ["measured", "inferred"] },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray" },
+        "metric_id": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "profileEvidencePartition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["machine", "human", "unobservable"],
+      "properties": {
+        "machine": { "type": "array", "items": { "$ref": "#/$defs/profileEvidence" } },
+        "human": { "type": "array", "items": { "$ref": "#/$defs/profileEvidence" } },
+        "unobservable": { "$ref": "#/$defs/stableIdArray" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profile_id", "profile_version", "profile_contract_hash", "applicability", "dimensions", "failure_codes"],
+      "properties": {
+        "profile_id": { "enum": ["Agile", "Scrum", "Kanban", "DORA", "SPACE", "EngThrive"] },
+        "profile_version": { "const": "1.0.0" },
+        "profile_contract_hash": { "$ref": "#/$defs/sha256" },
+        "applicability": { "$ref": "#/$defs/profileApplicability" },
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "individuals_and_interactions": { "$ref": "#/$defs/profileDimension" },
+            "working_software": { "$ref": "#/$defs/profileDimension" },
+            "customer_collaboration": { "$ref": "#/$defs/profileDimension" },
+            "responding_to_change": { "$ref": "#/$defs/profileDimension" },
+            "accountabilities": { "$ref": "#/$defs/profileDimension" },
+            "events": { "$ref": "#/$defs/profileDimension" },
+            "artifacts_and_commitments": { "$ref": "#/$defs/profileDimension" },
+            "empiricism": { "$ref": "#/$defs/profileDimension" },
+            "wip": { "$ref": "#/$defs/profileDimension" },
+            "throughput": { "$ref": "#/$defs/profileDimension" },
+            "work_item_age": { "$ref": "#/$defs/profileDimension" },
+            "cycle_time": { "$ref": "#/$defs/profileDimension" },
+            "change_lead_time": { "$ref": "#/$defs/profileDimension" },
+            "deployment_frequency": { "$ref": "#/$defs/profileDimension" },
+            "failed_deployment_recovery_time": { "$ref": "#/$defs/profileDimension" },
+            "change_fail_rate": { "$ref": "#/$defs/profileDimension" },
+            "deployment_rework_rate": { "$ref": "#/$defs/profileDimension" },
+            "satisfaction_and_wellbeing": { "$ref": "#/$defs/profileDimension" },
+            "performance": { "$ref": "#/$defs/profileDimension" },
+            "activity": { "$ref": "#/$defs/profileDimension" },
+            "communication_and_collaboration": { "$ref": "#/$defs/profileDimension" },
+            "efficiency_and_flow": { "$ref": "#/$defs/profileDimension" },
+            "speed": { "$ref": "#/$defs/profileDimension" },
+            "ease": { "$ref": "#/$defs/profileDimension" },
+            "quality": { "$ref": "#/$defs/profileDimension" },
+            "thriving": { "$ref": "#/$defs/profileDimension" }
+          }
+        },
+        "failure_codes": { "$ref": "#/$defs/stableIdArray" },
+        "evidence": { "$ref": "#/$defs/profileEvidencePartition" },
+        "maturity": { "$ref": "#/$defs/stableId" },
+        "guidance": { "$ref": "#/$defs/stableId" },
+        "scope": { "$ref": "#/$defs/stableId" }
+      }
+    },
+    "policySourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_path", "locator", "digest"],
+      "properties": {
+        "document_path": { "$ref": "#/$defs/stableId" },
+        "locator": { "$ref": "#/$defs/stableId" },
+        "digest": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "policyApplicability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "source_refs"],
+      "properties": {
+        "status": { "enum": ["applicable", "not_applicable", "conditional"] },
+        "reason": { "$ref": "#/$defs/stableId" },
+        "source_refs": { "type": "array", "items": { "$ref": "#/$defs/policySourceReference" }, "minItems": 1 }
+      }
+    },
+    "policyVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "evidence_refs"],
+      "properties": {
+        "method": { "$ref": "#/$defs/stableId" },
+        "evidence_refs": { "$ref": "#/$defs/stableIdArray", "minItems": 1 }
+      }
+    },
+    "policyRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule_id", "source_refs", "category", "severity", "applicability", "status"],
+      "properties": {
+        "rule_id": { "$ref": "#/$defs/stableId" },
+        "source_refs": { "type": "array", "items": { "$ref": "#/$defs/policySourceReference" }, "minItems": 1 },
+        "category": { "$ref": "#/$defs/stableId" },
+        "severity": { "enum": ["hard-invariant", "required", "convention", "advisory"] },
+        "applicability": { "$ref": "#/$defs/policyApplicability" },
+        "verification": { "$ref": "#/$defs/policyVerification" },
+        "oracle": { "$ref": "#/$defs/stableId" },
+        "status": { "enum": ["pass", "fail", "partial", "unverifiable", "not_applicable"] }
+      }
+    },
+    "policySummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "counts", "by_status", "hard_invariant_failures", "hard_invariant_non_passes"],
+      "properties": {
+        "status": { "enum": ["pass", "fail", "partial", "unverifiable", "not_applicable"] },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pass", "fail", "partial", "unverifiable", "not_applicable"],
+          "properties": {
+            "pass": { "type": "integer", "minimum": 0 },
+            "fail": { "type": "integer", "minimum": 0 },
+            "partial": { "type": "integer", "minimum": 0 },
+            "unverifiable": { "type": "integer", "minimum": 0 },
+            "not_applicable": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "by_status": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pass", "fail", "partial", "unverifiable", "not_applicable"],
+          "properties": {
+            "pass": { "$ref": "#/$defs/stableIdArray" },
+            "fail": { "$ref": "#/$defs/stableIdArray" },
+            "partial": { "$ref": "#/$defs/stableIdArray" },
+            "unverifiable": { "$ref": "#/$defs/stableIdArray" },
+            "not_applicable": { "$ref": "#/$defs/stableIdArray" }
+          }
+        },
+        "hard_invariant_failures": { "$ref": "#/$defs/stableIdArray" },
+        "hard_invariant_non_passes": { "$ref": "#/$defs/stableIdArray" }
+      }
+    },
+    "policyProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policy_profile_id", "policy_profile_version", "policy_profile_hash", "source", "rules", "summary"],
+      "properties": {
+        "policy_profile_id": { "$ref": "#/$defs/stableId" },
+        "policy_profile_version": { "const": "1.0.0" },
+        "policy_profile_hash": { "$ref": "#/$defs/sha256" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["document_path", "digest"],
+          "properties": {
+            "document_path": { "$ref": "#/$defs/stableId" },
+            "digest": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "rules": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/policyRule" } },
+        "summary": { "$ref": "#/$defs/policySummary" }
+      }
+    },
+    "trendRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["metric_id", "status", "reason"],
+      "properties": {
+        "metric_id": { "$ref": "#/$defs/stableId" },
+        "status": { "enum": ["comparable", "insufficient_history", "incomparable"] },
+        "reason": { "type": ["string", "null"] },
+        "failure_code": { "$ref": "#/$defs/stableId" },
+        "definition_id": { "$ref": "#/$defs/stableId" },
+        "subject": { "$ref": "#/$defs/stableId" },
+        "unit": { "$ref": "#/$defs/stableId" },
+        "previous_value": { "type": "number" },
+        "current_value": { "type": "number" },
+        "delta": { "type": "number" }
+      }
+    },
+    "trendEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "previous_snapshot_id", "current_snapshot_id", "reason", "trends"],
+      "properties": {
+        "status": { "enum": ["comparable", "insufficient_history", "incomparable", "mixed"] },
+        "previous_snapshot_id": { "type": ["string", "null"] },
+        "current_snapshot_id": { "type": ["string", "null"] },
+        "reason": { "type": ["string", "null"] },
+        "trends": { "type": "array", "items": { "$ref": "#/$defs/trendRecord" } }
+      }
+    },
+    "statusCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measured", "inferred", "unavailable", "not-applicable", "unverifiable"],
+      "properties": {
+        "measured": { "type": "integer", "minimum": 0 },
+        "inferred": { "type": "integer", "minimum": 0 },
+        "unavailable": { "type": "integer", "minimum": 0 },
+        "not-applicable": { "type": "integer", "minimum": 0 },
+        "unverifiable": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "evidenceSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measurement_count", "status_counts"],
+      "properties": {
+        "measurement_count": { "type": "integer", "minimum": 0 },
+        "status_counts": { "$ref": "#/$defs/statusCounts" }
+      }
+    },
+    "cacheMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cache_key", "repository_revision", "configuration_hash", "schema_version", "collector_versions", "collector_fingerprints", "history_boundary"],
+      "properties": {
+        "cache_key": { "$ref": "#/$defs/stableId" },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "configuration_hash": { "$ref": "#/$defs/stableId" },
+        "schema_version": { "$ref": "#/$defs/stableId" },
+        "collector_versions": { "type": "array", "items": { "$ref": "#/$defs/stableId" } },
+        "collector_fingerprints": { "type": "array", "items": { "$ref": "#/$defs/stableId" } },
+        "history_boundary": { "$ref": "#/$defs/historyBoundary" }
+      }
+    },
+    "runMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["generated_at"],
+      "properties": {
+        "generated_at": { "type": "string", "minLength": 1 },
+        "cache": { "$ref": "#/$defs/cacheMetadata" },
+        "trend_baseline": { "$ref": "#/$defs/trendBaselineMetadata" }
+      }
+    },
+    "trendBaselineMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binding_kind", "status", "eligible", "baseline_snapshot_id", "baseline_repository_revision", "compatible_metric_count", "reason"],
+      "properties": {
+        "binding_kind": { "enum": ["explicit", "automatic"] },
+        "status": { "enum": ["established", "selected", "explicit"] },
+        "eligible": { "type": "boolean" },
+        "baseline_snapshot_id": { "$ref": "#/$defs/nullableStableId" },
+        "baseline_repository_revision": { "$ref": "#/$defs/nullableStableId" },
+        "compatible_metric_count": { "type": "integer", "minimum": 0 },
+        "historical_context": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/significantGitHistoryContext" }
+          ]
+        },
+        "reason": { "$ref": "#/$defs/stableId" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "established" } } },
+          "then": {
+            "properties": {
+              "binding_kind": { "const": "automatic" },
+              "baseline_snapshot_id": { "type": "null" },
+              "baseline_repository_revision": { "type": "null" },
+              "compatible_metric_count": { "const": 0 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "selected" } } },
+          "then": {
+            "properties": {
+              "binding_kind": { "const": "automatic" },
+              "eligible": { "const": true },
+              "baseline_snapshot_id": { "$ref": "#/$defs/stableId" },
+              "baseline_repository_revision": { "$ref": "#/$defs/stableId" },
+              "compatible_metric_count": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "status": { "const": "explicit" } } },
+          "then": {
+            "properties": {
+              "binding_kind": { "const": "explicit" },
+              "baseline_snapshot_id": { "$ref": "#/$defs/stableId" },
+              "baseline_repository_revision": { "$ref": "#/$defs/stableId" }
+            },
+            "allOf": [
+              {
+                "if": { "properties": { "eligible": { "const": true } } },
+                "then": { "properties": { "compatible_metric_count": { "type": "integer", "minimum": 1 } } },
+                "else": { "properties": { "compatible_metric_count": { "const": 0 } } }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "significantGitHistoryContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind", "event_kind", "repository_revision", "short_revision", "subject", "author", "authored_at",
+        "commit_distance", "parent_count", "is_merge", "changed_file_count", "additions", "deletions", "text_churn", "significance_basis"
+      ],
+      "properties": {
+        "kind": { "const": "significant-git-history" },
+        "event_kind": { "enum": ["commit", "merge-commit"] },
+        "repository_revision": { "$ref": "#/$defs/stableId" },
+        "short_revision": { "$ref": "#/$defs/stableId" },
+        "subject": { "$ref": "#/$defs/stableId" },
+        "author": { "$ref": "#/$defs/stableId" },
+        "authored_at": { "$ref": "#/$defs/stableId" },
+        "commit_distance": { "type": "integer", "minimum": 1 },
+        "parent_count": { "type": "integer", "minimum": 1 },
+        "is_merge": { "type": "boolean" },
+        "changed_file_count": { "type": "integer", "minimum": 0 },
+        "additions": { "type": "integer", "minimum": 0 },
+        "deletions": { "type": "integer", "minimum": 0 },
+        "text_churn": { "type": "integer", "minimum": 0 },
+        "significance_basis": { "$ref": "#/$defs/stableId" }
+      }
+    }
+  }
+}

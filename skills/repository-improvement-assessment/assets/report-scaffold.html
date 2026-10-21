@@ -193,6 +193,14 @@
     .col { border-left:0; padding-left:0; }
     .card,.owner,.priority,.pattern,.route,.uncertainty,.cell { break-inside:avoid; }
   }
+    .v2-banner { border-left: 3px solid #d9a441; padding: 8px 12px; margin-bottom: 12px; }
+    .v2-banner.reported { border-left-color: #4fb37c; }
+    .v2-scroll { overflow-x: auto; max-width: 100%; }
+    .v2-table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    .v2-table th, .v2-table td { padding: 4px 8px; text-align: left; vertical-align: top; border-bottom: 1px solid rgba(255,255,255,.06); overflow-wrap: anywhere; }
+    .v2-table th { overflow-wrap: normal; word-break: keep-all; }
+    .v2-table tr.v2-contribution td { font-size: 12px; opacity: .9; }
+    .v2-reasons { margin: 8px 0 0 18px; }
 </style>
 </head>
 <body>
@@ -206,6 +214,7 @@
       <a href="#signals"><i>02</i>Signals</a>
       <a href="#testing"><i>03</i>Testing & coverage</a>
       <a href="#quantitative"><i>04</i>Quantitative</a>
+      <a href="#composite-v2"><i>v2</i>v2 shadow</a>
       <a href="#owners"><i>05</i>Owners</a>
       <a href="#candidates"><i>06</i>Candidates</a>
       <a href="#priorities"><i>07</i>Priorities</a>
@@ -268,6 +277,11 @@
       <div class="rp-chart-grid" style="margin-top:18px"><!-- REPORT:ANALYTICS_CHARTS --></div>
         </div>
       </details>
+    </section>
+
+    <section id="composite-v2">
+      <div class="sec-head"><h2>v2 composite — uncalibrated shadow</h2><span class="aside">computed every run · not the reported grade until calibrated and promoted</span></div>
+      <div class="v2-scroll"><!-- REPORT:COMPOSITE_V2 --></div>
     </section>
 
     <section id="owners">

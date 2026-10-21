@@ -5,6 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { recordArtifact, publishCurrent, lineagePath } = require("./workspace-lineage.js");
 const { repositoryIdentity } = require("./startup-resolver.js");
+const { SCHEMA_VERSION: VERIFICATION_SCHEMA_VERSION } = require("../../shared/assessment-verification-baseline/verification-baseline.js");
 const storage = require("./durable-storage.js");
 
 const OWNER_TASKS = Object.freeze({
@@ -46,7 +47,9 @@ function persistAssessmentArtifacts({
   projection = null,
   required = "assess",
 }) {
-  const id = repositoryIdentity(repositoryRoot, durableMode);
+  // Must use the same scope the resolver will use, or the fingerprint recorded here never
+  // matches the one looked up and every run rebuilds what it already has.
+  const id = repositoryIdentity(repositoryRoot, durableMode, baseline.repository?.scope ?? "head");
   const binding = baseline.sei_compatibility_binding || {};
   const results = execution?.task_results || {};
   const recorded = { sei: false, verification: false, owners: [] };
@@ -85,7 +88,7 @@ function persistAssessmentArtifacts({
       revision: id.revision,
       working_tree_fingerprint: id.working_tree_fingerprint,
       baseline_sha256: baseline.content_sha256,
-      verifier_version: "assessment-verification-baseline@2",
+      verifier_version: VERIFICATION_SCHEMA_VERSION,
       contract_hash: sha256(JSON.stringify(baseline.verification_contract || {})),
       config_hash: binding.config_hash,
       content_sha256: vRef.content_sha256 || file.sha256,

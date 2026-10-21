@@ -7,3 +7,5 @@ Thumbs.db
 *~
 __pycache__/
 *.pyc
+# created by install-skills --with-shared for symlinked installs
+/skills/shared

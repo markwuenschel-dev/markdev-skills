@@ -1,0 +1,165 @@
+{
+  "schema_version": "sei.cqr-python-static-expected@1",
+  "kind": "cqr-python-static-independent-oracle",
+  "bindings": {
+    "cqr_revision": "c8e6137c5d7d78dc75b6c6c383f0ed3cf2d937a6",
+    "cqr_root_tree": "534a477e85439ce9daaff0cc0b4e7321298375d3",
+    "sei_product_revision": "1e6604520e73aa3543564c25304593eb30900360",
+    "repository_index_digest": "sha256:38637fd0e2e6db95fc228f0a761c66eacb1fcca7ff1f03da4488e5ff44f1df62",
+    "repository_classification_policy_version": "sei.repository-classification@2",
+    "static_configuration_hash": "sha256:c60418175359c90f721d48c2ea16b4ea98f3829ea4d2548accf319d62834fc12",
+    "collector_configuration_hash": "c425795cefa3e362fb0d14c880d5545303d7e7bb53e2fec5f658b82eb3a6923c",
+    "analyzer_version": "sei.python-ast@1",
+    "parser_runtime": "cpython-3.13",
+    "grammar_target": [3, 13],
+    "python_implementation": "cpython",
+    "python_version": "3.13.7",
+    "inventory_digest": "sha256:78f070fe8f381974a322ccd44b1e768afc96c2a446a28c34984b82ddc4a97435",
+    "repository_subject": "repository:sei-repository-v1-8621b99979e528fc8ff08bdc72636457bfce2e764808c47a6d87fd27c6bb2288",
+    "independent_derivation_script_sha256": "sha256:68269fa4611fb36fa2c3adbed201b44e6e31558c209277099ca743ee46bab63e",
+    "independent_facts_file_sha256": "sha256:c5c94f91f06e9d9cdc0b0cf72d38e5f065efe875a9227afb20beadbacf6d6159",
+    "committed_product_paths": [
+      "skills/software-engineering-intelligence/scripts/run-sei.js",
+      "skills/software-engineering-intelligence/assets/canonical-input.json",
+      "skills/software-engineering-intelligence/assets/report-template.html",
+      "skills/shared/software-engineering-intelligence/cli.js",
+      "skills/shared/software-engineering-intelligence/collectors.js",
+      "skills/shared/software-engineering-intelligence/intelligence-engine.js",
+      "skills/shared/software-engineering-intelligence/layout.js",
+      "skills/shared/software-engineering-intelligence/analyzers/python-ast-protocol.js",
+      "skills/shared/software-engineering-intelligence/analyzers/python-ast.py",
+      "skills/shared/software-engineering-intelligence/repository-index.js",
+      "skills/shared/software-engineering-intelligence/report.js",
+      "skills/shared/software-engineering-intelligence/static-intelligence.js",
+      "skills/shared/software-engineering-intelligence/task-executor.js",
+      "skills/shared/software-engineering-intelligence/intelligence.schema.json"
+    ],
+    "committed_product_hashes": {
+      "skills/software-engineering-intelligence/scripts/run-sei.js": "sha256:5c3658eacf7156a949563d1a2961551170abaa76d586f9aabc0ce4071819d7af",
+      "skills/software-engineering-intelligence/assets/canonical-input.json": "sha256:fd20a9c27e795cd37287851d65f0890841a90208434e941f8895d9fe7a5ba069",
+      "skills/software-engineering-intelligence/assets/report-template.html": "sha256:714ba0384b6ba1ade289636512fdff461d324edb6750b288b6f558e63152ff53",
+      "skills/shared/software-engineering-intelligence/cli.js": "sha256:63074fd719407801d7efddef8c40bb5477432eb9949fb6172ea723360723fd92",
+      "skills/shared/software-engineering-intelligence/collectors.js": "sha256:5ebfe760fdd3970810744dd0ff28add68acaa2f5b2c2c57efc96140ef81c747d",
+      "skills/shared/software-engineering-intelligence/intelligence-engine.js": "sha256:1246382127aa554a62f947b5cdd9686334cdfc99a8d584aafa6fb529155c60b7",
+      "skills/shared/software-engineering-intelligence/layout.js": "sha256:82aa2ac031cd96fe2c5cbd37758ebacf3b094ad60ef540614130d038e84bbdc8",
+      "skills/shared/software-engineering-intelligence/analyzers/python-ast-protocol.js": "sha256:014af987631cd589af8d395ee2fc7d68e058ee1bf00fc1e9db220fdd4492653f",
+      "skills/shared/software-engineering-intelligence/analyzers/python-ast.py": "sha256:62eb9a37d551e5b9cc53606994f5b2eafa62046e5c5b2229828032c39cdb0750",
+      "skills/shared/software-engineering-intelligence/repository-index.js": "sha256:137a98321319a986d4e79f9ab1f3b6c52c5972f769f4fcedd82de1e258ba3949",
+      "skills/shared/software-engineering-intelligence/report.js": "sha256:b24157fd421a0f5c9ee4ae3b6f022795df841745e09ddbab9bcb018d5619bd19",
+      "skills/shared/software-engineering-intelligence/static-intelligence.js": "sha256:63a7382944a1cf52f8ac8ea1efd202d05c221248cbf8af8edec8a68f06440347",
+      "skills/shared/software-engineering-intelligence/task-executor.js": "sha256:6c132c48e5272dd6f94e933c56bf2d6ae552b8ebf031eaa1a2ce24e73603f6d7",
+      "skills/shared/software-engineering-intelligence/intelligence.schema.json": "sha256:30c7e61dbebcda7ac138bd17bf257a8026dac6a52fea12b00299f8ad29efd0ea"
+    }
+  },
+  "module_root": {
+    "manifest_path": "rag-engine-python/pyproject.toml",
+    "manifest_blob_oid": "b83ca6f7374bb512755867ed1e0a60f354f4f1b3",
+    "manifest_sha256": "sha256:6e1b6829f5e52b97a7de81e3218492f38367abc824b0c5c72c7222b3ec21f7fe",
+    "hatch_wheel_packages": ["app"],
+    "module_root": "rag-engine-python"
+  },
+  "inventory": {
+    "python_file_count": 84,
+    "production_file_count": 33,
+    "test_file_count": 51,
+    "unique_python_blob_count": 83,
+    "parsed_file_count": 84,
+    "parse_failure_count": 0
+  },
+  "independent_facts": {
+    "complexity": {
+      "production": { "callable_count": 347, "complexity_total": 1218, "complexity_p50": 2, "complexity_p90": 7, "complexity_max": 35 },
+      "all_python": { "callable_count": 957, "complexity_total": 2976, "complexity_p50": 2, "complexity_p90": 6, "complexity_max": 35 }
+    },
+    "imports": {
+      "production": { "local": 257, "external": 174, "unresolved_local_candidate": 0, "unsupported_dynamic": 0 },
+      "all_python": { "local": 673, "external": 281, "unresolved_local_candidate": 0, "unsupported_dynamic": 1 }
+    },
+    "topology": {
+      "production": { "node_count": 33, "edge_count": 92, "scc_count": 32, "cyclic_scc_count": 1, "cyclic_node_count": 2, "max_fan_in": 16, "max_fan_out": 11, "density": 0.08712121 },
+      "all_python": { "node_count": 84, "edge_count": 214, "scc_count": 83, "cyclic_scc_count": 1, "cyclic_node_count": 2, "max_fan_in": 42, "max_fan_out": 11, "density": 0.03069421 }
+    },
+    "unsupported_dynamic_source": "python-import:rag-engine-python/tests/test_helpers.py:45:44",
+    "cyclic_scc_id": "sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7"
+  },
+  "metric_bindings": [
+    { "metric_id": "static.cyclomatic_callable_count", "definition_id": "sei.static.cyclomatic_callable_count@1", "value": 957, "unit": "callables", "measurement_status": "measured" },
+    { "metric_id": "static.cyclomatic_complexity", "definition_id": "sei.static.cyclomatic_complexity@1", "value": 2976, "unit": "cyclomatic-complexity-points", "measurement_status": "measured" },
+    { "metric_id": "static.cyclomatic_complexity_p50", "definition_id": "sei.static.cyclomatic_complexity_p50@1", "value": 2, "unit": "cyclomatic-complexity-points", "measurement_status": "measured" },
+    { "metric_id": "static.cyclomatic_complexity_p90", "definition_id": "sei.static.cyclomatic_complexity_p90@1", "value": 6, "unit": "cyclomatic-complexity-points", "measurement_status": "measured" },
+    { "metric_id": "static.cyclomatic_complexity_max", "definition_id": "sei.static.cyclomatic_complexity_max@1", "value": 35, "unit": "cyclomatic-complexity-points", "measurement_status": "measured" },
+
+    { "metric_id": "static.python.cyclomatic_callable_count:production", "definition_id": "sei.static.python.cyclomatic_callable_count@1", "value": 347, "unit": "callables", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.cyclomatic_complexity:production", "definition_id": "sei.static.python.cyclomatic_complexity@1", "value": 1218, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.cyclomatic_complexity_p50:production", "definition_id": "sei.static.python.cyclomatic_complexity_p50@1", "value": 2, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.cyclomatic_complexity_p90:production", "definition_id": "sei.static.python.cyclomatic_complexity_p90@1", "value": 7, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.cyclomatic_complexity_max:production", "definition_id": "sei.static.python.cyclomatic_complexity_max@1", "value": 35, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.file_count:production", "definition_id": "sei.static.python.file_count@1", "value": 33, "unit": "files", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.parsed_file_count:production", "definition_id": "sei.static.python.parsed_file_count@1", "value": 33, "unit": "files", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+
+    { "metric_id": "static.python.cyclomatic_callable_count:all-python", "definition_id": "sei.static.python.cyclomatic_callable_count@1", "value": 957, "unit": "callables", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.cyclomatic_complexity:all-python", "definition_id": "sei.static.python.cyclomatic_complexity@1", "value": 2976, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.cyclomatic_complexity_p50:all-python", "definition_id": "sei.static.python.cyclomatic_complexity_p50@1", "value": 2, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.cyclomatic_complexity_p90:all-python", "definition_id": "sei.static.python.cyclomatic_complexity_p90@1", "value": 6, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.cyclomatic_complexity_max:all-python", "definition_id": "sei.static.python.cyclomatic_complexity_max@1", "value": 35, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.file_count:all-python", "definition_id": "sei.static.python.file_count@1", "value": 84, "unit": "files", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.parsed_file_count:all-python", "definition_id": "sei.static.python.parsed_file_count@1", "value": 84, "unit": "files", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+
+    { "metric_id": "static.cyclomatic_complexity:rag-engine-python/app/review_summary_extraction.py", "definition_id": "sei.static.cyclomatic_complexity@1", "subject": "file:rag-engine-python/app/review_summary_extraction.py", "value": 177, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/review_summary_extraction.py", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.cyclomatic_complexity.max:rag-engine-python/app/review_summary_extraction.py", "definition_id": "sei.static.cyclomatic_complexity_max@1", "subject": "file:rag-engine-python/app/review_summary_extraction.py", "value": 35, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/review_summary_extraction.py", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.cyclomatic_complexity:rag-engine-python/app/retrieval_intent.py", "definition_id": "sei.static.cyclomatic_complexity@1", "subject": "file:rag-engine-python/app/retrieval_intent.py", "value": 91, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/retrieval_intent.py", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.cyclomatic_complexity:rag-engine-python/app/retrieval_ablation.py", "definition_id": "sei.static.cyclomatic_complexity@1", "subject": "file:rag-engine-python/app/retrieval_ablation.py", "value": 90, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/retrieval_ablation.py", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.cyclomatic_complexity:rag-engine-python/app/llm_client.py", "definition_id": "sei.static.cyclomatic_complexity@1", "subject": "file:rag-engine-python/app/llm_client.py", "value": 73, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/llm_client.py", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.cyclomatic_complexity:rag-engine-python/app/checklist.py", "definition_id": "sei.static.cyclomatic_complexity@1", "subject": "file:rag-engine-python/app/checklist.py", "value": 71, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/checklist.py", "required_refs": ["python-partition:production"] },
+
+    { "metric_id": "static.python.cyclomatic_callable:rag-engine-python/app/review_summary_extraction.py:889:0:948:26:normalize_explicit_missing_sentence", "definition_id": "sei.static.python.cyclomatic_callable@1", "subject": "python-callable:rag-engine-python/app/review_summary_extraction.py#normalize_explicit_missing_sentence@889:0-948:26", "value": 35, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/review_summary_extraction.py", "required_refs": ["python-partition:production", "python-callable:rag-engine-python/app/review_summary_extraction.py#normalize_explicit_missing_sentence@889:0-948:26"] },
+    { "metric_id": "static.python.cyclomatic_callable:rag-engine-python/app/checklist.py:570:0:649:36:filter_known_information", "definition_id": "sei.static.python.cyclomatic_callable@1", "subject": "python-callable:rag-engine-python/app/checklist.py#filter_known_information@570:0-649:36", "value": 31, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/checklist.py", "required_refs": ["python-partition:production", "python-callable:rag-engine-python/app/checklist.py#filter_known_information@570:0-649:36"] },
+    { "metric_id": "static.python.cyclomatic_callable:rag-engine-python/app/contextual_missing_information.py:134:0:261:38:build_decision_relevant_questions", "definition_id": "sei.static.python.cyclomatic_callable@1", "subject": "python-callable:rag-engine-python/app/contextual_missing_information.py#build_decision_relevant_questions@134:0-261:38", "value": 24, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/contextual_missing_information.py", "required_refs": ["python-partition:production", "python-callable:rag-engine-python/app/contextual_missing_information.py#build_decision_relevant_questions@134:0-261:38"] },
+    { "metric_id": "static.python.cyclomatic_callable:rag-engine-python/app/retrieval_intent.py:199:4:258:49:RuleIntentDetector.detect", "definition_id": "sei.static.python.cyclomatic_callable@1", "subject": "python-callable:rag-engine-python/app/retrieval_intent.py#RuleIntentDetector.detect@199:4-258:49", "value": 20, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/retrieval_intent.py", "required_refs": ["python-partition:production", "python-callable:rag-engine-python/app/retrieval_intent.py#RuleIntentDetector.detect@199:4-258:49"] },
+    { "metric_id": "static.python.cyclomatic_callable:rag-engine-python/app/server.py:282:0:404:5:build_readiness_report", "definition_id": "sei.static.python.cyclomatic_callable@1", "subject": "python-callable:rag-engine-python/app/server.py#build_readiness_report@282:0-404:5", "value": 18, "unit": "cyclomatic-complexity-points", "measurement_status": "measured", "scope_kind": "file", "scope_path": "rag-engine-python/app/server.py", "required_refs": ["python-partition:production", "python-callable:rag-engine-python/app/server.py#build_readiness_report@282:0-404:5"] },
+
+    { "metric_id": "static.python.dependency.node_count:production", "definition_id": "sei.static.python.dependency.node_count@1", "value": 33, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.edge_count:production", "definition_id": "sei.static.python.dependency.edge_count@1", "value": 92, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.scc_count:production", "definition_id": "sei.static.python.dependency.scc_count@1", "value": 32, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.cyclic_scc_count:production", "definition_id": "sei.static.python.dependency.cyclic_scc_count@1", "value": 1, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.cyclic_node_count:production", "definition_id": "sei.static.python.dependency.cyclic_node_count@1", "value": 2, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.fan_in_max:production", "definition_id": "sei.static.python.dependency.fan_in_max@1", "value": 16, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.fan_out_max:production", "definition_id": "sei.static.python.dependency.fan_out_max@1", "value": 11, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+    { "metric_id": "static.python.dependency.density:production", "definition_id": "sei.static.python.dependency.density@1", "value": 0.08712121, "unit": "ratio", "measurement_status": "measured", "required_refs": ["python-partition:production"] },
+
+    { "metric_id": "static.python.dependency.node_count:all-python", "definition_id": "sei.static.python.dependency.node_count@1", "value": 84, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.edge_count:all-python", "definition_id": "sei.static.python.dependency.edge_count@1", "value": 214, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.scc_count:all-python", "definition_id": "sei.static.python.dependency.scc_count@1", "value": 83, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.cyclic_scc_count:all-python", "definition_id": "sei.static.python.dependency.cyclic_scc_count@1", "value": 1, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.cyclic_node_count:all-python", "definition_id": "sei.static.python.dependency.cyclic_node_count@1", "value": 2, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.fan_in_max:all-python", "definition_id": "sei.static.python.dependency.fan_in_max@1", "value": 42, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.fan_out_max:all-python", "definition_id": "sei.static.python.dependency.fan_out_max@1", "value": 11, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.density:all-python", "definition_id": "sei.static.python.dependency.density@1", "value": 0.03069421, "unit": "ratio", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+
+    { "metric_id": "static.python.dependency.fan_in:production:app.schemas", "definition_id": "sei.static.python.dependency.fan_in@1", "subject": "python-module:app.schemas", "value": 16, "unit": "count", "measurement_status": "measured", "scope_kind": "module", "scope_path": "rag-engine-python/app/schemas.py", "required_refs": ["python-partition:production", "python-module:app.schemas"] },
+    { "metric_id": "static.python.dependency.fan_out:production:app.server", "definition_id": "sei.static.python.dependency.fan_out@1", "subject": "python-module:app.server", "value": 11, "unit": "count", "measurement_status": "measured", "scope_kind": "module", "scope_path": "rag-engine-python/app/server.py", "required_refs": ["python-partition:production", "python-module:app.server"] },
+    { "metric_id": "static.python.dependency.fan_in:all-python:app.schemas", "definition_id": "sei.static.python.dependency.fan_in@1", "subject": "python-module:app.schemas", "value": 42, "unit": "count", "measurement_status": "measured", "scope_kind": "module", "scope_path": "rag-engine-python/app/schemas.py", "required_refs": ["python-partition:all-python", "python-module:app.schemas"] },
+    { "metric_id": "static.python.dependency.fan_out:all-python:app.server", "definition_id": "sei.static.python.dependency.fan_out@1", "subject": "python-module:app.server", "value": 11, "unit": "count", "measurement_status": "measured", "scope_kind": "module", "scope_path": "rag-engine-python/app/server.py", "required_refs": ["python-partition:all-python", "python-module:app.server"] },
+
+    { "metric_id": "static.python.dependency.cyclic_scc_size:production:sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7", "definition_id": "sei.static.python.dependency.cyclic_scc_size@1", "subject": "python-scc:sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7", "value": 2, "unit": "modules", "measurement_status": "measured", "scope_kind": "scc", "scope_path": ".", "required_refs": ["python-partition:production", "python-scc:sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7", "python-scc-member:app.holdout_evaluate@rag-engine-python/app/holdout_evaluate.py", "python-scc-member:app.retrieval_ablation@rag-engine-python/app/retrieval_ablation.py", "python-import:rag-engine-python/app/holdout_evaluate.py:705:8->app.retrieval_ablation", "python-import:rag-engine-python/app/retrieval_ablation.py:10:0->app.holdout_evaluate"] },
+    { "metric_id": "static.python.dependency.cyclic_scc_size:all-python:sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7", "definition_id": "sei.static.python.dependency.cyclic_scc_size@1", "subject": "python-scc:sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7", "value": 2, "unit": "modules", "measurement_status": "measured", "scope_kind": "scc", "scope_path": ".", "required_refs": ["python-partition:all-python", "python-scc:sha256:7d0db8844ab20c5b242dbcac201436e9e2699f2c54688dff68eecc08af3080c7", "python-scc-member:app.holdout_evaluate@rag-engine-python/app/holdout_evaluate.py", "python-scc-member:app.retrieval_ablation@rag-engine-python/app/retrieval_ablation.py", "python-import:rag-engine-python/app/holdout_evaluate.py:705:8->app.retrieval_ablation", "python-import:rag-engine-python/app/retrieval_ablation.py:10:0->app.holdout_evaluate"] },
+
+    { "metric_id": "static.python.dependency.import_count:all-python:local", "definition_id": "sei.static.python.dependency.import_count@1", "value": 673, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.import_count:all-python:external", "definition_id": "sei.static.python.dependency.import_count@1", "value": 281, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.import_count:all-python:unresolved-local-candidate", "definition_id": "sei.static.python.dependency.import_count@1", "value": 0, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] },
+    { "metric_id": "static.python.dependency.import_count:all-python:unsupported-dynamic", "definition_id": "sei.static.python.dependency.import_count@1", "value": 1, "unit": "count", "measurement_status": "measured", "required_refs": ["python-partition:all-python"] }
+  ],
+  "required_unavailable_metrics": [
+    { "metric_id": "static.python.dependency.centrality:production", "definition_id": "sei.static.python.dependency.centrality@1", "unit": "normalized-centrality", "reason_includes": "no named centrality algorithm is defined" },
+    { "metric_id": "static.python.dependency.centrality:all-python", "definition_id": "sei.static.python.dependency.centrality@1", "unit": "normalized-centrality", "reason_includes": "no named centrality algorithm is defined" },
+    { "metric_id": "static.python.dependency.dynamic_resolution", "definition_id": "sei.static.python.dependency.dynamic_resolution@1", "unit": "resolved-dynamic-edges", "reason_includes": "dynamic import resolution is outside the static contract" }
+  ],
+  "required_report_text": [
+    "Complexity (language-aware, Python-only)",
+    "Dependency topology (Python-only)",
+    "Specialized AST coverage: Python only; TypeScript/TSX, JavaScript, Java, and Kotlin are unavailable and deferred.",
+    "Cognitive complexity: unavailable — no verified definition and specialized analyzer are present in this contract.",
+    "Dynamic import boundary: unsupported dynamic call sites create no dependency edges.",
+    "Interpretation boundary: topology values describe resolved static Python imports; they do not establish architectural quality or prescribe action."
+  ]
+}

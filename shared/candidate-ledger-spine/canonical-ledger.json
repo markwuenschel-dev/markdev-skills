@@ -19,7 +19,7 @@
       "candidate_lifecycle": {
         "candidate_id": "CONTRACT-007",
         "discovered_by": "repository-health-assessment",
-        "current_owner": {"skill": "improve-codebase-architecture-mwdev", "stage": "design"},
+        "current_owner": {"skill": "architecture-improvement-intelligence", "stage": "design"},
         "lifecycle_status": "designing",
         "history": [{"event": "discovered", "timestamp": "2026-07-25T00:00:00Z", "artifact": "health-report.html"}],
         "completion": {"completed_at": null, "verification_refs": []},

@@ -16,7 +16,7 @@ function read(relative) { return fs.readFileSync(path.join(root, relative), "utf
 
 test("v0.8 package exposes the authoritative 17-node runtime without Loop Router", () => {
   const manifest = JSON.parse(read("MANIFEST.json"));
-  assert.equal(manifest.version, "0.8.4");
+  assert.equal(manifest.version, "0.10.0");
   assert.equal(manifest.consumes.includes("loop-router"), false);
   const runtimeSources = ["SKILL.md", "PERFORMANCE.md", "RUNTIME-CONTRACT.json", "scripts/ria.js", "scripts/build-execution-plan.js", "scripts/execution-runtime.js"].map(read).join("\n");
   assert.doesNotMatch(runtimeSources, /loop-router/i);

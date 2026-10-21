@@ -1,7 +1,7 @@
 {
   "schema_version": "assessment-runtime-contract@1",
   "owner": "codebase-integrity-audit-loop",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "entrypoint": "SKILL.md",
   "input": {
     "required": ["baseline_ref", "engineering_intelligence_ref", "verification_baseline_ref"],
@@ -11,7 +11,8 @@
     "kind": "integrity-candidate-ledger",
     "schema": "candidate-ledger-spine@3",
     "immutable": true,
-    "reference_fields": ["owner", "artifact_id", "sha256", "repository_revision"]
+    "reference_fields": ["owner", "artifact_id", "sha256", "repository_revision"],
+    "ria_mode": { "coverage_schema": "integrity.coverage@2", "coverage_verifier": "assets/integrity-coverage.js", "minted_row_fields": ["ria_dimensions", "defect_class", "ria_proof"] }
   },
   "authority": {
     "owns": ["integrity candidates", "integrity evidence", "candidate disposition"],

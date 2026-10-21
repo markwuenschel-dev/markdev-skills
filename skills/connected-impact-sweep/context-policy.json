@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "core": ["SKILL.md"],
+  "conditional": {
+    "light-sweep": {
+      "condition_ids": [
+        "context.connected-impact-sweep.reason.internal-multi-file",
+        "context.connected-impact-sweep.reason.dependency-fanout-present"
+      ],
+      "refs": ["references/light-sweep.md"]
+    },
+    "contract-sweep": {
+      "condition_ids": [
+        "context.connected-impact-sweep.reason.public-contract",
+        "context.connected-impact-sweep.reason.shared-contract"
+      ],
+      "refs": ["references/contract-sweep.md"]
+    },
+    "data-migration-sweep": {
+      "condition_ids": [
+        "context.connected-impact-sweep.reason.database-schema",
+        "context.connected-impact-sweep.reason.migration"
+      ],
+      "refs": ["references/data-migration-sweep.md"]
+    },
+    "cross-system-sweep": {
+      "condition_ids": [
+        "context.connected-impact-sweep.reason.authorization-boundary",
+        "context.connected-impact-sweep.reason.cross-repository",
+        "context.connected-impact-sweep.reason.high-fanout",
+        "context.connected-impact-sweep.reason.multiple-deployables",
+        "context.connected-impact-sweep.reason.explicit-request"
+      ],
+      "refs": ["references/cross-system-sweep.md"]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.impact-gate": {"path": "impact-gate.js", "selector": "symbol"},
+      "source.benchmark": {"path": "benchmark.js", "selector": "symbol"},
+      "source.direct-runner": {"path": "scripts/run-impact-gate.js", "selector": "symbol"}
+    }
+  },
+  "fixtures": {"default_model_read": false},
+  "historical": {"default_model_read": false}
+}

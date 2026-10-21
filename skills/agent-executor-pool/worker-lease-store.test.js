@@ -5,5 +5,8 @@ const a=s.claim("A","w1",1000); assert(a.claimed); ok("first worker claims assig
 const live=s.claim("A","w2",1050); assert(!live.claimed && live.reason==="LEASE_LIVE"); ok("live lease cannot be displaced");
 const b=s.recoverExpired("A","w2",1200); assert(b.claimed && b.lease.generation===2 && b.lease.fence_token!==a.lease.fence_token); ok("expired lease recovers with higher generation and new fence token");
 const stale=s.conclude("A",a.lease.generation,a.lease.fence_token,"completed","old",1210); assert(!stale.ok && stale.reason==="STALE_FENCE"); ok("stale worker cannot publish a result after recovery");
-const good=s.conclude("A",b.lease.generation,b.lease.fence_token,"completed","new",1210); assert(good.ok); ok("current fenced worker can conclude");
+let guardedWrites=0; const staleGuard=s.withCurrent("A",a.lease.generation,a.lease.fence_token,()=>{guardedWrites++;},1210); assert(!staleGuard.ok&&guardedWrites===0); ok("stale worker cannot execute a guarded durable write");
+const currentGuard=s.withCurrent("A",b.lease.generation,b.lease.fence_token,()=>++guardedWrites,1210); assert(currentGuard.ok&&currentGuard.value===1); ok("current worker can execute a guarded durable write");
+const good=s.concludeWith("A",b.lease.generation,b.lease.fence_token,"completed","new",()=>"published",1210); assert(good.ok&&good.value==="published"); ok("current fenced worker can atomically publish and conclude");
+const c=s.claim("C","w3",2000); assert(c.claimed); const expiredHeartbeat=s.heartbeat("C",c.lease.generation,c.lease.fence_token,2101); assert(!expiredHeartbeat.ok); ok("an expired generation cannot resurrect itself with a late heartbeat");
 console.log(`GREEN — ${n}/${n}`);

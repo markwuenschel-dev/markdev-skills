@@ -1,7 +1,7 @@
 {
   "schema_version": "assessment-runtime-contract@1",
   "owner": "repository-improvement-assessment",
-  "version": "0.8.4",
+  "version": "0.10.0",
   "entrypoint": "SKILL.md",
   "input": {
     "required": [
@@ -19,8 +19,12 @@
       "verification_contract",
       "allow_degraded",
       "durable_mode",
-      "scope"
-    ]
+      "scope",
+      "require_clean",
+      "adapter_options"
+    ],
+    "schema": "request.schema.json",
+    "example": "request.example.json"
   },
   "output": {
     "kind": "assess-projection-v1",
@@ -54,7 +58,9 @@
   },
   "verification": {
     "consumes_shared_baseline": true,
-    "targeted_reverification_allowed": true
+    "targeted_reverification_allowed": true,
+    "schema_version": "assessment-verification-baseline@3",
+    "fails_closed_on_command_failure": true
   },
   "execution": {
     "executor_class": "hybrid",

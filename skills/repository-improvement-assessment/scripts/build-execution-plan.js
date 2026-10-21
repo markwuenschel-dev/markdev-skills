@@ -12,13 +12,24 @@ const REUSE_POLICIES = new Set(["auto", "rerun", "require-reuse"]);
 function canonical(value) { if (Array.isArray(value)) return value.map(canonical); if (value && typeof value === "object") return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])])); return value; }
 function digest(value) { return crypto.createHash("sha256").update(JSON.stringify(canonical(value))).digest("hex"); }
 function reuseControls(value = {}) {
+  const components = Object.values(COMPONENTS);
+  // Check unknown keys FIRST. Run the policy loop first and a mis-cased key such as
+  // `sei` quietly defaults to "auto", passes, and then dies on a message that names
+  // neither the key nor the fact that the mismatch was casing.
+  const unknown = Object.keys(value).filter((key) => !components.includes(key));
+  if (unknown.length) {
+    const near = unknown.map((key) => {
+      const match = components.find((component) => component.toLowerCase() === String(key).toLowerCase());
+      return match ? `${key} (did you mean ${match}?)` : key;
+    });
+    throw new Error(`FAIL-RIA-PLAN: unknown reuse component ${near.join(", ")} — valid: ${components.join(", ")} (case-sensitive)`);
+  }
   const output = {};
-  for (const component of Object.values(COMPONENTS)) {
+  for (const component of components) {
     const policy = value[component] ?? "auto";
-    if (!REUSE_POLICIES.has(policy)) throw new Error(`FAIL-RIA-PLAN: invalid ${component} reuse policy ${policy}`);
+    if (!REUSE_POLICIES.has(policy)) throw new Error(`FAIL-RIA-PLAN: invalid ${component} reuse policy ${policy} — valid: ${[...REUSE_POLICIES].join(", ")}`);
     output[component] = policy;
   }
-  if (Object.keys(value).some((key) => !Object.values(COMPONENTS).includes(key))) throw new Error("FAIL-RIA-PLAN: unknown reuse component");
   return output;
 }
 function resource(id, permits = 1, mode = "shared") { return { id, mode, permits }; }
@@ -65,10 +76,15 @@ function buildExecutionPlan(input = {}) {
     task("reuse-resolve", "repository-improvement-assessment", "startup-and-reuse-resolution", "local-deterministic", ["baseline-verify"], 155, { ...common, startup }),
     task("sei-snapshot", "software-engineering-intelligence", startup.startup_mode === "EXACT_REUSE" ? "exact-sei-reuse" : startup.startup_mode === "INCREMENTAL_REUSE" ? "incremental-sei" : "fresh-sei", "heavy-tool", ["reuse-resolve"], 150, { ...common, compatibility: input.sei_compatibility_binding }, { component: COMPONENTS.SEI, reuse_policy: controls.SEI, cache_kind: "sei-snapshot", resources: [resource("sei-engine", 1)], estimated_duration_ms: 20_000 }),
     task("sei-assessment", "software-engineering-intelligence", "engineering-assessment", "heavy-tool", ["sei-snapshot"], 140, common, { component: COMPONENTS.SEI, reuse_policy: controls.SEI, resources: [resource("sei-engine", 1)], failure_mode: allowDegraded ? "degrade" : "strict", degraded_mode_reachability: allowDegraded, estimated_duration_ms: 8_000 }),
-    task("verification-baseline", "shared/assessment-verification-baseline", "verification-baseline", "heavy-tool", ["reuse-resolve"], 145, { ...common, verification: input.verification_contract }, { component: COMPONENTS.verification, reuse_policy: controls.verification, resources: [resource("test-toolchain", 1), resource("isolated-source", 1)], failure_mode: allowDegraded ? "degrade" : "strict", degraded_mode_reachability: allowDegraded, estimated_duration_ms: 18_000 }),
-    task("owner-health", "repository-health-assessment", "canonical-owner-assessment", "agent", ["sei-assessment", "verification-baseline"], 130, { ...common, owner: "health", specialist_assessments: [{ skill: "review-testing", output_schema: "ria.testing-fitness@1", optional: true }], coverage_metrics: ["line", "branch", "changed_line"] }, { component: COMPONENTS.Health, reuse_policy: controls.Health, resources: [resource("owner-agent", 1)], failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded, estimated_duration_ms: 12_000 }),
-    task("owner-integrity", "codebase-integrity-audit-loop", "canonical-owner-assessment", "agent", ["sei-assessment", "verification-baseline"], 129, { ...common, owner: "integrity" }, { component: COMPONENTS.Integrity, reuse_policy: controls.Integrity, resources: [resource("owner-agent", 1)], failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded, estimated_duration_ms: 12_000 }),
-    task("owner-architecture", "architecture-improvement-intelligence", "canonical-owner-assessment", "agent", ["sei-assessment", "verification-baseline"], 128, { ...common, owner: "architecture", repository_fitness_schema: "architecture.fitness@1" }, { component: COMPONENTS.Architecture, reuse_policy: controls.Architecture, resources: [resource("owner-agent", 1)], failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded, estimated_duration_ms: 12_000 }),
+    // allow_degraded is in the input because it changes what this handler may RETURN: a
+    // degraded run caches an untrustworthy baseline, and a strict run served that from cache
+    // would skip the gate, which only runs inside the handler.
+    task("verification-baseline", "shared/assessment-verification-baseline", "verification-baseline", "heavy-tool", ["reuse-resolve"], 145, { ...common, verification: input.verification_contract, allow_degraded: allowDegraded }, { component: COMPONENTS.verification, reuse_policy: controls.verification, resources: [resource("test-toolchain", 1), resource("isolated-source", 1)], failure_mode: allowDegraded ? "degrade" : "strict", degraded_mode_reachability: allowDegraded, estimated_duration_ms: 18_000 }),
+    // Repository Health dispatches its own review-* lanes (repository-health-assessment/REVIEW-LANES.md)
+    // and folds them into lanes as claims; RIA no longer schedules review-testing for lane substitution.
+    task("owner-health", "repository-health-assessment", "canonical-owner-assessment", "agent", ["sei-assessment", "verification-baseline"], 130, { ...common, owner: "health", coverage_metrics: ["line", "branch", "changed_line"] }, { component: COMPONENTS.Health, reuse_policy: controls.Health, resources: [resource("owner-agent", 1)], failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded, estimated_duration_ms: 12_000 }),
+    task("owner-integrity", "codebase-integrity-audit-loop", "canonical-owner-assessment", "agent", ["sei-assessment", "verification-baseline"], 129, { ...common, owner: "integrity", integrity_coverage_schema: "integrity.coverage@2" }, { component: COMPONENTS.Integrity, reuse_policy: controls.Integrity, resources: [resource("owner-agent", 1)], failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded, estimated_duration_ms: 12_000 }),
+    task("owner-architecture", "architecture-improvement-intelligence", "canonical-owner-assessment", "agent", ["sei-assessment", "verification-baseline"], 128, { ...common, owner: "architecture", repository_fitness_schema: "architecture.fitness@2" }, { component: COMPONENTS.Architecture, reuse_policy: controls.Architecture, resources: [resource("owner-agent", 1)], failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded, estimated_duration_ms: 12_000 }),
     task("owner-artifact-verification", "repository-improvement-assessment", "owner-artifact-verification", "local-deterministic", ["owner-health", "owner-integrity", "owner-architecture"], 110, common, { failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded }),
     task("cross-owner-synthesis", "repository-improvement-assessment", "cross-owner-synthesis", "local-deterministic", ["owner-artifact-verification"], 100, common, { failure_mode: ownerFailure, degraded_mode_reachability: allowDegraded }),
     task("assess-binding", "repository-improvement-assessment", "strict-assess-binding", "local-deterministic", ["owner-artifact-verification", "cross-owner-synthesis"], 90, common, { failure_mode: allowDegraded ? "observe" : "strict", degraded_mode_reachability: allowDegraded }),

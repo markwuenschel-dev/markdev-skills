@@ -1,0 +1,46 @@
+{
+  "complexity_ts": {
+    "callables": [
+      ["decide", "function", 10, 19, 8, 11],
+      ["Worker.run", "async-method", 22, 31, 4, 5],
+      ["choose", "arrow-function", 34, 34, 3, 2],
+      ["outer", "function", 36, 42, 2, 1],
+      ["outer.<locals>.inner", "nested-function", 37, 40, 2, 1]
+    ],
+    "cyclomatic_sum": 19,
+    "cognitive_sum": 20,
+    "dependency_kinds": {
+      "dynamic-import-dynamic": 1,
+      "dynamic-import-literal": 1,
+      "export-all-from": 1,
+      "export-from": 1,
+      "import": 2,
+      "require-dynamic": 1,
+      "require-literal": 1
+    },
+    "static_modules": [
+      "./all.js",
+      "./helper.js",
+      "./lazy.js",
+      "./legacy.cjs",
+      "./shared.js",
+      "./types.js"
+    ]
+  },
+  "component_tsx": {
+    "callables": [
+      ["Panel", "arrow-function", 8, 12, 2, 1]
+    ],
+    "cyclomatic_sum": 2,
+    "cognitive_sum": 1,
+    "static_modules": ["react"]
+  },
+  "commonjs_js": {
+    "callables": [
+      ["run", "function-expression", 5, 7, 2, 1]
+    ],
+    "cyclomatic_sum": 2,
+    "cognitive_sum": 1,
+    "static_modules": ["./helper.js"]
+  }
+}

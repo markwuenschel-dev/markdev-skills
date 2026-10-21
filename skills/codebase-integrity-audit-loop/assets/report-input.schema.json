@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "report_schema_version",
+    "repository",
+    "summary",
+    "health_map",
+    "observations",
+    "ledger",
+    "candidates"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "report_schema_version": {
+      "const": 1
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string"
+        },
+        "generated": {
+          "type": "string"
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "health_map": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "label",
+          "state",
+          "detail"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "observations": {
+      "type": "object",
+      "required": [
+        "confirmed",
+        "inferred",
+        "unknown"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "confirmed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inferred": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "unknown": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "$comment": "Full candidate validation, arithmetic, eligibility, and ranking are delegated to shared/candidate-ledger-spine/ledger-verify.js by the deterministic builder.",
+      "required": [
+        "spine_version",
+        "candidates"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "spine_version": {
+          "const": 3
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "performance_receipt": {
+      "type": "object"
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "category",
+          "location",
+          "friction",
+          "root_seam",
+          "integrity_rule",
+          "confirmed",
+          "inferred",
+          "unknown",
+          "before",
+          "after",
+          "recommended_branch",
+          "recommended_lenses",
+          "enforceable_check",
+          "benefits"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "friction": {
+            "type": "string"
+          },
+          "root_seam": {
+            "type": "string"
+          },
+          "integrity_rule": {
+            "type": "string"
+          },
+          "confirmed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "inferred": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "unknown": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "before": {
+            "type": "string"
+          },
+          "after": {
+            "type": "string"
+          },
+          "recommended_branch": {
+            "type": "string"
+          },
+          "recommended_lenses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "enforceable_check": {
+            "type": "string"
+          },
+          "benefits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

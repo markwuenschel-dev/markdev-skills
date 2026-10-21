@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "report_schema_version",
+    "repository",
+    "standfirst",
+    "ledger",
+    "candidates",
+    "top_recommendation"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "report_schema_version": {
+      "const": 1
+    },
+    "repository": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string"
+        },
+        "generated": {
+          "type": "string"
+        }
+      }
+    },
+    "standfirst": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ledger": {
+      "type": "object",
+      "$comment": "Full candidate validation, arithmetic, eligibility, and ranking are delegated to shared/candidate-ledger-spine/ledger-verify.js by the deterministic builder.",
+      "required": [
+        "spine_version",
+        "candidates"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "spine_version": {
+          "const": 3
+        },
+        "candidates": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "top_recommendation": {
+      "type": "object",
+      "required": [
+        "candidate_id",
+        "why"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "why": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "performance_receipt": {
+      "type": "object"
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "files",
+          "problem",
+          "solution",
+          "benefits",
+          "before",
+          "after"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "category": {
+            "type": "string"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1
+          },
+          "solution": {
+            "type": "string",
+            "minLength": 1
+          },
+          "benefits": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "before": {
+            "type": "object",
+            "required": [
+              "label",
+              "modules"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "modules": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          },
+          "after": {
+            "type": "object",
+            "required": [
+              "label",
+              "module",
+              "interface",
+              "internals"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "module": {
+                "type": "string"
+              },
+              "interface": {
+                "type": "string"
+              },
+              "internals": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          },
+          "adr_conflict": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

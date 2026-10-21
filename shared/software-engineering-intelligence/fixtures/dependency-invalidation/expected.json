@@ -1,0 +1,16 @@
+{
+  "planner_version": "sei.dependency-invalidation@1",
+  "facts_version": "sei.normalized-dependency-facts@1",
+  "partition_id": "repository:production",
+  "hard_limits": {
+    "max_analyzers": 64,
+    "max_edges": 500000,
+    "max_nodes": 100000,
+    "max_partitions": 128,
+    "max_paths": 100000,
+    "max_reason_depth": 64,
+    "max_reason_steps": 250000,
+    "max_records": 500000,
+    "max_text_length": 1024
+  }
+}

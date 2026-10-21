@@ -11,7 +11,7 @@ function parseArgs(argv) {
   const out = { fixture: false };
   for (let index = 2; index < argv.length; index += 1) {
     const arg = argv[index];
-    if (["--request", "--health", "--integrity", "--architecture", "--testing-fitness", "--output", "--repo"].includes(arg)) {
+    if (["--request", "--health", "--integrity", "--architecture", "--testing-fitness", "--ria-envelope", "--output", "--repo"].includes(arg)) {
       if (!argv[index + 1]) throw new Error(`MISSING_VALUE:${arg}`);
       out[arg.slice(2)] = argv[++index];
     } else if (arg === "--fixture") out.fixture = true;
@@ -24,7 +24,7 @@ function parseArgs(argv) {
 function main() {
   const args = parseArgs(process.argv);
   if (args.help) {
-    console.log("usage: node scripts/build-report-data.js --request <json> --health <json> --integrity <json> --architecture <json> [--testing-fitness <ria.testing-fitness@1.json>] [--output <json>] [--repo <repository-root>] [--fixture]");
+    console.log("usage: node scripts/build-report-data.js --request <json> --health <json> --integrity <json> --architecture <json> [--testing-fitness <ria.testing-fitness@1.json>] [--ria-envelope <owner-envelope.json> --repo <repository-root>] [--output <json>] [--repo <repository-root>] [--fixture]");
     return;
   }
   for (const key of ["request", "health", "integrity", "architecture"]) if (!args[key]) throw new Error(`--${key} is required`);
@@ -36,7 +36,16 @@ function main() {
   // The public flag is kebab-case; keep the internal property name identical
   // to the parsed flag so a supplied specialist sidecar cannot disappear.
   const testingFitnessFile = args["testing-fitness"] ? readJson(args["testing-fitness"], "testing-fitness") : null;
-  const reportData = buildReportData({ request: requestFile.value, healthFile, integrityFile, architectureFile, testingFitnessFile, skillRoot, fixture: args.fixture });
+  // composite-scoring-v3 Phase 8: with the bound owner envelope, the v2 shadow reads the same
+  // SEI assessment, verification baseline and Architecture evidence RIA bound; without it the
+  // shadow degrades explicitly (missing evidence) and v1 is unchanged.
+  let v2 = null;
+  if (args["ria-envelope"]) {
+    if (!args.repo) throw new Error("--ria-envelope requires --repo");
+    const { v2ContextFromEnvelope } = require("./composite-v2-model.js");
+    v2 = v2ContextFromEnvelope({ envelope: readJson(args["ria-envelope"], "ria-envelope").value, repositoryRoot: path.resolve(args.repo), architectureArtifact: architectureFile.value });
+  }
+  const reportData = buildReportData({ request: requestFile.value, healthFile, integrityFile, architectureFile, testingFitnessFile, skillRoot, fixture: args.fixture, v2 });
   const output = args.output ? path.resolve(args.output) : workspace.reportPath(args.repo || process.cwd(), "ria", `ria-report-data-${Date.now()}.json`);
   fs.mkdirSync(path.dirname(output), { recursive: true });
   const temporary = `${output}.tmp-${process.pid}`;

@@ -1,6 +1,6 @@
 {
   "name": "evidence-recon",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "purpose": "Canonical evidence packet, coverage/confidence vocabulary, negative-claim receipts, contradiction reconciliation state, and self-scaling inline/expedition mode selection for evidence-producing skills.",
   "owned_files": [
     "MANIFEST.json",
@@ -24,7 +24,8 @@
   "consumers": [
     "repository-health-assessment",
     "expanded-grill-with-docs",
-    "decision-terrain-mapper"
+    "decision-terrain-mapper",
+    "codebase-integrity-audit-loop"
   ],
   "resolution": {
     "default": "shared/evidence-recon",
@@ -33,7 +34,9 @@
   },
   "runtime": {
     "engine": "node",
-    "dependencies": []
+    "dependencies": [
+      "shared/project-intelligence-workspace"
+    ]
   },
   "protocol_versions": {
     "evidence_packet_version": 1,
@@ -47,7 +50,8 @@
     "summarizePacket",
     "COVERAGE_STATES",
     "EVIDENCE_QUALITIES",
-    "EPISTEMIC_STATUSES"
+    "EPISTEMIC_STATUSES",
+    "writeEvidencePacketForRepository"
   ],
   "authority": {
     "owns": [

@@ -1,0 +1,61 @@
+{
+  "schema_version": "assessment-runtime-contract@1",
+  "owner": "software-engineering-intelligence",
+  "version": "1.3.0",
+  "entrypoint": "SKILL.md",
+  "input": {
+    "required": [
+      "repository",
+      "output_location"
+    ],
+    "optional": [
+      "baseline_ref",
+      "presentation_policy",
+      "incremental_manifest",
+      "assessment_config"
+    ]
+  },
+  "output": {
+    "kind": "software-engineering-intelligence",
+    "schema": "sei.engineering-assessment@3",
+    "immutable": true,
+    "reference_fields": [
+      "schema_version",
+      "assessment_id",
+      "snapshot_binding",
+      "evaluator",
+      "rubric",
+      "standard",
+      "config_digest",
+      "applicability_digest",
+      "artifact_path",
+      "artifact_sha256"
+    ]
+  },
+  "authority": {
+    "owns": [
+      "provenance-bound engineering evidence",
+      "SEI assessment sidecar"
+    ],
+    "does_not_own": [
+      "repository health grade",
+      "candidate scoring",
+      "architecture judgment"
+    ],
+    "source_repository_mutation": false
+  },
+  "presentation": {
+    "supports_report": true,
+    "accepts_inherit": true,
+    "canonical_independent_of_report": true
+  },
+  "verification": {
+    "consumes_shared_baseline": false,
+    "targeted_reverification_allowed": true
+  },
+  "execution": {
+    "executor_class": "hybrid",
+    "flatten_under_ria": true,
+    "full_skill_read_by_parent": false
+  }
+}

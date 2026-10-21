@@ -1,5 +1,10 @@
 "use strict";
 
+const crypto = require("node:crypto");
+const fs = require("node:fs");
+const path = require("node:path");
+const workspace = require("../project-intelligence-workspace/project-intelligence-workspace.js");
+
 const EVIDENCE_PACKET_VERSION = 1;
 const EXPEDITION_LANE_VERSION = 1;
 const COVERAGE_STATES = Object.freeze(["inspected", "sampled", "inventory-only", "uninspected", "unavailable", "not-applicable"]);
@@ -14,6 +19,9 @@ const SEARCH_COMPLETENESS = Object.freeze(["unknown", "representative", "bounded
 const CONTRADICTION_STATES = Object.freeze(["resolved", "partially-resolved", "unresolved"]);
 const LANE_STATES = Object.freeze(["complete", "partial", "failed", "blocked"]);
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]*$/;
+const SHA256_RE = /^[0-9a-f]{64}$/;
+const ARTIFACT_REF_KINDS = Object.freeze(["health-artifact"]);
+const ARTIFACT_REF_KEYS = Object.freeze(["kind", "artifact_id", "sha256"]);
 
 function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -152,6 +160,14 @@ function validateNegativeClaimShape(claim, problems, path) {
   }
 }
 
+/** Thin exported wrapper (composite-scoring-v3 §7.1): validates one standalone
+ * negative-claim receipt with exactly the packet validator's rules. */
+function validateNegativeClaim(claim, path = "$") {
+  const problems = [];
+  validateNegativeClaimShape(claim, problems, path);
+  return { ok: problems.length === 0, problems };
+}
+
 function validateContradictionShape(item, problems, path) {
   if (!isObject(item)) {
     add(problems, "contradiction-invalid", path, "must be an object");
@@ -186,6 +202,27 @@ function validateLaneReceiptShape(receipt, problems, path) {
   checkStringArray(receipt.limitations, problems, `${path}.limitations`);
 }
 
+function checkArtifactRefs(refs, problems, path) {
+  if (!Array.isArray(refs)) {
+    add(problems, "artifact-refs-invalid", path, "must be an array when present");
+    return;
+  }
+  const seen = new Set();
+  refs.forEach((ref, index) => {
+    const p = `${path}[${index}]`;
+    if (!isObject(ref)) { add(problems, "artifact-ref-invalid", p, "must be an object"); return; }
+    for (const key of Object.keys(ref)) {
+      if (!ARTIFACT_REF_KEYS.includes(key)) add(problems, "artifact-ref-key-unknown", `${p}.${key}`, `unknown key; allowed: ${ARTIFACT_REF_KEYS.join(", ")}`);
+    }
+    checkEnum(ref.kind, ARTIFACT_REF_KINDS, problems, `${p}.kind`, "artifact-ref-kind-invalid");
+    checkId(ref.artifact_id, problems, `${p}.artifact_id`);
+    if (typeof ref.sha256 !== "string" || !SHA256_RE.test(ref.sha256)) add(problems, "artifact-ref-sha256-invalid", `${p}.sha256`, "must be 64 lowercase hex characters");
+    const identity = `${ref.kind}\u0000${ref.artifact_id}`;
+    if (seen.has(identity)) add(problems, "artifact-ref-duplicate", p, `duplicate artifact ref: ${ref.kind} ${ref.artifact_id}`);
+    seen.add(identity);
+  });
+}
+
 function validateEvidencePacket(packet) {
   const problems = [];
   if (!isObject(packet)) return { ok: false, problems: [{ code: "packet-invalid", path: "$", message: "packet must be an object" }] };
@@ -198,6 +235,7 @@ function validateEvidencePacket(packet) {
     if (!hasText(packet.producer.run_id)) add(problems, "producer-run-missing", "$.producer.run_id", "must be non-empty");
     checkEnum(packet.producer.mode, MODES, problems, "$.producer.mode", "mode-invalid");
     if (!hasText(packet.producer.created_at)) add(problems, "producer-time-missing", "$.producer.created_at", "must be non-empty");
+    if (packet.producer.artifact_refs !== undefined) checkArtifactRefs(packet.producer.artifact_refs, problems, "$.producer.artifact_refs");
   }
 
   if (!isObject(packet.scope)) add(problems, "scope-invalid", "$.scope", "must be an object");
@@ -464,6 +502,23 @@ function summarizePacket(packet) {
   };
 }
 
+
+function writeEvidencePacketForRepository(repositoryRoot, packet, { owner = null } = {}) {
+  const validation = validateEvidencePacket(packet);
+  if (!validation.ok) throw new Error(`EVIDENCE_PACKET_INVALID:${validation.problems.map(problem => problem.code + ":" + problem.path).join(";")}`);
+  const bytes = Buffer.from(`${JSON.stringify(packet, null, 2)}\n`, "utf8");
+  const digest = crypto.createHash("sha256").update(bytes).digest("hex");
+  const namespace = String(owner || packet.producer?.skill || "evidence-recon").replace(/[^A-Za-z0-9._-]+/g, "-");
+  const target = workspace.contentAddressedPath(repositoryRoot, "evidence", namespace, digest, ".json");
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  if (fs.existsSync(target)) {
+    if (!fs.readFileSync(target).equals(bytes)) throw new Error("EVIDENCE_PACKET_IMMUTABLE_CONFLICT");
+    return { path: target, sha256: digest, reused: true };
+  }
+  workspace.atomicWrite(target, bytes);
+  return { path: target, sha256: digest, reused: false };
+}
+
 module.exports = {
   EVIDENCE_PACKET_VERSION,
   EXPEDITION_LANE_VERSION,
@@ -476,9 +531,12 @@ module.exports = {
   SOURCE_KINDS,
   COMPLETENESS,
   SEARCH_COMPLETENESS,
+  ARTIFACT_REF_KINDS,
   validateEvidencePacket,
   validateExpeditionLane,
+  validateNegativeClaim,
   recommendMode,
   mergeExpeditionLanes,
-  summarizePacket
+  summarizePacket,
+  writeEvidencePacketForRepository
 };

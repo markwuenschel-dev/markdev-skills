@@ -1,0 +1,83 @@
+{
+  "kind": "sei-maturity-rubric-v1",
+  "rubric_id": "sei-maturity-v1",
+  "categories": [
+    { "category_id": "measurement", "maximum_points": 260, "criteria": [
+      { "criterion_id": "measurement.revision_source_binding", "probe_id": "probe.measurement.revision_source_binding", "maximum_points": 40 },
+      { "criterion_id": "measurement.git_history_fidelity", "probe_id": "probe.measurement.git_history_fidelity", "maximum_points": 45 },
+      { "criterion_id": "measurement.metric_definitions_types", "probe_id": "probe.measurement.metric_definitions_types", "maximum_points": 40 },
+      { "criterion_id": "measurement.missingness_degradation", "probe_id": "probe.measurement.missingness_degradation", "maximum_points": 35 },
+      { "criterion_id": "measurement.derived_semantics", "probe_id": "probe.measurement.derived_semantics", "maximum_points": 35 },
+      { "criterion_id": "measurement.adapter_normalization", "probe_id": "probe.measurement.adapter_normalization", "maximum_points": 30 },
+      { "criterion_id": "measurement.real_repository_oracle_parity", "probe_id": "probe.measurement.real_repository_oracle_parity", "maximum_points": 35 }
+    ] },
+    { "category_id": "performance", "maximum_points": 200, "criteria": [
+      { "criterion_id": "performance.git_process_efficiency", "probe_id": "probe.performance.git_process_efficiency", "maximum_points": 45 },
+      { "criterion_id": "performance.incremental_static_recomputation", "probe_id": "probe.performance.incremental_static_recomputation", "maximum_points": 30 },
+      { "criterion_id": "performance.cold_performance", "probe_id": "probe.performance.cold_performance", "maximum_points": 30 },
+      { "criterion_id": "performance.warm_incremental_performance", "probe_id": "probe.performance.warm_incremental_performance", "maximum_points": 30 },
+      { "criterion_id": "performance.memory_output_scaling", "probe_id": "probe.performance.memory_output_scaling", "maximum_points": 25 },
+      { "criterion_id": "performance.large_monorepo_scaling", "probe_id": "probe.performance.large_monorepo_scaling", "maximum_points": 25 },
+      { "criterion_id": "performance.safe_concurrency", "probe_id": "probe.performance.safe_concurrency", "maximum_points": 15 }
+    ] },
+    { "category_id": "breadth", "maximum_points": 180, "criteria": [
+      { "criterion_id": "breadth.static_code", "probe_id": "probe.breadth.static_code", "maximum_points": 30 },
+      { "criterion_id": "breadth.dependency_topology", "probe_id": "probe.breadth.dependency_topology", "maximum_points": 30 },
+      { "criterion_id": "breadth.git_behavior", "probe_id": "probe.breadth.git_behavior", "maximum_points": 30 },
+      { "criterion_id": "breadth.verification_coverage_ci", "probe_id": "probe.breadth.verification_coverage_ci", "maximum_points": 30 },
+      { "criterion_id": "breadth.pr_work_item_feedback", "probe_id": "probe.breadth.pr_work_item_feedback", "maximum_points": 20 },
+      { "criterion_id": "breadth.deployment_reliability", "probe_id": "probe.breadth.deployment_reliability", "maximum_points": 15 },
+      { "criterion_id": "breadth.multi_language_generated_vendor", "probe_id": "probe.breadth.multi_language_generated_vendor", "maximum_points": 15 },
+      { "criterion_id": "breadth.quality_security_artifacts", "probe_id": "probe.breadth.quality_security_artifacts", "maximum_points": 10 }
+    ] },
+    { "category_id": "predictive", "maximum_points": 160, "criteria": [
+      { "criterion_id": "predictive.transparent_formulation", "probe_id": "probe.predictive.transparent_formulation", "maximum_points": 20 },
+      { "criterion_id": "predictive.longitudinal_pipeline", "probe_id": "probe.predictive.longitudinal_pipeline", "maximum_points": 25 },
+      { "criterion_id": "predictive.future_labels_leakage", "probe_id": "probe.predictive.future_labels_leakage", "maximum_points": 25 },
+      { "criterion_id": "predictive.naive_baselines", "probe_id": "probe.predictive.naive_baselines", "maximum_points": 25 },
+      { "criterion_id": "predictive.holdout_lift_ranking", "probe_id": "probe.predictive.holdout_lift_ranking", "maximum_points": 30 },
+      { "criterion_id": "predictive.calibration_generalization", "probe_id": "probe.predictive.calibration_generalization", "maximum_points": 20 },
+      { "criterion_id": "predictive.uncertainty_boundaries", "probe_id": "probe.predictive.uncertainty_boundaries", "maximum_points": 15 }
+    ] },
+    { "category_id": "robustness", "maximum_points": 70, "criteria": [
+      { "criterion_id": "robustness.partial_failure_isolation", "probe_id": "probe.robustness.partial_failure_isolation", "maximum_points": 10 },
+      { "criterion_id": "robustness.corrupt_artifact_handling", "probe_id": "probe.robustness.corrupt_artifact_handling", "maximum_points": 10 },
+      { "criterion_id": "robustness.merge_binary_rename_history_edges", "probe_id": "probe.robustness.merge_binary_rename_history_edges", "maximum_points": 15 },
+      { "criterion_id": "robustness.stale_evidence_rejection", "probe_id": "probe.robustness.stale_evidence_rejection", "maximum_points": 10 },
+      { "criterion_id": "robustness.platform_behavior", "probe_id": "probe.robustness.platform_behavior", "maximum_points": 10 },
+      { "criterion_id": "robustness.bounded_resource_failures", "probe_id": "probe.robustness.bounded_resource_failures", "maximum_points": 10 },
+      { "criterion_id": "robustness.fake_green_resistance", "probe_id": "probe.robustness.fake_green_resistance", "maximum_points": 5 }
+    ] },
+    { "category_id": "actionability", "maximum_points": 50, "criteria": [
+      { "criterion_id": "actionability.executive_interpretation", "probe_id": "probe.actionability.executive_interpretation", "maximum_points": 15 },
+      { "criterion_id": "actionability.prioritized_findings", "probe_id": "probe.actionability.prioritized_findings", "maximum_points": 10 },
+      { "criterion_id": "actionability.recommendations", "probe_id": "probe.actionability.recommendations", "maximum_points": 10 },
+      { "criterion_id": "actionability.canonical_owner_integration", "probe_id": "probe.actionability.canonical_owner_integration", "maximum_points": 10 },
+      { "criterion_id": "actionability.confidence_coverage_communication", "probe_id": "probe.actionability.confidence_coverage_communication", "maximum_points": 5 }
+    ] },
+    { "category_id": "framework", "maximum_points": 35, "criteria": [
+      { "criterion_id": "framework.evidence_bounded_semantics", "probe_id": "probe.framework.evidence_bounded_semantics", "maximum_points": 8 },
+      { "criterion_id": "framework.observable_adherence", "probe_id": "probe.framework.observable_adherence", "maximum_points": 8 },
+      { "criterion_id": "framework.coverage_confidence", "probe_id": "probe.framework.coverage_confidence", "maximum_points": 7 },
+      { "criterion_id": "framework.improvement_advice", "probe_id": "probe.framework.improvement_advice", "maximum_points": 7 },
+      { "criterion_id": "framework.correct_not_scored", "probe_id": "probe.framework.correct_not_scored", "maximum_points": 5 }
+    ] },
+    { "category_id": "trends", "maximum_points": 25, "criteria": [
+      { "criterion_id": "trends.automatic_baseline", "probe_id": "probe.trends.automatic_baseline", "maximum_points": 10 },
+      { "criterion_id": "trends.compatibility", "probe_id": "probe.trends.compatibility", "maximum_points": 5 },
+      { "criterion_id": "trends.valid_backfill", "probe_id": "probe.trends.valid_backfill", "maximum_points": 5 },
+      { "criterion_id": "trends.change_interpretation", "probe_id": "probe.trends.change_interpretation", "maximum_points": 5 }
+    ] },
+    { "category_id": "context", "maximum_points": 15, "criteria": [
+      { "criterion_id": "context.report_output_size", "probe_id": "probe.context.report_output_size", "maximum_points": 4 },
+      { "criterion_id": "context.progressive_disclosure", "probe_id": "probe.context.progressive_disclosure", "maximum_points": 4 },
+      { "criterion_id": "context.configuration_ergonomics", "probe_id": "probe.context.configuration_ergonomics", "maximum_points": 3 },
+      { "criterion_id": "context.discovery_ergonomics", "probe_id": "probe.context.discovery_ergonomics", "maximum_points": 2 },
+      { "criterion_id": "context.human_presentation", "probe_id": "probe.context.human_presentation", "maximum_points": 2 }
+    ] },
+    { "category_id": "provenance", "maximum_points": 5, "criteria": [
+      { "criterion_id": "provenance.revision_config_source_binding", "probe_id": "probe.provenance.revision_config_source_binding", "maximum_points": 3 },
+      { "criterion_id": "provenance.artifact_integrity_reproducibility", "probe_id": "probe.provenance.artifact_integrity_reproducibility", "maximum_points": 2 }
+    ] }
+  ]
+}

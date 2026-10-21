@@ -1,0 +1,87 @@
+{
+  "schema_version": "connected-impact-corpus@1",
+  "cases": [
+    {
+      "id": "low-risk-local-edit",
+      "input": {
+        "repository_revision": "r-local",
+        "changes": [{ "path": "src/math/clamp.js", "component": "math", "signals": [] }]
+      },
+      "expected_level": "skip",
+      "expected_reason_codes": ["LOCAL_IMPLEMENTATION_ONLY"],
+      "expected_components": ["math"]
+    },
+    {
+      "id": "multi-file-internal-refactor",
+      "input": {
+        "repository_revision": "r-refactor",
+        "changes": [
+          { "path": "src/cache/read.js", "component": "cache", "signals": [] },
+          { "path": "src/cache/write.js", "component": "cache", "signals": [] }
+        ]
+      },
+      "expected_level": "light",
+      "expected_reason_codes": ["INTERNAL_MULTI_FILE"],
+      "expected_components": ["cache"]
+    },
+    {
+      "id": "public-api-change",
+      "input": {
+        "repository_revision": "r-api",
+        "changes": [{ "path": "api/public.ts", "component": "api", "signals": ["public-api", "exported-type"] }],
+        "dependency_graph": {
+          "nodes": ["api", "sdk"],
+          "edges": [{ "from": "api", "to": "sdk" }]
+        }
+      },
+      "expected_level": "full",
+      "expected_reason_codes": ["EXPORTED_TYPE_CHANGE", "PUBLIC_API_CHANGE"],
+      "expected_components": ["api", "sdk"]
+    },
+    {
+      "id": "database-migration",
+      "input": {
+        "repository_revision": "r-migration",
+        "changes": [{ "path": "db/migrations/042.sql", "component": "database", "signals": ["database-schema", "migration"] }]
+      },
+      "expected_level": "full",
+      "expected_reason_codes": ["DATABASE_SCHEMA_CHANGE", "MIGRATION_CHANGE"],
+      "expected_components": ["database"]
+    },
+    {
+      "id": "cross-service-contract",
+      "input": {
+        "repository_revision": "r-services",
+        "changes": [{
+          "path": "contracts/order.proto",
+          "component": "orders",
+          "signals": ["wire-schema", "cross-repository-contract"],
+          "deployable_units": ["orders", "billing"]
+        }],
+        "dependency_graph": {
+          "nodes": ["orders", "billing", "fulfillment"],
+          "edges": [
+            { "from": "orders", "to": "billing" },
+            { "from": "orders", "to": "fulfillment" }
+          ]
+        }
+      },
+      "expected_level": "full",
+      "expected_reason_codes": ["CROSS_REPOSITORY_CONTRACT_CHANGE", "MULTIPLE_DEPLOYABLE_UNITS", "WIRE_SCHEMA_CHANGE"],
+      "expected_components": ["billing", "fulfillment", "orders"]
+    },
+    {
+      "id": "distributed-deployable-units",
+      "input": {
+        "repository_revision": "r-distributed-units",
+        "changes": [
+          { "path": "services/orders/internal.js", "component": "orders", "signals": [], "deployable_units": ["orders"] },
+          { "path": "services/billing/internal.js", "component": "billing", "signals": [], "deployable_units": ["billing"] }
+        ]
+      },
+      "expected_level": "full",
+      "expected_reason_codes": ["MULTIPLE_DEPLOYABLE_UNITS"],
+      "expected_components": ["billing", "orders"]
+    }
+  ]
+}

@@ -28,6 +28,12 @@ For broad read-only assessment work, callers should normally materialize more lo
 
 `max_buffered_jobs` limits materialized jobs. Callers with very large queues stream more jobs only as capacity becomes available.
 
+## Durable leases and bounded attempts
+
+`worker-lease-store.js` wraps each assignment read-decide-write sequence in a per-assignment cross-process directory lock. A recovery increments `generation` and issues a new `fence_token`; heartbeat and conclusion from an older fence are refused.
+
+`attempt-store.js` persists attempt number, status, evidence, and terminal reason atomically. Retry budgets are explicit and capped. A retryable failure may begin the next numbered attempt only while budget remains. Exhaustion records `RETRY_BUDGET_EXHAUSTED`; success prevents duplicate restart. A fenced lease recovery may mark an orphaned running attempt as recovered, but cannot erase its evidence.
+
 ## Structured cancellation
 
 Jobs belong to a `scope_id`. Cancelling a scope cancels not-yet-running descendants and returns cancellation requests for running descendants. No child may outlive a closed parent scope.

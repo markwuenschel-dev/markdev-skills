@@ -1,0 +1,209 @@
+{
+  "evidence_packet_version": 1,
+  "packet_id": "ICA-ER-RIA-001",
+  "producer": {
+    "skill": "architecture-improvement-intelligence",
+    "run_id": "ica-ria-fixture",
+    "mode": "inline",
+    "created_at": "2026-10-16T00:00:00Z"
+  },
+  "scope": {
+    "claim_or_question": "What structural evidence supports each scored architecture fitness dimension at the assessed revision?",
+    "objective": "Bind every scored fitness dimension to the inspected claims it used.",
+    "required_completeness": "targeted",
+    "included_surfaces": [
+      {
+        "surface_id": "repository-modules",
+        "description": "Tracked source modules and their import edges."
+      }
+    ],
+    "excluded_surfaces": []
+  },
+  "coverage_plan": {
+    "source_classes": [
+      "code"
+    ],
+    "independent_surfaces": [
+      "repository-modules"
+    ],
+    "contradiction_risk": "low",
+    "false_negative_cost": "medium",
+    "cross_source_reconciliation": false,
+    "parallelizable": false,
+    "selected_mode": "inline",
+    "mode_rationale": "One bounded module surface; the parent reconciles it inline."
+  },
+  "claims": [
+    {
+      "claim_id": "ICA-C-001",
+      "statement": "Module boundaries and import direction are explicit; no cycle is present in the inspected import graph.",
+      "epistemic_status": "confirmed",
+      "evidence_quality": "strong",
+      "coverage": {
+        "state": "inspected",
+        "scope": "tracked source modules and their imports",
+        "methods": [
+          "direct file inspection",
+          "import-graph inspection"
+        ],
+        "limitations": []
+      },
+      "sources": [
+        {
+          "kind": "path",
+          "ref": "__ARCH_SOURCE_PATH__",
+          "note": "Module boundary and imports."
+        },
+        {
+          "kind": "line",
+          "ref": "__ARCH_SOURCE_PATH__:1",
+          "note": "First line at the assessed revision."
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Directly visible in the source at the assessed revision."
+      },
+      "supports": [
+        "architecture-fitness:boundary_integrity",
+        "architecture-fitness:dependency_direction_cycle_control",
+        "architecture-fitness:cohesion_locality"
+      ],
+      "contradiction_refs": [],
+      "limitations": []
+    },
+    {
+      "claim_id": "ICA-C-002",
+      "statement": "Exported interfaces are narrow and each piece of state has one owning module.",
+      "epistemic_status": "confirmed",
+      "evidence_quality": "strong",
+      "coverage": {
+        "state": "inspected",
+        "scope": "exported interfaces and state owners",
+        "methods": [
+          "direct file inspection",
+          "import-graph inspection"
+        ],
+        "limitations": []
+      },
+      "sources": [
+        {
+          "kind": "path",
+          "ref": "__ARCH_SOURCE_PATH__",
+          "note": "Exports and state ownership."
+        },
+        {
+          "kind": "line",
+          "ref": "__ARCH_SOURCE_PATH__:1",
+          "note": "First line at the assessed revision."
+        }
+      ],
+      "confidence": {
+        "level": "high",
+        "rationale": "Exports and assignments are directly visible."
+      },
+      "supports": [
+        "architecture-fitness:interface_contract_clarity",
+        "architecture-fitness:state_data_ownership"
+      ],
+      "contradiction_refs": [],
+      "limitations": []
+    },
+    {
+      "claim_id": "ICA-C-003",
+      "statement": "Changes are likely to stay local and duplication is low, with module-level test seams available.",
+      "epistemic_status": "inferred",
+      "evidence_quality": "moderate",
+      "coverage": {
+        "state": "sampled",
+        "scope": "representative modules",
+        "methods": [
+          "sampled inspection"
+        ],
+        "limitations": [
+          "Not every module was inspected."
+        ]
+      },
+      "sources": [
+        {
+          "kind": "path",
+          "ref": "__ARCH_SOURCE_PATH__",
+          "note": "Representative module."
+        },
+        {
+          "kind": "line",
+          "ref": "__ARCH_SOURCE_PATH__:1",
+          "note": "First line at the assessed revision."
+        }
+      ],
+      "confidence": {
+        "level": "medium",
+        "rationale": "Reasoned from a sample, not observed change history."
+      },
+      "supports": [
+        "architecture-fitness:change_containment_evolvability",
+        "architecture-fitness:duplication_competing_implementations",
+        "architecture-fitness:architectural_testability_observability"
+      ],
+      "contradiction_refs": [],
+      "limitations": [
+        "Sampled coverage."
+      ]
+    }
+  ],
+  "negative_claims": [
+    {
+      "negative_claim_id": "ICA-N-001",
+      "statement": "No second module constructs the shared state directly.",
+      "search_scope": [
+        "tracked source modules"
+      ],
+      "search_methods": [
+        "exact symbol search",
+        "direct inspection of matches"
+      ],
+      "coverage": {
+        "state": "inspected",
+        "scope": "all tracked source modules",
+        "methods": [
+          "direct file inspection",
+          "import-graph inspection"
+        ],
+        "limitations": []
+      },
+      "evidence_quality": "moderate",
+      "sources": [
+        {
+          "kind": "path",
+          "ref": "__ARCH_SOURCE_PATH__",
+          "note": "The single owner."
+        }
+      ],
+      "exclusions": [],
+      "search_completeness": "bounded-exhaustive",
+      "supports_absence": true,
+      "confidence": {
+        "level": "medium",
+        "rationale": "The tracked module set was enumerated."
+      },
+      "limitations": []
+    }
+  ],
+  "contradictions": [],
+  "handoff": {
+    "safe_to_assume": [
+      "ICA-C-001",
+      "ICA-C-002",
+      "ICA-N-001"
+    ],
+    "unresolved_facts": [
+      "ICA-C-003"
+    ],
+    "owner_intent_required": [],
+    "possible_decision_surfaces": [],
+    "consumer_notes": [
+      "Fixture packet: replace __ARCH_SOURCE_PATH__ with a tracked, non-empty file at the assessed revision."
+    ]
+  },
+  "lane_receipts": []
+}

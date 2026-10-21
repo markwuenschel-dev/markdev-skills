@@ -1,5 +1,6 @@
 wave:
   id: W1
+  decision_and_requirement_ids: []
   objective: ""
   included_scope: []
   excluded_scope: []
@@ -11,3 +12,4 @@ wave:
   halt_criteria: []
   rollback_or_containment: []
   cleanup_obligations: []
+  residual_risks: []

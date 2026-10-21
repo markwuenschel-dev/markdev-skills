@@ -1,0 +1,763 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ria.composite-v2.input.schema.json",
+  "title": "RIA composite v2 normalized input (composite-scoring-v3 §5, §8, §9)",
+  "description": "Closed contract between the report model's normalizer (owner artifacts -> normalized contributions) and the pure engine composite-v2.js. Part of implementation_sha256.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run",
+    "verification",
+    "dimensions",
+    "canonical_defects",
+    "presentation",
+    "source_bindings"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ria.composite-v2.input@1"
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "failed_tasks",
+        "allow_degraded"
+      ],
+      "properties": {
+        "failed_tasks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "allow_degraded": {
+          "type": "boolean"
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commands"
+      ],
+      "properties": {
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "command_id",
+              "kind",
+              "outcome"
+            ],
+            "properties": {
+              "command_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "test",
+                  "build",
+                  "lint",
+                  "typecheck",
+                  "other"
+                ]
+              },
+              "outcome": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "error",
+                  "timed-out",
+                  "skipped"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "correctness": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "architecture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "contracts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "verification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "delivery": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "maintainability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "security": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "reliability": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        },
+        "change_and_docs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "contributions"
+          ],
+          "properties": {
+            "contributions": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [],
+              "properties": {
+                "health": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "architecture": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "integrity": {
+                  "$ref": "#/$defs/contribution"
+                },
+                "sei": {
+                  "$ref": "#/$defs/contribution"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "canonical_defects": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "groups",
+        "unresolved",
+        "health_uncontained_critical_failure"
+      ],
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/group"
+          }
+        },
+        "unresolved": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "health_uncontained_critical_failure": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "claim_id",
+                "dimension",
+                "admissible"
+              ],
+              "properties": {
+                "claim_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dimension": {
+                  "enum": [
+                    "correctness",
+                    "architecture",
+                    "contracts",
+                    "verification",
+                    "delivery",
+                    "maintainability",
+                    "security",
+                    "reliability",
+                    "change_and_docs"
+                  ]
+                },
+                "admissible": {
+                  "type": "boolean"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "presentation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reported_composite",
+        "policy_sha256",
+        "calibration_ref",
+        "calibration_verified"
+      ],
+      "properties": {
+        "reported_composite": {
+          "enum": [
+            "v1",
+            "v2"
+          ]
+        },
+        "policy_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "calibration_ref": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "calibration_verified": {
+          "type": "boolean"
+        }
+      }
+    },
+    "source_bindings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "$defs": {
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eligibility"
+      ],
+      "properties": {
+        "eligibility": {
+          "enum": [
+            "scored",
+            "not_applicable",
+            "insufficient_evidence",
+            "not_assessed",
+            "failed"
+          ]
+        },
+        "score": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 100
+        },
+        "sub_scores": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "weight",
+              "state",
+              "score"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "weight": {
+                "type": "number",
+                "minimum": 0
+              },
+              "state": {
+                "enum": [
+                  "scored",
+                  "not_applicable",
+                  "insufficient_evidence",
+                  "not_assessed",
+                  "failed"
+                ]
+              },
+              "score": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 100
+              },
+              "confidence": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 1
+              },
+              "maturity": {
+                "enum": [
+                  "established",
+                  "provisional",
+                  "unavailable"
+                ]
+              }
+            }
+          }
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "coverage": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "maturity": {
+          "enum": [
+            "established",
+            "provisional",
+            "unavailable"
+          ]
+        },
+        "provisional": {
+          "type": "boolean"
+        },
+        "baseline_dependent": {
+          "type": "boolean"
+        },
+        "strong_original": {
+          "type": "boolean"
+        },
+        "unresolved_contradictions": {
+          "type": "boolean"
+        },
+        "dependence": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "classification",
+                "origin_owners"
+              ],
+              "properties": {
+                "classification": {
+                  "enum": [
+                    "independent",
+                    "dependent",
+                    "insufficient_evidence"
+                  ]
+                },
+                "origin_owners": {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "health",
+                      "architecture",
+                      "integrity",
+                      "sei"
+                    ]
+                  }
+                },
+                "adopted_strength_ratio": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "evidence_keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "eligibility"
+            ],
+            "properties": {
+              "eligibility": {
+                "const": "scored"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "maturity"
+            ],
+            "anyOf": [
+              {
+                "required": [
+                  "score"
+                ],
+                "properties": {
+                  "score": {
+                    "type": "number"
+                  }
+                }
+              },
+              {
+                "required": [
+                  "sub_scores"
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "group_id",
+        "dimension",
+        "members",
+        "severity",
+        "evidentiary_state",
+        "confirmed",
+        "owners"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "defect_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "enum": [
+            "correctness",
+            "architecture",
+            "contracts",
+            "verification",
+            "delivery",
+            "maintainability",
+            "security",
+            "reliability",
+            "change_and_docs"
+          ]
+        },
+        "members": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "defect_class": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "predicate_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "severity": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 5
+        },
+        "evidentiary_state": {
+          "enum": [
+            "reproduced",
+            "mechanical",
+            "observed",
+            "inferred",
+            "refuted",
+            "contested"
+          ]
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "primary_quality": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "owners": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "holders": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "cap_eligible": {
+          "type": "boolean"
+        },
+        "contained": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

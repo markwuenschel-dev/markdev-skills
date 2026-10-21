@@ -1,0 +1,57 @@
+{
+  "schema_version": 2,
+  "core": [
+    "ARCHITECTURE-COVERAGE.md",
+    "CANDIDATE-CRITIC.md",
+    "CANDIDATE-MODEL.md",
+    "PARALLEL-LANE-PROTOCOL.md",
+    "PERFORMANCE.md",
+    "ROUTING.md",
+    "SKILL.md"
+  ],
+  "conditional": {
+    "assessment": {
+      "condition_ids": [
+        "context.architecture-improvement-intelligence.assessment"
+      ],
+      "refs": [
+        "assets/ledger-verify.test.html"
+      ]
+    },
+    "migration": {
+      "condition_ids": [
+        "context.architecture-improvement-intelligence.migration"
+      ],
+      "refs": [
+        "MIGRATIONS.md"
+      ]
+    },
+    "report": {
+      "condition_ids": [
+        "context.architecture-improvement-intelligence.report"
+      ],
+      "refs": [
+        "assets/build-report.js",
+        "assets/report-input.schema.json",
+        "assets/report-scaffold.html",
+        "HTML-REPORT.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.assets.package-check.js": {
+        "path": "assets/package-check.js",
+        "selector": "symbol"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

@@ -1,13 +1,15 @@
 {
   "name": "assessment-acceleration",
-  "version": "1.1.0",
-  "purpose": "Aggressive work-conserving assessment execution: ThreadPool-style READY-queue refill, class-bounded concurrency, content-addressed evidence caching, warm-start reuse, single-flight coalescing, and deterministic report compilation.",
+  "version": "1.2.0",
+  "purpose": "Work-conserving assessment execution plus the repository's single content-addressed evidence cache. Production command evidence reuses that same cache only on an exact tree/command/environment/config key and never acquires verification authority.",
   "owned_files": [
     "MANIFEST.json",
     "ACCELERATION-MODEL.md",
     "scheduler.js",
     "task-graph.schema.json",
     "cache-store.js",
+    "command-evidence-cache.js",
+    "command-evidence-cache.test.js",
     "fingerprint.js",
     "report-compiler.js",
     "performance-receipt.js",
@@ -22,7 +24,8 @@
     "repository-improvement-assessment",
     "repository-health-assessment",
     "codebase-integrity-audit-loop",
-    "architecture-improvement-intelligence"
+    "architecture-improvement-intelligence",
+    "production-campaign"
   ],
   "runtime": {
     "engine": "node",
@@ -43,6 +46,7 @@
       "assessment task scheduling primitives",
       "assessment concurrency profile and worker-class budgets",
       "assessment evidence cache mechanics",
+      "content-addressed production command evidence mechanics",
       "warm-start classification",
       "atomic report compilation utilities",
       "assessment performance receipt construction"
@@ -52,6 +56,7 @@
       "health grading",
       "architecture decisions",
       "repository mutation",
+      "independent verification or completion authority",
       "lifecycle routing",
       "subagent conclusions",
       "publication or merge"

@@ -1,0 +1,68 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {
+    "assessment": {
+      "condition_ids": [
+        "context.human-directed-swarm-planner.assessment"
+      ],
+      "refs": [
+        "assets/assessment-baseline.yaml",
+        "assets/assessment-evidence-manifest.yaml",
+        "assets/assessment-lane-assignment.yaml",
+        "assets/assessment-lane-return.yaml"
+      ]
+    },
+    "auto": {
+      "condition_ids": [
+        "context.human-directed-swarm-planner.auto"
+      ],
+      "refs": [
+        "AUTO-MODE.md"
+      ]
+    },
+    "evaluation": {
+      "condition_ids": [
+        "context.human-directed-swarm-planner.evaluation"
+      ],
+      "refs": [
+        "assets/evaluation-suite.json"
+      ]
+    },
+    "topology": {
+      "condition_ids": [
+        "context.human-directed-swarm-planner.topology"
+      ],
+      "refs": [
+        "assets/execution-topology.yaml",
+        "SWARM-TYPES.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.scripts.auto-guard.js": {
+        "path": "scripts/auto-guard.js",
+        "selector": "symbol"
+      },
+      "source.scripts.auto-guard.test.js": {
+        "path": "scripts/auto-guard.test.js",
+        "selector": "symbol"
+      },
+      "source.scripts.ownership-boundary.test.js": {
+        "path": "scripts/ownership-boundary.test.js",
+        "selector": "symbol"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

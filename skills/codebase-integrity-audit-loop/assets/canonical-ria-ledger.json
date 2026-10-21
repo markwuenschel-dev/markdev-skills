@@ -1,0 +1,380 @@
+{
+  "spine_version": 3,
+  "coverage": {
+    "schema_version": "integrity.coverage@2",
+    "dimensions": {
+      "correctness": {
+        "surfaces": [
+          {
+            "surface_id": "runtime-code",
+            "criticality_weight": 5,
+            "state": "inspected",
+            "evidence_quality": "strong",
+            "methods": [
+              "direct file inspection"
+            ],
+            "scope": "runtime-code at the assessed revision",
+            "evidence_refs": [
+              {
+                "kind": "path",
+                "ref": "src/money.js"
+              },
+              {
+                "kind": "candidate",
+                "ref": "integrity:CORR-001"
+              }
+            ],
+            "reason": null,
+            "weight_rationale": null
+          },
+          {
+            "surface_id": "domain-libraries",
+            "criticality_weight": 4,
+            "state": "sampled",
+            "evidence_quality": "moderate",
+            "methods": [
+              "direct file inspection"
+            ],
+            "scope": "domain-libraries at the assessed revision",
+            "evidence_refs": [
+              {
+                "kind": "path",
+                "ref": "src/money.js"
+              }
+            ],
+            "reason": null,
+            "weight_rationale": null
+          },
+          {
+            "surface_id": "data-lifecycle",
+            "criticality_weight": 4,
+            "state": "uninspected",
+            "evidence_quality": "none",
+            "methods": [],
+            "scope": "",
+            "evidence_refs": [],
+            "reason": null,
+            "weight_rationale": null
+          }
+        ],
+        "negative_claims": []
+      },
+      "contracts": {
+        "surfaces": [
+          {
+            "surface_id": "contracts-and-wiring",
+            "criticality_weight": 5,
+            "state": "inspected",
+            "evidence_quality": "strong",
+            "methods": [
+              "direct file inspection"
+            ],
+            "scope": "contracts-and-wiring at the assessed revision",
+            "evidence_refs": [
+              {
+                "kind": "candidate",
+                "ref": "CONTRACT-007"
+              },
+              {
+                "kind": "path",
+                "ref": "src/api/schema.ts"
+              }
+            ],
+            "reason": null,
+            "weight_rationale": null
+          },
+          {
+            "surface_id": "generated-surfaces",
+            "criticality_weight": 2,
+            "state": "not-applicable",
+            "evidence_quality": "none",
+            "methods": [],
+            "scope": "generated-surfaces at the assessed revision",
+            "evidence_refs": [],
+            "reason": "The fixture has no generated code.",
+            "weight_rationale": null
+          }
+        ],
+        "negative_claims": []
+      },
+      "security": {
+        "surfaces": [
+          {
+            "surface_id": "runtime-code",
+            "criticality_weight": 5,
+            "state": "inspected",
+            "evidence_quality": "strong",
+            "methods": [
+              "authorization review",
+              "secret scan"
+            ],
+            "scope": "runtime-code at the assessed revision",
+            "evidence_refs": [
+              {
+                "kind": "path",
+                "ref": "src/money.js"
+              }
+            ],
+            "reason": null,
+            "weight_rationale": null
+          },
+          {
+            "surface_id": "contracts-and-wiring",
+            "criticality_weight": 5,
+            "state": "inspected",
+            "evidence_quality": "moderate",
+            "methods": [
+              "input validation review"
+            ],
+            "scope": "contracts-and-wiring at the assessed revision",
+            "evidence_refs": [
+              {
+                "kind": "path",
+                "ref": "src/api/schema.ts"
+              }
+            ],
+            "reason": null,
+            "weight_rationale": null
+          },
+          {
+            "surface_id": "specialized-paths",
+            "criticality_weight": 3,
+            "state": "not-applicable",
+            "evidence_quality": "none",
+            "methods": [],
+            "scope": "specialized-paths at the assessed revision",
+            "evidence_refs": [],
+            "reason": "No specialized execution paths exist in the fixture.",
+            "weight_rationale": null
+          }
+        ],
+        "negative_claims": [
+          {
+            "negative_claim_id": "INT-N-SEC-001",
+            "statement": "No security exposure was found on the inspected runtime and contract surfaces.",
+            "search_scope": [
+              "surface:runtime-code",
+              "surface:contracts-and-wiring"
+            ],
+            "search_methods": [
+              "defect-check:security-exposure",
+              "defect-check:missing-validation",
+              "authorization review of every request handler"
+            ],
+            "evidence_quality": "strong",
+            "coverage": {
+              "state": "inspected",
+              "scope": "every runtime and contract file at the assessed revision",
+              "methods": [
+                "bounded-exhaustive file inventory",
+                "direct inspection"
+              ],
+              "limitations": []
+            },
+            "sources": [
+              {
+                "kind": "path",
+                "ref": "src/money.js"
+              },
+              {
+                "kind": "path",
+                "ref": "src/api/schema.ts"
+              },
+              {
+                "kind": "inventory",
+                "ref": "runtime and contract file inventory at the assessed revision"
+              }
+            ],
+            "exclusions": [],
+            "search_completeness": "bounded-exhaustive",
+            "supports_absence": true,
+            "confidence": {
+              "level": "high",
+              "rationale": "The finite runtime and contract surface was enumerated and inspected."
+            },
+            "limitations": []
+          }
+        ]
+      },
+      "reliability": {
+        "surfaces": [
+          {
+            "surface_id": "runtime-code",
+            "criticality_weight": 5,
+            "state": "sampled",
+            "evidence_quality": "moderate",
+            "methods": [
+              "direct file inspection"
+            ],
+            "scope": "runtime-code at the assessed revision",
+            "evidence_refs": [
+              {
+                "kind": "path",
+                "ref": "src/money.js"
+              }
+            ],
+            "reason": null,
+            "weight_rationale": null
+          },
+          {
+            "surface_id": "operational-behavior",
+            "criticality_weight": 3,
+            "state": "uninspected",
+            "evidence_quality": "none",
+            "methods": [],
+            "scope": "",
+            "evidence_refs": [],
+            "reason": null,
+            "weight_rationale": null
+          }
+        ],
+        "negative_claims": []
+      }
+    }
+  },
+  "candidates": [
+    {
+      "candidate_id": "CONTRACT-007",
+      "title": "Duplicated API schema definitions",
+      "lane_sources": [
+        "contracts-and-integration",
+        "architecture-fitness"
+      ],
+      "claim_refs": [
+        "CONTRACT-01",
+        "ARCH-02"
+      ],
+      "summary": "Two independently maintained API schema representations can drift across releases.",
+      "root_cause": "The repository has no single authoritative schema source or generated equivalence check.",
+      "evidence": [
+        {
+          "file": "src/api/schema.ts",
+          "line": 18,
+          "observation": "two manually maintained representations"
+        }
+      ],
+      "scores": {
+        "severity": 3,
+        "confidence": 4,
+        "leverage": 4,
+        "locality": 3,
+        "testability": 3,
+        "blast_radius": 3,
+        "regression_risk": 2,
+        "human_decision_risk": 4
+      },
+      "rollup": {
+        "priority_score": 8,
+        "recommended_action": "design",
+        "execution_mode": "blocked-needs-human-decision",
+        "blocked_by": [
+          "public-contract"
+        ]
+      },
+      "effort": "M",
+      "depends_on": [],
+      "unlocks": [],
+      "status": "needs-human-decision",
+      "dedup": {
+        "duplicate_group": "api-schema-ownership",
+        "merged_from": []
+      },
+      "candidate_lifecycle": {
+        "candidate_id": "CONTRACT-007",
+        "discovered_by": "repository-health-assessment",
+        "current_owner": {
+          "skill": "architecture-improvement-intelligence",
+          "stage": "design"
+        },
+        "lifecycle_status": "designing",
+        "history": [
+          {
+            "event": "discovered",
+            "timestamp": "2026-07-25T00:00:00Z",
+            "artifact": "health-report.html"
+          }
+        ],
+        "completion": {
+          "completed_at": null,
+          "verification_refs": []
+        },
+        "resolution": {
+          "superseded_by": null,
+          "reason": null
+        }
+      }
+    },
+    {
+      "candidate_id": "integrity:CORR-001",
+      "title": "toCents truncates instead of rounding",
+      "lane_sources": [
+        "correctness-and-integrity"
+      ],
+      "claim_refs": [],
+      "summary": "toCents(0.29) returns 28 because Math.floor is applied to an inexact float product.",
+      "root_cause": "Currency conversion floors x * 100 instead of rounding to the nearest cent.",
+      "evidence": [
+        {
+          "file": "src/money.js",
+          "line": 2,
+          "observation": "Math.floor(x * 100)"
+        }
+      ],
+      "scores": {
+        "severity": 3,
+        "confidence": 5,
+        "leverage": 3,
+        "locality": 5,
+        "testability": 5,
+        "blast_radius": 3,
+        "regression_risk": 2,
+        "human_decision_risk": 1
+      },
+      "rollup": {
+        "priority_score": 15,
+        "recommended_action": "direct-fix",
+        "execution_mode": "parallel-safe",
+        "blocked_by": []
+      },
+      "effort": "S",
+      "depends_on": [],
+      "unlocks": [],
+      "status": "ready",
+      "dedup": {
+        "duplicate_group": null,
+        "merged_from": []
+      },
+      "ria_dimensions": [
+        "correctness"
+      ],
+      "defect_class": "logic-error",
+      "ria_proof": {
+        "failure_predicate": {
+          "predicate_id": "correctness:logic-error:toCents-floor",
+          "statement": "toCents(0.29) returns 28, expected 29"
+        },
+        "input_binding": {
+          "repository_id": "__RIA_BASELINE_ARTIFACT_ID__",
+          "root_id": "root-0",
+          "revision": "abc1234"
+        },
+        "proofs": [
+          {
+            "kind": "reproduction",
+            "predicate_id": "correctness:logic-error:toCents-floor",
+            "binding": {
+              "repository_id": "__RIA_BASELINE_ARTIFACT_ID__",
+              "root_id": "root-0",
+              "revision": "abc1234"
+            },
+            "check_id": "repro/money.repro.js",
+            "receipt_sha256": "0000000000000000000000000000000000000000000000000000000000000001",
+            "expected": 29,
+            "actual": 28,
+            "exit_code": 1
+          }
+        ]
+      }
+    }
+  ]
+}

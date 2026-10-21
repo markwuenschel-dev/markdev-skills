@@ -1,0 +1,108 @@
+{
+  "schema_version": 2,
+  "core": [
+    "SKILL.md"
+  ],
+  "conditional": {
+    "collection-adapters": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.collection-adapters"
+      ],
+      "refs": [
+        "references/collection-adapters.md"
+      ]
+    },
+    "comparison-calibration": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.comparison-calibration"
+      ],
+      "refs": [
+        "references/comparison-calibration.md"
+      ]
+    },
+    "evidence-contract": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.evidence-contract"
+      ],
+      "refs": [
+        "references/evidence-contract.md"
+      ]
+    },
+    "framework-profiles": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.framework-profiles"
+      ],
+      "refs": [
+        "references/profile-applicability.md"
+      ]
+    },
+    "maturity-scoring": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.maturity-scoring"
+      ],
+      "refs": [
+        "references/maturity-scoring.md"
+      ]
+    },
+    "policy-profile": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.policy-profile"
+      ],
+      "refs": [
+        "references/policy-profile.md"
+      ]
+    },
+    "ria-handoff": {
+      "condition_ids": [
+        "context.software-engineering-intelligence.ria-handoff"
+      ],
+      "refs": [
+        "references/ria-handoff.md"
+      ]
+    }
+  },
+  "oracle": {
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.scripts.package-check.js": {
+        "path": "scripts/package-check.js",
+        "selector": "symbol"
+      },
+      "source.scripts.package-check.test.js": {
+        "path": "scripts/package-check.test.js",
+        "selector": "symbol"
+      },
+      "source.scripts.run-java-lane.js": {
+        "path": "scripts/run-java-lane.js",
+        "selector": "symbol"
+      },
+      "source.scripts.run-java-lane.test.js": {
+        "path": "scripts/run-java-lane.test.js",
+        "selector": "symbol"
+      },
+      "source.internal.java-lane-core.js": {
+        "path": "internal/java-lane-core.js",
+        "selector": "symbol"
+      },
+      "source.test-support.java-lane-harness.js": {
+        "path": "test-support/java-lane-harness.js",
+        "selector": "symbol"
+      },
+      "source.scripts.run-sei.js": {
+        "path": "scripts/run-sei.js",
+        "selector": "symbol"
+      },
+      "source.scripts.score-sei-maturity.js": {
+        "path": "scripts/score-sei-maturity.js",
+        "selector": "symbol"
+      }
+    }
+  },
+  "fixtures": {
+    "default_model_read": false
+  },
+  "historical": {
+    "default_model_read": false
+  }
+}

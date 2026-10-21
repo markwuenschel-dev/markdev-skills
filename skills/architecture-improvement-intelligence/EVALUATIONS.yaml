@@ -1,0 +1,97 @@
+version: 2
+skill: architecture-improvement-intelligence
+cases:
+  - id: perf-broad-repo-saturates-agent-pool
+    given: Broad repository with 18 independent subsystem/lens evidence packets and an agent budget of 8.
+    expect: Submit all READY work up to capacity, retain a backlog, consume as-completed, and refill without a wave barrier.
+  - id: perf-narrow-task-does-not-invent-workers
+    given: One bounded architecture claim settled by three named files.
+    expect: Use inline evidence and no fake swarm solely to satisfy the aggressive profile.
+  - id: perf-no-fixed-eight-agent-rule
+    given: Repository exposes 27 independent read-only packets and runtime permits 24 agent workers.
+    expect: Lane cardinality is topology-derived and may exceed eight; no arbitrary small cap is imposed.
+  - id: perf-command-pool-separated
+    given: Twenty read-only lanes plus two CPU-heavy test commands.
+    expect: Agent lanes remain aggressively concurrent while commands obey the smaller resource-aware command budget.
+  - id: perf-as-completed-refill
+    given: Eight workers; one lane finishes early while seven remain running and READY work exists.
+    expect: Refill the freed slot immediately instead of waiting for the seven-lane wave.
+  - id: perf-critical-path-split
+    given: One critical-path lane becomes a straggler but contains four independent subdirectories with separable evidence claims.
+    expect: Split/requeue the lane if evidence meaning remains intact and record the split in the performance receipt.
+  - id: perf-no-unsafe-straggler-split
+    given: One straggler owns a cross-cutting claim whose partial results cannot be reconciled safely.
+    expect: Keep it atomic rather than splitting merely for speed.
+  - id: perf-incremental-candidate-synthesis
+    given: Candidate A evidence is complete while unrelated subsystem B evidence is still running.
+    expect: Begin A alternative/critic synthesis concurrently; do not wait for a global evidence barrier.
+  - id: perf-ranking-waits-for-required-evidence
+    given: Candidate A synthesis is complete but a required contradiction probe remains unresolved.
+    expect: Do not finalize/rank A as supported until its required evidence gate settles.
+  - id: perf-single-flight
+    given: Three lanes request the same import-graph fingerprint.
+    expect: Coalesce into one deterministic computation and share the validated result.
+  - id: perf-warm-only-not-evidence
+    given: Cached prior-run hotspot data is warm-only after a revision change.
+    expect: Use it to seed packet topology only; do not use it as current evidence or recommendation support.
+  - id: perf-exact-cache-reuse
+    given: Revision and all bound fingerprints match an exact evidence shard.
+    expect: Reuse the shard and record exact cache reuse.
+  - id: perf-work-stealing
+    given: A worker frees capacity and the highest-priority READY job was created by a different lane.
+    expect: Schedule it immediately; no worker/lane affinity is required.
+  - id: perf-cancel-superseded-probes
+    given: Candidate seed is rejected by the architecture critic while speculative descendant probes are queued.
+    expect: Cancel not-yet-running descendants and record cancellation without widening other work.
+  - id: perf-ria-flattening
+    given: ICA runs under RIA with a root executor available.
+    expect: Submit architecture-tagged jobs into the RIA pool instead of starting an independent full-size nested swarm.
+  - id: perf-report-not-critical-path
+    given: Canonical candidates are ready and HTML was requested while unrelated candidate evidence is still progressing.
+    expect: Report class work does not block independent evidence work; final report uses only finalized canonical data.
+  - id: perf-zero-network-report
+    given: HTML report is rendered.
+    expect: Output requires no view-time network resources or CDN scripts.
+  - id: evidence-negative-claim-receipt
+    given: A lane claims no alternate persistence path exists.
+    expect: Require a shared Evidence Recon negative-claim coverage receipt; lane-local not-found is insufficient.
+  - id: architecture-sweep-after-inline-evidence
+    given: Evidence gathering stayed inline because the factual surface was narrow.
+    expect: Still run the mandatory architecture coverage sweep.
+  - id: candidate-critic-before-score
+    given: A high-severity idea merely renames and moves files.
+    expect: Reject/downgrade it before ledger scoring; a potential high score cannot make it architectural.
+  - id: candidate-alternatives-parallelized
+    given: High-impact ambiguous candidate with spare agent capacity.
+    expect: Run materially different alternative/critic analyses concurrently and reconcile under the Architecture owner.
+  - id: no-scope-expansion-from-spare-capacity
+    given: Agent pool has unused slots after all in-scope packets are scheduled.
+    expect: Leave capacity idle rather than exploring unrelated repository areas.
+  - id: read-only-domain-proposal
+    given: Recommended architecture introduces a new domain term.
+    expect: Return a proposed_domain_update; do not edit CONTEXT.md.
+  - id: route-bounded-design-to-grill
+    given: One architecture candidate contains several subordinate decisions but remains one bounded design surface.
+    expect: Route to Expanded Grill, preserving evidence/candidate identity.
+  - id: route-broad-decision-terrain
+    given: Candidate unfolds into several independent/coupled architectural decision surfaces.
+    expect: Route to Decision Terrain Mapper rather than materializing an ICA-owned persistent decision graph.
+  - id: report-election-direct
+    given: A direct architecture run produces several validated candidates and the user did not state a report preference.
+    expect: The canonical candidate set is finalized first; the assistant recommends generate or skip with result-specific reasoning and asks A/B before rendering.
+  - id: report-election-inherit
+    given: AII runs as the architecture child of RIA with presentation_policy.report=inherit.
+    expect: AII returns the canonical architecture artifact without asking for or rendering its own report; RIA owns the single combined election.
+  - id: report-election-skip-preserves-authority
+    given: The user elects to skip the architecture report.
+    expect: Candidate identity, eligibility, score, routing, evidence, and architecture judgment are unchanged; only HTML rendering is omitted.
+
+  - id: report-responsive-quantitative-dashboard
+    given: A direct AII run has a validated candidate ledger and the user elects to generate the report on a large desktop display.
+    expect: Render canonical priority, band, status, and value visualizations through shared/report-presentation; use the responsive widescreen canvas; never invent an architecture score absent from the canonical ledger.
+  - id: ria-shared-verification-consumer
+    given: AII runs under RIA with a validated shared assessment-verification baseline.
+    expect: Consume relevant verification evidence without rerunning the full suite; request targeted re-verification only when an architecture claim specifically requires it.
+  - id: runtime-contract-source-owned
+    given: RIA prepares AII dispatch.
+    expect: RIA loads AII's compact source-owned RUNTIME-CONTRACT.json while AII remains responsible for its full SKILL.md after invocation; contract version participates in cache identity.

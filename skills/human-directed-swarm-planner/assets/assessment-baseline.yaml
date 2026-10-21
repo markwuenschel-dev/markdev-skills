@@ -1,0 +1,69 @@
+# DEPRECATED (2026-10-01): no script produces or consumes this file. RIA no longer
+# runs a captain-built Phase 0 swarm: `repository-improvement-assessment/scripts/ria.js`
+# owns the run and hands each owner the closed envelope in
+# shared/ria-owner-return/owner-return.schema.json; the current topology is
+# SWARM-TYPES.md ## RIA Assessment Topology. Every "Phase 0" / "Phase 1" reference
+# below describes that retired model; SWARM-TYPES.md no longer has those sections.
+# Kept in place for older runs that cite it; do not build new runs on it.
+#
+# Repository Improvement Assessment — Phase 0 shared baseline (retired model).
+# Built once by the RIA captain, before any lane is dispatched. Every lane
+# receives this record via assessment-lane-assignment.yaml and consumes it
+# instead of re-establishing its own revision, surface inventory, or command
+# baseline. See SWARM-TYPES.md ## RIA Assessment Topology (formerly ## Repository Improvement Assessment swarm)
+# for the rule this file exists to enforce: the captain owns the coverage
+# denominator, each lane owns its own coverage numerator.
+
+assessment_baseline:
+  run_id: ""                       # captain-assigned, stable for this RIA invocation
+
+  # 1. Revision & frame — repository-health-assessment/SKILL.md and
+  # codebase-integrity-audit-loop/SKILL.md each normally establish this
+  # themselves; here it is established once and injected.
+  frame:
+    repo_root: ""
+    assessed_revision: ""
+    current_head: ""
+    working_tree_clean: null       # boolean; false blocks a trustworthy baseline
+    observed_at: ""
+    languages_and_build_systems: []
+    prior_report_paths: []         # for run-to-run delta, if any exist
+    excluded_scope: []
+
+  # 2. Surface inventory — enumeration and criticality weights ONLY.
+  # coverage/evidence_quality stay out of this file; see
+  # repository-health-assessment/COVERAGE-MODEL.md and SWARM-TYPES.md's
+  # Phase 0 item 2 for why (retired model; that section no longer exists).
+  surface_inventory:
+    - id: ""                       # one of the eleven canonical surface ids
+      criticality_weight: 0        # 1-5, blast-radius keyed — never file count or LOC
+      weight_rationale: ""         # required only when weight deviates from default
+      applicability: present       # present | not-applicable
+      not_applicable_reason: ""    # required when applicability is not-applicable
+
+  # 3. Command baseline — authorized and launched here at Phase 0; Phase 1
+  # does not wait for the full set to finish. commands[] populate as each
+  # completes; a lane blocks only on the specific command_id a finding
+  # depends on. See SWARM-TYPES.md's Phase 0 item 5 (retired model; section removed).
+  command_baseline:
+    approval_scope: ""             # what running these commands here was approved to cover
+    isolation: worktree            # worktree | copy | container — never in-place, never none
+    commands:
+      - command_id: ""
+        kind: ""                   # test | lint | typecheck | build | other
+        argv: []
+        status: pending            # pending | running | complete
+        exit_code: null
+        elapsed_seconds: null
+        result: ""                 # pass | fail | skipped
+        skipped_reason: ""         # required when result is skipped
+
+  # Candidate-id prefixes are deterministic from lane type — no allocation
+  # step or baseline record. See SWARM-TYPES.md's Phase 0 section (retired
+  # model; section removed — the current namespace rule is candidate_namespace
+  # in SWARM-TYPES.md ## RIA Assessment Topology).
+
+  evidence_manifest_ref: ""        # path/pointer to this run's assessment-evidence-manifest.yaml
+  context_vocabulary_ref: ""       # path to CONTEXT.md, if present — may also exist as an
+                                    # evidence-manifest fact; see assessment-evidence-manifest.yaml
+  existing_adrs: []                # may also be represented as evidence-manifest facts

@@ -1,16 +1,24 @@
 # Design
 
+## Shared-understanding status
+
+- Decision owner:
+- Confirmed:
+- Approval status:
+
 ## Problem and intended outcome
 
 ## Scope and non-goals
 
 ## Evidence and assumptions
 
+## Decision-state summary and representation rationale
+
 ## Selected mechanism and affected boundaries
 
 ## Intended behavior and invalid states
 
-## Data, state, and ownership
+## Data, state, completion semantics, and ownership
 
 ## Failure behavior
 
@@ -20,6 +28,8 @@
 
 ## Walking skeleton
 
-## Rollout, halt, and recovery
+## Rollout, advance/halt signals, and recovery
 
 ## Tradeoffs, risks, and deferrals
+
+## Delivery handoff boundary

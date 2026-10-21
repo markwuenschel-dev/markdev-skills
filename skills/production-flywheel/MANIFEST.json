@@ -1,0 +1,52 @@
+{
+  "name": "production-flywheel",
+  "version": "4.1.0",
+  "entrypoint": "SKILL.md",
+  "authority": {
+    "class": "execution-owner",
+    "owns": [
+      "canonical mutating delivery",
+      "production policy",
+      "integration boundary",
+      "policy-gated publication"
+    ],
+    "does_not_own": [
+      "lifecycle routing",
+      "assessment",
+      "candidate selection",
+      "remediation graph authorship",
+      "human decision meaning",
+      "merge"
+    ]
+  },
+  "consumes": [
+    "production-campaign",
+    "production-action-worker",
+    "agent-executor-pool",
+    "human-directed-swarm-planner",
+    "connected-impact-sweep",
+    "independent-verification",
+    "adaptive-causal-debugging",
+    "shared/action-graph-execution",
+    "shared/assessment-acceleration",
+    "shared/action-integration-reassessment",
+    "codebase-integrity-audit-loop"
+  ],
+  "exports": [
+    "integrity-handoff-admission.js#admitIntegrityHandoff",
+    "integrity-handoff-admission.js#executeIntegrityHandoff"
+  ],
+  "campaign": {
+    "orchestrator": "production-campaign",
+    "compiler_api": "production-campaign/plan-compiler.js#compilePlan",
+    "runtime_api": "production-campaign/campaign-runtime.js#CampaignRuntime.run",
+    "worker": "production-action-worker",
+    "scheduler": "agent-executor-pool",
+    "mutating_executor_depth": 1,
+    "integrity_handoff_admission": "integrity-handoff-admission.js#executeIntegrityHandoff"
+  },
+  "validation_policy": {
+    "default": "focused-new-change-and-wave",
+    "full_suite": "explicit-or-hard-gate-only"
+  }
+}

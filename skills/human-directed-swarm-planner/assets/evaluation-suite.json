@@ -1,0 +1,75 @@
+{
+  "skill": "human-directed-swarm-planner",
+  "revision_goal": "Make planner/Flywheel ownership unambiguous: planner owns adaptive topology and read-only swarm execution; production-flywheel owns every repository mutation and delivery boundary.",
+  "cases": [
+    {
+      "id": "direct-implementation-request-handoff",
+      "family": "ownership",
+      "prompt": "Implement this selected milestone with four parallel agents; the work is already authorized.",
+      "expected_activation": true,
+      "expected_behavior": [
+        "Derives a conflict/resource-aware execution topology.",
+        "Preserves the existing authorization and selected item/action.",
+        "Hands the mutating topology to production-flywheel instead of editing from the planner."
+      ],
+      "forbidden_side_effects": [
+        "Planner creates a worktree or edits repository files.",
+        "Planner commits, pushes, opens a PR, or claims implementation completion."
+      ]
+    },
+    {
+      "id": "read-only-swarm-stays-local",
+      "family": "ownership",
+      "prompt": "Run a read-only explorer swarm over this repository and synthesize the architecture unknowns.",
+      "expected_activation": true,
+      "expected_behavior": [
+        "Planner may dispatch the read-only lanes directly.",
+        "No Flywheel handoff is required because no repository mutation is requested."
+      ],
+      "forbidden_side_effects": ["Invents mutating work or delivery state."]
+    },
+    {
+      "id": "negative-single-surface-edit",
+      "family": "routing",
+      "prompt": "Fix one punctuation mark in README.md.",
+      "expected_activation": false,
+      "expected_behavior": ["Does not create a swarm merely to increase agent count."],
+      "forbidden_side_effects": ["Invents lanes or phase barriers."]
+    },
+    {
+      "id": "action-graph-d7-boundary",
+      "family": "concurrency",
+      "prompt": "The action graph has claimed a safe D7 wave of two actions. Use agents to parallelize each action internally.",
+      "expected_activation": true,
+      "expected_behavior": [
+        "Planner may decompose work inside the already claimed actions/wave.",
+        "Planner does not change frontier, batch membership, action_effects, exclusive_resources, status, or claims.",
+        "Production-flywheel remains mutating executor."
+      ],
+      "forbidden_side_effects": ["Overrides computeConcurrencyBatch or action-graph safety evidence."]
+    },
+    {
+      "id": "parallel-bug-investigation-repair-boundary",
+      "family": "specialist",
+      "prompt": "A flaky failure has independent state, ordering, and dependency-version hypotheses. Investigate them in parallel and fix the root cause.",
+      "expected_activation": true,
+      "expected_behavior": [
+        "Planner runs or describes independent read-only diagnostic lanes using adaptive-causal-debugging.",
+        "Planner reconciles the diagnostic path.",
+        "Any authorized repair is handed to production-flywheel, which invokes the debugging specialist under the delivery authorization."
+      ],
+      "forbidden_side_effects": ["A planner lane directly repairs repository files."]
+    },
+    {
+      "id": "separate-delivery-units-not-bundled",
+      "family": "generalization",
+      "prompt": "Deliver three unrelated findings with independent review, release timing, and rollback boundaries.",
+      "expected_activation": true,
+      "expected_behavior": [
+        "Keeps the findings as separate Flywheel items/actions.",
+        "May derive a topology inside an individual item if that item itself has independent work surfaces."
+      ],
+      "forbidden_side_effects": ["Bundles unrelated delivery units into one production swarm."]
+    }
+  ]
+}

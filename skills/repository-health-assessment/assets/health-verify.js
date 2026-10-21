@@ -48,6 +48,16 @@
  * belong to one of those two lanes. Every count a report displays is the
  * evidence array's own `.length`, never a stored number.
  *
+ * ── v5.3: contract repairs (schema version unchanged) ─────────────────────
+ * Spine-v3 candidate_lifecycle accepted and read first by computeDelta; an
+ * `uninspected` core surface is Not gradable like `unavailable`; coverage
+ * thresholds compare the unrounded value; caps_applied names are a closed
+ * set (HEALTH_CAP_NAMES); verifyHealth(island, {persisted: true}) requires
+ * the stored grade and computeGradeBlock(island) produces it; handoffs route
+ * by rollup (routeCandidate); duplicate support lines are compared
+ * normalized; uncontained_critical_failure is null | {claim_id, statement}
+ * naming a `fail` claim; optional evidence_workers and claims[].review_source.
+ *
  * Candidate scoring is NOT implemented here. Candidates follow the shared
  * spine and are verified by ledger-verify.js, whose body the report pastes
  * alongside this one. Its absence is reported, never silently skipped.
@@ -166,11 +176,64 @@ const HEALTH_CANDIDATE_ACTIONS = ["direct-fix", "design", "prototype", "fitness-
 const HEALTH_CANDIDATE_MODES = ["sequential", "connected-impact-sweep", "swarm", "blocked-needs-human-decision"];
 const HEALTH_CANDIDATE_STATUSES = ["ready", "blocked", "needs-human-decision", "rejected", "completed"];
 const HEALTH_CANDIDATE_EFFORTS = ["S", "M", "L"];
-const HEALTH_CANDIDATE_FIELDS = ["candidate_id", "title", "lane_sources", "claim_refs", "summary", "root_cause", "evidence", "scores", "rollup", "effort", "depends_on", "unlocks", "status", "dedup"];
+const HEALTH_CANDIDATE_FIELDS = ["candidate_id", "title", "lane_sources", "claim_refs", "summary", "root_cause", "evidence", "scores", "rollup", "effort", "depends_on", "unlocks", "status", "dedup", "candidate_lifecycle"];
 const HEALTH_CANDIDATE_ROLLUP_FIELDS = ["priority_score", "recommended_action", "execution_mode", "blocked_by"];
 const HEALTH_CANDIDATE_DEDUP_FIELDS = ["duplicate_group", "merged_from"];
 const HEALTH_CANDIDATE_SCORE_KEYS = ["severity", "confidence", "leverage", "locality", "testability", "blast_radius", "regression_risk", "human_decision_risk"];
 const HEALTH_CANDIDATE_EVIDENCE_FIELDS = ["file", "line", "observation", "architecture_level", "rationale"];
+
+/** Handoff routing is decided by the spine rollup, never by scheduling
+ * `status`: execution_mode blocked-needs-human-decision goes to the human
+ * decision queue whatever the action; otherwise the recommended_action picks
+ * the owner. `reject` routes nowhere. */
+const HEALTH_HANDOFF_ROUTES = {
+  "design": "architecture",
+  "prototype": "architecture",
+  "direct-fix": "integrity",
+  "fitness-check": "integrity",
+  "triage": "integrity",
+  "reject": "none",
+};
+
+/* --------------------------- evidence workers ---------------------------- */
+
+/** Optional record of the evidence workers that produced the island. A worker
+ * that did not complete must say what it could not see (a limitation), and a
+ * failed or timed-out worker cannot coexist with the core surface its lane
+ * evidences being reported as fully inspected. */
+const HEALTH_WORKER_STATUSES = ["complete", "partial", "failed", "blocked", "timeout"];
+const HEALTH_WORKER_PROPS = ["worker_id", "lane", "status", "limitations"];
+/** Required lanes whose evidence is the evidence for a default CORE surface.
+ * `inspected` is the only "full" coverage state (credit 1.0). */
+const HEALTH_LANE_CORE_SURFACES = {
+  "correctness-and-integrity": ["runtime-code", "domain-libraries"],
+  "architecture-fitness": ["architecture-boundaries"],
+  "contracts-and-integration": ["contracts-and-wiring"],
+  "verification-readiness": ["verification"],
+};
+
+/* ----------------------------- review source ----------------------------- */
+
+/** A claim translated from a review-* report carries its provenance. The
+ * domain list is closed: it is exactly the ten review-* skills. */
+const HEALTH_REVIEW_DOMAINS = ["accessibility", "algorithms", "architecture", "data", "maintainability", "performance", "process", "reliability", "security", "testing"];
+const HEALTH_REVIEW_SOURCE_PROPS = ["domain", "report_sha256", "rule_id", "dimension", "proof_basis"];
+/** proof_basis says what the review runtime actually proved. `mechanical`: a
+ * deterministic analyzer re-derived the fact from the source. `judgment`: a
+ * model judged it and the runtime only checked the signature and binding. A
+ * judgment claim is weaker evidence: it is never `confirmed`, never the sole
+ * support for level >= 3, never the pass behind level 4, never what makes a
+ * surface `strong`, and never the trigger for the D cap (R1-R6). */
+const HEALTH_PROOF_BASES = ["mechanical", "judgment"];
+
+/** True when a claim was translated from a model-judged review rule. */
+function isJudgmentClaim(claim) {
+  return !!(claim && claim.review_source && typeof claim.review_source === "object" && claim.review_source.proof_basis === "judgment");
+}
+
+/* ------------------------ uncontained critical failure ------------------- */
+
+const HEALTH_UNCONTAINED_PROPS = ["claim_id", "statement"];
 
 /* ---------------------------- sprawl pressure ---------------------------- */
 
@@ -248,6 +311,29 @@ const HEALTH_BASELINE_CEILING = {
   "partial:non-test-not-passing": "C",
   "trustworthy": null,
 };
+
+/** When applyCaps is called without a reason (unit tests, older callers), the
+ * cap is still named by the reason deriveBaseline would have produced, so the
+ * set of cap names stays closed. */
+const HEALTH_BASELINE_DEFAULT_REASON = {
+  "not-run": "no-commands",
+  "untrustworthy": "test-not-passing",
+  "partial": "non-test-not-passing",
+  "trustworthy": "all-passing",
+};
+
+/** The closed set of cap names applyCaps can emit. health.schema.json's
+ * grade.caps_applied enum must equal this list (parity-checked). */
+const HEALTH_CAP_NAMES = [
+  "weakest-critical-lane",
+  "baseline-no-test-command",
+  "baseline-non-test-not-passing",
+  "baseline-test-not-passing",
+  "baseline-no-commands",
+  "coverage-below-80",
+  "coverage-below-60",
+  "uncontained-critical-failure",
+];
 
 const HEALTH_CONFIDENCE_WEIGHTS = {
   weighted_coverage: 0.40,
@@ -351,8 +437,11 @@ function weightedCoverage(surfaces, coreIds) {
       evidence_refs: s.evidence_refs || [],
     });
   }
+  // weighted_coverage is the DISPLAY value (one decimal). Thresholds (40, 60,
+  // 80) compare weighted_coverage_raw: 79.96% displays as 80.0% but is below 80.
   return {
     weighted_coverage: den ? roundPct((num / den) * 100) : 0,
+    weighted_coverage_raw: den ? (num / den) * 100 : 0,
     evidence_strength: den ? roundPct((evNum / den) * 100) : 0,
     core_availability: coreDen ? roundPct((coreNum / coreDen) * 100) : 0,
     denominator: den, rows,
@@ -409,15 +498,50 @@ function baselineCeiling(state, reason) {
 
 /** Which caps fire and what the final grade becomes. A cap is a CEILING:
  * the final grade is the worst of the raw grade and every ceiling. */
+/** Human-readable coverage for a cap trigger: the display value, plus the raw
+ * value when rounding would hide which side of a threshold it sits on. */
+function coverageLabel(raw, display) {
+  const shown = display != null ? display : roundPct(raw);
+  const precise = roundScore(raw);
+  return precise === shown ? shown + "%" : precise + "% (displayed " + shown + "%)";
+}
+
+/**
+ * Which caps fire and what the final grade becomes.
+ *
+ * input.weighted_coverage_raw (unrounded) is what thresholds compare; when it
+ * is absent, input.weighted_coverage is used as-is. input.ungradable_core_surfaces
+ * is [{id, coverage, reason?}] — every core surface that is `unavailable` OR
+ * `uninspected`; the legacy input.unavailable_core_surfaces (ids) is still
+ * honoured. input.uncontained_critical_failure is null or a VALIDATED
+ * {claim_id, statement}; the verifier rejects any other shape before this runs.
+ */
 function applyCaps(input) {
-  const { overall_raw, weighted_coverage, lanes, baseline, uncontained_critical_failure, unavailable_core_surfaces } = input;
-  const unavailableCore = unavailable_core_surfaces || [];
-  if (weighted_coverage < 40 || unavailableCore.length) {
+  const { overall_raw, lanes, baseline, uncontained_critical_failure } = input;
+  const covDisplay = input.weighted_coverage;
+  const covRaw = Number.isFinite(Number(input.weighted_coverage_raw)) ? Number(input.weighted_coverage_raw) : Number(covDisplay);
+  const ungradable = [];
+  const seenUngradable = new Set();
+  for (const s of input.ungradable_core_surfaces || []) {
+    if (!s || seenUngradable.has(String(s.id))) continue;
+    seenUngradable.add(String(s.id));
+    ungradable.push({ id: String(s.id), coverage: String(s.coverage || "unavailable"), reason: s.reason ? String(s.reason) : null });
+  }
+  for (const id of input.unavailable_core_surfaces || []) {
+    if (seenUngradable.has(String(id))) continue;
+    seenUngradable.add(String(id));
+    ungradable.push({ id: String(id), coverage: "unavailable", reason: null });
+  }
+  if (covRaw < 40 || ungradable.length) {
+    const reasons = [];
+    if (ungradable.length) {
+      reasons.push("core surface not inspected: " + ungradable.map((s) => s.id + " (" + s.coverage + (s.reason ? ": " + s.reason : "") + ")").join(", "));
+    }
+    if (covRaw < 40) reasons.push("weighted coverage " + coverageLabel(covRaw, covDisplay) + " is below the 40% gradability floor");
     return {
       not_gradable: true,
-      reason: unavailableCore.length
-        ? "core surface could not be inspected: " + unavailableCore.join(", ")
-        : "weighted coverage " + weighted_coverage + "% is below the 40% gradability floor",
+      reason: reasons.join("; "),
+      not_gradable_surfaces: ungradable,
       raw_grade: gradeFor(overall_raw).letter,
       final_grade: HEALTH_NOT_GRADABLE,
       caps_applied: [],
@@ -434,27 +558,73 @@ function applyCaps(input) {
       trigger: weakest.lane + " scored " + weakest.computed.score + " (" + gradeFor(weakest.computed.score).letter + ")",
     });
   }
-  const bCeiling = baselineCeiling(baseline, input.baseline_reason);
+  const baselineReason = input.baseline_reason || HEALTH_BASELINE_DEFAULT_REASON[baseline] || "non-test-not-passing";
+  const bCeiling = baselineCeiling(baseline, baselineReason);
   if (bCeiling) {
     caps.push({
-      cap: "baseline-" + (input.baseline_reason || baseline),
+      cap: "baseline-" + baselineReason,
       ceiling: bCeiling,
-      trigger: "baseline is " + baseline + " (" + (input.baseline_reason || "unspecified") + ")",
+      trigger: "baseline is " + baseline + " (" + baselineReason + ")",
     });
   }
-  if (weighted_coverage < 80) caps.push({ cap: "coverage-below-80", ceiling: "B", trigger: "weighted coverage " + weighted_coverage + "%" });
-  if (weighted_coverage < 60) caps.push({ cap: "coverage-below-60", ceiling: "C", trigger: "weighted coverage " + weighted_coverage + "%" });
-  if (uncontained_critical_failure) {
+  if (covRaw < 80) caps.push({ cap: "coverage-below-80", ceiling: "B", trigger: "weighted coverage " + coverageLabel(covRaw, covDisplay) });
+  if (covRaw < 60) caps.push({ cap: "coverage-below-60", ceiling: "C", trigger: "weighted coverage " + coverageLabel(covRaw, covDisplay) });
+  if (uncontained_critical_failure && typeof uncontained_critical_failure === "object" && !Array.isArray(uncontained_critical_failure)) {
     caps.push({
       cap: "uncontained-critical-failure", ceiling: "D",
-      trigger: typeof uncontained_critical_failure === "string" ? uncontained_critical_failure : "declared in the island",
+      trigger: String(uncontained_critical_failure.claim_id) + ": " + String(uncontained_critical_failure.statement),
     });
   }
   let idx = gradeIndex(raw);
   for (const c of caps) idx = Math.max(idx, gradeIndex(c.ceiling));
   const final_grade = HEALTH_GRADES[idx].letter;
   for (const c of caps) c.binding = gradeIndex(c.ceiling) === idx && idx > gradeIndex(raw);
-  return { not_gradable: false, reason: null, raw_grade: raw, final_grade, caps_applied: caps };
+  return { not_gradable: false, reason: null, not_gradable_surfaces: [], raw_grade: raw, final_grade, caps_applied: caps };
+}
+
+/** Route one candidate to its handoff owner from the spine rollup alone.
+ * Returns "decision" | "architecture" | "integrity" | "none" | "unrouted". */
+function routeCandidate(c) {
+  const rollup = c && c.rollup;
+  if (!rollup || typeof rollup !== "object") return "unrouted";
+  if (String(rollup.execution_mode) === "blocked-needs-human-decision") return "decision";
+  const route = HEALTH_HANDOFF_ROUTES[String(rollup.recommended_action)];
+  return route || "unrouted";
+}
+
+/** Normalize a support line for duplicate detection: lowercase, punctuation
+ * removed, whitespace collapsed. "It is fine." and "it  is fine" are the same
+ * rubber stamp. */
+function normalizeSupportText(s) {
+  return String(s == null ? "" : s)
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Read a candidate's lifecycle from the spine-v3 `candidate_lifecycle` block
+ * first, falling back to the legacy top-level lifecycle_status/resolution.
+ * Returns { status, resolution: {completed_at, verification_refs,
+ * superseded_by, reason}, source }. */
+function candidateLifecycleView(c) {
+  const cl = c && c.candidate_lifecycle;
+  if (cl && typeof cl === "object" && !Array.isArray(cl)) {
+    const completion = cl.completion && typeof cl.completion === "object" ? cl.completion : {};
+    const resolution = cl.resolution && typeof cl.resolution === "object" ? cl.resolution : {};
+    const view = { status: String(cl.lifecycle_status || ""), source: "candidate_lifecycle", resolution: {} };
+    if (completion.completed_at != null) view.resolution.completed_at = completion.completed_at;
+    if (completion.verification_refs != null) view.resolution.verification_refs = completion.verification_refs;
+    if (resolution.superseded_by != null) view.resolution.superseded_by = resolution.superseded_by;
+    if (resolution.reason != null) view.resolution.reason = resolution.reason;
+    return view;
+  }
+  const r = c && c.resolution;
+  return {
+    status: String((c && c.lifecycle_status) || ""),
+    source: "legacy",
+    resolution: r && typeof r === "object" && !Array.isArray(r) ? r : null,
+  };
 }
 
 function confidenceIndex(inputs) {
@@ -508,7 +678,7 @@ function computeDelta(previous, current) {
     for (const c of current.candidateList) {
       const p = prev.get(c.candidate_id);
       if (!p) d.candidates.push({ candidate_id: c.candidate_id, transition: "new" });
-      else if (String(p.status) === "completed") d.candidates.push({ candidate_id: c.candidate_id, transition: "reopened" });
+      else if (String(p.status) === "completed" || candidateLifecycleView(p).status === "completed") d.candidates.push({ candidate_id: c.candidate_id, transition: "reopened" });
       else d.candidates.push({ candidate_id: c.candidate_id, transition: "carried" });
       prev.delete(c.candidate_id);
     }
@@ -516,9 +686,12 @@ function computeDelta(previous, current) {
       // Absence is not completion. A candidate can vanish because it was
       // renamed, merged, superseded, deferred, dropped from scope, or simply
       // lost during report generation. Completion has to be stated.
-      const status = String(p.lifecycle_status || "");
+      // Spine v3 `candidate_lifecycle` is read first; the legacy top-level
+      // lifecycle_status/resolution pair is the fallback.
+      const life = candidateLifecycleView(p);
+      const status = life.status;
       if (HEALTH_TERMINAL_STATUS.indexOf(status) > -1) {
-        const r = p.resolution;
+        const r = life.resolution;
         let resolutionOk = !!r && typeof r === "object" && !Array.isArray(r);
         if (status === "completed") {
           resolutionOk = resolutionOk && typeof r.completed_at === "string" && r.completed_at.trim() &&
@@ -530,13 +703,13 @@ function computeDelta(previous, current) {
           resolutionOk = resolutionOk && typeof r.reason === "string" && r.reason.trim();
         }
         if (resolutionOk) {
-          d.candidates.push({ candidate_id: id, transition: status, resolution: r });
+          d.candidates.push({ candidate_id: id, transition: status, resolution: r, lifecycle_source: life.source });
         } else {
-          d.candidates.push({ candidate_id: id, transition: "missing-from-current-run", previous_status: status, resolution: r || null });
+          d.candidates.push({ candidate_id: id, transition: "missing-from-current-run", previous_status: status, resolution: r || null, lifecycle_source: life.source });
           d.continuity_problems.push({
             code: "candidate-resolution-missing",
             ref: id,
-            message: id + ": terminal lifecycle_status '" + status + "' is not enough by itself. completed requires completed_at + verification_refs; superseded requires superseded_by; rejected/deferred/out-of-scope require reason.",
+            message: id + ": terminal lifecycle_status '" + status + "' (from " + life.source + ") is not enough by itself. completed requires completed_at + verification_refs (candidate_lifecycle.completion); superseded requires superseded_by; rejected/deferred/out-of-scope require reason (candidate_lifecycle.resolution).",
           });
         }
       } else {
@@ -583,11 +756,11 @@ function checkUnknownProps(obj, allowed, ref, push) {
   }
 }
 
-const HEALTH_TOP_PROPS = ["health_schema_version", "spine_version", "generated", "repository", "core_surfaces", "verification", "uncontained_critical_failure", "coverage", "lanes", "lane_applicability", "claims", "sprawl_pressure", "grade", "candidates", "previous"];
+const HEALTH_TOP_PROPS = ["health_schema_version", "spine_version", "generated", "repository", "core_surfaces", "verification", "uncontained_critical_failure", "coverage", "lanes", "lane_applicability", "claims", "sprawl_pressure", "grade", "candidates", "previous", "evidence_workers"];
 const HEALTH_REPOSITORY_PROPS = ["name", "root", "revision", "freshness", "freshness_evidence", "excluded_scope"];
 const HEALTH_FRESHNESS_EVIDENCE_PROPS = ["assessment_revision", "head_revision", "working_tree_clean", "observed_at"];
 const HEALTH_COMMAND_PROPS = ["command_id", "kind", "command", "exit_code", "elapsed_seconds", "result", "reason", "note"];
-const HEALTH_EVIDENCE_PROPS = ["path", "lines", "note", "architecture_level", "rationale"];
+const HEALTH_EVIDENCE_PROPS = ["path", "lines", "note", "architecture_level", "rationale", "kind", "criterion_id", "metric_id"];
 const HEALTH_OBSERVATION_PROPS = ["confirmed", "inferred", "unknown"];
 const HEALTH_PREVIOUS_PROPS = ["generated", "revision", "raw_score", "weighted_coverage", "confidence_index", "final_grade", "claims", "candidates", "surfaces", "lanes"];
 const HEALTH_APPLICABILITY_PROPS = ["state", "surface_refs", "rationale"];
@@ -596,7 +769,8 @@ const HEALTH_SURFACE_PROPS = ["id", "criticality_weight", "coverage", "evidence_
 const HEALTH_SURFACE_EVIDENCE_PROPS = ["kind", "ref"];
 const HEALTH_SURFACE_EVIDENCE_KINDS = ["claim", "command", "path", "inventory", "rationale", "blocker"];
 const HEALTH_LANE_PROPS = ["lane", "criticality_weight", "scores", "lane_score", "grade_drivers", "would_raise", "could_lower"];
-const HEALTH_CLAIM_PROPS = ["claim_id", "lane", "statement", "result", "evidence", "observation"];
+const HEALTH_CLAIM_PROPS = ["claim_id", "lane", "statement", "result", "evidence", "observation", "review_source"];
+const HEALTH_CAP_PROPS = ["cap", "ceiling", "trigger", "binding"];
 const HEALTH_VERIFICATION_PROPS = ["baseline", "isolation", "isolation_note", "commands", "note"];
 const HEALTH_DIMENSION_PROPS = ["level", "claim_refs", "rationale"];
 const HEALTH_CLAIM_REF_PROPS = ["claim_id", "support"];
@@ -673,12 +847,122 @@ function validateSprawlPressure(health, claimById, push) {
   }
 }
 
+/** claims[].review_source: provenance of a claim translated from a review-*
+ * report. Optional; when present every field is required, domain is one of
+ * the ten review domains, and proof_basis is mechanical | judgment. */
+function validateReviewSource(rs, ref, push) {
+  const rref = ref + ".review_source";
+  if (!rs || typeof rs !== "object" || Array.isArray(rs)) {
+    push("claim-review-source", ref, rref + ": must be an object { domain, report_sha256, rule_id, dimension, proof_basis }");
+    return;
+  }
+  checkUnknownProps(rs, HEALTH_REVIEW_SOURCE_PROPS, rref, push);
+  if (HEALTH_REVIEW_DOMAINS.indexOf(String(rs.domain)) === -1) {
+    push("claim-review-source", ref, rref + ".domain must be one of " + HEALTH_REVIEW_DOMAINS.join(" | ") + " (got " + JSON.stringify(rs.domain) + ")");
+  }
+  if (typeof rs.report_sha256 !== "string" || !/^[0-9a-f]{64}$/.test(rs.report_sha256)) {
+    push("claim-review-source", ref, rref + ".report_sha256 must be a 64-character lowercase hex sha256 of the review report");
+  }
+  for (const k of ["rule_id", "dimension"]) {
+    if (typeof rs[k] !== "string" || !rs[k].trim()) push("claim-review-source", ref, rref + "." + k + " is required");
+  }
+  if (HEALTH_PROOF_BASES.indexOf(String(rs.proof_basis)) === -1) {
+    push("claim-review-source", ref, rref + ".proof_basis must be " + HEALTH_PROOF_BASES.join(" | ") + " (got " + JSON.stringify(rs.proof_basis) + ") — review-to-claims.js derives it from the report's judged_rules");
+  }
+}
+
+/** uncontained_critical_failure: null (or absent) | { claim_id, statement },
+ * where claim_id resolves to a claim whose result is `fail`. Returns the
+ * validated object, or null. Strings and booleans are rejected: the string
+ * "false" used to fire the D cap. */
+function validateUncontainedCritical(value, claimById, push) {
+  if (value === undefined || value === null) return null;
+  const ref = "uncontained_critical_failure";
+  if (typeof value === "boolean") {
+    push("uncontained-critical-shape", ref, ref + ": a boolean is no longer accepted. Migration: replace `true` with { claim_id, statement } naming the failing claim that evidences the failure; replace `false` with null (or omit the field).");
+    return null;
+  }
+  if (typeof value !== "object" || Array.isArray(value)) {
+    push("uncontained-critical-shape", ref, ref + ": must be null or { claim_id, statement } (got " + JSON.stringify(value) + "). A free-text string is not a trigger — name the failing claim.");
+    return null;
+  }
+  checkUnknownProps(value, HEALTH_UNCONTAINED_PROPS, ref, push);
+  let ok = true;
+  if (typeof value.claim_id !== "string" || !value.claim_id.trim()) { push("uncontained-critical-shape", ref, ref + ".claim_id is required"); ok = false; }
+  if (typeof value.statement !== "string" || !value.statement.trim()) { push("uncontained-critical-shape", ref, ref + ".statement is required"); ok = false; }
+  if (!ok) return null;
+  const claim = claimById.get(value.claim_id);
+  if (!claim) {
+    push("uncontained-critical-claim-unknown", ref, ref + ".claim_id names unknown claim " + value.claim_id);
+    return null;
+  }
+  if (String(claim.result) !== "fail") {
+    push("uncontained-critical-claim-not-failing", ref, ref + ".claim_id " + value.claim_id + " has result '" + claim.result + "' — an uncontained critical failure must be evidenced by a claim whose result is fail");
+    return null;
+  }
+  // R6: the D cap is the heaviest single grade effect; a model judgment the
+  // runtime did not re-derive cannot fire it.
+  if (isJudgmentClaim(claim)) {
+    push("uncontained-critical-judgment", ref, ref + ".claim_id " + value.claim_id + " is a judgment claim (review_source.proof_basis 'judgment') — an uncontained critical failure must be evidenced by a mechanically proved or directly observed failing claim");
+    return null;
+  }
+  return { claim_id: value.claim_id, statement: value.statement };
+}
+
+/** evidence_workers: optional record of the workers that produced the
+ * evidence. A non-complete worker must carry a limitation; a failed/timeout
+ * worker on a lane that evidences a core surface cannot coexist with that
+ * surface marked `inspected` (full coverage). */
+function validateEvidenceWorkers(workers, surfaces, push) {
+  if (workers === undefined) return;
+  if (!Array.isArray(workers)) {
+    push("evidence-worker-shape", "evidence_workers", "evidence_workers must be an array when present");
+    return;
+  }
+  const seen = new Set();
+  const byId = new Map((surfaces || []).filter((s) => s && s.id).map((s) => [String(s.id), s]));
+  workers.forEach((w, i) => {
+    const ref = "evidence_workers[" + i + "]";
+    if (!w || typeof w !== "object" || Array.isArray(w)) { push("evidence-worker-shape", ref, ref + ": must be an object"); return; }
+    checkUnknownProps(w, HEALTH_WORKER_PROPS, ref, push);
+    if (typeof w.worker_id !== "string" || !w.worker_id.trim()) push("evidence-worker-shape", ref, ref + ": worker_id is required");
+    else if (seen.has(w.worker_id)) push("evidence-worker-shape", ref, ref + ": duplicate worker_id " + w.worker_id);
+    else seen.add(w.worker_id);
+    if (!HEALTH_LANE_DEFINITIONS[String(w.lane)]) push("evidence-worker-shape", ref, ref + ": lane must be a known lane id (got " + JSON.stringify(w.lane) + ")");
+    if (HEALTH_WORKER_STATUSES.indexOf(String(w.status)) === -1) {
+      push("evidence-worker-shape", ref, ref + ": status must be " + HEALTH_WORKER_STATUSES.join(" | "));
+      return;
+    }
+    const lims = Array.isArray(w.limitations) ? w.limitations : null;
+    if (!lims || lims.some((x) => typeof x !== "string" || !x.trim())) {
+      push("evidence-worker-shape", ref, ref + ": limitations must be an array of non-empty strings (use [] for a complete worker)");
+    }
+    if (w.status !== "complete" && (!lims || !lims.some((x) => typeof x === "string" && x.trim()))) {
+      push("evidence-worker-limitation-missing", ref, ref + ": worker " + w.worker_id + " on lane " + w.lane + " is '" + w.status + "' but records no limitation — a worker that did not complete must say what it could not see");
+    }
+    if (w.status === "failed" || w.status === "timeout") {
+      for (const sid of HEALTH_LANE_CORE_SURFACES[String(w.lane)] || []) {
+        const s = byId.get(sid);
+        if (s && s.coverage === "inspected") {
+          push("evidence-worker-coverage-contradiction", ref, ref + ": worker " + w.worker_id + " on lane " + w.lane + " is '" + w.status + "', yet core surface " + sid + " is marked inspected (full coverage) — downgrade the surface or record the evidence that replaced the worker");
+        }
+      }
+    }
+  });
+}
+
 /**
  * Verify a parsed health island. Returns a normalized result with computed
  * values attached and every disagreement recorded in `problems`. Stored
  * values are checked, never trusted for display.
+ *
+ * options.persisted === true applies the PERSISTED-artifact contract: the
+ * island must carry grade.final_grade and grade.caps_applied as
+ * [{cap, trigger, ...}], and each declared trigger/ceiling must equal the
+ * computed one. Pre-grade input islands (no stored grade) verify without it.
  */
-function verifyHealth(health) {
+function verifyHealth(health, options) {
+  const opts = options && typeof options === "object" ? options : {};
   const problems = [];
   const push = (code, ref, message) => problems.push({ code, ref: ref || null, message });
 
@@ -833,9 +1117,11 @@ function verifyHealth(health) {
     push("coverage-mismatch", null, "stored weighted_coverage " + storedCov + " ≠ recomputed " + cov.weighted_coverage + " — displaying the recomputed value");
   }
   const core = coreSurfaceIds(health.core_surfaces);
-  const unavailableCore = surfaces
-    .filter((s) => s && s.coverage === "unavailable" && core.indexOf(String(s.id)) > -1)
-    .map((s) => String(s.id));
+  // `uninspected` (did not look) and `unavailable` (could not look) both give
+  // a core surface zero credit, and both make the repository Not gradable.
+  const ungradableCore = surfaces
+    .filter((s) => s && (s.coverage === "unavailable" || s.coverage === "uninspected") && core.indexOf(String(s.id)) > -1)
+    .map((s) => ({ id: String(s.id), coverage: String(s.coverage), reason: s.reason ? String(s.reason) : null }));
 
   /* ---- claims (indexed first: dimensions reference them) ---- */
   const claims = Array.isArray(health.claims) ? health.claims : [];
@@ -856,13 +1142,26 @@ function verifyHealth(health) {
       push("claim-evidence-missing", ref, ref + ": evidence is required (path/lines, or architecture_level with rationale)");
     } else {
       ev.forEach((e, j) => {
-        const ok = (e && typeof e.path === "string" && e.path.trim()) ||
-          (e && e.architecture_level === true && typeof e.rationale === "string" && e.rationale.trim());
-        if (!ok) push("claim-evidence-missing", ref, ref + ": evidence[" + j + "] needs {path, lines?} or {architecture_level: true, rationale}");
+        // RIA composite v2 (§5.3): {kind: "sei-criterion", criterion_id, metric_id} cites the
+        // bound SEI assessment; its membership is checked against the bound bytes by the writer
+        // and by RIA, not here.
+        const sei = e && e.kind === "sei-criterion";
+        const ok = sei
+          ? typeof e.criterion_id === "string" && e.criterion_id.trim() && typeof e.metric_id === "string" && e.metric_id.trim() && e.path === undefined && e.architecture_level === undefined
+          : (e && e.kind === undefined && typeof e.path === "string" && e.path.trim()) ||
+            (e && e.kind === undefined && e.architecture_level === true && typeof e.rationale === "string" && e.rationale.trim());
+        if (!ok) push("claim-evidence-missing", ref, ref + ": evidence[" + j + "] needs {path, lines?}, {architecture_level: true, rationale} or {kind: \"sei-criterion\", criterion_id, metric_id}");
         checkUnknownProps(e, HEALTH_EVIDENCE_PROPS, ref + ".evidence[" + j + "]", push);
       });
     }
     if (c && c.observation) checkUnknownProps(c.observation, HEALTH_OBSERVATION_PROPS, ref + ".observation", push);
+    if (c && c.review_source !== undefined) validateReviewSource(c.review_source, ref, push);
+    // R1: a judgment is an inference about the code, not an observation of it.
+    // Keeping it out of `confirmed` keeps it out of determinism_ratio and out
+    // of the Evidence Recon sidecar's safe_to_assume.
+    if (isJudgmentClaim(c) && c.observation && c.observation.confirmed !== undefined) {
+      push("claim-judgment-confirmed", ref, ref + ": a judgment claim (review_source.proof_basis 'judgment') cannot carry observation.confirmed — record the judgment in observation.inferred");
+    }
     if (c && c.observation && typeof c.observation.confirmed === "string" && c.observation.confirmed.trim()) confirmedCount++;
     if (c && "score_effect" in c) {
       push("claim-shape", ref, ref + ": score_effect is not part of this model — claims justify dimension levels via per-dimension claim_refs, and the arithmetic has exactly one path");
@@ -880,6 +1179,10 @@ function verifyHealth(health) {
   /* ---- sprawl pressure: informs architecture-fitness and
      maintainability-and-ownership claims; scores nothing on its own ---- */
   validateSprawlPressure(health, claimById, push);
+
+  /* ---- evidence workers and the uncontained-critical declaration ---- */
+  validateEvidenceWorkers(health.evidence_workers, surfaces, push);
+  const uncontained = validateUncontainedCritical(health.uncontained_critical_failure, claimById, push);
 
   /* ---- lanes: locked weights, per-dimension support ---- */
   const laneIds = new Set();
@@ -933,7 +1236,7 @@ function verifyHealth(health) {
         if (!claim) { push("dimension-claim-unknown", dref, dref + ": claim_refs names unknown claim " + r.claim_id); continue; }
         if (String(claim.lane) !== ref) { push("dimension-claim-foreign", dref, dref + ": claim " + r.claim_id + " belongs to lane " + claim.lane + ", not " + ref); continue; }
         supporting.push(claim);
-        const key = r.claim_id + "||" + String(r.support || "").trim().toLowerCase();
+        const key = r.claim_id + "||" + normalizeSupportText(r.support);
         if (reuse.has(key)) {
           push("claim-ref-duplicate-support", dref, dref + ": claim " + r.claim_id + " is reused from " + reuse.get(key) + " with an identical support line — one claim may inform several dimensions, but it must say something different about each");
         } else {
@@ -948,6 +1251,14 @@ function verifyHealth(health) {
       }
       if (level >= 4 && !results.some((r) => r === "pass")) {
         push("dimension-incoherent", dref, dref + ": level 4 means systematic and regression-resistant, so it needs at least one claim that passes outright — got " + results.join("/"));
+      }
+      // R3 / R2: model judgment may inform a level but cannot carry the top of
+      // the scale on its own. R2 is reported only when R3 did not already fire.
+      const judgedOnly = supporting.every(isJudgmentClaim);
+      if (level >= 3 && judgedOnly) {
+        push("level-judgment-only", dref, dref + ": level " + level + " rests only on judgment claims (review_source.proof_basis 'judgment') — level 3 or above needs at least one mechanically proved or directly observed claim");
+      } else if (level >= 4 && results.some((r) => r === "pass") && !supporting.some((c) => String(c.result) === "pass" && !isJudgmentClaim(c))) {
+        push("level4-needs-mechanical-pass", dref, dref + ": level 4 needs a passing claim that is not a judgment claim — every passing claim cited here has review_source.proof_basis 'judgment'");
       }
       if (results.every((r) => r === "unknown") && level > 1) {
         push("dimension-incoherent", dref, dref + ": every supporting claim is `unknown`, so nothing above level 1 has been evidenced");
@@ -1061,6 +1372,20 @@ function verifyHealth(health) {
       push("surface-evidence-unknown", er.surface, er.surface + ": evidence_refs names unknown command_id " + er.ref);
     }
   }
+  // R5: `strong` needs a deterministic reference; a judgment claim is not one.
+  // (A strong surface with no deterministic kind at all is surface-evidence-weak.)
+  const strongDeterministic = new Map(); // surface -> deterministic refs
+  for (const er of surfaceEvidencePending) {
+    if (er.evidence_quality !== "strong" || er.coverage === "not-applicable") continue;
+    if (["claim", "command", "path", "inventory"].indexOf(er.kind) === -1) continue;
+    if (!strongDeterministic.has(er.surface)) strongDeterministic.set(er.surface, []);
+    strongDeterministic.get(er.surface).push(er);
+  }
+  for (const [surfaceRef, refs] of strongDeterministic) {
+    if (refs.every((er) => er.kind === "claim" && isJudgmentClaim(claimById.get(er.ref)))) {
+      push("surface-strong-judgment-only", surfaceRef, surfaceRef + ": evidence_quality 'strong' rests only on judgment claims (" + refs.map((er) => er.ref).join(", ") + ") — cite a mechanically proved claim, a command, a path, or an inventory, or downgrade to 'moderate'");
+    }
+  }
   const derived = deriveBaseline(commands);
   const derivedBaseline = derived.state;
   const declaredBaseline = verification.baseline;
@@ -1083,10 +1408,11 @@ function verifyHealth(health) {
   /* ---- grade ---- */
   const overall_raw = overallRaw(lanes);
   const capResult = applyCaps({
-    overall_raw, weighted_coverage: cov.weighted_coverage, lanes, baseline,
+    overall_raw, weighted_coverage: cov.weighted_coverage, weighted_coverage_raw: cov.weighted_coverage_raw,
+    lanes, baseline,
     baseline_reason: baselineReason,
-    uncontained_critical_failure: health.uncontained_critical_failure || false,
-    unavailable_core_surfaces: unavailableCore,
+    uncontained_critical_failure: uncontained,
+    ungradable_core_surfaces: ungradableCore,
   });
   const confidence = confidenceIndex({
     weighted_coverage: cov.weighted_coverage,
@@ -1120,11 +1446,45 @@ function verifyHealth(health) {
   if (storedGrade.confidence != null && String(storedGrade.confidence) !== confidence.band) {
     push("confidence-mismatch", null, "stored confidence " + storedGrade.confidence + " ≠ recomputed " + confidence.band + " (index " + confidence.index + ")");
   }
-  const declared = Array.isArray(storedGrade.caps_applied) ? storedGrade.caps_applied.map((c) => (typeof c === "string" ? c : c.cap)) : null;
+  const declaredRaw = Array.isArray(storedGrade.caps_applied) ? storedGrade.caps_applied : null;
+  if (storedGrade.caps_applied != null && !declaredRaw) {
+    push("grade-shape", "grade.caps_applied", "grade.caps_applied must be an array");
+  }
+  const declared = declaredRaw ? declaredRaw.map((c) => (typeof c === "string" ? c : (c && typeof c === "object" ? String(c.cap) : String(c)))) : null;
   if (declared) {
     const fired = capResult.caps_applied.map((c) => c.cap);
-    for (const d of declared) if (fired.indexOf(d) === -1) push("cap-fabricated", null, "declared cap did not fire: " + d);
+    for (const d of declared) {
+      if (HEALTH_CAP_NAMES.indexOf(d) === -1) push("cap-unknown", null, "declared cap '" + d + "' is not a cap this model emits (" + HEALTH_CAP_NAMES.join(" | ") + ")");
+      if (fired.indexOf(d) === -1) push("cap-fabricated", null, "declared cap did not fire: " + d);
+    }
     for (const f of fired) if (declared.indexOf(f) === -1) push("cap-undeclared", null, "cap fired but was not declared: " + f);
+    declaredRaw.forEach((c, i) => {
+      if (c && typeof c === "object" && !Array.isArray(c)) checkUnknownProps(c, HEALTH_CAP_PROPS, "grade.caps_applied[" + i + "]", push);
+    });
+  }
+  if (opts.persisted === true) {
+    // A persisted artifact is the record downstream owners read; a missing
+    // grade there means cap-undeclared could never fire on stored artifacts.
+    if (storedGrade.final_grade == null) {
+      push("grade-not-persisted", "grade.final_grade", "persisted artifact must carry grade.final_grade (computed: " + capResult.final_grade + ") — embed computeGradeBlock(island) before writing");
+    }
+    if (!declaredRaw) {
+      push("grade-not-persisted", "grade.caps_applied", "persisted artifact must carry grade.caps_applied as [{cap, trigger}] (computed: " + (capResult.caps_applied.map((c) => c.cap).join(", ") || "none") + ")");
+    } else {
+      const firedBy = new Map(capResult.caps_applied.map((c) => [c.cap, c]));
+      declaredRaw.forEach((c, i) => {
+        const cref = "grade.caps_applied[" + i + "]";
+        if (!c || typeof c !== "object" || Array.isArray(c) || typeof c.cap !== "string" || typeof c.trigger !== "string" || !c.trigger.trim()) {
+          push("grade-not-persisted", cref, cref + ": a persisted cap must be an object carrying both cap and trigger");
+          return;
+        }
+        const f = firedBy.get(c.cap);
+        if (!f) return; // cap-fabricated already reported
+        if (c.trigger !== f.trigger) push("cap-trigger-mismatch", cref, cref + ": declared trigger '" + c.trigger + "' ≠ computed '" + f.trigger + "'");
+        if (c.ceiling != null && String(c.ceiling) !== f.ceiling) push("cap-trigger-mismatch", cref, cref + ": declared ceiling " + c.ceiling + " ≠ computed " + f.ceiling);
+        if (c.binding != null && Boolean(c.binding) !== Boolean(f.binding)) push("cap-trigger-mismatch", cref, cref + ": declared binding " + c.binding + " ≠ computed " + f.binding);
+      });
+    }
   }
 
   /* ---- candidates: complete shared-spine v3 envelope + health traceability ---- */
@@ -1146,7 +1506,14 @@ function verifyHealth(health) {
       for (const key of ["title", "summary", "root_cause"]) {
         if (typeof c[key] !== "string" || !c[key].trim()) push("candidate-shape", ref, ref + ": " + key + " is required by the shared spine v3 contract");
       }
-      candidateList.push({ candidate_id: ref, status: c.status, lifecycle_status: c.lifecycle_status || null });
+      candidateList.push({ candidate_id: ref, status: c.status, lifecycle_status: candidateLifecycleView(c).status || null, route: routeCandidate(c) });
+      // candidate_lifecycle is validated in full by LedgerVerify (spine:lifecycle-*);
+      // the health-side preflight checks only that it is an object bound to this id.
+      if (c.candidate_lifecycle !== undefined) {
+        const cl = c.candidate_lifecycle;
+        if (!cl || typeof cl !== "object" || Array.isArray(cl)) push("candidate-lifecycle", ref, ref + ".candidate_lifecycle must be an object (spine v3 lifecycle)");
+        else if (cl.candidate_id !== c.candidate_id) push("candidate-lifecycle", ref, ref + ".candidate_lifecycle.candidate_id must equal the candidate's own candidate_id");
+      }
 
       const ls = Array.isArray(c.lane_sources) ? c.lane_sources.map(String) : null;
       if (!ls || !ls.length) {
@@ -1257,6 +1624,7 @@ function verifyHealth(health) {
   }
 
   const result = {
+    persisted: opts.persisted === true,
     ok: problems.length === 0, problems,
     coverage: cov, lanes, claimList, candidateList,
     claims: { total: claims.length, confirmed: confirmedCount, determinism_ratio },
@@ -1282,11 +1650,39 @@ function failedResult(problems) {
     lanes: [], claimList: [], candidateList: [],
     claims: { total: 0, confirmed: 0, determinism_ratio: 0 },
     baseline: null, declared_baseline: null, commands: [], isolation: null,
-    grade: { raw_score: 0, weighted_coverage: 0, not_gradable: true, reason: "island unusable", raw_grade: null, final_grade: HEALTH_NOT_GRADABLE, caps_applied: [] },
+    grade: { raw_score: 0, weighted_coverage: 0, not_gradable: true, reason: "island unusable", not_gradable_surfaces: [], raw_grade: null, final_grade: HEALTH_NOT_GRADABLE, caps_applied: [] },
     confidence: { index: 0, band: "low", parts: [] },
     ledger: null, candidateCount: 0, schema_version: null, spine_version: null,
     previous: null, delta: null, source: null,
   };
+}
+
+/**
+ * The grade block a persisted artifact embeds as `island.grade`, computed from
+ * the island (any stored grade is ignored for computation). Every field is one
+ * verifyHealth(island, {persisted: true}) checks against recomputation, so
+ * embedding this block and re-verifying is a fixed point. Returns null when
+ * the island is structurally unusable (verifyHealth could not compute).
+ * Callers should verifyHealth(island) first and refuse to write on problems.
+ */
+function computeGradeBlock(island) {
+  const base = island && typeof island === "object" && !Array.isArray(island) ? Object.assign({}, island) : island;
+  if (base && typeof base === "object") delete base.grade;
+  const v = verifyHealth(base);
+  if (!v.source) return null;
+  const g = v.grade;
+  const block = {
+    raw_score: g.raw_score,
+    raw_grade: g.raw_grade,
+    final_grade: g.final_grade,
+    weighted_coverage: g.weighted_coverage,
+    confidence: v.confidence.band,
+    confidence_index: v.confidence.index,
+    caps_applied: g.caps_applied.map((c) => ({ cap: c.cap, ceiling: c.ceiling, trigger: c.trigger, binding: c.binding })),
+    not_gradable: !!g.not_gradable,
+  };
+  if (g.not_gradable && g.reason) block.reason = g.reason;
+  return block;
 }
 
 /**
@@ -1666,12 +2062,14 @@ function renderBaselineInto(el, v) {
 function renderDecisionBlockersInto(el, v) {
   el.textContent = "";
   const rows = [];
+  const core = coreSurfaceIds(v.source && v.source.core_surfaces);
   for (const s of (v.source && v.source.coverage) || []) {
     if (s.coverage === "unavailable") rows.push("surface " + s.id + " unavailable — " + (s.reason || "reason not recorded"));
+    else if (s.coverage === "uninspected" && core.indexOf(String(s.id)) > -1) rows.push("core surface " + s.id + " uninspected — the repository is Not gradable until it is inspected");
   }
+  // The decision queue is routed by rollup.execution_mode, not by status.
   for (const c of (v.source && v.source.candidates) || []) {
-    const blocked = c.status === "needs-human-decision" || (c.rollup && Array.isArray(c.rollup.blocked_by) && c.rollup.blocked_by.length);
-    if (blocked) rows.push(c.candidate_id + " — " + ((c.rollup && c.rollup.blocked_by || []).join(", ") || "human decision required"));
+    if (routeCandidate(c) === "decision") rows.push(c.candidate_id + " — " + ((c.rollup && c.rollup.blocked_by || []).join(", ") || "human decision required"));
   }
   if (!rows.length) {
     el.appendChild(healthEl("div", HEALTH_MONO + "font-size:11px;color:var(--ink-muted,#898781);", "no human-decision blockers recorded"));
@@ -1703,17 +2101,23 @@ function renderRoadmapInto(el, v) {
   }
 }
 
+/** Group candidate ids by routeCandidate. Keys: integrity, architecture,
+ * decision (human decision queue), none (reject), unrouted. Pure. */
+function handoffGroups(candidates) {
+  const groups = { integrity: [], architecture: [], decision: [], none: [], unrouted: [] };
+  for (const c of candidates || []) {
+    const route = routeCandidate(c);
+    (groups[route] || groups.unrouted).push(c && c.candidate_id);
+  }
+  return groups;
+}
+
 function renderHandoffInto(el, v) {
   el.textContent = "";
-  const groups = { architecture: [], integrity: [], blocked: [], rejected: [] };
-  for (const c of (v.source && v.source.candidates) || []) {
-    const action = c.rollup && c.rollup.recommended_action;
-    if (c.status === "needs-human-decision" || c.status === "blocked") groups.blocked.push(c.candidate_id);
-    else if (c.status === "rejected" || action === "reject") groups.rejected.push(c.candidate_id);
-    else if (action === "design" || action === "prototype") groups.architecture.push(c.candidate_id);
-    else groups.integrity.push(c.candidate_id);
-  }
-  for (const key of ["integrity", "architecture", "blocked", "rejected"]) {
+  const groups = handoffGroups((v.source && v.source.candidates) || []);
+  const keys = ["integrity", "architecture", "decision", "none"];
+  if (groups.unrouted.length) keys.push("unrouted");
+  for (const key of keys) {
     const ids = groups[key];
     const row = healthEl("div", HEALTH_MONO + "font-size:11px;color:var(--ink-secondary,#52514e);padding:4px 0;border-bottom:1px solid var(--hairline,#e1e0d9);", key + " · " + ids.length + (ids.length ? " · " + ids.join(", ") : ""));
     row.setAttribute("data-handoff-row", key);
@@ -1847,12 +2251,20 @@ globalThis.HealthVerify = {
   HEALTH_LANE_APPLICABILITY,
   HEALTH_REQUIRED_PROSE,
   HEALTH_CONFIDENCE_WEIGHTS,
+  HEALTH_CAP_NAMES,
+  HEALTH_HANDOFF_ROUTES,
+  HEALTH_WORKER_STATUSES,
+  HEALTH_LANE_CORE_SURFACES,
+  HEALTH_REVIEW_DOMAINS,
+  HEALTH_PROOF_BASES,
   round1, roundScore, roundPct,
   coreSurfaceIds, laneScore, surfaceCredit, weightedCoverage, overallRaw,
   gradeFor, gradeIndex, oneLetterAbove, deriveBaseline, baselineCeiling,
-  normalizeClaimRefs, applyCaps,
+  normalizeClaimRefs, normalizeSupportText, applyCaps,
+  routeCandidate, handoffGroups, candidateLifecycleView,
+  validateReviewSource, isJudgmentClaim, validateUncontainedCritical, validateEvidenceWorkers,
   confidenceIndex, confidenceBand, computeDelta,
-  verifyHealth, verifyBinding, readHealthIsland,
+  verifyHealth, computeGradeBlock, verifyBinding, readHealthIsland,
   renderGradeInto, renderCapsInto, renderCoverageInto, renderLaneInto,
   renderConfidenceInto, renderDeltaInto, renderCandidatesInto,
   ensureLaneContainers, renderMetadata, renderBaselineInto,

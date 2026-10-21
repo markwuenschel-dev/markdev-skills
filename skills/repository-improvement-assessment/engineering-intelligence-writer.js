@@ -1,6 +1,7 @@
 "use strict";
 
 const fs = require("node:fs");
+const os = require("node:os");
 const path = require("node:path");
 const { materializeSnapshot } = require("../shared/software-engineering-intelligence/intelligence-engine.js");
 const {
@@ -187,16 +188,50 @@ function readEstablishedBaselineIntelligence(index, pin, expected) {
   return { index: establishedIndex, pin: establishedPin };
 }
 
+// The lock is held for the whole snapshot computation (minutes), so age alone cannot tell a
+// slow holder from a dead one. Same-host holders are judged by pid liveness; a holder on
+// another host (shared or network drive) can only be judged by age.
+const FOREIGN_LOCK_STALE_MS = 30 * 60 * 1000;
+function processAlive(pid) {
+  if (!Number.isInteger(pid) || pid <= 0) return false;
+  try { process.kill(pid, 0); return true; }
+  catch (error) { return error.code === "EPERM"; }
+}
+function readLockHolder(lockPath) {
+  let text = "", mtimeMs = Date.now();
+  try { text = fs.readFileSync(lockPath, "utf8"); mtimeMs = fs.statSync(lockPath).mtimeMs; } catch { /* vanished between EEXIST and read */ }
+  try {
+    const value = JSON.parse(text);
+    if (value && typeof value === "object") return { pid: Number(value.pid), hostname: String(value.hostname || os.hostname()), acquired_at: value.acquired_at || new Date(mtimeMs).toISOString(), mtimeMs, lock_path: lockPath };
+  } catch { /* legacy lock: the bare pid this writer used to write */ }
+  return { pid: Number.parseInt(text, 10), hostname: os.hostname(), acquired_at: new Date(mtimeMs).toISOString(), mtimeMs, lock_path: lockPath };
+}
+function lockIsStale(holder) {
+  if (holder.hostname === os.hostname()) return !processAlive(holder.pid);
+  return Date.now() - holder.mtimeMs > FOREIGN_LOCK_STALE_MS;
+}
+function openIndexLock(lockPath) {
+  const descriptor = fs.openSync(lockPath, "wx");
+  fs.writeFileSync(descriptor, `${JSON.stringify({ pid: process.pid, hostname: os.hostname(), acquired_at: new Date().toISOString() })}\n`, "utf8");
+  return { descriptor, lock_path: lockPath };
+}
+/** Returns { lock } or { lock: null, holder }. Before this, the pid written into the lock was
+ * never read back, so a single killed run left a lock that failed every later run forever. */
 function acquireIndexLock(storage) {
   const lockPath = path.join(storage.index_root, `.${path.basename(storage.index_file_path)}.lock`);
-  try {
-    const descriptor = fs.openSync(lockPath, "wx");
-    fs.writeFileSync(descriptor, `${process.pid}\n`, "utf8");
-    return { descriptor, lock_path: lockPath };
-  } catch (error) {
-    if (error.code === "EEXIST") return null;
-    fail("FAIL-ENGINEERING-INTELLIGENCE-INDEX-LOCK", error.message);
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try { return { lock: openIndexLock(lockPath) }; }
+    catch (error) {
+      if (error.code !== "EEXIST") fail("FAIL-ENGINEERING-INTELLIGENCE-INDEX-LOCK", error.message);
+      const holder = readLockHolder(lockPath);
+      if (attempt > 0 || !lockIsStale(holder)) return { lock: null, holder };
+      // Rename aside rather than unlink: if two runs reclaim at once, only one rename succeeds
+      // and the loser simply retries the exclusive create.
+      const aside = `${lockPath}.stale-${process.pid}-${Date.now()}`;
+      try { fs.renameSync(lockPath, aside); fs.rmSync(aside, { force: true }); } catch { /* another reclaimer won the rename */ }
+    }
   }
+  return { lock: null, holder: readLockHolder(lockPath) };
 }
 
 function releaseIndexLock(lock) {
@@ -213,11 +248,13 @@ function writeEngineeringIntelligenceArtifact(input) {
   const existing = readEstablishedBaselineIntelligence(storage, pin, expected);
   if (existing) return reusePinnedArtifact(normalized.repository_root, existing.index, existing.pin, expected);
 
-  const lock = acquireIndexLock(storage);
+  const acquired = acquireIndexLock(storage);
+  const lock = acquired.lock;
   if (!lock) {
     const afterContention = readEstablishedBaselineIntelligence(storage, pin, expected);
     if (afterContention) return reusePinnedArtifact(normalized.repository_root, afterContention.index, afterContention.pin, expected);
-    fail("FAIL-ENGINEERING-INTELLIGENCE-INDEX-LOCKED", "baseline index is being established; retry after its immutable binding appears");
+    const h = acquired.holder;
+    fail("FAIL-ENGINEERING-INTELLIGENCE-INDEX-LOCKED", `${h.lock_path} is held by pid ${Number.isInteger(h.pid) ? h.pid : "unknown"} on ${h.hostname} since ${h.acquired_at}. Another RIA run on this repository is establishing the baseline index; wait for it, or if no such run exists delete that lock file.`);
   }
 
   try {

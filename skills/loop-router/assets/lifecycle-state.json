@@ -1,0 +1,299 @@
+{
+  "schema_version": 2,
+  "runtime_kind": "orchestration-runtime",
+  "mission_id": "mission-loop-router-example",
+  "scope_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "policy_hash": "a10894e53ebb7ef3ae7002962f1e47da3067d4e45a17f53a80bc0e2d0fa1450a",
+  "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+  "authorization": {
+    "authorized": true,
+    "mission_id": "mission-loop-router-example",
+    "scope_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "policy_hash": "a10894e53ebb7ef3ae7002962f1e47da3067d4e45a17f53a80bc0e2d0fa1450a",
+    "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+    "authorized_by": "mission-authorizer",
+    "authorized_at": "2026-08-08T16:00:00.000Z"
+  },
+  "policy": {
+    "global_worker_budget": 8,
+    "max_nested_dispatch_depth": 2,
+    "lease_ms": 60000,
+    "retry_base_delay_ms": 1000,
+    "retry_max_attempts": 3,
+    "stage_owners": {
+      "ASSESS": [
+        "repository-improvement-assessment"
+      ],
+      "RECONCILE": [
+        "remediation-graph-optimizer"
+      ],
+      "EXECUTE": [
+        "production-flywheel"
+      ],
+      "INTEGRATE": [
+        "production-flywheel"
+      ],
+      "CONTINUE": [
+        "independent-verification"
+      ]
+    },
+    "stage_requirements": {
+      "ASSESS": [],
+      "RECONCILE": [
+        "assessment",
+        "integration"
+      ],
+      "EXECUTE": [
+        "assessment",
+        "frontier"
+      ],
+      "INTEGRATE": [
+        "assessment",
+        "frontier"
+      ],
+      "CONTINUE": [
+        "assessment",
+        "frontier",
+        "integration"
+      ]
+    },
+    "stage_predecessors": {
+      "ASSESS": [],
+      "RECONCILE": [
+        "ASSESS"
+      ],
+      "EXECUTE": [
+        "RECONCILE"
+      ],
+      "INTEGRATE": [
+        "EXECUTE"
+      ],
+      "CONTINUE": [
+        "INTEGRATE"
+      ]
+    },
+    "projection_owners": {
+      "assessment": [
+        "repository-improvement-assessment"
+      ],
+      "frontier": [
+        "remediation-graph-optimizer"
+      ],
+      "integration": [
+        "action-integration-reassessment"
+      ],
+      "decision": [
+        "human-authority"
+      ]
+    },
+    "stage_return_projections": {
+      "ASSESS": {
+        "owner": "repository-improvement-assessment",
+        "kind": "assessment",
+        "projection_class": "assessment",
+        "predecessor_class": null
+      },
+      "RECONCILE": {
+        "owner": "remediation-graph-optimizer",
+        "kind": "remediation-graph",
+        "projection_class": "reconciliation",
+        "predecessor_class": "assessment"
+      },
+      "EXECUTE": {
+        "owner": "production-flywheel",
+        "kind": "execution",
+        "projection_class": "execution",
+        "predecessor_class": "reconciliation"
+      },
+      "INTEGRATE": {
+        "owner": "action-integration-reassessment",
+        "kind": "integration",
+        "projection_class": "integration",
+        "predecessor_class": "execution"
+      },
+      "CONTINUE": {
+        "owner": "independent-verification",
+        "kind": "verification",
+        "projection_class": "verification",
+        "predecessor_class": "integration"
+      }
+    },
+    "stage_supporting_artifact_requirements": {
+      "ASSESS": [],
+      "RECONCILE": [],
+      "EXECUTE": [
+        {
+          "owner": "independent-verification",
+          "kind": "verification",
+          "purpose": "action-verdict",
+          "status": "successful",
+          "coverage_status": "complete"
+        }
+      ],
+      "INTEGRATE": [
+        {
+          "owner": "action-graph-execution",
+          "kind": "eligible-cohort",
+          "purpose": "complete-eligible-cohort",
+          "status": "complete",
+          "coverage_status": "complete"
+        },
+        {
+          "owner": "action-integration-reassessment",
+          "kind": "integration",
+          "purpose": "combined-state",
+          "status": "successful",
+          "coverage_status": "complete"
+        }
+      ],
+      "CONTINUE": []
+    },
+    "stage_owner_projection_admissions": {
+      "ASSESS": {
+        "projection_kind": "assessment",
+        "owner": "repository-improvement-assessment"
+      },
+      "RECONCILE": {
+        "projection_kind": "frontier",
+        "owner": "remediation-graph-optimizer"
+      },
+      "EXECUTE": null,
+      "INTEGRATE": {
+        "projection_kind": "integration",
+        "owner": "shared/action-integration-reassessment"
+      },
+      "CONTINUE": null
+    },
+    "integration_finding_reentry": {
+      "source_stage": "INTEGRATE",
+      "source_projection_class": "integration",
+      "source_projection_kind": "integration",
+      "source_claim_statuses": [
+        "finding",
+        "clean"
+      ],
+      "reopen_stage": "RECONCILE"
+    }
+  },
+  "lifecycle": {
+    "ASSESS": {
+      "status": "ready",
+      "updated_at": "2026-08-08T16:00:00.000Z"
+    },
+    "RECONCILE": {
+      "status": "pending"
+    },
+    "EXECUTE": {
+      "status": "pending"
+    },
+    "INTEGRATE": {
+      "status": "pending"
+    },
+    "CONTINUE": {
+      "status": "pending"
+    }
+  },
+  "owner_projections": [
+    {
+      "projection_id": "projection-54854a731cc97d59d13bf959",
+      "projection_kind": "frontier",
+      "owner": "remediation-graph-optimizer",
+      "mission_id": "mission-loop-router-example",
+      "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+      "policy_hash": "a10894e53ebb7ef3ae7002962f1e47da3067d4e45a17f53a80bc0e2d0fa1450a",
+      "artifact_ref": {
+        "artifact_id": "frontier-artifact-ready-execute",
+        "owner": "remediation-graph-optimizer",
+        "kind": "frontier-projection",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "repository_revision": "0123456789abcdef0123456789abcdef01234567"
+      },
+      "claim": {
+        "status": "ready-execute"
+      },
+      "recorded_at": "2026-08-08T16:00:00.000Z",
+      "projection_hash": "54854a731cc97d59d13bf95905e4b54c7a93c3322bfb4b7c047e51631831791f"
+    },
+    {
+      "projection_id": "projection-d4a2ea1493b1fb371e0d376e",
+      "projection_kind": "integration",
+      "owner": "shared/action-integration-reassessment",
+      "mission_id": "mission-loop-router-example",
+      "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+      "policy_hash": "a10894e53ebb7ef3ae7002962f1e47da3067d4e45a17f53a80bc0e2d0fa1450a",
+      "artifact_ref": {
+        "artifact_id": "integration-artifact-bootstrap-clean",
+        "owner": "shared/action-integration-reassessment",
+        "kind": "integration-projection",
+        "sha256": "bb4ae58717d0765c78885db2600c0d2118e5fa2f7aefd0a6bd85253245c35ded",
+        "repository_revision": "0123456789abcdef0123456789abcdef01234567"
+      },
+      "claim": {
+        "status": "clean",
+        "finding_ids": []
+      },
+      "recorded_at": "2026-08-08T16:00:00.000Z",
+      "projection_hash": "d4a2ea1493b1fb371e0d376e6ec162c03f7ca7657877ff17a476fdf22532dc9f"
+    }
+  ],
+  "owner_projection_history": [
+    {
+      "sequence": 1,
+      "projection_id": "projection-54854a731cc97d59d13bf959",
+      "projection_kind": "frontier",
+      "owner": "remediation-graph-optimizer",
+      "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+      "policy_hash": "a10894e53ebb7ef3ae7002962f1e47da3067d4e45a17f53a80bc0e2d0fa1450a",
+      "projection_hash": "54854a731cc97d59d13bf95905e4b54c7a93c3322bfb4b7c047e51631831791f",
+      "artifact_id": "frontier-artifact-ready-execute",
+      "artifact_owner": "remediation-graph-optimizer",
+      "artifact_kind": "frontier-projection",
+      "artifact_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "recorded_at": "2026-08-08T16:00:00.000Z",
+      "source_reservation_id": "bootstrap",
+      "source_bound_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "source_receipt_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "history_hash": "2c5c161f0846d12c8422465287980023661b0144608955a83be8eb16e2991422"
+    },
+    {
+      "sequence": 2,
+      "projection_id": "projection-d4a2ea1493b1fb371e0d376e",
+      "projection_kind": "integration",
+      "owner": "shared/action-integration-reassessment",
+      "repository_revision": "0123456789abcdef0123456789abcdef01234567",
+      "policy_hash": "a10894e53ebb7ef3ae7002962f1e47da3067d4e45a17f53a80bc0e2d0fa1450a",
+      "projection_hash": "d4a2ea1493b1fb371e0d376e6ec162c03f7ca7657877ff17a476fdf22532dc9f",
+      "artifact_id": "integration-artifact-bootstrap-clean",
+      "artifact_owner": "shared/action-integration-reassessment",
+      "artifact_kind": "integration-projection",
+      "artifact_sha256": "bb4ae58717d0765c78885db2600c0d2118e5fa2f7aefd0a6bd85253245c35ded",
+      "recorded_at": "2026-08-08T16:00:00.000Z",
+      "source_reservation_id": "bootstrap",
+      "source_bound_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "source_receipt_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "previous_hash": "2c5c161f0846d12c8422465287980023661b0144608955a83be8eb16e2991422",
+      "history_hash": "bac91e17950c678e8c4b2d8e324382ef3d6fde8919513245ef51ed948e175d04"
+    }
+  ],
+  "owner_projection_current": {
+    "assessment": null,
+    "frontier": "projection-54854a731cc97d59d13bf959",
+    "integration": "projection-d4a2ea1493b1fb371e0d376e"
+  },
+  "authority_history": [],
+  "child_projection_history": [],
+  "child_projection_current": {
+    "assessment": null,
+    "reconciliation": null,
+    "execution": null,
+    "integration": null,
+    "verification": null
+  },
+  "reservations": [],
+  "retries": [],
+  "runtime_stops": [],
+  "capacity": {
+    "active_workers": 0
+  }
+}

@@ -1,23 +1,60 @@
 lane_result:
   lane: ""
-  uncertainty_ids: []
-  evidence:
-    - observation: ""
-      source: ""
-      confidence: high
+  assigned_decision_ids: []
+  assigned_coverage_lenses: []
+  stopping_condition: ""
+  evidence_recon:
+    mode: expedition
+    lane_return:
+      expedition_lane_version: 1
+      lane_id: ""
+      parent_packet_id: ""
+      surface: ""
+      status: complete
+      claims: []
+      negative_claims: []
+      contradictions: []
+      limitations: []
   assumptions: []
-  contradictions: []
+  topology_observations:
+    - relationship: prerequisite | conditional | fact_gating | exclusion | invalidation | unlock | multi_round
+      from_decision_id: ""
+      to_decision_id: ""
+      rationale: ""
+  candidate_decision_updates:
+    - operation: add_or_update
+      decision_id: ""
+      rationale: ""
   candidate_questions:
-    - id: ""
+    - interrogation_angle: invariant | failure | concurrency | ownership | migration | proof | other
       question: ""
       why_it_matters: ""
+      concrete_downstream_consequences: []
       decision_unlocked: ""
+      prerequisite_ids: []
       blocking: true
       answer_type: open
       options: []
-      evidence_context: []
+      evidence_context:
+        claim_refs: []
+        negative_claim_refs: []
+        contradiction_refs: []
+        unresolved_fact_refs: []
+      recommended_answer: ""
+      recommendation_rationale: ""
+      meaningful_tradeoff: ""
+      recommendation_confidence: medium
+      falsification_condition: ""
       follow_up_conditions: []
-  risks: []
+      quality_hints:
+        possible_generic_wording: false
+        possible_compound_decision: false
+        possible_duplicate_of: []
+      decision_id: ""
+  risks:
+    - description: ""
+      mitigation_or_decision_needed: ""
+      affected_decision_ids: []
   document_updates:
     - target: design
       proposed_change: ""

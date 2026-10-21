@@ -1,62 +1,65 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "core": [
-    "SKILL.md",
+    "COVERAGE-MODEL.md",
+    "EVIDENCE-RECON-ADAPTER.md",
+    "HEALTH-GRADING.md",
+    "PARALLEL-ASSESSMENT.md",
     "PERFORMANCE.md",
-    "PARALLEL-ASSESSMENT.md"
+    "REVIEW-LANES.md",
+    "SKILL.md"
   ],
   "conditional": {
-    "coverage": {
-      "when": [
-        "health inventory or coverage scoring"
+    "evaluation": {
+      "condition_ids": [
+        "context.repository-health-assessment.evaluation"
       ],
       "refs": [
-        "COVERAGE-MODEL.md",
-        "PARALLEL-ASSESSMENT.md"
-      ]
-    },
-    "grading": {
-      "when": [
-        "lane grading or grade explanation"
-      ],
-      "refs": [
-        "HEALTH-GRADING.md"
-      ]
-    },
-    "report": {
-      "when": [
-        "report rendering or report contract audit"
-      ],
-      "refs": [
-        "HTML-REPORT.md",
-        "assets/report-scaffold.html"
+        "evals/evals.json"
       ]
     },
     "migration": {
-      "when": [
-        "legacy health island encountered"
+      "condition_ids": [
+        "context.repository-health-assessment.migration"
       ],
       "refs": [
         "MIGRATIONS.md"
       ]
     },
-    "evaluation": {
-      "when": [
-        "health evaluation requested"
+    "report": {
+      "condition_ids": [
+        "context.repository-health-assessment.report"
       ],
       "refs": [
-        "evals/evals.json"
+        "assets/report-scaffold.html",
+        "HTML-REPORT.md"
+      ]
+    },
+    "ria": {
+      "condition_ids": [
+        "context.repository-health-assessment.ria"
+      ],
+      "refs": [
+        "RIA-MODE.md"
       ]
     }
   },
   "oracle": {
-    "entrypoint": [
-      "assets/package-check.js",
-      "assets/parity-check.js",
-      "assets/health-verify.js"
-    ],
-    "source": {
-      "default_model_read": false
+    "default_model_read": false,
+    "retrieval": "section",
+    "sources": {
+      "source.assets.health-verify.js": {
+        "path": "assets/health-verify.js",
+        "selector": "symbol"
+      },
+      "source.assets.package-check.js": {
+        "path": "assets/package-check.js",
+        "selector": "symbol"
+      },
+      "source.assets.parity-check.js": {
+        "path": "assets/parity-check.js",
+        "selector": "symbol"
+      }
     }
   },
   "fixtures": {

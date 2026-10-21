@@ -270,10 +270,96 @@
     },
     "uncontained_critical_failure": {
       "type": [
-        "boolean",
-        "string"
+        "object",
+        "null"
       ],
-      "description": "A known, reachable, uncontained critical failure. Caps the overall grade at D. Prefer a string naming the failure."
+      "description": "A known, reachable, uncontained critical failure, or null when none is known. Caps the overall grade at D. claim_id must name a claim whose result is fail (verifier-enforced). Strings and booleans are rejected; migrate legacy `true` to {claim_id, statement} and legacy `false` to null.",
+      "required": [
+        "claim_id",
+        "statement"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "evidence_workers": {
+      "type": "array",
+      "description": "OPTIONAL. The evidence workers that produced this island. A worker whose status is not complete must record at least one limitation; a failed or timeout worker on a lane that evidences a core surface cannot coexist with that surface marked inspected (verifier-enforced).",
+      "items": {
+        "type": "object",
+        "required": [
+          "worker_id",
+          "lane",
+          "status",
+          "limitations"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "worker_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "lane": {
+            "enum": [
+              "correctness-and-integrity",
+              "architecture-fitness",
+              "contracts-and-integration",
+              "verification-readiness",
+              "build-and-delivery",
+              "maintainability-and-ownership",
+              "data-and-migrations",
+              "security-and-production-safety",
+              "numerical-correctness",
+              "gpu-equivalence",
+              "performance-and-resources",
+              "platform-compatibility"
+            ]
+          },
+          "status": {
+            "enum": [
+              "complete",
+              "partial",
+              "failed",
+              "blocked",
+              "timeout"
+            ]
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "if": {
+          "properties": {
+            "status": {
+              "enum": [
+                "partial",
+                "failed",
+                "blocked",
+                "timeout"
+              ]
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "limitations": {
+              "minItems": 1
+            }
+          }
+        }
+      }
     },
     "coverage": {
       "type": "array",
@@ -620,6 +706,29 @@
                       "minLength": 1
                     }
                   }
+                },
+                {
+                  "type": "object",
+                  "description": "RIA composite v2 (composite-scoring-v3 §5.3): a citation of one metric of one criterion in the bound SEI assessment. Valid only if both exist in the bound assessment bytes; write-health-artifact.js checks this under --ria-envelope and RIA re-checks it authoritatively.",
+                  "required": [
+                    "kind",
+                    "criterion_id",
+                    "metric_id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": {
+                      "const": "sei-criterion"
+                    },
+                    "criterion_id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "metric_id": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
                 }
               ]
             }
@@ -637,6 +746,80 @@
               },
               "unknown": {
                 "type": "string"
+              }
+            }
+          },
+          "review_source": {
+            "type": "object",
+            "description": "OPTIONAL. Provenance of a claim translated from a review-* report. proof_basis says what the review runtime proved: mechanical (a deterministic analyzer re-derived the fact) or judgment (a model judged it; the runtime checked only signature and binding). A judgment claim never carries observation.confirmed (R1); the verifier also stops it from carrying level 3+ alone (R3), being the pass behind level 4 (R2), making a surface strong (R5), or firing the D cap (R6).",
+            "required": [
+              "domain",
+              "report_sha256",
+              "rule_id",
+              "dimension",
+              "proof_basis"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "domain": {
+                "enum": [
+                  "accessibility",
+                  "algorithms",
+                  "architecture",
+                  "data",
+                  "maintainability",
+                  "performance",
+                  "process",
+                  "reliability",
+                  "security",
+                  "testing"
+                ]
+              },
+              "report_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "rule_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dimension": {
+                "type": "string",
+                "minLength": 1
+              },
+              "proof_basis": {
+                "enum": [
+                  "mechanical",
+                  "judgment"
+                ]
+              }
+            }
+          }
+        },
+        "if": {
+          "required": [
+            "review_source"
+          ],
+          "properties": {
+            "review_source": {
+              "required": [
+                "proof_basis"
+              ],
+              "properties": {
+                "proof_basis": {
+                  "const": "judgment"
+                }
+              }
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "observation": {
+              "not": {
+                "required": [
+                  "confirmed"
+                ]
               }
             }
           }
@@ -746,25 +929,21 @@
         },
         "caps_applied": {
           "type": "array",
+          "description": "Cap names are the closed set health-verify.js emits (HEALTH_CAP_NAMES). A persisted artifact (verifyHealth(island, {persisted: true})) must carry the object form with cap and trigger; embed computeGradeBlock(island).",
           "items": {
             "oneOf": [
               {
-                "enum": [
-                  "weakest-critical-lane",
-                  "untrustworthy-baseline",
-                  "coverage-below-80",
-                  "coverage-below-60",
-                  "uncontained-critical-failure"
-                ]
+                "$ref": "#/$defs/capName"
               },
               {
                 "type": "object",
                 "required": [
                   "cap"
                 ],
+                "additionalProperties": false,
                 "properties": {
                   "cap": {
-                    "type": "string"
+                    "$ref": "#/$defs/capName"
                   },
                   "ceiling": {
                     "enum": [
@@ -1058,6 +1237,9 @@
                 }
               }
             }
+          },
+          "candidate_lifecycle": {
+            "$ref": "#/$defs/candidateLifecycle"
           }
         },
         "description": "Complete canonical shared-ledger spine v3 candidate plus health-only lane_sources and claim_refs provenance."
@@ -1161,6 +1343,10 @@
                     "minLength": 1
                   }
                 }
+              },
+              "candidate_lifecycle": {
+                "$ref": "#/$defs/candidateLifecycle",
+                "description": "Spine v3 lifecycle. computeDelta reads it FIRST; the legacy top-level lifecycle_status/resolution pair is the fallback."
               }
             },
             "additionalProperties": false,
@@ -1473,6 +1659,219 @@
     }
   },
   "$defs": {
+    "capName": {
+      "description": "Must equal HEALTH_CAP_NAMES in health-verify.js (parity-checked).",
+      "enum": [
+        "weakest-critical-lane",
+        "baseline-no-test-command",
+        "baseline-non-test-not-passing",
+        "baseline-test-not-passing",
+        "baseline-no-commands",
+        "coverage-below-80",
+        "coverage-below-60",
+        "uncontained-critical-failure"
+      ]
+    },
+    "candidateLifecycle": {
+      "type": "object",
+      "description": "Shared candidate-ledger spine v3 lifecycle (shared/candidate-ledger-spine/candidate.schema.json $defs.lifecycle), plus the terminal-state requirements LedgerVerify and computeDelta enforce.",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "discovered_by",
+        "current_owner",
+        "lifecycle_status",
+        "history",
+        "completion",
+        "resolution"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "discovered_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "current_owner": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "skill",
+            "stage"
+          ],
+          "properties": {
+            "skill": {
+              "type": "string",
+              "minLength": 1
+            },
+            "stage": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "lifecycle_status": {
+          "enum": [
+            "discovered",
+            "awaiting-selection",
+            "designing",
+            "ready",
+            "active",
+            "verifying",
+            "completed",
+            "blocked",
+            "rejected",
+            "deferred",
+            "superseded",
+            "out-of-scope"
+          ]
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "event",
+              "timestamp",
+              "artifact"
+            ],
+            "properties": {
+              "event": {
+                "type": "string",
+                "minLength": 1
+              },
+              "timestamp": {
+                "type": "string",
+                "minLength": 1
+              },
+              "artifact": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "completion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "completed_at",
+            "verification_refs"
+          ],
+          "properties": {
+            "completed_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "verification_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "resolution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "superseded_by",
+            "reason"
+          ],
+          "properties": {
+            "superseded_by": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "lifecycle_status": {
+                "const": "completed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "completion": {
+                "properties": {
+                  "completed_at": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "verification_refs": {
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lifecycle_status": {
+                "const": "superseded"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "resolution": {
+                "properties": {
+                  "superseded_by": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "lifecycle_status": {
+                "enum": [
+                  "rejected",
+                  "deferred",
+                  "out-of-scope"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "resolution": {
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "sprawlPathEvidence": {
       "type": "object",
       "description": "A single reachable-but-unnecessary path: a stale path, an unowned compatibility layer, or an abandoned experiment.",

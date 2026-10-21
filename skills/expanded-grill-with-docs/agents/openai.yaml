@@ -1,6 +1,11 @@
 interface:
   display_name: Expanded Grill with Docs
-  short_description: Adaptive research-backed design grilling
-  default_prompt: Use $expanded-grill-with-docs to shape this selected direction into a design and rollout contract.
+  short_description: Exhaustive sweep-first design grilling with conditional graph
+    escalation
+  default_prompt: Use $expanded-grill-with-docs to inspect evidence, run the mandatory
+    coverage sweep, overgenerate and quality-gate the maximum coherent recommendation-led
+    question batch, stay flat when decisions are independent, promote to a dependency
+    graph only when real topology appears, and shape this selected direction into
+    a human-confirmed design and rollout contract without implementing it.
 policy:
   allow_implicit_invocation: true

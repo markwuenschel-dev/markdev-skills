@@ -27,7 +27,11 @@
         "skill": { "type": "string", "minLength": 1 },
         "run_id": { "type": "string", "minLength": 1 },
         "mode": { "enum": ["inline", "expedition"] },
-        "created_at": { "type": "string", "minLength": 1 }
+        "created_at": { "type": "string", "minLength": 1 },
+        "artifact_refs": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifactRef" }
+        }
       }
     },
     "scope": {
@@ -130,6 +134,16 @@
   "$defs": {
     "id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$" },
     "risk": { "enum": ["low", "medium", "high", "critical"] },
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "artifact_id", "sha256"],
+      "properties": {
+        "kind": { "enum": ["health-artifact"] },
+        "artifact_id": { "$ref": "#/$defs/id" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    },
     "coverageState": { "enum": ["inspected", "sampled", "inventory-only", "uninspected", "unavailable", "not-applicable"] },
     "evidenceQuality": { "enum": ["strong", "moderate", "weak", "none"] },
     "confidenceLevel": { "enum": ["high", "medium", "low", "none"] },

@@ -1,17 +1,18 @@
 {
   "schema_version": "assessment-runtime-contract@1",
   "owner": "repository-health-assessment",
-  "version": "5.4.0",
+  "version": "5.7.0",
   "entrypoint": "SKILL.md",
   "input": {
     "required": [
       "baseline_ref",
       "engineering_intelligence_ref",
-      "verification_baseline_ref"
+      "verification_baseline_ref",
+      "presentation_policy"
     ],
     "optional": [
       "sei_assessment_ref",
-      "presentation_policy"
+      "candidate_namespace"
     ]
   },
   "output": {

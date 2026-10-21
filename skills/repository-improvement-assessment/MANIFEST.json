@@ -1,8 +1,10 @@
 {
   "name": "repository-improvement-assessment",
-  "version": "0.8.4",
+  "version": "0.10.0",
   "entrypoint": "SKILL.md",
   "contracts": [
+    "request.example.json",
+    "request.schema.json",
     "references/baseline-and-reuse.md",
     "references/engineering-intelligence.md",
     "engineering-intelligence.schema.json",
@@ -13,7 +15,9 @@
     "assets/task-event.schema.json",
     "assets/performance-receipt.schema.json",
     "assets/sei-telemetry-summary.schema.json",
-    "assets/sei-ria-config.json"
+    "assets/sei-ria-config.json",
+    "assets/html-report-input.schema.json",
+    "references/composite-scoring-v3.md"
   ],
   "schema": "assets/report-schema.json",
   "template": "assets/report-template.md",
@@ -23,6 +27,7 @@
     "scripts/build-report-data.js",
     "scripts/build-report-data.test.js",
     "scripts/report-model.js",
+    "scripts/report-model.test.js",
     "scripts/startup-resolver.js",
     "scripts/owner-artifact-cache.js",
     "scripts/build-execution-plan.js",
@@ -52,7 +57,34 @@
     "scripts/durable-storage.test.js",
     "scripts/write-assess-projection.js",
     "scripts/scoring.js",
-    "scripts/scoring.test.js"
+    "scripts/scoring.test.js",
+    "scripts/tier-a.integration.test.js",
+    "baseline.js",
+    "engineering-intelligence.js",
+    "engineering-intelligence.test.js",
+    "engineering-intelligence-assessment.js",
+    "engineering-intelligence-assessment.test.js",
+    "engineering-intelligence-reader.js",
+    "engineering-intelligence-writer.js",
+    "scripts/build-baseline.js",
+    "scripts/verify-baseline.js",
+    "scripts/compatibility-binding.js",
+    "scripts/baseline.test.js",
+    "scripts/execution-runtime.test.js",
+    "scripts/owner-return.integration.test.js",
+    "scripts/sei-telemetry-summary.test.js",
+    "scripts/sei-root-commit.integration.test.js",
+    "scripts/sei-evidence-seam.test.js",
+    "scripts/architecture-evidence-binding.test.js",
+    "scripts/composite-v2-model.js",
+    "scripts/composite-v2-section.js",
+    "scripts/composite-v2-shadow.test.js",
+    "scripts/composite-v2-appendix-a.test.js",
+    "scripts/test-support/ria-stock-adapter.js",
+    "scripts/test-support/architecture-ria-fixture.js",
+    "scripts/test-support/appendix-a-fixture.js",
+    "scripts/test-support/appendix-a-run.js",
+    "scripts/composite-v2-review-regressions.test.js"
   ],
   "evals": "evals/evals.json",
   "consumes": [
@@ -99,7 +131,6 @@
     "repository-health-assessment",
     "codebase-integrity-audit-loop",
     "architecture-improvement-intelligence",
-    "review-testing",
     "shared/ria-scoring"
   ],
   "performance": {
@@ -138,7 +169,8 @@
       "branch",
       "changed_line"
     ],
-    "progressive_disclosure": true
+    "progressive_disclosure": true,
+    "composite_v2": "ria.composite@2 uncalibrated shadow beside v1 (composite-scoring-v3 D6); v1 remains reported"
   },
   "storage": {
     "workspace": "shared/project-intelligence-workspace@1",
@@ -152,5 +184,16 @@
     "lineage": "lineage/ria-artifacts.json",
     "owner_cache": "cache/ria-owner-artifacts",
     "assess_projection": "assessments/ria"
-  }
+  },
+  "assets": [
+    "assets/report-scaffold.html",
+    "assets/icon.svg",
+    "baseline.example.json",
+    "context-policy.json",
+    "openai.yaml",
+    "agents/openai.yaml",
+    "assets/design/ria-report-handoff/README.md",
+    "assets/design/ria-report-handoff/Repository Improvement Assessment.dc.html",
+    "assets/design/ria-report-handoff/support.js"
+  ]
 }

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sei.local/schemas/maturity-scorecard-v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "rubric_id", "rubric_sha256", "sei_revision", "scorecard_id", "maximum_points", "total_points", "categories", "promotion"],
+  "properties": {
+    "kind": { "const": "sei-maturity-scorecard-v1" },
+    "rubric_id": { "const": "sei-maturity-v1" },
+    "rubric_sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "sei_revision": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "scorecard_id": { "type": "string", "pattern": "^sei-maturity-v1-[a-f0-9]{64}$" },
+    "maximum_points": { "const": 1000 },
+    "total_points": { "type": "number", "minimum": 0, "maximum": 1000 },
+    "categories": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "prefixItems": [
+        { "$ref": "#/$defs/measurement_category" },
+        { "$ref": "#/$defs/performance_category" },
+        { "$ref": "#/$defs/breadth_category" },
+        { "$ref": "#/$defs/predictive_category" },
+        { "$ref": "#/$defs/robustness_category" },
+        { "$ref": "#/$defs/actionability_category" },
+        { "$ref": "#/$defs/framework_category" },
+        { "$ref": "#/$defs/trends_category" },
+        { "$ref": "#/$defs/context_category" },
+        { "$ref": "#/$defs/provenance_category" }
+      ],
+      "items": false
+    },
+    "promotion": { "$ref": "#/$defs/promotion" }
+  },
+  "$defs": {
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterion_id", "maximum_points", "status", "evidence_level", "evidence_ceiling", "points"],
+      "properties": {
+        "criterion_id": { "type": "string", "pattern": "^[a-z]+\\.[a-z_]+$" },
+        "maximum_points": { "type": "number", "exclusiveMinimum": 0 },
+        "status": { "enum": ["pass", "fail", "inconclusive", "unsupported"] },
+        "evidence_level": { "type": ["string", "null"], "enum": ["implementation", "focused_deterministic", "synthetic_integration", "one_real_oracle", "heterogeneous_real_oracles", "temporal_holdout", null] },
+        "evidence_ceiling": { "type": "number", "minimum": 0, "maximum": 1 },
+        "points": { "type": "number", "minimum": 0 }
+      }
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category_id", "maximum_points", "points", "criteria"],
+      "properties": {
+        "category_id": { "type": "string", "enum": ["measurement", "performance", "breadth", "predictive", "robustness", "actionability", "framework", "trends", "context", "provenance"] },
+        "maximum_points": { "type": "number", "exclusiveMinimum": 0 },
+        "points": { "type": "number", "minimum": 0 },
+        "criteria": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/criterion" } }
+      }
+    },
+    "measurement_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "measurement" }, "maximum_points": { "const": 260 }, "points": { "maximum": 260 }, "criteria": { "type": "array", "minItems": 7, "maxItems": 7, "prefixItems": [{"properties":{"criterion_id":{"const":"measurement.revision_source_binding"},"maximum_points":{"const":40},"points":{"maximum":40}}},{"properties":{"criterion_id":{"const":"measurement.git_history_fidelity"},"maximum_points":{"const":45},"points":{"maximum":45}}},{"properties":{"criterion_id":{"const":"measurement.metric_definitions_types"},"maximum_points":{"const":40},"points":{"maximum":40}}},{"properties":{"criterion_id":{"const":"measurement.missingness_degradation"},"maximum_points":{"const":35},"points":{"maximum":35}}},{"properties":{"criterion_id":{"const":"measurement.derived_semantics"},"maximum_points":{"const":35},"points":{"maximum":35}}},{"properties":{"criterion_id":{"const":"measurement.adapter_normalization"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"measurement.real_repository_oracle_parity"},"maximum_points":{"const":35},"points":{"maximum":35}}}], "items": false } } }] },
+    "performance_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "performance" }, "maximum_points": { "const": 200 }, "points": { "maximum": 200 }, "criteria": { "type": "array", "minItems": 7, "maxItems": 7, "prefixItems": [{"properties":{"criterion_id":{"const":"performance.git_process_efficiency"},"maximum_points":{"const":45},"points":{"maximum":45}}},{"properties":{"criterion_id":{"const":"performance.incremental_static_recomputation"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"performance.cold_performance"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"performance.warm_incremental_performance"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"performance.memory_output_scaling"},"maximum_points":{"const":25},"points":{"maximum":25}}},{"properties":{"criterion_id":{"const":"performance.large_monorepo_scaling"},"maximum_points":{"const":25},"points":{"maximum":25}}},{"properties":{"criterion_id":{"const":"performance.safe_concurrency"},"maximum_points":{"const":15},"points":{"maximum":15}}}], "items": false } } }] },
+    "breadth_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "breadth" }, "maximum_points": { "const": 180 }, "points": { "maximum": 180 }, "criteria": { "type": "array", "minItems": 8, "maxItems": 8, "prefixItems": [{"properties":{"criterion_id":{"const":"breadth.static_code"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"breadth.dependency_topology"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"breadth.git_behavior"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"breadth.verification_coverage_ci"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"breadth.pr_work_item_feedback"},"maximum_points":{"const":20},"points":{"maximum":20}}},{"properties":{"criterion_id":{"const":"breadth.deployment_reliability"},"maximum_points":{"const":15},"points":{"maximum":15}}},{"properties":{"criterion_id":{"const":"breadth.multi_language_generated_vendor"},"maximum_points":{"const":15},"points":{"maximum":15}}},{"properties":{"criterion_id":{"const":"breadth.quality_security_artifacts"},"maximum_points":{"const":10},"points":{"maximum":10}}}], "items": false } } }] },
+    "predictive_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "predictive" }, "maximum_points": { "const": 160 }, "points": { "maximum": 160 }, "criteria": { "type": "array", "minItems": 7, "maxItems": 7, "prefixItems": [{"properties":{"criterion_id":{"const":"predictive.transparent_formulation"},"maximum_points":{"const":20},"points":{"maximum":20}}},{"properties":{"criterion_id":{"const":"predictive.longitudinal_pipeline"},"maximum_points":{"const":25},"points":{"maximum":25}}},{"properties":{"criterion_id":{"const":"predictive.future_labels_leakage"},"maximum_points":{"const":25},"points":{"maximum":25}}},{"properties":{"criterion_id":{"const":"predictive.naive_baselines"},"maximum_points":{"const":25},"points":{"maximum":25}}},{"properties":{"criterion_id":{"const":"predictive.holdout_lift_ranking"},"maximum_points":{"const":30},"points":{"maximum":30}}},{"properties":{"criterion_id":{"const":"predictive.calibration_generalization"},"maximum_points":{"const":20},"points":{"maximum":20}}},{"properties":{"criterion_id":{"const":"predictive.uncertainty_boundaries"},"maximum_points":{"const":15},"points":{"maximum":15}}}], "items": false } } }] },
+    "robustness_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "robustness" }, "maximum_points": { "const": 70 }, "points": { "maximum": 70 }, "criteria": { "type": "array", "minItems": 7, "maxItems": 7, "prefixItems": [{"properties":{"criterion_id":{"const":"robustness.partial_failure_isolation"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"robustness.corrupt_artifact_handling"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"robustness.merge_binary_rename_history_edges"},"maximum_points":{"const":15},"points":{"maximum":15}}},{"properties":{"criterion_id":{"const":"robustness.stale_evidence_rejection"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"robustness.platform_behavior"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"robustness.bounded_resource_failures"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"robustness.fake_green_resistance"},"maximum_points":{"const":5},"points":{"maximum":5}}}], "items": false } } }] },
+    "actionability_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "actionability" }, "maximum_points": { "const": 50 }, "points": { "maximum": 50 }, "criteria": { "type": "array", "minItems": 5, "maxItems": 5, "prefixItems": [{"properties":{"criterion_id":{"const":"actionability.executive_interpretation"},"maximum_points":{"const":15},"points":{"maximum":15}}},{"properties":{"criterion_id":{"const":"actionability.prioritized_findings"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"actionability.recommendations"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"actionability.canonical_owner_integration"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"actionability.confidence_coverage_communication"},"maximum_points":{"const":5},"points":{"maximum":5}}}], "items": false } } }] },
+    "framework_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "framework" }, "maximum_points": { "const": 35 }, "points": { "maximum": 35 }, "criteria": { "type": "array", "minItems": 5, "maxItems": 5, "prefixItems": [{"properties":{"criterion_id":{"const":"framework.evidence_bounded_semantics"},"maximum_points":{"const":8},"points":{"maximum":8}}},{"properties":{"criterion_id":{"const":"framework.observable_adherence"},"maximum_points":{"const":8},"points":{"maximum":8}}},{"properties":{"criterion_id":{"const":"framework.coverage_confidence"},"maximum_points":{"const":7},"points":{"maximum":7}}},{"properties":{"criterion_id":{"const":"framework.improvement_advice"},"maximum_points":{"const":7},"points":{"maximum":7}}},{"properties":{"criterion_id":{"const":"framework.correct_not_scored"},"maximum_points":{"const":5},"points":{"maximum":5}}}], "items": false } } }] },
+    "trends_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "trends" }, "maximum_points": { "const": 25 }, "points": { "maximum": 25 }, "criteria": { "type": "array", "minItems": 4, "maxItems": 4, "prefixItems": [{"properties":{"criterion_id":{"const":"trends.automatic_baseline"},"maximum_points":{"const":10},"points":{"maximum":10}}},{"properties":{"criterion_id":{"const":"trends.compatibility"},"maximum_points":{"const":5},"points":{"maximum":5}}},{"properties":{"criterion_id":{"const":"trends.valid_backfill"},"maximum_points":{"const":5},"points":{"maximum":5}}},{"properties":{"criterion_id":{"const":"trends.change_interpretation"},"maximum_points":{"const":5},"points":{"maximum":5}}}], "items": false } } }] },
+    "context_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "context" }, "maximum_points": { "const": 15 }, "points": { "maximum": 15 }, "criteria": { "type": "array", "minItems": 5, "maxItems": 5, "prefixItems": [{"properties":{"criterion_id":{"const":"context.report_output_size"},"maximum_points":{"const":4},"points":{"maximum":4}}},{"properties":{"criterion_id":{"const":"context.progressive_disclosure"},"maximum_points":{"const":4},"points":{"maximum":4}}},{"properties":{"criterion_id":{"const":"context.configuration_ergonomics"},"maximum_points":{"const":3},"points":{"maximum":3}}},{"properties":{"criterion_id":{"const":"context.discovery_ergonomics"},"maximum_points":{"const":2},"points":{"maximum":2}}},{"properties":{"criterion_id":{"const":"context.human_presentation"},"maximum_points":{"const":2},"points":{"maximum":2}}}], "items": false } } }] },
+    "provenance_category": { "allOf": [{ "$ref": "#/$defs/category" }, { "properties": { "category_id": { "const": "provenance" }, "maximum_points": { "const": 5 }, "points": { "maximum": 5 }, "criteria": { "type": "array", "minItems": 2, "maxItems": 2, "prefixItems": [{"properties":{"criterion_id":{"const":"provenance.revision_config_source_binding"},"maximum_points":{"const":3},"points":{"maximum":3}}},{"properties":{"criterion_id":{"const":"provenance.artifact_integrity_reproducibility"},"maximum_points":{"const":2},"points":{"maximum":2}}}], "items": false } } }] },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "status"],
+      "properties": {
+        "gate_id": { "type": "string" },
+        "status": { "enum": ["pass", "fail", "blocked"] }
+      }
+    },
+    "overall_floor_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "overall_floor" } } }] },
+    "measurement_floor_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "measurement_floor" } } }] },
+    "performance_floor_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "performance_floor" } } }] },
+    "breadth_floor_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "breadth_floor" } } }] },
+    "predictive_floor_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "predictive_floor" } } }] },
+    "actionability_floor_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "actionability_floor" } } }] },
+    "report_schema_integrity_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "report_schema_integrity" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "cache_incremental_useful_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "cache_incremental_useful" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "framework_not_scored_honest_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "framework_not_scored_honest" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "heterogeneous_repository_coverage_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "heterogeneous_repository_coverage" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "merge_heavy_repository_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "merge_heavy_repository" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "large_repository_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "large_repository" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "predictive_validation_gate": { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "gate_id": { "const": "predictive_validation" }, "status": { "enum": ["pass", "blocked"] } } }] },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall_floor", "measurement_floor", "performance_floor", "breadth_floor", "predictive_floor", "actionability_floor", "report_schema_integrity", "cache_incremental_useful", "framework_not_scored_honest", "heterogeneous_repository_coverage", "merge_heavy_repository", "large_repository", "predictive_validation"],
+      "properties": {
+        "overall_floor": { "$ref": "#/$defs/overall_floor_gate" },
+        "measurement_floor": { "$ref": "#/$defs/measurement_floor_gate" },
+        "performance_floor": { "$ref": "#/$defs/performance_floor_gate" },
+        "breadth_floor": { "$ref": "#/$defs/breadth_floor_gate" },
+        "predictive_floor": { "$ref": "#/$defs/predictive_floor_gate" },
+        "actionability_floor": { "$ref": "#/$defs/actionability_floor_gate" },
+        "report_schema_integrity": { "$ref": "#/$defs/report_schema_integrity_gate" },
+        "cache_incremental_useful": { "$ref": "#/$defs/cache_incremental_useful_gate" },
+        "framework_not_scored_honest": { "$ref": "#/$defs/framework_not_scored_honest_gate" },
+        "heterogeneous_repository_coverage": { "$ref": "#/$defs/heterogeneous_repository_coverage_gate" },
+        "merge_heavy_repository": { "$ref": "#/$defs/merge_heavy_repository_gate" },
+        "large_repository": { "$ref": "#/$defs/large_repository_gate" },
+        "predictive_validation": { "$ref": "#/$defs/predictive_validation_gate" }
+      }
+    },
+    "promotion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "gates"],
+      "properties": {
+        "status": { "enum": ["pass", "fail", "blocked"] },
+        "gates": { "$ref": "#/$defs/gates" }
+      }
+    }
+  }
+}

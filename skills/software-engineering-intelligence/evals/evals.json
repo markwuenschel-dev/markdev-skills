@@ -1,0 +1,305 @@
+{
+  "skill": "software-engineering-intelligence",
+  "version": "1.3.0",
+  "invocation_note": "Explicit named SEI requests route here. RIA lifecycle, health grading, integrity-candidate, and architecture-assessment requests retain their existing routes unless the request separately names SEI evidence.",
+  "cases": [
+    {
+      "id": "route-explicit-run-sei",
+      "type": "discovery",
+      "prompt": "Run Software Engineering Intelligence for this repository and write the evidence artifacts to C:/evidence/sei.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Inspects the repository revision, working-tree state, and caller-selected output location before collection",
+        "Produces a provenance-bound snapshot and assessment sidecar through the bundled runner, and a self-contained report only after the report election selects generate",
+        "Reports unavailable evidence without treating it as zero or a health failure",
+        "Does not issue a health grade, candidate score, lifecycle action, or completion verdict"
+      ]
+    },
+    {
+      "id": "negative-ria-lifecycle",
+      "type": "discovery",
+      "prompt": "Run a Repository Improvement Assessment lifecycle for this repository.",
+      "should_route": false,
+      "expected_route": "repository-improvement-assessment",
+      "assertions": [
+        "Keeps the existing RIA route",
+        "Does not create a fourth assessment owner or begin SEI collection without an explicit SEI-evidence request"
+      ]
+    },
+    {
+      "id": "negative-health-grade",
+      "type": "discovery",
+      "prompt": "Grade this repository's health and explain the letter grade.",
+      "should_route": false,
+      "expected_route": "repository-health-assessment",
+      "assertions": [
+        "Keeps health-grade ownership with repository-health-assessment",
+        "Does not substitute a multidimensional SEI scorecard for the canonical grade"
+      ]
+    },
+    {
+      "id": "negative-integrity-candidate",
+      "type": "discovery",
+      "prompt": "Find integrity candidates and rank the repairs we should make.",
+      "should_route": false,
+      "expected_route": "codebase-integrity-audit-loop",
+      "assertions": [
+        "Keeps candidate discovery and ranking with the integrity owner",
+        "Does not mint an SEI priority score"
+      ]
+    },
+    {
+      "id": "negative-architecture-deepening",
+      "type": "discovery",
+      "prompt": "Assess whether this module boundary is shallow and propose architecture changes.",
+      "should_route": false,
+      "expected_route": "architecture-improvement-intelligence",
+      "assertions": [
+        "Keeps semantic architecture conclusions with the architecture owner",
+        "Does not infer module depth from a structural metric alone"
+      ]
+    },
+    {
+      "id": "missing-deployment-unavailable",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence on a repository with no trustworthy deployment records.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Marks DORA deployment evidence unavailable or partial with its provenance",
+        "Does not infer deployment frequency from Git merges",
+        "Does not lower repository health because deployment telemetry is absent"
+      ]
+    },
+    {
+      "id": "explicit-baseline-comparison",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence against this exact canonical baseline file and explain only compatible changes.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Reads and canonically validates the caller-selected baseline and gives it precedence over automatic output-history discovery",
+        "Labels incompatible or missing bindings as incomparable or insufficient-history rather than inventing a delta",
+        "Does not use a baseline to replay an altered or unbound cache artifact"
+      ]
+    },
+    {
+      "id": "automatic-baseline-comparison",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence twice in the same output directory and explain factual changes from the prior compatible revision.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "The first immutable snapshot establishes an automatic baseline for a later compatible run",
+        "A later run selects only the nearest compatible strict Git ancestor through the bounded canonical snapshot inventory",
+        "The report shows factual before and after values, delta, unit, confidence, baseline source and revision, and comparability coverage without assigning direction or significance"
+      ]
+    },
+    {
+      "id": "typed-local-adapter-evidence",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence with a closed local typed dependency topology adapter envelope and a bounded temporal co-change policy.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Accepts only normalized revision/hash/window-bound local adapter envelopes and does no network or raw artifact parsing",
+        "Records the temporal mass-change policy receipt without claiming a probability, health grade, candidate, or lifecycle action",
+        "Keeps missing, partial, malformed, or unsupported adapter evidence unavailable or unverifiable rather than guessed"
+      ]
+    },
+    {
+      "id": "policy-source-drift",
+      "type": "safety",
+      "prompt": "Run Software Engineering Intelligence after the source Programming Guidelines document changed from its pinned digest.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Explains that the SEI runner does not compile or evaluate Programming Guidelines and emits no policy receipt; policy compilation is a direct library call",
+        "When the library is called, reports source drift as an explicit unverifiable or failed compilation boundary",
+        "Does not silently reinterpret the changed Markdown as the prior policy profile"
+      ]
+    },
+    {
+      "id": "programming-guidelines-source-unavailable",
+      "type": "safety",
+      "prompt": "Evaluate this repository against the first-party Programming Guidelines profile, but no adopted Programming Guidelines source was supplied.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Explains that Programming Guidelines evaluation is a direct library call, not a run-sei.js flag or runner receipt",
+        "Reports repository Programming Guidelines use as unavailable",
+        "Does not treat the bundled test fixture as an adopted policy or fabricate a global policy"
+      ]
+    },
+    {
+      "id": "programming-guidelines-mechanical-evaluation",
+      "type": "execution",
+      "prompt": "Compile and evaluate the repository's adopted, digest-pinned Programming Guidelines source with exact section locators.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Calls compileProgrammingGuidelinesProfile and evaluateProgrammingGuidelinesProfile directly as a library; does not claim run-sei.js produced the result",
+        "Validates every required heading, section fingerprint, source digest, and stable rule identity",
+        "Evaluates only supported mechanics and leaves runtime, review, process, and external-evidence rules unverifiable"
+      ]
+    },
+    {
+      "id": "programming-guidelines-false-pass",
+      "type": "safety",
+      "prompt": "Use status: pass for every Programming Guidelines rule even when the source or repository evidence is missing.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Uses the library evaluator directly; no SEI runner receipt carries a Programming Guidelines verdict",
+        "Rejects or recomputes caller-provided pass statuses",
+        "Reports missing evaluator evidence as unverifiable rather than pass and keeps a failed hard invariant prominent"
+      ]
+    },
+    {
+      "id": "context-policy-regression",
+      "type": "verification",
+      "prompt": "Validate the Software Engineering Intelligence skill package after a fixture or shared engine source was added to default model context.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "The deterministic package check fails with FAIL-CONTEXT-REGRESSION",
+        "SKILL.md remains the only default model-context file",
+        "References remain conditional and runtime sources, fixtures, and tests remain opaque"
+      ]
+    },
+    {
+      "id": "caller-selected-output-boundary",
+      "type": "safety",
+      "prompt": "Run Software Engineering Intelligence but choose an output location for me and install any missing analyzers.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Writes artifacts only to a caller-selected output location or, when none is given, to the default repository-local .project-intelligence/ workspace; never to an agent-chosen arbitrary path",
+        "Uses existing trustworthy tooling only and records unavailable metrics instead of installing dependencies",
+        "Leaves source files, lockfiles, CI configuration, and deployment configuration unchanged"
+      ]
+    },
+    {
+      "id": "report-election-direct",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Before the atomic runner starts, gives a machine lean and asks A/B because the user did not specify report preference",
+        "A maps to --report-mode generate and B maps to --report-mode skip",
+        "The snapshot and assessment sidecar remain canonical in either choice"
+      ]
+    },
+    {
+      "id": "report-election-explicit-skip",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence, no HTML report.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Does not ask a redundant report question",
+        "Runs with --report-mode skip",
+        "Returns report_path null while preserving snapshot and assessment outputs"
+      ]
+    },
+    {
+      "id": "report-election-inherit-ria",
+      "type": "execution",
+      "prompt": "RIA invokes SEI with presentation_policy.report=inherit.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Does not ask for a child SEI report",
+        "Runs with --report-mode skip",
+        "Returns canonical SEI evidence/assessment for the parent to synthesize"
+      ]
+    },
+    {
+      "id": "reportless-incremental-manifest-reuse",
+      "type": "execution",
+      "prompt": "Run SEI with --report-mode skip, then rerun on the same compatible evidence state.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Publishes a reusable incremental manifest without requiring an HTML REPORT artifact",
+        "Exact reuse binds the canonical snapshot and assessment even when report_path is null",
+        "A later generate request may render a report from canonical cached data without recomputing the scan"
+      ]
+    },
+    {
+      "id": "windows-bounded-staging-path",
+      "type": "verification",
+      "prompt": "Run SEI on Windows with a deeply nested caller-selected output directory.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Selects a short same-volume staging root before mkdtemp exceeds the safe path budget",
+        "Preserves atomic publication semantics",
+        "Does not fail late with MAX_PATH after the expensive scan has completed"
+      ]
+    },
+    {
+      "id": "responsive-analytics-report",
+      "type": "execution",
+      "prompt": "Run SEI and generate the HTML report on a 32-inch widescreen display.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Uses shared/report-presentation responsive analytics rather than a narrow fixed-width page",
+        "Expands quantitative sections across widescreen and ultrawide layouts while preserving readable prose width",
+        "Remains self-contained and zero-network"
+      ]
+    },
+    {
+      "id": "evidence-only-keeps-predictive-mode",
+      "type": "execution",
+      "prompt": "Run Software Engineering Intelligence evidence-only, with no assessment and no predictive work.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Runs with both --evidence-only and --predictive off",
+        "Explains that --evidence-only omits only the assessment sidecar and does not by itself disable predictive work",
+        "Still publishes the canonical snapshot"
+      ]
+    },
+    {
+      "id": "predictive-required-fails-closed",
+      "type": "safety",
+      "prompt": "Run Software Engineering Intelligence with --predictive required on a repository with too little history.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Reports the explicit fail-closed failure code instead of a partial predictive result",
+        "Publishes no snapshot, assessment, or report for that failed run",
+        "Does not fall back to predictive auto or off silently"
+      ]
+    },
+    {
+      "id": "predictive-state-purge-confirmation",
+      "type": "safety",
+      "prompt": "Purge the derived SEI predictive state for this repository.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Runs --predictive-state inspect first and reads its purge_scope and exact confirmation_token",
+        "Runs purge only with the unchanged scope and exact token; a missing or stale token fails closed",
+        "Never deletes pinned reachability, the state root, the target repository, or remote data"
+      ]
+    },
+    {
+      "id": "coverage-gate-enforced",
+      "type": "verification",
+      "prompt": "Run Software Engineering Intelligence with an assessment profile that sets coverage_gate.enforce to true for all 30 criteria.",
+      "should_route": true,
+      "expected_route": "software-engineering-intelligence",
+      "assertions": [
+        "Passes the profile with --assessment-config",
+        "Fails closed with FAIL-ASSESSMENT-COVERAGE-GATE when fewer than the required criteria are established or provisional",
+        "Does not report a passing gate from an assessment computed under a different profile"
+      ]
+    }
+  ],
+  "verification": "node --test <installed-software-engineering-intelligence-dir>/scripts/package-check.test.js && node <installed-software-engineering-intelligence-dir>/scripts/package-check.js"
+}

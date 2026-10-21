@@ -78,7 +78,7 @@ Do not make an empty commit. When nothing is staged, continue only if the focuse
 
 ### 3. Write or update a staff-level PR
 
-Find an open PR for the shipment branch. If none exists, create a ready PR with a precise title and a Markdown body that includes: **Problem / outcome**, **Design and affected contracts**, **Risk and invariants**, **Validation with commands/results**, **Deployment or rollback impact**, and **Scope deliberately excluded**. State uncertainty plainly; do not invent reviewers, benchmarks, or production proof.
+Find an open PR for the shipment branch. If none exists, create a ready PR with a precise title. Write the body with the `pr-mwdev` skill, handing it the validation commands with results and the shipment SHA (plus deployment impact when `-ec2` is set); run `node "${CLAUDE_SKILL_DIR}/../pr-mwdev/scripts/check-pr-body.js" --caller land-pr --repo . <body.md>` and stop on a nonzero exit; pass the file as `--body-file`. State uncertainty plainly; do not invent reviewers, benchmarks, or production proof.
 
 ```bash
 gh pr list --head "<shipment-branch>" --base "$default_branch" --state open --limit 2 --json number,url,isDraft,headRefName,headRefOid,baseRefName
@@ -181,4 +181,4 @@ gh pr list --state open --limit 1000 --json headRefName,baseRefName,url
 
 Use non-forcing deletion where ancestry proves reachability. A squash-like branch must never be force-deleted in this unified merge-commit workflow. Preserve and name dirty, unique, or open-PR branches. Only after every candidate is accounted for may the primary worktree run `worktree prune`, reflog expiry, and `gc --prune=now`.
 
-Finish with a table: queue position, PR number, title, terminal landing state, merge SHA or decisive blocker, plus (for `-ec2`) service, target, prior release, `release_sha`, probe results, and release state. Report validation results, PR URLs, cleanup proof, and exactly what still needs human action. Never claim main-only cleanup, a merge, or a deployment without its recorded proof.
+Finish with a table: queue position, PR number, title, terminal landing state, merge SHA or decisive blocker, plus (for `-ec2`) service, target, prior release, `release_sha`, probe results, and release state. Report validation results, PR URLs, cleanup proof, and exactly what still needs human action. When that human action is a multi-step procedure only a person can do (credentials, a third-party dashboard, CI secrets), offer the `wizard-mwdev` skill to script it instead of listing the steps in prose. Never claim main-only cleanup, a merge, or a deployment without its recorded proof.

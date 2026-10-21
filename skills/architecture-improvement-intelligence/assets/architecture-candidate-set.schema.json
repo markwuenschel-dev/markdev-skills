@@ -1,0 +1,531 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ica.architecture-candidate-set.v2",
+  "title": "ICA V2 architecture candidate set",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "scope",
+    "evidence_packet_refs",
+    "coverage_receipt",
+    "candidates",
+    "performance_receipt"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "repository_revision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "required": [
+        "objective",
+        "included",
+        "excluded",
+        "mutation_posture"
+      ],
+      "properties": {
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "included": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mutation_posture": {
+          "const": "read-only"
+        }
+      },
+      "additionalProperties": true
+    },
+    "evidence_packet_refs": {
+      "description": "Standalone accepts legacy reference strings; --ria-envelope requires structured, bound refs (architecture.evidence-binding@1).",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "artifact_id",
+              "sha256",
+              "path",
+              "packet_id",
+              "producer_skill",
+              "binding"
+            ],
+            "properties": {
+              "kind": {
+                "const": "evidence-recon"
+              },
+              "artifact_id": {
+                "type": "string",
+                "pattern": "^evidence-recon:[0-9a-f]{64}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              },
+              "packet_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "producer_skill": {
+                "type": "string",
+                "minLength": 1
+              },
+              "binding": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "repository_id",
+                  "root_id",
+                  "revision"
+                ],
+                "properties": {
+                  "repository_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "root_id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "revision": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "coverage_receipt": {
+      "type": "object",
+      "required": [
+        "architecture_sweep_complete",
+        "final_adversarial_sweep_complete",
+        "lens_dispositions"
+      ],
+      "properties": {
+        "architecture_sweep_complete": {
+          "type": "boolean"
+        },
+        "final_adversarial_sweep_complete": {
+          "type": "boolean"
+        },
+        "lens_dispositions": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "performance_receipt": {
+      "type": "object"
+    },
+    "proposed_domain_updates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "proposed_adr_updates": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "architecture_fitness": {
+      "description": "Standalone accepts legacy numeric input; --ria-envelope requires complete architecture.fitness@2. Aggregates are recomputed by the writer.",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "dimensions"
+          ],
+          "properties": {
+            "schema_version": {
+              "const": "architecture.fitness@1"
+            },
+            "score": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 100
+            },
+            "grade": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "A+",
+                "A",
+                "A-",
+                "B+",
+                "B",
+                "B-",
+                "C+",
+                "C",
+                "C-",
+                "D+",
+                "D",
+                "D-",
+                "F",
+                null
+              ]
+            },
+            "coverage": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "confidence": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            },
+            "dimensions": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "boundary_integrity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "dependency_direction_cycle_control": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "cohesion_locality": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "interface_contract_clarity": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "state_data_ownership": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "change_containment_evolvability": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "duplication_competing_implementations": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "architectural_testability_observability": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            },
+            "weights": {
+              "type": "object"
+            }
+          }
+        },
+        {
+          "$ref": "architecture-fitness-v2.schema.json"
+        }
+      ]
+    },
+    "architecture_fitness_unavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason_code",
+        "detail"
+      ],
+      "properties": {
+        "reason_code": {
+          "type": "string",
+          "pattern": "\\S"
+        },
+        "detail": {
+          "type": "string",
+          "pattern": "\\S"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "required": [
+        "candidate_id",
+        "title",
+        "transformation_kind",
+        "structural_problem",
+        "evidence_refs",
+        "current_state",
+        "proposed_state",
+        "authority_before",
+        "authority_after",
+        "complexity_destination",
+        "deletion_test",
+        "simpler_alternative",
+        "risks",
+        "verification_obligations",
+        "critic",
+        "disposition"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "transformation_kind": {
+          "enum": [
+            "deepen_merge",
+            "split_authority",
+            "relocate_seam",
+            "eliminate_false_seam",
+            "inline_shallow_wrapper",
+            "consolidate_state_owner",
+            "invert_dependency",
+            "isolate_adapter",
+            "remove_parallel_path",
+            "retain_current_structure"
+          ]
+        },
+        "structural_problem": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "object",
+                "description": "RIA composite v2 (composite-scoring-v3 §5.3): one metric of one criterion in the bound SEI assessment; checked against the bound bytes by write-candidate-set.js under --ria-envelope and again by RIA.",
+                "additionalProperties": false,
+                "required": ["kind", "criterion_id", "metric_id"],
+                "properties": {
+                  "kind": { "const": "sei-criterion" },
+                  "criterion_id": { "type": "string", "minLength": 1 },
+                  "metric_id": { "type": "string", "minLength": 1 }
+                }
+              }
+            ]
+          }
+        },
+        "current_state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "proposed_state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "authority_before": {
+          "type": "string"
+        },
+        "authority_after": {
+          "type": "string"
+        },
+        "interface_change": {
+          "type": "string"
+        },
+        "locality_gain": {
+          "type": "string"
+        },
+        "leverage_gain": {
+          "type": "string"
+        },
+        "complexity_destination": {
+          "type": "string",
+          "minLength": 1
+        },
+        "deletion_test": {
+          "type": "string",
+          "minLength": 1
+        },
+        "simpler_alternative": {
+          "type": "string",
+          "minLength": 1
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "compatibility": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "migration": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verification_obligations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "critic": {
+          "type": "object",
+          "required": [
+            "outcome",
+            "hard_failures",
+            "unresolved_questions"
+          ],
+          "properties": {
+            "outcome": {
+              "enum": [
+                "eligible",
+                "rewrite",
+                "downgrade_non_architecture",
+                "needs_more_evidence",
+                "needs_human_decision",
+                "reject"
+              ]
+            },
+            "hard_failures": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unresolved_questions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        },
+        "ledger_candidate_ref": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "unresolved_decisions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "disposition": {
+          "enum": [
+            "ready_for_integrity_loop",
+            "needs_expanded_grill",
+            "needs_decision_terrain_mapper",
+            "needs_prototype",
+            "blocked_needs_human_decision",
+            "rejected",
+            "superseded"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true,
+  "allOf": [
+    {
+      "not": {
+        "required": [
+          "architecture_fitness",
+          "architecture_fitness_unavailable"
+        ]
+      }
+    }
+  ]
+}

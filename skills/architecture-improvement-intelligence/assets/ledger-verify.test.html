@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ledger-verify.js — regression fixture</title>
+<!-- Classic script on purpose: works when opened from file:// (module
+     imports would be blocked). Same pattern as mermaid-safe.test.html.
+     Loads the shared canonical spine module directly — this package no
+     longer carries its own copy of ledger-verify.js. -->
+<script src="../../shared/candidate-ledger-spine/ledger-verify.js"></script>
+<style>
+  :root {
+    --page: #f9f9f7; --surface-1: #fcfcfb; --ink-primary: #0b0b0b;
+    --ink-secondary: #52514e; --ink-muted: #898781; --hairline: #e1e0d9;
+    --baseline: #c3c2b7; --border: rgba(11,11,11,.1);
+    --good: #0ca30c; --warning: #fab219; --critical: #d03b3b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --page:#0d0d0d; --surface-1:#1a1a19; --ink-primary:#fff;
+            --ink-secondary:#c3c2b7; --ink-muted:#898781; --hairline:#2c2c2a;
+            --baseline:#383835; --border:rgba(255,255,255,.1); }
+  }
+  body { margin:0; background:var(--page); color:var(--ink-primary);
+         font-family: ui-sans-serif, system-ui, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 20px 24px 64px; }
+  #banner { position: sticky; top: 12px; z-index: 10; padding: 14px 18px;
+            border-radius: 12px; font-weight: 600; font-size: 15px;
+            background: var(--warning); color: #111; }
+  #banner[data-status="pass"] { background: var(--good); color: #fff; }
+  #banner[data-status="fail"] { background: var(--critical); color: #fff; }
+  .card { background: var(--surface-1); border: 1px solid var(--border);
+          border-radius: 16px; padding: 18px 20px; margin-top: 18px;
+          box-shadow: 0 1px 2px rgba(11,11,11,.04), 0 8px 24px -12px rgba(11,11,11,.12); }
+  h1 { font-size: 20px; margin: 18px 0 4px; }
+  h2 { font-size: 13px; margin: 0 0 10px; text-transform: uppercase;
+       letter-spacing: .08em; color: var(--ink-secondary); }
+  p.note { font-size: 13px; color: var(--ink-secondary); line-height: 1.5; margin: 4px 0 0; }
+  ul#assertions { list-style: none; padding: 0; margin: 0;
+                  font: 12px/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  li.pass::before { content: "✓ "; color: var(--good); }
+  li.fail::before { content: "✗ "; color: var(--critical); }
+  li.fail { color: var(--critical); }
+  .cardlet { border:1px solid var(--hairline); border-radius:12px; padding:12px; margin-top:10px; }
+  [data-verify-problems] { list-style:none; padding:6px 0 0; margin:0; }
+</style>
+</head>
+<body>
+<main>
+  <div id="banner">running…</div>
+
+  <h1>ledger-verify.js — regression fixture</h1>
+  <p class="note">
+    Scoring numbers must be impossible to hand-mistype: the island is the only
+    source, priority is recomputed, bands/fills/stops are derived, order is
+    checked. Green banner = every assertion passed, including the sabotage
+    islands being <em>caught</em>. Keep it green if you change the module.
+  </p>
+
+  <!-- ===================== GOOD: full end-to-end ===================== -->
+  <section class="card" id="good-root">
+    <h2>Good ledger — chip must go green, every display data-driven</h2>
+    <script type="application/json" id="ledger">
+    {
+      "spine_version": 3,
+      "generated": "fixture",
+      "candidates": [
+        { "candidate_id": "c-retry", "title": "Extract retry policy from OrderRepo", "effort": "M",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":4,"testability":4,"blast_radius":2,"regression_risk":2,"human_decision_risk":4},
+          "rollup": {"priority_score": 9},
+          "evidence": [{"file":"src/order/repo.ts","line":88,"observation":"retry/backoff interleaved with query building"}] },
+        { "candidate_id": "c-intake", "title": "Deepen Order intake behind a single seam", "effort": "M", "unlocks": ["c-pricing"],
+          "scores": {"severity":4,"confidence":4,"leverage":5,"locality":3,"testability":4,"blast_radius":3,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {"priority_score": 14},
+          "evidence": [{"file":"src/order/intake.ts","line":42,"observation":"three call sites re-implement validation"}] },
+        { "candidate_id": "c-pricing", "title": "Collapse pricing adapters into one seam", "effort": "S", "depends_on": ["c-intake"],
+          "scores": {"severity":3,"confidence":4,"leverage":4,"locality":4,"testability":4,"blast_radius":2,"regression_risk":2,"human_decision_risk":2},
+          "rollup": {"priority_score": 13},
+          "evidence": [{"file":"src/pricing/client.ts","line":10,"observation":"two adapters wrap the same vendor call"}] },
+        { "candidate_id": "c-mapper", "title": "Inline OrderMapper (deletion test: concentrates)", "effort": "S",
+          "scores": {"severity":3,"confidence":4,"leverage":3,"locality":3,"testability":3,"blast_radius":3,"regression_risk":2,"human_decision_risk":2},
+          "rollup": {"priority_score": 9},
+          "evidence": [{"architecture_level": true, "rationale": "spread across the mapping layer, no single location"}] },
+        { "candidate_id": "c-dto", "title": "Split read/write DTOs",
+          "scores": {"severity":2,"confidence":3,"leverage":2,"locality":3,"testability":3,"blast_radius":3,"regression_risk":3,"human_decision_risk":2},
+          "rollup": {"priority_score": 5},
+          "evidence": [{"file":"src/order/dto.ts","line":1,"observation":"one DTO serves both directions"}] }
+      ]
+    }
+    </script>
+    <div style="margin-bottom:10px;"><span data-verify-chip></span></div>
+    <div data-ledger class="cardlet"></div>
+    <div data-score-legend class="cardlet"></div>
+    <div class="cardlet" data-candidate="c-intake">
+      <div style="display:flex;gap:12px;">
+        <div data-rank="c-intake" style="font-family:Georgia,serif;font-size:34px;font-weight:700;min-width:34px;"></div>
+        <div style="flex:1;">
+          <div style="font-family:Georgia,serif;font-size:16px;">Deepen Order intake behind a single seam</div>
+          <div data-meter="c-intake" style="margin-top:8px;max-width:420px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="cardlet" data-candidate="c-pricing">
+      <div style="display:flex;gap:12px;">
+        <div data-rank="c-pricing" style="font-family:Georgia,serif;font-size:34px;font-weight:700;min-width:34px;"></div>
+        <div style="flex:1;">
+          <div style="font-family:Georgia,serif;font-size:16px;">Collapse pricing adapters into one seam</div>
+          <div data-meter="c-pricing" style="margin-top:8px;max-width:420px;"></div>
+        </div>
+      </div>
+    </div>
+    <ul data-verify-problems></ul>
+  </section>
+
+  <!-- ===================== SABOTAGE ===================== -->
+  <section class="card" id="s1-root">
+    <h2>S1 · lying data — stored priority, dup id, score 6, no evidence → caught</h2>
+    <script type="application/json" id="ledger-s1">
+    {
+      "candidates": [
+        { "candidate_id": "x", "title": "stored priority lies",
+          "scores": {"severity":4,"confidence":4,"leverage":5,"locality":3,"testability":4,"blast_radius":3,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {"priority_score": 15},
+          "evidence": [{"file":"a.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "x", "title": "duplicate id",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":3,"regression_risk":3,"human_decision_risk":3},
+          "rollup": {}, "evidence": [{"file":"b.ts","line":2,"observation":"ok"}] },
+        { "candidate_id": "y", "title": "score out of range", "effort": "XL",
+          "scores": {"severity":6,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":3,"regression_risk":3,"human_decision_risk":3},
+          "rollup": {}, "evidence": [{"file":"c.ts","line":3,"observation":"ok"}] },
+        { "candidate_id": "z", "title": "no evidence", "depends_on": ["ghost"],
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":3,"regression_risk":3,"human_decision_risk":3},
+          "rollup": {}, "evidence": [] }
+      ]
+    }
+    </script>
+    <div><span data-verify-chip></span></div>
+    <div data-ledger class="cardlet"></div>
+    <ul data-verify-problems></ul>
+  </section>
+
+  <section class="card" id="s2-root">
+    <h2>S2 · malformed island JSON → red chip, page intact</h2>
+    <script type="application/json" id="ledger-s2">{ "candidates": [oops</script>
+    <div><span data-verify-chip></span></div>
+  </section>
+
+  <section class="card" id="s3-root">
+    <h2>S3 · cards out of priority order + placeholder for unknown id → caught</h2>
+    <script type="application/json" id="ledger-s3">
+    {
+      "candidates": [
+        { "candidate_id": "hi", "title": "high priority",
+          "scores": {"severity":4,"confidence":4,"leverage":5,"locality":3,"testability":4,"blast_radius":3,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {"priority_score": 14},
+          "evidence": [{"file":"a.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "lo", "title": "low priority",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":4,"testability":4,"blast_radius":2,"regression_risk":2,"human_decision_risk":2},
+          "rollup": {"priority_score": 11},
+          "evidence": [{"file":"b.ts","line":2,"observation":"ok"}] }
+      ]
+    }
+    </script>
+    <div><span data-verify-chip></span></div>
+    <div data-candidate="lo" class="cardlet">low card placed first (wrong)</div>
+    <div data-candidate="hi" class="cardlet">high card placed second</div>
+    <div data-meter="c-ghost" style="display:none;"></div>
+    <ul data-verify-problems></ul>
+  </section>
+
+  <!-- ===================== Q: eligibility, queue, human order ===================== -->
+  <section class="card" id="q-root">
+    <h2>Q · spine v3 queue — gates exclude, human order overrides but never unblocks</h2>
+    <script type="application/json" id="ledger-q">
+    {
+      "spine_version": 3,
+      "generated": "fixture",
+      "candidates": [
+        { "candidate_id": "q-dep-hi", "title": "top score, waiting on q-base", "effort": "M", "depends_on": ["q-base"], "status": "blocked",
+          "scores": {"severity":5,"confidence":5,"leverage":5,"locality":4,"testability":4,"blast_radius":1,"regression_risk":1,"human_decision_risk":1},
+          "rollup": {"priority_score": 20},
+          "evidence": [{"file":"a.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "q-base", "title": "lower score, unblocks q-dep-hi", "effort": "M", "unlocks": ["q-dep-hi"], "status": "ready",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":3,"regression_risk":2,"human_decision_risk":2},
+          "rollup": {"priority_score": 8},
+          "evidence": [{"file":"b.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "q-a", "title": "tied with q-b, lower confidence", "effort": "S", "status": "ready",
+          "scores": {"severity":4,"confidence":3,"leverage":3,"locality":3,"testability":4,"blast_radius":3,"regression_risk":3,"human_decision_risk":1},
+          "rollup": {"priority_score": 10},
+          "evidence": [{"file":"c.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "q-b", "title": "tied with q-a, higher confidence", "effort": "S", "status": "ready",
+          "scores": {"severity":4,"confidence":4,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":3,"human_decision_risk":2},
+          "rollup": {"priority_score": 10},
+          "evidence": [{"file":"d.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "q-human", "title": "needs a human decision", "effort": "S", "status": "needs-human-decision",
+          "scores": {"severity":5,"confidence":5,"leverage":4,"locality":3,"testability":3,"blast_radius":1,"regression_risk":1,"human_decision_risk":5},
+          "rollup": {"priority_score": 13},
+          "evidence": [{"file":"e.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "q-rej", "title": "rejected out of scope", "effort": "S", "status": "rejected",
+          "scores": {"severity":4,"confidence":4,"leverage":4,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":2},
+          "rollup": {"priority_score": 12, "recommended_action": "reject"},
+          "evidence": [{"file":"f.ts","line":1,"observation":"ok"}] }
+      ]
+    }
+    </script>
+    <div style="margin-bottom:10px;"><span data-verify-chip></span></div>
+    <div data-ledger class="cardlet"></div>
+    <ul data-verify-problems></ul>
+  </section>
+
+  <!-- ===================== S4: status + dependency-graph sabotage ===================== -->
+  <section class="card" id="s4-root">
+    <h2>S4 · lying statuses — ready-with-open-gates, invalid status, cycle, self-dep → caught</h2>
+    <script type="application/json" id="ledger-s4">
+    {
+      "spine_version": 3,
+      "candidates": [
+        { "candidate_id": "s4-open", "title": "clean and ready", "status": "ready",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {}, "evidence": [{"file":"a.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-ready-dep", "title": "marked ready, dependency not completed", "status": "ready", "depends_on": ["s4-open"],
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {}, "evidence": [{"file":"b.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-ready-hdr", "title": "marked ready, human-decision-blocked", "status": "ready",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":5},
+          "rollup": {}, "evidence": [{"file":"c.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-rej-ready", "title": "recommended reject, marked ready", "status": "ready",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {"recommended_action": "reject"}, "evidence": [{"file":"d.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-bad", "title": "status outside the canonical values", "status": "wip",
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {}, "evidence": [{"file":"e.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-cyc-a", "title": "cycle half A", "status": "blocked", "depends_on": ["s4-cyc-b"],
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {}, "evidence": [{"file":"f.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-cyc-b", "title": "cycle half B", "status": "blocked", "depends_on": ["s4-cyc-a"],
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {}, "evidence": [{"file":"g.ts","line":1,"observation":"ok"}] },
+        { "candidate_id": "s4-self", "title": "depends on itself", "status": "blocked", "depends_on": ["s4-self"],
+          "scores": {"severity":3,"confidence":3,"leverage":3,"locality":3,"testability":3,"blast_radius":2,"regression_risk":2,"human_decision_risk":1},
+          "rollup": {}, "evidence": [{"file":"h.ts","line":1,"observation":"ok"}] }
+      ]
+    }
+    </script>
+    <div><span data-verify-chip></span></div>
+    <ul data-verify-problems></ul>
+  </section>
+
+  <section class="card">
+    <h2>Assertions</h2>
+    <ul id="assertions"></ul>
+  </section>
+</main>
+
+<script type="module">
+  const banner = document.getElementById("banner");
+  const list = document.getElementById("assertions");
+
+  const pageErrors = [];
+  addEventListener("error", (e) => pageErrors.push(e.message || "window error"));
+  addEventListener("unhandledrejection", (e) => pageErrors.push(String(e.reason)));
+
+  let passed = 0, failed = 0;
+  const check = (name, cond, detail) => {
+    const li = document.createElement("li");
+    li.className = cond ? "pass" : "fail";
+    li.textContent = name + (!cond && detail ? " — " + detail : "");
+    list.appendChild(li);
+    cond ? passed++ : failed++;
+  };
+  const finish = () => {
+    const ok = failed === 0 && pageErrors.length === 0;
+    banner.dataset.status = ok ? "pass" : "fail";
+    banner.dataset.passed = String(passed);
+    banner.dataset.total = String(passed + failed);
+    banner.textContent = (ok ? "GREEN — " : "RED — ") + passed + "/" + (passed + failed) +
+      " assertions passed" + (pageErrors.length ? " · uncaught page errors: " + pageErrors.join(" | ") : "");
+  };
+
+  try {
+    check("ledger-verify.js loaded (globalThis.LedgerVerify)", !!globalThis.LedgerVerify,
+      "../../shared/candidate-ledger-spine/ledger-verify.js did not load — open this file from its actual location in the skill tree so the two-directories-up relative path resolves; in-app previews and single-file downloads cannot fetch cross-directory scripts");
+    if (globalThis.LedgerVerify) {
+    const LV = globalThis.LedgerVerify;
+    const s = (sev,cnf,lev,loc,tst,bla,reg,hdr) => ({severity:sev,confidence:cnf,leverage:lev,locality:loc,testability:tst,blast_radius:bla,regression_risk:reg,human_decision_risk:hdr});
+
+    // ---------- units ----------
+    const c1 = LV.computePriority(s(4,4,5,3,4,3,2,1));
+    check("computePriority: 20 − 6 = 14", c1.priority === 14 && c1.value === 20 && c1.risk === 6);
+    check("fillPercent clamps and maps (−10→0, 22→100, 14→75)",
+      LV.fillPercent(-10) === 0 && LV.fillPercent(22) === 100 && LV.fillPercent(14) === 75);
+    check("bandFor cuts (13 strong, 12 worth, 5 speculative)",
+      LV.bandFor(13).key === "strong" && LV.bandFor(12).key === "worth" && LV.bandFor(5).key === "speculative");
+    const stops = LV.bandStops();
+    check("bandStops derived: 46.875 / 71.875 (the doc's 47/72)",
+      stops.length === 2 && Math.abs(stops[0] - 46.875) < 1e-9 && Math.abs(stops[1] - 71.875) < 1e-9);
+    const spineStops = LV.bandStops([{key:"high",min:12},{key:"mid",min:6},{key:"low",min:-10}]);
+    check("bandStops generalises to spine-style bands (46.9 / 68.75)",
+      Math.abs(spineStops[0] - 46.875) < 1e-9 && Math.abs(spineStops[1] - 68.75) < 1e-9);
+    const mk = (id, pri, effort, sev, cnf) => ({candidate_id: id, scores: {severity: sev, confidence: cnf}, computed: {priority: pri}, effort});
+    check("tie-break 1: higher priority_score first",
+      [mk("a",9,"S",3,3), mk("b",12,"L",3,3)].sort(LV.tieBreakCompare)[0].candidate_id === "b");
+    check("tie-break 2: equal score prefers S over M over L (spine v3)",
+      [mk("l",9,"L",3,3), mk("s",9,"S",3,3), mk("m",9,"M",3,3)].sort(LV.tieBreakCompare).map(c=>c.candidate_id).join() === "s,m,l");
+    check("tie-break 2b: missing effort ranks as M",
+      LV.effortRank(undefined) === LV.LEDGER_EFFORT_ORDER.M && LV.effortRank("S") === 0 && LV.effortRank("L") === 2);
+    check("tie-break 3: equal score+effort prefers higher severity",
+      [mk("lo",9,"M",2,3), mk("hi",9,"M",4,3)].sort(LV.tieBreakCompare)[0].candidate_id === "hi");
+    check("tie-break 4: remaining tie prefers higher confidence",
+      [mk("lo",9,"M",3,2), mk("hi",9,"M",3,5)].sort(LV.tieBreakCompare)[0].candidate_id === "hi");
+    check("tie-break 5: final tie deterministic by candidate_id",
+      [mk("zz",9,"M",3,3), mk("aa",9,"M",3,3)].sort(LV.tieBreakCompare)[0].candidate_id === "aa");
+
+    // ---------- good ledger end-to-end ----------
+    const good = LV.runLedger({ root: document.getElementById("good-root") });
+    check("good: result ok, zero problems", good.ok === true && good.problems.length === 0, JSON.stringify(good.problems));
+    const chip = document.querySelector("#good-root [data-verify-chip]");
+    check("good: chip green with counts", chip.getAttribute("data-ok") === "1" &&
+      chip.textContent.includes("✓ scoring verified · 5 candidates"), chip.textContent);
+    check("good: chip carries judgment-heavy + spine version",
+      chip.textContent.includes("1 judgment-heavy") && chip.textContent.includes("spine v3"));
+    const order = good.candidates.map((c) => c.candidate_id).join(",");
+    check("good: sorted with tie-break (cnf 4 beats cnf 3 at pri 9)",
+      order === "c-intake,c-pricing,c-mapper,c-retry,c-dto", order);
+    check("good: queue is eligible-only in stable order — hdr≥4 and open-dependency candidates skipped, never dropped",
+      good.queue.join() === "c-intake,c-mapper,c-dto" && good.candidates.length === 5, good.queue.join());
+    check("good: chip carries the eligible count", chip.textContent.includes("3 eligible"), chip.textContent);
+    check("good: statuses derived when omitted (c-retry→needs-human-decision, c-pricing→blocked)",
+      good.candidates.find(c=>c.candidate_id==="c-retry").status === "needs-human-decision" &&
+      good.candidates.find(c=>c.candidate_id==="c-pricing").status === "blocked");
+    check("good: boundary score 13 lands Strong (≥13 inclusive)",
+      good.candidates[1].band.key === "strong" && good.candidates[1].computed.priority === 13);
+    const rows = Array.from(document.querySelectorAll("#good-root [data-ledger-row]"));
+    check("good: five ledger rows rendered in rank order",
+      rows.length === 5 && rows[0].getAttribute("data-ledger-row") === "c-intake");
+    const retryRow = rows.find((r) => r.getAttribute("data-ledger-row") === "c-retry");
+    check("good: ⚖ judgment glyph on the hdr≥4 row",
+      !!retryRow && retryRow.textContent.includes("⚖"));
+    check("good: effort S/M/L chips + unlocks chip rendered from data",
+      document.querySelectorAll('#good-root [data-chip="effort"]').length === 4 &&
+      rows[0].querySelector('[data-chip="unlocks"]').textContent === "unlocks 1");
+    const meter = document.querySelector('#good-root [data-meter="c-intake"]');
+    check("good: meter verdict line reads priority 14 / 22",
+      meter.textContent.includes("✓ Strong") && meter.textContent.includes("priority 14 / 22"));
+    const bars = meter.querySelectorAll("[data-histo-bar]");
+    check("good: histogram has 8 bars, 5 up + 3 down (diverging)",
+      bars.length === 8 &&
+      meter.querySelectorAll('[data-histo-bar][data-dir="up"]').length === 5 &&
+      meter.querySelectorAll('[data-histo-bar][data-dir="down"]').length === 3);
+    check("good: equation caption recomputed (Σ value 20 − Σ risk 6 = 14)",
+      meter.textContent.includes("Σ value 20 − Σ risk 6 = 14"));
+    const track = meter.children[1];
+    const trackSpans = Array.from(track.querySelectorAll("span"));
+    const tickLefts = trackSpans.map((sp) => sp.style.left).filter(Boolean);
+    const fillSpan = trackSpans.find((sp) => sp.style.width.endsWith("%"));
+    check("good: fill width 75% and two derived ticks in the track",
+      !!fillSpan && parseFloat(fillSpan.style.width) === 75 &&
+      tickLefts.includes("46.875%") && tickLefts.includes("71.875%"));
+    check("good: rank rails filled from data",
+      document.querySelector('#good-root [data-rank="c-intake"]').textContent === "1" &&
+      document.querySelector('#good-root [data-rank="c-pricing"]').textContent === "2");
+    const legend = document.querySelector("#good-root [data-score-legend]");
+    check("good: score legend rendered with all eight dimensions",
+      !!legend && legend.querySelectorAll("[data-legend-item]").length === 8);
+    check("good: legend expands the opaque abbreviations and shows the formula",
+      legend.textContent.includes("hdr human-decision risk") &&
+      legend.textContent.includes("bla blast radius") &&
+      legend.textContent.includes("Σ value − Σ risk"));
+
+    // ---------- S1: lying data ----------
+    const s1 = LV.runLedger({ root: document.getElementById("s1-root"), islandSelector: "#ledger-s1" });
+    const s1codes = s1.problems.map((p) => p.code);
+    check("S1: chip red", document.querySelector("#s1-root [data-verify-chip]").getAttribute("data-ok") === "0");
+    check("S1: priority-mismatch caught (stored 15 ≠ recomputed 14)", s1codes.includes("priority-mismatch"));
+    check("S1: dup-id + score-range + evidence-missing caught",
+      s1codes.includes("dup-id") && s1codes.includes("score-range") && s1codes.includes("evidence-missing"));
+    check("S1: display uses the recomputed value (pri 14, not 15)",
+      s1.candidates.some((c) => c.candidate_id === "x" && c.computed.priority === 14) &&
+      !!Array.from(document.querySelectorAll("#s1-root [data-ledger-row]"))
+        .find((r) => r.textContent.includes("pri 14")));
+    check("S1: problems list rendered", document.querySelectorAll("#s1-root [data-verify-problems] li").length >= 4);
+    check("S1: effort-range + dep-unknown caught (spine v3 fields)",
+      s1codes.includes("effort-range") && s1codes.includes("dep-unknown"));
+
+    // ---------- S2: malformed JSON ----------
+    const s2 = LV.runLedger({ root: document.getElementById("s2-root"), islandSelector: "#ledger-s2" });
+    check("S2: malformed island → red chip, reason surfaced",
+      s2.ok === false && s2.problems[0].code === "island" &&
+      document.querySelector("#s2-root [data-verify-chip]").getAttribute("data-ok") === "0");
+
+    // ---------- S3: order + ghost placeholder ----------
+    const s3 = LV.runLedger({ root: document.getElementById("s3-root"), islandSelector: "#ledger-s3" });
+    const s3codes = s3.problems.map((p) => p.code);
+    check("S3: card-order violation caught", s3codes.includes("card-order"));
+    check("S3: unknown placeholder caught", s3codes.includes("unknown-placeholder"));
+    check("S3: chip red with both problems",
+      document.querySelector("#s3-root [data-verify-chip]").getAttribute("data-ok") === "0" && s3.problems.length === 2);
+
+    // ---------- Q: eligibility, queue, human order ----------
+    const qv = LV.runLedger({ root: document.getElementById("q-root"), islandSelector: "#ledger-q" });
+    check("Q: consistent statuses verify green", qv.ok === true, JSON.stringify(qv.problems));
+    check("Q: ranked ledger keeps all six (skipped, never dropped) in comparator order",
+      qv.candidates.map(c=>c.candidate_id).join() === "q-dep-hi,q-human,q-rej,q-b,q-a,q-base",
+      qv.candidates.map(c=>c.candidate_id).join());
+    check("Q: queue is eligible-only in stable order",
+      qv.queue.join() === "q-b,q-a,q-base", qv.queue.join());
+    check("Q: high-score candidate with incomplete dependency not in queue", qv.queue.indexOf("q-dep-hi") < 0);
+    check("Q: its lower-score dependency may run first (in queue)", qv.queue.indexOf("q-base") >= 0);
+    check("Q: human-decision and rejected candidates excluded",
+      qv.queue.indexOf("q-human") < 0 && qv.queue.indexOf("q-rej") < 0);
+    const qJson = JSON.parse(document.getElementById("ledger-q").textContent);
+    const qh = LV.verifyLedger(qJson, { humanOrder: ["q-base", "q-dep-hi", "q-ghost"] });
+    check("Q: human ordering overrides ranking among eligible candidates",
+      qh.queue.join() === "q-base,q-b,q-a", qh.queue.join());
+    check("Q: human ordering cannot select a blocked candidate",
+      qh.queue.indexOf("q-dep-hi") < 0 &&
+      qh.humanOrderSkipped.some(x => x.candidate_id === "q-dep-hi" && x.reason === "ineligible"));
+    check("Q: unknown human-order id skipped as unknown, never queued",
+      qh.queue.indexOf("q-ghost") < 0 &&
+      qh.humanOrderSkipped.some(x => x.candidate_id === "q-ghost" && x.reason === "unknown"));
+    const qAltBands = LV.verifyLedger(qJson, { bands: [
+      { key: "hot", icon: "!", label: "Hot", min: 15, color: "#f00" },
+      { key: "cold", icon: "·", label: "Cold", min: -10, color: "#00f" } ] });
+    check("Q: visual bands are presentation only — a different band config changes no ordering",
+      qAltBands.candidates.map(c=>c.candidate_id).join() === qv.candidates.map(c=>c.candidate_id).join() &&
+      qAltBands.queue.join() === qv.queue.join());
+
+    // ---------- S4: status + graph sabotage ----------
+    const s4 = LV.runLedger({ root: document.getElementById("s4-root"), islandSelector: "#ledger-s4" });
+    const s4codes = s4.problems.map((p) => p.code);
+    check("S4: chip red", document.querySelector("#s4-root [data-verify-chip]").getAttribute("data-ok") === "0");
+    check("S4: ready-with-unresolved-dependency caught as status-conflict",
+      s4.problems.some(p => p.code === "status-conflict" && p.candidate_id === "s4-ready-dep"));
+    check("S4: human-decision-blocked marked ready caught",
+      s4.problems.some(p => p.code === "status-conflict" && p.candidate_id === "s4-ready-hdr"));
+    check("S4: rejected-marked-ready caught and kept out of the executable queue",
+      s4.problems.some(p => p.code === "status-conflict" && p.candidate_id === "s4-rej-ready") &&
+      s4.queue.indexOf("s4-rej-ready") < 0);
+    check("S4: invalid status caught", s4codes.includes("status-invalid"));
+    check("S4: dependency cycle caught exactly once",
+      s4codes.filter(c => c === "dep-cycle").length === 1);
+    check("S4: self-dependency caught", s4codes.includes("dep-self"));
+    check("S4: only the clean candidate queues", s4.queue.join() === "s4-open", s4.queue.join());
+
+    // ---------- page survived ----------
+    check("page did not blank (banner + all sections intact)",
+      !!document.getElementById("banner") && document.querySelectorAll("section.card").length === 7);
+    }
+  } catch (error) {
+    pageErrors.push("fixture harness error: " + ((error && error.message) || String(error)));
+  } finally {
+    finish();
+  }
+</script>
+</body>
+</html>
